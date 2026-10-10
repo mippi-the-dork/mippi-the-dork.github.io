@@ -10,7 +10,7 @@
   <title>Mippi The Dork | Game Designer, Design Director, Consultant</title>
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.43" />
+  <link rel="stylesheet" href="style.css?v=2.52" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -606,13 +606,21 @@
   </div>
   <button class="hint-trigger" id="hint-trigger" type="button" aria-controls="achievement">HINT</button>
 
+  <div class="dynamic-objective" id="dynamic-objective" aria-hidden="true" aria-live="polite" data-dev-note="OBJECTIVE NOTE // One short optional goal at a time. The Director chooses them from systems you have already demonstrated interest in.">
+    <div class="objective-topline"><span id="objective-kicker">OPTIONAL OBJECTIVE</span><button id="objective-dismiss" type="button" aria-label="Dismiss optional objective">×</button></div>
+    <strong id="objective-title">Catch any flying pickup.</strong>
+    <small id="objective-detail">Optional means optional. Ignore it if something else is more interesting.</small>
+    <div class="objective-progress" aria-hidden="true"><i id="objective-progress-fill"></i></div>
+    <div class="objective-footer"><span id="objective-progress-text">0 / 1</span><b id="objective-reward">REWARD // 1 RUPEE</b></div>
+  </div>
+
   <div class="discovery-controls" id="discovery-controls" data-dev-note="PROGRESSION NOTE // Signals unlock the Epic theme. A properly granted wish unlocks Legendary. Rare is always available.">
     <button class="ledger-trigger" id="ledger-trigger" type="button" aria-controls="achievement-ledger" aria-expanded="false">SIGNALS <b id="ledger-count">0/10</b></button>
     <button class="theme-cycle-trigger" id="theme-cycle" type="button" title="Explore the site to unlock more themes.">Theme: Rare</button>
   </div>
   <!-- Tiny HUD, because apparently the portfolio has health and an economy now. The sprint estimate remains unchanged. -->
   <div class="progress-hud" id="progress-hud" aria-label="Collection status">
-    <div class="rupee-meter" id="rupee-meter" title="Rupees collected from flying pickups."><span>RUPEES</span><b id="rupee-count">0</b></div>
+    <button class="rupee-meter" id="rupee-meter" type="button" aria-controls="shop-popup" title="Open the Rupee shop."><span>RUPEES</span><b id="rupee-count">0</b></button>
     <div class="heart-meter" id="heart-meter" aria-label="Heart pickups: 0 of 5" title="Collect heart pickups hidden around the site.">
       <span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>♡</span>
     </div>
@@ -700,7 +708,28 @@
     <div class="hal-eye" aria-hidden="true"><i></i></div>
   </div>
 
-  <!-- ECONOMY NOTE: We now track rupees despite having zero shops. This is how feature dependencies are born. -->
+  <!-- ECONOMY NOTE: There is now a real shop. Feature dependencies have achieved management approval. -->
+  <div class="shop-popup" id="shop-popup" aria-hidden="true">
+    <div class="shop-window" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+      <button class="shop-close" id="shop-close" type="button" aria-label="Close shop">×</button>
+      <div class="shop-head">
+        <div>
+          <span class="shop-kicker">RUPEE EXCHANGE // ABSOLUTELY REGULATED</span>
+          <h3 id="shop-title">THE SHOP</h3>
+        </div>
+        <div class="shop-wallet"><span>WALLET</span><b id="shop-wallet-count">0</b><small>RUPEES</small></div>
+      </div>
+      <p class="shop-copy">Own as much as you can afford. Equip one gameplay modifier at a time. Owned gear can be swapped for free.</p>
+      <div class="shop-equipped-row">
+        <span>EQUIPPED</span>
+        <strong id="shop-equipped-name">NONE</strong>
+        <button id="shop-unequip" type="button">Unequip</button>
+      </div>
+      <div class="shop-items" id="shop-items" aria-live="polite"></div>
+      <p class="shop-merchant" id="shop-merchant">SHOPKEEPER // Browsing remains aggressively free.</p>
+    </div>
+  </div>
+
   <!-- Every respectable piece of software eventually grows a console. Every irresponsible one hides jokes in it. -->
   <!-- FEATURE REQUEST TRIAGE: "Can the portfolio have Flappy Bird?" somehow survived prioritization. -->
   <!-- CSS specificity is just aggro management for selectors. -->
@@ -729,8 +758,8 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.43"></script>
+  <script defer src="script.js?v=2.52"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.43 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.52 -->

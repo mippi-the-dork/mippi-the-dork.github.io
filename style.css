@@ -4797,3 +4797,660 @@ body.theme-complete.theme-legendary .boss-ufo::before {
 }
 body.theme-complete.theme-legendary .boss-ufo-label { color:#ffd86a; }
 body.theme-complete.theme-legendary .boss-ufo-health i { background:linear-gradient(90deg,#ff7a1a,#ffc83d,#43e0dc); box-shadow:0 0 10px #ffc83d; }
+
+
+/* ========================================================================== 
+   v2.45 // Real Rupee economy and shop
+   ========================================================================== */
+/* The two collection tracks reveal independently. A heart should not be required
+   to prove that a wallet exists, and spending the wallet to zero should not hide it. */
+.progress-hud .heart-meter { display:none; }
+.progress-hud .heart-meter.visible { display:flex; }
+.progress-hud .rupee-meter { pointer-events:auto; cursor:pointer; appearance:none; width:100%; text-align:left; }
+.progress-hud .rupee-meter:hover { border-color:#67cfff; background:linear-gradient(90deg,rgba(23,91,142,.20),rgba(7,13,20,.96)); }
+.progress-hud .rupee-meter:focus-visible { outline:2px solid #67cfff; outline-offset:2px; }
+body.theme-complete:not(.theme-legendary) .progress-hud .rupee-meter:hover { border-color:#ff63ca; background:linear-gradient(90deg,rgba(116,35,151,.24),rgba(13,31,42,.20)),rgba(11,7,16,.97); }
+body.theme-complete.theme-legendary .progress-hud .rupee-meter:hover { border-color:#55ddd9; background:linear-gradient(90deg,rgba(128,75,8,.31),rgba(17,78,74,.22)),rgba(20,12,5,.98); }
+
+.shop-popup {
+  position:fixed; inset:0; z-index:475; display:grid; place-items:center; padding:24px;
+  background:rgba(0,0,0,.62); opacity:0; pointer-events:none; transition:opacity .18s ease; backdrop-filter:blur(5px);
+}
+.shop-popup.open { opacity:1; pointer-events:auto; }
+.shop-window {
+  position:relative; width:min(920px,calc(100vw - 34px)); max-height:min(790px,calc(100vh - 40px)); overflow:auto;
+  padding:26px; border:1px solid rgba(88,166,255,.42);
+  background:linear-gradient(145deg,#111b26,#080d13 72%); color:#eaf4ff;
+  box-shadow:0 32px 120px rgba(0,0,0,.82),0 0 54px rgba(0,112,224,.10);
+}
+.shop-close { position:absolute; right:12px; top:10px; width:32px; height:32px; border:0; background:transparent; color:#91a7bb; font-size:24px; cursor:pointer; }
+.shop-close:hover { color:#fff; }
+.shop-head { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; padding-right:34px; }
+.shop-kicker { display:block; color:#67b8ff; font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.16em; }
+.shop-head h3 { margin:9px 0 0; font-size:clamp(30px,5vw,48px); line-height:.92; }
+.shop-wallet { min-width:116px; display:grid; grid-template-columns:1fr auto; align-items:end; column-gap:10px; padding:10px 11px; border:1px solid rgba(93,174,255,.28); background:rgba(0,112,224,.07); }
+.shop-wallet span,.shop-wallet small { font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.13em; color:#75caff; }
+.shop-wallet small { grid-column:1/-1; margin-top:4px; color:#6e8295; }
+.shop-wallet b { font:900 21px/.9 ui-monospace,SFMono-Regular,Consolas,monospace; color:#e8fbff; }
+.shop-copy { max-width:680px; margin:18px 0 15px; color:#91a5b8; line-height:1.55; }
+.shop-equipped-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; min-height:40px; padding:8px 10px; border:1px solid rgba(93,174,255,.18); background:rgba(255,255,255,.018); }
+.shop-equipped-row > span { color:#6d8398; font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.15em; }
+.shop-equipped-row > strong { color:#83d7ff; font:900 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; }
+#shop-unequip { visibility:hidden; min-height:26px; padding:0 9px; border:1px solid rgba(93,174,255,.24); background:#0c1722; color:#9bb1c5; font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+#shop-unequip.visible { visibility:visible; }
+#shop-unequip:hover { border-color:#67cfff; color:#fff; }
+.shop-items { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:10px; }
+.shop-item { position:relative; min-height:168px; display:flex; flex-direction:column; padding:15px; border:1px solid rgba(93,174,255,.18); background:linear-gradient(145deg,rgba(22,38,53,.74),rgba(7,13,19,.88)); transition:border-color .16s ease,background .16s ease,transform .16s ease; }
+.shop-item:hover { border-color:rgba(103,207,255,.48); background:linear-gradient(145deg,rgba(26,49,68,.86),rgba(8,15,22,.94)); }
+.shop-item.owned { border-color:rgba(93,174,255,.36); }
+.shop-item.equipped { border-color:#67cfff; box-shadow:inset 3px 0 0 #168cff,0 0 24px rgba(0,112,224,.07); }
+.shop-item.shop-denied { animation:shop-denied .28s ease; }
+@keyframes shop-denied { 25%{translate:-4px 0} 50%{translate:4px 0} 75%{translate:-2px 0} }
+.shop-item-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.shop-item-top span,.shop-item-top b { font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.13em; }
+.shop-item-top span { color:#68bfff; }
+.shop-item-top b { color:#8ba2b7; }
+.shop-item h4 { margin:11px 0 6px; color:#edf7ff; font-size:18px; }
+.shop-item p { margin:0 0 15px; color:#899fb3; font-size:12px; line-height:1.45; }
+.shop-item button { margin-top:auto; min-height:34px; border:1px solid rgba(93,174,255,.34); background:rgba(0,112,224,.10); color:#cfeaff; font:900 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.09em; cursor:pointer; }
+.shop-item button:hover:not(:disabled) { border-color:#67cfff; background:rgba(0,112,224,.22); color:#fff; }
+.shop-item button:disabled { opacity:.48; cursor:default; }
+.shop-item.equipped button:disabled { opacity:1; color:#a7e7ff; background:rgba(0,112,224,.18); }
+.shop-merchant { margin:13px 0 0; min-height:18px; color:#71889d; font:800 8px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.04em; }
+.ufo-projectile.warranty-deflected { background:#ffd468 !important; box-shadow:0 0 8px #fff1a8,0 0 22px #ffad24 !important; }
+
+body.theme-complete:not(.theme-legendary) .shop-window { border-color:rgba(214,104,255,.46); background:linear-gradient(145deg,#1a0d25,#0b0a13 72%); box-shadow:0 32px 120px rgba(0,0,0,.82),0 0 58px rgba(191,66,255,.10); }
+body.theme-complete:not(.theme-legendary) .shop-kicker,body.theme-complete:not(.theme-legendary) .shop-item-top span { color:#ff68ce; }
+body.theme-complete:not(.theme-legendary) .shop-wallet,body.theme-complete:not(.theme-legendary) .shop-equipped-row,body.theme-complete:not(.theme-legendary) .shop-item { border-color:rgba(213,104,255,.27); }
+body.theme-complete:not(.theme-legendary) .shop-wallet { background:rgba(171,54,226,.08); }
+body.theme-complete:not(.theme-legendary) .shop-wallet span { color:#ff70d4; }
+body.theme-complete:not(.theme-legendary) .shop-wallet b,body.theme-complete:not(.theme-legendary) .shop-equipped-row > strong { color:#6be9f5; }
+body.theme-complete:not(.theme-legendary) .shop-item.equipped { border-color:#ff5acb; box-shadow:inset 3px 0 0 #c747ff,0 0 26px rgba(224,78,255,.09); }
+body.theme-complete:not(.theme-legendary) .shop-item button { border-color:rgba(214,104,255,.38); background:rgba(178,54,226,.10); }
+body.theme-complete:not(.theme-legendary) .shop-item button:hover:not(:disabled) { border-color:#ff62cf; background:rgba(214,61,246,.20); }
+
+body.theme-complete.theme-legendary .shop-window { border-color:rgba(255,192,64,.52); background:linear-gradient(145deg,#211506,#090d0d 74%); box-shadow:0 32px 120px rgba(0,0,0,.84),0 0 62px rgba(255,165,27,.10); }
+body.theme-complete.theme-legendary .shop-kicker,body.theme-complete.theme-legendary .shop-item-top span { color:#ffd15c; }
+body.theme-complete.theme-legendary .shop-wallet,body.theme-complete.theme-legendary .shop-equipped-row,body.theme-complete.theme-legendary .shop-item { border-color:rgba(255,190,61,.29); }
+body.theme-complete.theme-legendary .shop-wallet { background:linear-gradient(90deg,rgba(139,77,7,.23),rgba(17,73,70,.13)); }
+body.theme-complete.theme-legendary .shop-wallet span { color:#ffd465; }
+body.theme-complete.theme-legendary .shop-wallet b,body.theme-complete.theme-legendary .shop-equipped-row > strong { color:#61e5df; }
+body.theme-complete.theme-legendary .shop-item.equipped { border-color:#55ddd9; box-shadow:inset 3px 0 0 #ffad24,0 0 28px rgba(255,173,36,.10); }
+body.theme-complete.theme-legendary .shop-item button { border-color:rgba(255,190,61,.38); background:rgba(141,78,8,.18); color:#ffe8a6; }
+body.theme-complete.theme-legendary .shop-item button:hover:not(:disabled) { border-color:#55ddd9; background:rgba(22,104,99,.22); color:#87f4ee; }
+
+@media (max-width:700px){
+  .shop-popup { padding:10px; }
+  .shop-window { width:100%; max-height:calc(100vh - 20px); padding:20px 15px; }
+  .shop-head { gap:12px; }
+  .shop-wallet { min-width:98px; }
+  .shop-items { grid-template-columns:1fr; }
+  .shop-equipped-row { grid-template-columns:auto 1fr; }
+  #shop-unequip { grid-column:1/-1; justify-self:start; }
+}
+
+
+/* ========================================================================== 
+   v2.46 // Shop readability, locked Legendary preview, full rarity treatment
+   ========================================================================== */
+/* The store should tease future progression without spoiling it. Golden Trigger
+   is always present, but Rare/Epic visitors only see a Legendary mystery slot. */
+.shop-popup { background:rgba(1,7,13,.72); }
+.shop-window { scrollbar-color:rgba(103,207,255,.48) rgba(4,10,16,.65); }
+.shop-close { border:1px solid transparent; border-radius:2px; transition:color .15s ease,border-color .15s ease,background .15s ease; }
+.shop-close:hover,.shop-close:focus-visible { color:#fff; border-color:rgba(103,207,255,.46); background:rgba(0,112,224,.14); outline:none; }
+.shop-head h3 { color:#f2f8ff; }
+.shop-copy { color:#9eb3c6; }
+.shop-equipped-row { background:linear-gradient(90deg,rgba(0,112,224,.055),rgba(255,255,255,.012)); }
+.shop-equipped-row > span { color:#7f96aa; }
+#shop-unequip { min-height:30px; padding:0 11px; border-color:rgba(93,174,255,.34); background:rgba(3,15,25,.92); color:#b7cadd; font-size:8px; }
+#shop-unequip:hover,#shop-unequip:focus-visible { border-color:#67cfff; color:#fff; background:rgba(0,112,224,.18); outline:none; }
+.shop-item { overflow:hidden; }
+.shop-item-top span { color:#68bfff; }
+.shop-item-top b { color:#b4c8da; font-size:9px; letter-spacing:.10em; white-space:nowrap; }
+.shop-item h4 { color:#f3f8ff; }
+.shop-item p { color:#9cafc0; }
+.shop-item button {
+  min-height:42px; padding:0 14px; font-size:11px; letter-spacing:.075em;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+}
+.shop-item button:focus-visible { outline:2px solid #67cfff; outline-offset:2px; }
+.shop-item button:disabled { opacity:.58; }
+.shop-item.owned button:disabled,.shop-item.equipped button:disabled { opacity:1; }
+.shop-merchant { color:#859caf; }
+
+.shop-item.locked {
+  border-color:rgba(116,140,161,.24);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.018) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.018) 50%,rgba(255,255,255,.018) 75%,transparent 75%) 0 0/16px 16px,
+    linear-gradient(145deg,rgba(17,29,40,.78),rgba(7,12,17,.94));
+}
+.shop-item.locked:hover { border-color:rgba(143,164,183,.34); background:
+    linear-gradient(135deg,rgba(255,255,255,.022) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.022) 50%,rgba(255,255,255,.022) 75%,transparent 75%) 0 0/16px 16px,
+    linear-gradient(145deg,rgba(18,31,43,.84),rgba(7,12,17,.96)); }
+.shop-item.locked .shop-item-top span,.shop-item.locked .shop-item-top b { color:#718497; }
+.shop-item.locked h4 { color:#9badbd; letter-spacing:.16em; }
+.shop-item.locked p { color:#8395a5; }
+.shop-item.locked button:disabled { opacity:1; border-color:rgba(125,147,166,.26); background:rgba(77,92,105,.08); color:#8195a6; }
+
+/* EPIC // violet + pink with cyan response accents. */
+body.theme-complete:not(.theme-legendary) .shop-popup { background:rgba(11,2,17,.76); }
+body.theme-complete:not(.theme-legendary) .shop-window { scrollbar-color:rgba(255,98,207,.50) rgba(13,7,20,.72); }
+body.theme-complete:not(.theme-legendary) .shop-close { color:#bba6c9; }
+body.theme-complete:not(.theme-legendary) .shop-close:hover,
+body.theme-complete:not(.theme-legendary) .shop-close:focus-visible { color:#fff; border-color:#ff62cf; background:rgba(201,65,236,.15); }
+body.theme-complete:not(.theme-legendary) .shop-head h3 { color:#fff3fd; }
+body.theme-complete:not(.theme-legendary) .shop-copy { color:#bda7c5; }
+body.theme-complete:not(.theme-legendary) .shop-equipped-row { background:linear-gradient(90deg,rgba(177,47,222,.09),rgba(30,167,185,.035)); }
+body.theme-complete:not(.theme-legendary) .shop-equipped-row > span { color:#aa8fb4; }
+body.theme-complete:not(.theme-legendary) #shop-unequip { border-color:rgba(215,102,255,.36); background:rgba(24,7,31,.90); color:#d7bddf; }
+body.theme-complete:not(.theme-legendary) #shop-unequip:hover,
+body.theme-complete:not(.theme-legendary) #shop-unequip:focus-visible { border-color:#ff62cf; background:rgba(202,59,237,.18); color:#fff; }
+body.theme-complete:not(.theme-legendary) .shop-item { background:linear-gradient(145deg,rgba(38,15,49,.82),rgba(10,8,17,.94)); }
+body.theme-complete:not(.theme-legendary) .shop-item:hover { border-color:rgba(255,99,207,.54); background:linear-gradient(145deg,rgba(50,18,64,.88),rgba(13,9,22,.97)); }
+body.theme-complete:not(.theme-legendary) .shop-item-top b { color:#d2b8dc; }
+body.theme-complete:not(.theme-legendary) .shop-item h4 { color:#fff0fb; }
+body.theme-complete:not(.theme-legendary) .shop-item p { color:#bba6c3; }
+body.theme-complete:not(.theme-legendary) .shop-item button { color:#f6d8f2; }
+body.theme-complete:not(.theme-legendary) .shop-item button:focus-visible { outline-color:#ff62cf; }
+body.theme-complete:not(.theme-legendary) .shop-item.equipped button:disabled { color:#72eff4; background:rgba(31,179,194,.12); border-color:rgba(103,232,255,.42); }
+body.theme-complete:not(.theme-legendary) .shop-merchant { color:#ad93b7; }
+body.theme-complete:not(.theme-legendary) .shop-item.locked { border-color:rgba(138,104,151,.30); background:
+    linear-gradient(135deg,rgba(221,121,255,.022) 25%,transparent 25%,transparent 50%,rgba(221,121,255,.022) 50%,rgba(221,121,255,.022) 75%,transparent 75%) 0 0/16px 16px,
+    linear-gradient(145deg,rgba(28,17,34,.86),rgba(10,8,14,.96)); }
+body.theme-complete:not(.theme-legendary) .shop-item.locked .shop-item-top span,
+body.theme-complete:not(.theme-legendary) .shop-item.locked .shop-item-top b,
+body.theme-complete:not(.theme-legendary) .shop-item.locked h4 { color:#9b7ba6; }
+body.theme-complete:not(.theme-legendary) .shop-item.locked p { color:#947f9c; }
+body.theme-complete:not(.theme-legendary) .shop-item.locked button:disabled { border-color:rgba(160,110,177,.28); background:rgba(111,60,127,.08); color:#997da2; }
+
+/* LEGENDARY // gold/amber economy with teal interaction accents. */
+body.theme-complete.theme-legendary .shop-popup { background:rgba(10,6,1,.78); }
+body.theme-complete.theme-legendary .shop-window { scrollbar-color:rgba(255,190,61,.54) rgba(17,10,3,.72); }
+body.theme-complete.theme-legendary .shop-close { color:#c6ab78; }
+body.theme-complete.theme-legendary .shop-close:hover,
+body.theme-complete.theme-legendary .shop-close:focus-visible { color:#fff5d0; border-color:#55ddd9; background:rgba(20,107,102,.17); }
+body.theme-complete.theme-legendary .shop-head h3 { color:#fff2c0; }
+body.theme-complete.theme-legendary .shop-copy { color:#c6ad82; }
+body.theme-complete.theme-legendary .shop-equipped-row { background:linear-gradient(90deg,rgba(143,79,7,.16),rgba(18,99,94,.08)); }
+body.theme-complete.theme-legendary .shop-equipped-row > span { color:#b49a69; }
+body.theme-complete.theme-legendary #shop-unequip { border-color:rgba(255,190,61,.38); background:rgba(31,19,4,.92); color:#e6c982; }
+body.theme-complete.theme-legendary #shop-unequip:hover,
+body.theme-complete.theme-legendary #shop-unequip:focus-visible { border-color:#55ddd9; background:rgba(20,104,99,.18); color:#8df5ef; }
+body.theme-complete.theme-legendary .shop-item { background:linear-gradient(145deg,rgba(47,29,6,.84),rgba(8,12,11,.95)); }
+body.theme-complete.theme-legendary .shop-item:hover { border-color:rgba(255,197,76,.58); background:linear-gradient(145deg,rgba(62,38,8,.90),rgba(9,17,15,.97)); }
+body.theme-complete.theme-legendary .shop-item-top b { color:#d8c08a; }
+body.theme-complete.theme-legendary .shop-item h4 { color:#fff2bf; }
+body.theme-complete.theme-legendary .shop-item p { color:#c1aa80; }
+body.theme-complete.theme-legendary .shop-item.equipped button:disabled { color:#8ff5ef; background:rgba(17,104,99,.19); border-color:rgba(85,221,217,.52); }
+body.theme-complete.theme-legendary .shop-item button:focus-visible { outline-color:#55ddd9; }
+body.theme-complete.theme-legendary .shop-merchant { color:#af9769; }
+
+/* Golden Trigger stops being mysterious once Legendary exists. This rule is
+   defensive in case stale DOM ever carries the locked class for one frame. */
+body.theme-complete.theme-legendary .shop-item.locked { border-color:rgba(255,190,61,.29); opacity:1; }
+
+@media (max-width:700px){
+  .shop-item button { min-height:44px; font-size:10px; }
+  .shop-item-top b { font-size:8px; }
+}
+
+
+/* ==========================================================================
+   v2.47 // Cross-system interaction pass
+   ========================================================================== */
+/* Doug's offscreen cameo is an affordance now, not scenery. If a dog appears
+   in reach, users will try to pet it. They were correct. */
+.doug-peek {
+  appearance:none; -webkit-appearance:none; padding:0; border:0; background:transparent;
+}
+.doug-peek.show { pointer-events:auto; cursor:grab; }
+.doug-peek.show:active { cursor:grabbing; }
+.doug-peek.show:hover img,.doug-peek.show:focus-visible img {
+  border-color:#67cfff; box-shadow:0 0 0 2px rgba(103,207,255,.12),0 0 28px rgba(47,147,255,.22);
+}
+.doug-peek:focus-visible { outline:none; }
+.doug-peek.petted img { transform:scale(1.025); }
+.doug-peek img { transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease; }
+.doug-peek-shades {
+  position:absolute; z-index:4; left:50%; top:82px; transform:translateX(-50%) rotate(-4deg) scale(.88);
+  opacity:0; pointer-events:none; font-size:42px; line-height:1; filter:drop-shadow(0 3px 4px rgba(0,0,0,.72));
+  transition:opacity .14s ease,transform .14s ease;
+}
+.doug-peek.star-cool .doug-peek-shades { opacity:1; transform:translateX(-50%) rotate(-4deg) scale(1); }
+.doug-card.doug-star-cool .doug-photo-wrap::after {
+  content:'🕶️'; position:absolute; z-index:5; left:50%; top:48%; transform:translate(-50%,-50%) rotate(-5deg);
+  font-size:38px; line-height:1; pointer-events:none; filter:drop-shadow(0 3px 4px rgba(0,0,0,.72));
+  animation:doug-star-cool .32s cubic-bezier(.2,.9,.3,1.25) both;
+}
+@keyframes doug-star-cool { from{opacity:0;transform:translate(-50%,-50%) rotate(-10deg) scale(.45)} to{opacity:1;transform:translate(-50%,-50%) rotate(-5deg) scale(1)} }
+body.theme-complete:not(.theme-legendary) .doug-peek.show:hover img,body.theme-complete:not(.theme-legendary) .doug-peek.show:focus-visible img {
+  border-color:#ff62cf; box-shadow:0 0 0 2px rgba(255,98,207,.12),0 0 30px rgba(103,232,255,.18);
+}
+body.theme-complete.theme-legendary .doug-peek.show:hover img,body.theme-complete.theme-legendary .doug-peek.show:focus-visible img {
+  border-color:#55ddd9; box-shadow:0 0 0 2px rgba(85,221,217,.12),0 0 32px rgba(255,190,61,.20);
+}
+
+/* Arcade rewards visibly bridge combat into the Rupee economy before the
+   wallet total updates. */
+.arcade-rupee-reward {
+  position:fixed; z-index:9994; width:18px; height:18px; margin:-9px 0 0 -9px; pointer-events:none;
+  display:grid; place-items:center; color:#6bd4ff; font:900 22px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  text-shadow:0 0 8px #2f93ff,0 0 18px rgba(103,232,255,.78);
+  animation:arcade-rupee-reward .82s cubic-bezier(.18,.78,.24,1) forwards;
+}
+@keyframes arcade-rupee-reward {
+  0%{opacity:0;transform:translate(0,0) rotate(45deg) scale(.35)}
+  18%{opacity:1;transform:translate(calc(var(--rx)*.28),calc(var(--ry)*.55)) rotate(45deg) scale(1.2)}
+  100%{opacity:0;transform:translate(var(--rx),var(--ry)) rotate(225deg) scale(.55)}
+}
+body.theme-complete:not(.theme-legendary) .arcade-rupee-reward { color:#67e8ff; text-shadow:0 0 9px #67e8ff,0 0 20px rgba(255,79,200,.72); }
+body.theme-complete.theme-legendary .arcade-rupee-reward { color:#55ddd9; text-shadow:0 0 9px #55ddd9,0 0 20px rgba(255,190,61,.82); }
+
+/* Star Power is deliberately louder in Legendary when two progression systems
+   overlap, but the underlying rule remains hover-to-contact. */
+body.theme-legendary.star-power .completion-cursor-aura {
+  box-shadow:0 0 18px #fff0b5,0 0 30px #ffc43f,0 0 42px #ff7a1a,0 0 54px #43e0dc,0 0 68px #ffffff !important;
+}
+
+
+/* ==========================================================================
+   v2.48 // Doug theme image pass
+   ========================================================================== */
+/* Theme-specific Doug art now carries the cool-state itself, so the previous
+   emoji sunglasses overlays retire gracefully. */
+.doug-card.doug-star-cool .doug-photo-wrap::after { content:none !important; display:none !important; }
+.doug-peek-shades { display:none !important; }
+
+
+/* ==========================================================================
+   v2.49 // Doug popup fix + UFO arcade arc
+   ========================================================================== */
+
+/* Popup Doug is a real interaction surface. Keep him above every normal HUD/game
+   layer and strip every trace of native/inherited button chrome. Children do not
+   take pointer input so the entire visible cameo pets the same button. */
+.doug-peek {
+  z-index:10070 !important;
+  display:block;
+  box-sizing:border-box;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:inherit;
+  font:inherit;
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  pointer-events:none !important;
+  touch-action:manipulation;
+}
+.doug-peek.show {
+  pointer-events:auto !important;
+  cursor:grab !important;
+}
+.doug-peek.show:active { cursor:grabbing !important; }
+.doug-peek > * { pointer-events:none !important; }
+.doug-peek img { background:transparent !important; box-shadow:none; }
+.doug-peek.show:hover img,
+.doug-peek.show:focus-visible img { transform:scale(1.018); }
+.doug-peek:focus-visible img { outline:2px solid #67cfff; outline-offset:3px; }
+body.theme-complete:not(.theme-legendary) .doug-peek:focus-visible img { outline-color:#ff62cf; }
+body.theme-complete.theme-legendary .doug-peek:focus-visible img { outline-color:#55ddd9; }
+
+/* Regular UFOs quietly become more threatening as the current ten-kill cycle
+   approaches the boss. The visual escalation is intentionally modest. */
+.galaga-secret.ufo-threat-2 {
+  filter:drop-shadow(0 0 10px rgba(103,232,255,.62)) drop-shadow(0 0 16px rgba(255,79,200,.20));
+}
+.galaga-secret.ufo-threat-3 {
+  filter:drop-shadow(0 0 12px rgba(103,232,255,.78)) drop-shadow(0 0 22px rgba(255,79,200,.30));
+}
+body.theme-complete:not(.theme-legendary) .galaga-secret.ufo-threat-2 {
+  filter:drop-shadow(0 0 11px rgba(255,79,200,.62)) drop-shadow(0 0 18px rgba(103,232,255,.24)) !important;
+}
+body.theme-complete:not(.theme-legendary) .galaga-secret.ufo-threat-3 {
+  filter:drop-shadow(0 0 14px rgba(255,79,200,.82)) drop-shadow(0 0 25px rgba(103,232,255,.32)) !important;
+}
+body.theme-complete.theme-legendary .galaga-secret.ufo-threat-2 {
+  filter:drop-shadow(0 0 11px rgba(255,190,61,.62)) drop-shadow(0 0 18px rgba(67,224,220,.24)) !important;
+}
+body.theme-complete.theme-legendary .galaga-secret.ufo-threat-3 {
+  filter:drop-shadow(0 0 14px rgba(255,190,61,.82)) drop-shadow(0 0 25px rgba(67,224,220,.34)) !important;
+}
+
+.boss-ufo-integrity {
+  position:absolute;
+  left:50%;
+  bottom:-24px;
+  transform:translateX(-50%);
+  width:max-content;
+  padding:3px 5px;
+  border:1px solid rgba(103,232,255,.28);
+  background:rgba(3,8,13,.90);
+  color:#dff8ff;
+  font:900 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.08em;
+  white-space:nowrap;
+  text-shadow:0 0 7px currentColor;
+}
+body.theme-complete:not(.theme-legendary) .boss-ufo-integrity {
+  border-color:rgba(255,79,200,.34);
+  background:rgba(18,5,24,.92);
+  color:#ffd5f3;
+}
+body.theme-complete.theme-legendary .boss-ufo-integrity {
+  border-color:rgba(67,224,220,.34);
+  background:rgba(20,12,3,.92);
+  color:#ffe8a6;
+}
+
+.arcade-hit-flash {
+  position:fixed;
+  inset:0;
+  z-index:10040;
+  pointer-events:none;
+  opacity:0;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 5px),
+    radial-gradient(circle at var(--hit-x,50%) var(--hit-y,50%),rgba(103,232,255,.18),transparent 22%);
+  mix-blend-mode:screen;
+  animation:arcade-hit-flash .28s steps(2,end) forwards;
+}
+@keyframes arcade-hit-flash {
+  0% { opacity:0; }
+  18% { opacity:.95; transform:translateX(0); }
+  45% { opacity:.48; transform:translateX(3px); }
+  72% { opacity:.30; transform:translateX(-2px); }
+  100% { opacity:0; transform:translateX(0); }
+}
+body.theme-complete:not(.theme-legendary) .arcade-hit-flash {
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 5px),
+    radial-gradient(circle at var(--hit-x,50%) var(--hit-y,50%),rgba(255,79,200,.20),transparent 22%);
+}
+body.theme-complete.theme-legendary .arcade-hit-flash {
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 5px),
+    radial-gradient(circle at var(--hit-x,50%) var(--hit-y,50%),rgba(255,190,61,.20),rgba(67,224,220,.08) 12%,transparent 24%);
+}
+
+
+/* ==========================================================================
+   v2.51 // Pass 6: Dynamic Objectives
+   ========================================================================== */
+/* This is deliberately a compact opportunity card rather than a quest log.
+   It rides above the existing discovery stack and gets out of the way when
+   the Director detects that another interaction owns the player's attention. */
+.dynamic-objective {
+  position:fixed; left:18px; bottom:60px; z-index:249;
+  width:min(318px,calc(100vw - 36px)); padding:11px 12px 10px;
+  border:1px solid rgba(89,177,255,.34);
+  background:linear-gradient(145deg,rgba(11,20,30,.975),rgba(5,10,16,.985));
+  box-shadow:0 16px 44px rgba(0,0,0,.42),0 0 24px rgba(47,147,255,.045);
+  opacity:0; transform:translateY(8px) scale(.985); pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease,bottom .18s ease,filter .16s ease;
+}
+.dynamic-objective.show { opacity:1; transform:none; pointer-events:auto; }
+.dynamic-objective.attention-muted { opacity:.16; pointer-events:none; filter:saturate(.5); }
+.objective-topline { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.objective-topline span { color:#67cfff; font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.14em; }
+.objective-topline button { width:20px; height:20px; padding:0; border:0; background:transparent; color:#70879f; font:700 17px/1 Arial,sans-serif; cursor:pointer; }
+.objective-topline button:hover,.objective-topline button:focus-visible { color:#fff; outline:0; }
+.dynamic-objective > strong { display:block; margin-top:7px; color:#edf7ff; font-size:12px; line-height:1.25; }
+.dynamic-objective > small { display:block; margin-top:4px; color:#8097ad; font-size:9px; line-height:1.4; }
+.objective-progress { height:3px; margin-top:9px; overflow:hidden; background:rgba(116,166,211,.10); }
+.objective-progress i { display:block; width:0; height:100%; background:linear-gradient(90deg,#2f93ff,#67e8ff); box-shadow:0 0 12px rgba(103,232,255,.35); transition:width .22s ease; }
+.objective-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:6px; }
+.objective-footer span,.objective-footer b { font:800 7px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.10em; }
+.objective-footer span { color:#6e8da9; }
+.objective-footer b { color:#bdefff; }
+.dynamic-objective.complete { border-color:rgba(103,232,255,.52); box-shadow:0 16px 44px rgba(0,0,0,.42),0 0 28px rgba(47,147,255,.09); }
+.dynamic-objective.complete .objective-progress i { width:100% !important; }
+
+body.theme-complete:not(.theme-legendary) .dynamic-objective {
+  border-color:rgba(217,108,255,.40);
+  background:linear-gradient(145deg,rgba(25,10,34,.98),rgba(7,18,25,.985));
+  box-shadow:0 16px 44px rgba(0,0,0,.44),0 0 26px rgba(255,79,200,.055);
+}
+body.theme-complete:not(.theme-legendary) .objective-topline span { color:#ff69cf; }
+body.theme-complete:not(.theme-legendary) .dynamic-objective > strong { color:#fff1ff; }
+body.theme-complete:not(.theme-legendary) .dynamic-objective > small { color:#aa91b5; }
+body.theme-complete:not(.theme-legendary) .objective-progress { background:rgba(203,115,235,.10); }
+body.theme-complete:not(.theme-legendary) .objective-progress i { background:linear-gradient(90deg,#b13cff,#ff4fc8,#67e8ff); box-shadow:0 0 13px rgba(255,79,200,.34); }
+body.theme-complete:not(.theme-legendary) .objective-footer b { color:#86efff; }
+body.theme-complete:not(.theme-legendary) .dynamic-objective.complete { border-color:rgba(103,232,255,.52); }
+
+body.theme-complete.theme-legendary .dynamic-objective {
+  border-color:rgba(255,194,66,.42);
+  background:linear-gradient(145deg,rgba(38,25,7,.985),rgba(12,12,7,.99) 72%);
+  box-shadow:0 16px 46px rgba(0,0,0,.48),0 0 30px rgba(255,176,31,.06);
+}
+body.theme-complete.theme-legendary .objective-topline span { color:#ffc94e; }
+body.theme-complete.theme-legendary .dynamic-objective > strong { color:#fff4cb; }
+body.theme-complete.theme-legendary .dynamic-objective > small { color:#b9a67b; }
+body.theme-complete.theme-legendary .objective-progress { background:rgba(255,200,81,.09); }
+body.theme-complete.theme-legendary .objective-progress i { background:linear-gradient(90deg,#ff7a1a,#ffc83d,#43e0dc); box-shadow:0 0 14px rgba(255,196,63,.34); }
+body.theme-complete.theme-legendary .objective-footer span { color:#9e895e; }
+body.theme-complete.theme-legendary .objective-footer b { color:#65e5df; }
+body.theme-complete.theme-legendary .dynamic-objective.complete { border-color:rgba(67,224,220,.50); }
+
+@media (max-width:620px){
+  .dynamic-objective { left:12px; width:min(300px,calc(100vw - 24px)); }
+}
+
+
+/* ==========================================================================
+   v2.52 // Full rarity theme audit + player-model surfaces
+   ========================================================================== */
+/* Central semantic rarity tokens. These intentionally sit at the end of the
+   cascade so new UI does not accidentally inherit an old blue, purple, or gold
+   from whichever feature happened to be written first. */
+body {
+  --rarity-primary:#2f93ff;
+  --rarity-secondary:#67e8ff;
+  --rarity-hot:#8fd6ff;
+  --rarity-panel:rgba(6,12,19,.975);
+  --rarity-panel-2:rgba(10,20,31,.97);
+  --rarity-line:rgba(93,174,255,.38);
+  --rarity-text:#edf8ff;
+  --rarity-muted:#8fa9c0;
+  --rarity-shadow:rgba(47,147,255,.10);
+}
+body.theme-complete:not(.theme-legendary) {
+  --rarity-primary:#b13cff;
+  --rarity-secondary:#67e8ff;
+  --rarity-hot:#ff4fc8;
+  --rarity-panel:rgba(24,9,34,.978);
+  --rarity-panel-2:rgba(12,19,27,.97);
+  --rarity-line:rgba(215,104,255,.44);
+  --rarity-text:#fff2ff;
+  --rarity-muted:#b59bc1;
+  --rarity-shadow:rgba(255,79,200,.11);
+}
+body.theme-complete.theme-legendary {
+  --rarity-primary:#ff9d25;
+  --rarity-secondary:#43e0dc;
+  --rarity-hot:#ffc83d;
+  --rarity-panel:rgba(30,18,5,.982);
+  --rarity-panel-2:rgba(9,20,19,.97);
+  --rarity-line:rgba(255,192,64,.46);
+  --rarity-text:#fff3c7;
+  --rarity-muted:#c2ad83;
+  --rarity-shadow:rgba(255,159,31,.10);
+}
+
+/* Discovery UI: ledger, hint, rarity selector, progression HUD, objectives. */
+.ledger-trigger,.theme-cycle-trigger,.hint-trigger,
+.progress-hud .rupee-meter,.progress-hud .heart-meter {
+  border-color:var(--rarity-line);
+}
+.achievement-ledger,.dynamic-objective {
+  border-color:var(--rarity-line);
+  box-shadow:0 20px 64px rgba(0,0,0,.48),0 0 30px var(--rarity-shadow);
+}
+.ledger-head button,.objective-topline button { color:var(--rarity-muted); }
+.ledger-head button:hover,.ledger-head button:focus-visible,
+.objective-topline button:hover,.objective-topline button:focus-visible { color:var(--rarity-secondary); outline:0; }
+.ledger-controls button:hover:not(:disabled),.ledger-controls button:focus-visible:not(:disabled) {
+  border-color:var(--rarity-secondary); color:var(--rarity-text); outline:0;
+}
+body.theme-complete:not(.theme-legendary) .ledger-entry.unlocked { box-shadow:inset 2px 0 0 var(--rarity-hot); }
+body.theme-complete.theme-legendary .ledger-entry.unlocked { box-shadow:inset 2px 0 0 var(--rarity-secondary); }
+body.theme-complete.theme-legendary .hint-trigger {
+  border-color:rgba(255,190,61,.48); color:#ffe5a0;
+  background:linear-gradient(90deg,rgba(126,69,7,.32),rgba(34,106,102,.10)),rgba(24,14,5,.96);
+}
+body.theme-complete.theme-legendary .hint-trigger:hover,
+body.theme-complete.theme-legendary .hint-trigger:focus-visible {
+  border-color:#55ddd9; color:#7bf3ed; background:linear-gradient(90deg,rgba(143,76,8,.38),rgba(36,136,131,.16)),rgba(24,14,5,.98); outline:0;
+}
+
+/* Dev console and asynchronous progress. Rare was previously inheriting the
+   Epic purple shader bar because this component predated the rarity split. */
+.dev-console { border-color:var(--rarity-line); }
+.console-head { border-bottom-color:var(--rarity-line); color:var(--rarity-primary); }
+.console-head button { color:var(--rarity-muted); }
+.console-head button:hover,.console-head button:focus-visible { color:var(--rarity-secondary); outline:0; }
+.console-input-row { border-top-color:var(--rarity-line); color:var(--rarity-primary); }
+.console-input-row input { color:var(--rarity-text); }
+.console-progress { border-color:color-mix(in srgb,var(--rarity-secondary) 38%,transparent); }
+.console-progress > i { background:linear-gradient(90deg,var(--rarity-primary),var(--rarity-secondary)) !important; box-shadow:0 0 12px var(--rarity-shadow); }
+.console-line.good { color:#78dfc0; }
+body.theme-complete:not(.theme-legendary) .console-line.good { color:#7cebf4; }
+body.theme-complete.theme-legendary .console-line.good { color:#75e8df; }
+body.theme-complete:not(.theme-legendary) .console-line.warn { color:#ff8bd7; }
+body.theme-complete.theme-legendary .console-line.warn { color:#ffc963; }
+body.theme-complete:not(.theme-legendary) .dev-console {
+  background:linear-gradient(180deg,rgba(25,10,35,.986),rgba(7,11,17,.99));
+}
+
+/* Faux Unreal performance stats now belong to the active rarity while still
+   retaining their compact engine-stat silhouette. */
+.fps-stat {
+  border:1px solid var(--rarity-line);
+  background:color-mix(in srgb,var(--rarity-panel) 88%,transparent);
+  color:var(--rarity-secondary);
+  box-shadow:0 10px 30px rgba(0,0,0,.34),0 0 18px var(--rarity-shadow);
+  text-shadow:0 0 8px color-mix(in srgb,var(--rarity-secondary) 45%,transparent);
+}
+body.theme-complete:not(.theme-legendary) .fps-stat { color:#ff86d7; }
+body.theme-complete.theme-legendary .fps-stat { color:#72e9e4; }
+
+/* Vibe/Gipiti overlay. */
+.vibe-agent.active {
+  border-color:var(--rarity-line);
+  background:var(--rarity-panel);
+  color:var(--rarity-text);
+  box-shadow:0 12px 36px rgba(0,0,0,.34),0 0 20px var(--rarity-shadow);
+}
+.vibe-agent i { background:var(--rarity-secondary); box-shadow:0 0 12px var(--rarity-secondary),0 0 24px var(--rarity-shadow); }
+body:not(.theme-complete).vibe-mode::after { background:linear-gradient(110deg,transparent 20%,rgba(47,147,255,.024) 42%,rgba(103,232,255,.038) 57%,transparent 76%); }
+body.theme-complete:not(.theme-legendary).vibe-mode::after { background:linear-gradient(110deg,transparent 20%,rgba(103,232,255,.025) 42%,rgba(255,79,200,.04) 57%,transparent 76%); }
+body.theme-complete.theme-legendary.vibe-mode::after { background:linear-gradient(110deg,transparent 20%,rgba(255,157,37,.028) 42%,rgba(67,224,220,.04) 57%,transparent 76%); }
+body.theme-complete:not(.theme-legendary) .vibe-agent i { animation-name:vibe-thinking-epic; }
+body.theme-complete.theme-legendary .vibe-agent i { animation-name:vibe-thinking-legendary; }
+@keyframes vibe-thinking-epic { to{transform:scale(1.45);background:#ff4fc8;} }
+@keyframes vibe-thinking-legendary { to{transform:scale(1.45);background:#ffc83d;} }
+
+/* Blueprint and compile remain recognizably Unreal-like, but their chrome now
+   acknowledges the current rarity. Semantic node-header colors stay intact. */
+body.theme-complete:not(.theme-legendary) .blueprint-popup,
+body.theme-complete:not(.theme-legendary) .compile-popup { background:rgba(9,2,13,.62); }
+body.theme-complete:not(.theme-legendary) .blueprint-window,
+body.theme-complete:not(.theme-legendary) .compile-window {
+  border-color:rgba(213,104,255,.48); box-shadow:0 30px 100px rgba(0,0,0,.78),0 0 42px rgba(255,79,200,.08);
+}
+body.theme-complete:not(.theme-legendary) .blueprint-titlebar { background:#2a1832; border-bottom-color:#110817; color:#f6e8ff; }
+body.theme-complete:not(.theme-legendary) .blueprint-toolbar { background:#211629; border-bottom-color:#100914; color:#c8b4d2; }
+body.theme-complete:not(.theme-legendary) .blueprint-toolbar b { color:#ff72cf; }
+body.theme-complete:not(.theme-legendary) .blueprint-stage {
+  background-color:#130d18; background-image:linear-gradient(rgba(216,119,255,.085) 1px,transparent 1px),linear-gradient(90deg,rgba(103,232,255,.065) 1px,transparent 1px);
+}
+body.theme-complete:not(.theme-legendary) .bp-add-valid { border-color:#67e8ff; background:#252036; color:#f5faff; box-shadow:0 0 0 4px rgba(18,9,24,.80); }
+body.theme-complete:not(.theme-legendary) .bp-add-valid:hover { background:#9a39d5; border-color:#ff79d4; }
+body.theme-complete:not(.theme-legendary) .blueprint-status { background:#211628; border-top-color:#46304f; color:#ff9ada; }
+body.theme-complete:not(.theme-legendary) .blueprint-stage.validated + .blueprint-status { color:#72edf2; }
+body.theme-complete:not(.theme-legendary) .compile-window { background:#211729; color:#f8edff; }
+body.theme-complete:not(.theme-legendary) .compile-icon { background:linear-gradient(145deg,#a43cff,#3b9fc0); }
+body.theme-complete:not(.theme-legendary) .compile-copy small { color:#baa8c2; }
+body.theme-complete:not(.theme-legendary) .compile-progress { border-color:#100915; background:#0e0912; }
+body.theme-complete:not(.theme-legendary) .compile-progress i { background:linear-gradient(90deg,#a43cff,#ff4fc8,#67e8ff); }
+body.theme-complete:not(.theme-legendary) #compile-cancel { border-color:#704d7e; background:#32203a; color:#f1dcf8; }
+body.theme-complete:not(.theme-legendary) #compile-cancel:hover { border-color:#67e8ff; background:#3b2943; }
+
+body.theme-complete.theme-legendary .blueprint-popup,
+body.theme-complete.theme-legendary .compile-popup { background:rgba(9,6,1,.64); }
+body.theme-complete.theme-legendary .blueprint-window,
+body.theme-complete.theme-legendary .compile-window {
+  border-color:rgba(255,191,62,.50); box-shadow:0 30px 100px rgba(0,0,0,.80),0 0 44px rgba(255,158,26,.08);
+}
+body.theme-complete.theme-legendary .blueprint-titlebar { background:#302008; border-bottom-color:#130d04; color:#fff0bd; }
+body.theme-complete.theme-legendary .blueprint-toolbar { background:#241a0c; border-bottom-color:#110d05; color:#cdb991; }
+body.theme-complete.theme-legendary .blueprint-toolbar b { color:#ffc64b; }
+body.theme-complete.theme-legendary .blueprint-stage {
+  background-color:#151109; background-image:linear-gradient(rgba(255,198,79,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(67,224,220,.055) 1px,transparent 1px);
+}
+body.theme-complete.theme-legendary .bp-add-valid { border-color:#55ddd9; background:#282116; color:#fff3c6; box-shadow:0 0 0 4px rgba(18,13,5,.82); }
+body.theme-complete.theme-legendary .bp-add-valid:hover { background:#915710; border-color:#ffc84c; }
+body.theme-complete.theme-legendary .blueprint-status { background:#241a0b; border-top-color:#51401f; color:#ffc55c; }
+body.theme-complete.theme-legendary .blueprint-stage.validated + .blueprint-status { color:#68e5df; }
+body.theme-complete.theme-legendary .compile-window { background:#251b0d; color:#fff3ce; }
+body.theme-complete.theme-legendary .compile-icon { background:linear-gradient(145deg,#d87918,#2c9f9b); }
+body.theme-complete.theme-legendary .compile-copy small { color:#c8b48b; }
+body.theme-complete.theme-legendary .compile-progress { border-color:#130e05; background:#0f0b05; }
+body.theme-complete.theme-legendary .compile-progress i { background:linear-gradient(90deg,#ff7618,#ffc43f,#43e0dc); }
+body.theme-complete.theme-legendary #compile-cancel { border-color:#715324; background:#33240f; color:#ffe8ad; }
+body.theme-complete.theme-legendary #compile-cancel:hover { border-color:#55ddd9; background:#3b2b12; color:#7cf0ea; }
+
+/* Doug cameo labels now theme with the art rather than retaining base blue. */
+.doug-peek strong { border-color:var(--rarity-line); background:var(--rarity-panel); color:var(--rarity-text); }
+body:not(.theme-complete) .doug-peek-hearts { color:#67e8ff; }
+body.theme-complete:not(.theme-legendary) .doug-peek-hearts { color:#ff62cf; }
+body.theme-complete.theme-legendary .doug-peek-hearts { color:#ffc43f; }
+
+/* Flying object theme audit. Forced commands can expose celestial/arcade objects
+   before Epic, so each rarity needs an explicit appearance. */
+body:not(.theme-complete) .shooting-star::before { box-shadow:0 0 12px #fff,0 0 26px #67e8ff,0 0 38px #2f93ff; }
+body:not(.theme-complete) .shooting-star::after { background:linear-gradient(90deg,transparent,rgba(47,147,255,.30),rgba(103,232,255,.78),#fff); }
+body.theme-complete:not(.theme-legendary) .shooting-star::before { box-shadow:0 0 12px #fff,0 0 26px #67e8ff,0 0 38px #ff4fc8; }
+body.theme-complete:not(.theme-legendary) .shooting-star::after { background:linear-gradient(90deg,transparent,rgba(255,79,200,.34),rgba(103,232,255,.78),#fff); }
+
+/* Mushroom cursor visuals used to drift toward Legendary colors regardless of
+   the active theme. Cursor size is a mechanic, rarity color is presentation. */
+body:not(.theme-complete) .power-cursor { background:linear-gradient(135deg,#fff 0 56%,#62bfff 57% 100%); filter:drop-shadow(0 2px 1px rgba(0,0,0,.7)) drop-shadow(0 0 7px rgba(93,174,255,.46)); }
+body:not(.theme-complete).cursor-power-2 .power-cursor { background:linear-gradient(135deg,#f5fbff 0 50%,#2f93ff 51% 72%,#67e8ff 73% 100%); filter:drop-shadow(0 3px 2px rgba(0,0,0,.7)) drop-shadow(0 0 10px rgba(103,232,255,.48)); }
+body.theme-complete:not(.theme-legendary) .power-cursor { background:linear-gradient(135deg,#fff2ff 0 54%,#b13cff 55% 74%,#67e8ff 75% 100%); filter:drop-shadow(0 2px 1px rgba(0,0,0,.72)) drop-shadow(0 0 8px rgba(255,79,200,.46)); }
+body.theme-complete:not(.theme-legendary).cursor-power-2 .power-cursor { background:linear-gradient(135deg,#fff5ff 0 48%,#ff4fc8 49% 70%,#67e8ff 71% 100%); filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 11px rgba(177,60,255,.52)); }
+body.theme-complete.theme-legendary .power-cursor { background:linear-gradient(135deg,#fff8d8 0 54%,#ffc43f 55% 74%,#43e0dc 75% 100%); filter:drop-shadow(0 2px 1px rgba(0,0,0,.72)) drop-shadow(0 0 8px rgba(255,190,61,.48)); }
+body.theme-complete.theme-legendary.cursor-power-2 .power-cursor { background:linear-gradient(135deg,#fff4c4 0 48%,#ff8a1e 49% 69%,#43e0dc 70% 100%); filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 12px rgba(255,190,61,.54)); }
+
+/* Wish success pulse and Lumen remain intentionally dramatic but no longer
+   leak Epic purple into Rare/Legendary. HAL red and money-gold stay semantic. */
+body:not(.theme-complete).wish-granted::before { background:radial-gradient(circle at 50% 50%,rgba(103,232,255,.20),rgba(47,147,255,.09) 22%,transparent 58%); }
+body.theme-complete:not(.theme-legendary).wish-granted::before { background:radial-gradient(circle at 50% 50%,rgba(103,232,255,.18),rgba(216,77,255,.10) 22%,transparent 58%); }
+body.theme-complete.theme-legendary.wish-granted::before { background:radial-gradient(circle at 50% 50%,rgba(255,196,63,.19),rgba(67,224,220,.09) 22%,transparent 58%); }
+body:not(.theme-complete) .lumen-blob.light { background:rgba(111,201,255,.23); }
+body.theme-complete:not(.theme-legendary) .lumen-blob.light { background:rgba(213,121,255,.20); }
+body.theme-complete.theme-legendary .lumen-blob.light { background:rgba(255,193,83,.19); }
+body.theme-complete.theme-legendary .lumen-blob.dark { background:rgba(15,8,1,.52); }
+
+/* Mippi Bird shares, Unreal Source reward, objective dismiss, and Shop controls
+   receive explicit focus states so keyboard interaction follows rarity too. */
+#flappy-share:focus-visible,.flappy-share-menu button:focus-visible,
+.unreal-gift-actions a:focus-visible,.unreal-gift-actions button:focus-visible,
+.shop-close:focus-visible,#shop-unequip:focus-visible {
+  outline:2px solid var(--rarity-secondary); outline-offset:2px;
+}
+body.theme-complete:not(.theme-legendary) .unreal-gift-actions a:hover,
+body.theme-complete:not(.theme-legendary) .unreal-gift-actions button:hover { border-color:#67e8ff; color:#8ff4ff; }
+body.theme-complete:not(.theme-legendary) .unreal-gift-window { color:#f9edff; }
+body.theme-complete.theme-legendary .unreal-gift-window { color:#fff1c1; }
+
+/* Intentional semantic exceptions from the rarity sweep:
+   - HAL remains red because the reference depends on it.
+   - Money-wish coins remain gold because they are coins, not rarity currency.
+   - UFO projectiles remain white/cyan for combat readability.
+   - Blueprint node header colors preserve node-family readability. */

@@ -4,6 +4,432 @@ const achievement = document.querySelector('#achievement');
 const heavyWater = document.querySelector('.heavy-water');
 const lensToggle = document.querySelector('#second-person-toggle');
 
+// Local-only session telemetry foundation.
+// This does not send analytics anywhere. It exists so later game systems can react to
+// the visitor's behavior and eventually produce a meaningful session report.
+const TELEMETRY_SESSION_KEY = 'mippi-session-telemetry-v1';
+const TELEMETRY_VERSION = 1;
+function createTelemetrySession(){
+  const now=Date.now();
+  return {
+    version:TELEMETRY_VERSION,
+    session:{
+      id:`${now.toString(36)}-${Math.random().toString(36).slice(2,8)}`,
+      startedAt:now,lastActiveAt:now,lastMeaningfulAt:now,pageLoads:0,
+      activeMs:0,maxScrollDepth:0,visibilityChanges:0
+    },
+    sections:{},
+    interaction:{clicks:0,navigationClicks:0,externalClicks:0,dougClicks:0},
+    achievements:{unlocks:0,keys:[],hints:0,introHints:0,cheats:0,godmodeUses:0,sources:{}},
+    console:{opens:0,closes:0,commands:0,invalid:0,unique:[],commandCounts:{},hiddenCounts:{}},
+    modes:{inspectToggles:0,themeChanges:0,themeModes:[],slowmoToggles:0,easyModeToggles:0,particleToggles:0,lumenToggles:0,naniteToggles:0,vibeToggles:0},
+    flying:{spawned:{},forced:{},collected:{},missed:{},methods:{}},
+    arcade:{ufoSpawned:0,ufoDestroyed:0,ufoEscaped:0,bossSpawned:0,bossHits:0,bossDefeated:0,bossEscaped:0,hostileShots:0,playerShots:0,playerHits:0},
+    economy:{rupeesEarned:0,rupeesSpent:0,shopOpens:0,shopPurchases:0,shopEquips:0,shopUnequips:0,shopDeflections:0,heartsCollected:0,keysCollected:0,castlesChecked:0,mushroomsCollected:0,starsCollected:0,bonesCollected:0},
+    wish:{shootingStarsSpawned:0,shootingStarsCollected:0,commandUnlocks:0,attempts:0,failed:0,successful:0,blueprintOpens:0,validInserted:0,branches:{}},
+    flappy:{opens:0,gamesStarted:0,deaths:0,highScore:0,shares:0,rupeesEarned:0,rupeeMilestones:[]},
+    combos:{announced:[],starPowerUfoKills:0,starPowerBossHits:0,slowmoHostileShots:0,starPowerDoug:0,legendaryMushroom:0},
+    portfolio:{secondPersonToggles:0,heroSignalClicks:0,galleryOpens:0,galleryImagesViewed:[],filters:{},resumeClicks:{},externalDestinations:{}},
+    assistance:{hintUses:0,cheatUses:0,easyModeUses:0,godmodeUses:0,hiddenCommands:{}},
+    director:{state:'curious',evaluations:0,transitions:0,stateChanges:[],stateMs:{},attentionBlocks:0,droughtAssists:0,lastReason:'initial'},
+    objectives:{offered:0,completed:0,dismissed:0,canceled:0,rupeesEarned:0,offeredIds:[],completedIds:[],dismissedIds:[],categoryCounts:{}},
+    playerModel:{evaluations:0,label:'FORMING',primary:null,secondary:null,confidence:0,evidence:0,lastUpdatedAt:0,history:[]},
+    timeline:[]
+  };
+}
+function loadTelemetrySession(){
+  try{
+    const raw=sessionStorage.getItem(TELEMETRY_SESSION_KEY);
+    if(!raw) return createTelemetrySession();
+    const parsed=JSON.parse(raw);
+    if(!parsed || parsed.version!==TELEMETRY_VERSION) return createTelemetrySession();
+    return parsed;
+  }catch(_){ return createTelemetrySession(); }
+}
+const sessionTelemetry=loadTelemetrySession();
+if(!sessionTelemetry.director || typeof sessionTelemetry.director!=='object') sessionTelemetry.director={state:'curious',evaluations:0,transitions:0,stateChanges:[],stateMs:{},attentionBlocks:0,droughtAssists:0,lastReason:'migration'};
+if(!sessionTelemetry.objectives || typeof sessionTelemetry.objectives!=='object') sessionTelemetry.objectives={offered:0,completed:0,dismissed:0,canceled:0,rupeesEarned:0,offeredIds:[],completedIds:[],dismissedIds:[],categoryCounts:{}};
+if(!Array.isArray(sessionTelemetry.objectives.offeredIds)) sessionTelemetry.objectives.offeredIds=[];
+if(!Array.isArray(sessionTelemetry.objectives.completedIds)) sessionTelemetry.objectives.completedIds=[];
+if(!Array.isArray(sessionTelemetry.objectives.dismissedIds)) sessionTelemetry.objectives.dismissedIds=[];
+if(!sessionTelemetry.objectives.categoryCounts || typeof sessionTelemetry.objectives.categoryCounts!=='object') sessionTelemetry.objectives.categoryCounts={};
+if(!sessionTelemetry.playerModel || typeof sessionTelemetry.playerModel!=='object') sessionTelemetry.playerModel={evaluations:0,label:'FORMING',primary:null,secondary:null,confidence:0,evidence:0,lastUpdatedAt:0,history:[]};
+if(!Array.isArray(sessionTelemetry.playerModel.history)) sessionTelemetry.playerModel.history=[];
+sessionTelemetry.session.pageLoads=(Number(sessionTelemetry.session.pageLoads)||0)+1;
+sessionTelemetry.session.lastActiveAt=Date.now();
+let telemetrySaveTimer=null;
+let telemetryActiveStarted=document.visibilityState==='visible'?performance.now():null;
+let objectiveEventSink=null;
+const telemetrySectionActive=new Map();
+
+function telemetryPath(path){
+  const parts=String(path||'').split('.').filter(Boolean);
+  let obj=sessionTelemetry;
+  for(const part of parts){
+    if(!obj[part] || typeof obj[part]!=='object' || Array.isArray(obj[part])) obj[part]={};
+    obj=obj[part];
+  }
+  return obj;
+}
+function telemetryScheduleSave(){
+  window.clearTimeout(telemetrySaveTimer);
+  telemetrySaveTimer=window.setTimeout(()=>{
+    try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
+  },350);
+}
+function telemetryCount(path,key,amount=1){
+  const obj=telemetryPath(path);
+  obj[key]=(Number(obj[key])||0)+amount;
+  sessionTelemetry.session.lastActiveAt=Date.now();
+  telemetryScheduleSave();
+  return obj[key];
+}
+function telemetryMax(path,key,value){
+  const obj=telemetryPath(path);
+  obj[key]=Math.max(Number(obj[key])||0,Number(value)||0);
+  telemetryScheduleSave();
+  return obj[key];
+}
+function telemetryUnique(path,key,value){
+  const obj=telemetryPath(path);
+  if(!Array.isArray(obj[key])) obj[key]=[];
+  if(!obj[key].includes(value)) obj[key].push(value);
+  telemetryScheduleSave();
+}
+function telemetryMeaningful(type,detail={}){
+  sessionTelemetry.session.lastMeaningfulAt=Date.now();
+  if(!Array.isArray(sessionTelemetry.timeline)) sessionTelemetry.timeline=[];
+  sessionTelemetry.timeline.push({t:Date.now(),type,...detail});
+  if(sessionTelemetry.timeline.length>120) sessionTelemetry.timeline.splice(0,sessionTelemetry.timeline.length-120);
+  telemetryScheduleSave();
+  if(objectiveEventSink) objectiveEventSink(type,detail);
+}
+function telemetryCommitActive(){
+  if(telemetryActiveStarted==null) return;
+  const now=performance.now();
+  sessionTelemetry.session.activeMs=(Number(sessionTelemetry.session.activeMs)||0)+Math.max(0,now-telemetryActiveStarted);
+  telemetryActiveStarted=now;
+}
+function telemetrySectionEnter(id){
+  if(telemetrySectionActive.has(id)) return;
+  const section=telemetryPath(`sections.${id}`);
+  section.visits=(Number(section.visits)||0)+1;
+  if(!section.firstSeenAt) section.firstSeenAt=Date.now();
+  telemetrySectionActive.set(id,performance.now());
+  if(section.visits===1) telemetryMeaningful('section_first_visit',{id});
+  telemetryScheduleSave();
+}
+function telemetrySectionExit(id){
+  const started=telemetrySectionActive.get(id);
+  if(started==null) return;
+  const section=telemetryPath(`sections.${id}`);
+  section.dwellMs=(Number(section.dwellMs)||0)+Math.max(0,performance.now()-started);
+  telemetrySectionActive.delete(id);
+  telemetryScheduleSave();
+}
+function telemetryPauseSections(){ [...telemetrySectionActive.keys()].forEach(telemetrySectionExit); }
+function telemetryResumeVisibleSections(){
+  const targets=[['hero',document.querySelector('.hero')],...['games','career','consulting','crafting','tools','about'].map(id=>[id,document.getElementById(id)])];
+  targets.forEach(([id,el])=>{
+    if(!el) return;
+    const r=el.getBoundingClientRect();
+    const visible=Math.max(0,Math.min(r.bottom,innerHeight)-Math.max(r.top,0));
+    if(visible>=Math.min(r.height*.25,180)) telemetrySectionEnter(id);
+  });
+}
+function telemetryExternalDestination(anchor){
+  try{
+    const host=new URL(anchor.href,location.href).hostname.toLowerCase();
+    if(host.includes('github.com')) return 'github';
+    if(host.includes('fab.com')) return 'fab';
+    if(host.includes('linkedin.com')) return 'linkedin';
+    if(host.includes('discord')) return 'discord';
+    if(host.includes('steam')) return 'steam';
+    if(host.includes('crafting-play')) return 'crafting_play';
+    if(host.includes('unrealsource')) return 'unreal_source';
+    if(host.includes('epicgames.com')) return 'epic_learning';
+    if(host.includes('google.com') && anchor.closest('.resume-links')) return 'resume';
+    return 'other';
+  }catch(_){ return 'other'; }
+}
+function telemetryFlyingSpawn(kind,{forced=false}={}){
+  telemetryCount('flying.spawned',kind);
+  if(forced) telemetryCount('flying.forced',kind);
+}
+function telemetryFlyingCollect(kind,method='direct'){
+  telemetryCount('flying.collected',kind);
+  telemetryCount('flying.methods',method||'direct');
+  telemetryMeaningful('flying_collected',{kind,method:method||'direct'});
+}
+function telemetryFlyingMiss(kind){ telemetryCount('flying.missed',kind); }
+function telemetryCollectionMethod(el){
+  const method=el?.dataset?.telemetryCollectMethod||'direct';
+  if(el?.dataset) delete el.dataset.telemetryCollectMethod;
+  return method;
+}
+function telemetryRecordCommand(command,{valid=true,hidden=false}={}){
+  telemetryCount('console','commands');
+  if(!valid) telemetryCount('console','invalid');
+  telemetryUnique('console','unique',command);
+  telemetryCount('console.commandCounts',command);
+  if(hidden){
+    telemetryCount('console.hiddenCounts',command);
+    telemetryCount('assistance.hiddenCommands',command);
+  }
+  telemetryMeaningful('console_command',{command,valid,hidden});
+}
+function telemetryWishBranch(branch){
+  telemetryCount('wish.branches',branch);
+  telemetryMeaningful('wish_branch',{branch});
+}
+
+function initTelemetryFoundation(){
+  const sectionTargets=[['hero',document.querySelector('.hero')],...['games','career','consulting','crafting','tools','about'].map(id=>[id,document.getElementById(id)])];
+  if('IntersectionObserver' in window){
+    const lookup=new Map(sectionTargets.filter(([,el])=>el).map(([id,el])=>[el,id]));
+    const observer=new IntersectionObserver(entries=>{
+      if(document.visibilityState!=='visible') return;
+      entries.forEach(entry=>{
+        const id=lookup.get(entry.target);
+        if(!id) return;
+        if(entry.isIntersecting && entry.intersectionRatio>=.25) telemetrySectionEnter(id);
+        else telemetrySectionExit(id);
+      });
+    },{threshold:[0,.25,.5]});
+    lookup.forEach((_,el)=>observer.observe(el));
+  }else telemetryResumeVisibleSections();
+
+  let scrollQueued=false;
+  window.addEventListener('scroll',()=>{
+    if(scrollQueued) return;
+    scrollQueued=true;
+    requestAnimationFrame(()=>{
+      scrollQueued=false;
+      const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+      telemetryMax('session','maxScrollDepth',Math.min(100,Math.round(scrollY/max*100)));
+    });
+  },{passive:true});
+
+  document.addEventListener('click',event=>{
+    if(!event.isTrusted) return;
+    telemetryCount('interaction','clicks');
+    const anchor=event.target.closest?.('a[href]');
+    if(anchor){
+      const href=anchor.getAttribute('href')||'';
+      if(href.startsWith('#')) telemetryCount('interaction','navigationClicks');
+      else if(anchor.target==='_blank' || /^https?:/i.test(anchor.href)){
+        telemetryCount('interaction','externalClicks');
+        const destination=telemetryExternalDestination(anchor);
+        telemetryCount('portfolio.externalDestinations',destination);
+        telemetryMeaningful('external_link',{destination});
+      }
+      if(anchor.closest('.resume-links')){
+        const label=(anchor.querySelector('strong')?.textContent||'resume').trim().toLowerCase().replace(/\s+/g,'_');
+        telemetryCount('portfolio.resumeClicks',label);
+      }
+    }
+  },true);
+
+  document.addEventListener('visibilitychange',()=>{
+    telemetryCount('session','visibilityChanges');
+    if(document.visibilityState==='hidden'){
+      telemetryCommitActive(); telemetryActiveStarted=null; telemetryPauseSections();
+    }else{
+      telemetryActiveStarted=performance.now(); telemetryResumeVisibleSections();
+    }
+  });
+  window.addEventListener('pagehide',()=>{
+    telemetryCommitActive(); telemetryPauseSections();
+    try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
+  });
+  window.setInterval(()=>{
+    if(document.visibilityState==='visible') telemetryCommitActive();
+    try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
+  },10000);
+  telemetryResumeVisibleSections();
+  telemetryScheduleSave();
+}
+initTelemetryFoundation();
+Object.defineProperty(window,'__MIPPI_TELEMETRY__',{
+  value:Object.freeze({
+    snapshot:()=>JSON.parse(JSON.stringify(sessionTelemetry))
+  }),
+  enumerable:false,
+  configurable:false
+});
+
+// Player model: a lightweight interpretation of how this session is being played.
+// It describes behavior inside this portfolio, not the person behind the browser.
+const PLAYER_ARCHETYPES={
+  explorer:{label:'EXPLORER',summary:'You kept checking the edges of the map.'},
+  completionist:{label:'COMPLETIONIST',summary:'Leaving one unfinished signal on this website was apparently unacceptable.'},
+  tinkerer:{label:'TINKERER',summary:'You treated the portfolio like a machine that needed to be understood.'},
+  arcade:{label:'ARCADE RAT',summary:'There was a resume here somewhere.'},
+  chaos:{label:'CHAOS GREMLIN',summary:'You found the buttons and immediately asked what happens if all of them are pressed.'},
+  professional:{label:'PROFESSIONAL',summary:'You came to evaluate the work and refused to be distracted by flying rupees. Admirable.'},
+  correct:{label:'CORRECT',summary:'Doug considers this session a complete success.'},
+  speedrunner:{label:'SPEEDRUNNER',summary:'You saw a progression system and immediately began optimizing the route.'}
+};
+function sumNumericValues(obj){
+  return Object.values(obj&&typeof obj==='object'?obj:{}).reduce((sum,value)=>sum+(Number(value)||0),0);
+}
+function currentTelemetryActiveMs(){
+  const committed=Number(sessionTelemetry.session.activeMs)||0;
+  if(document.visibilityState!=='visible' || telemetryActiveStarted==null) return committed;
+  return committed+Math.max(0,performance.now()-telemetryActiveStarted);
+}
+function playerModelMetrics(){
+  const sectionIds=['games','career','consulting','crafting','tools','about'];
+  const sectionsVisited=sectionIds.filter(id=>(Number(sessionTelemetry.sections?.[id]?.visits)||0)>0).length;
+  const sectionDwellMs=sectionIds.reduce((sum,id)=>sum+(Number(sessionTelemetry.sections?.[id]?.dwellMs)||0),0);
+  const flyingCollected=sumNumericValues(sessionTelemetry.flying?.collected);
+  const forcedSpawns=sumNumericValues(sessionTelemetry.flying?.forced);
+  const hiddenCommands=sumNumericValues(sessionTelemetry.console?.hiddenCounts);
+  const resumeClicks=sumNumericValues(sessionTelemetry.portfolio?.resumeClicks);
+  const externalClicks=Number(sessionTelemetry.interaction?.externalClicks)||0;
+  const uniqueCommands=Array.isArray(sessionTelemetry.console?.unique)?sessionTelemetry.console.unique.length:0;
+  const themeAndDebugActions=(Number(sessionTelemetry.modes?.inspectToggles)||0)+(Number(sessionTelemetry.modes?.themeChanges)||0)+(Number(sessionTelemetry.modes?.slowmoToggles)||0)+(Number(sessionTelemetry.modes?.particleToggles)||0)+(Number(sessionTelemetry.modes?.lumenToggles)||0)+(Number(sessionTelemetry.modes?.naniteToggles)||0)+(Number(sessionTelemetry.modes?.vibeToggles)||0);
+  const gameActivity=flyingCollected+(Number(sessionTelemetry.arcade?.ufoDestroyed)||0)+(Number(sessionTelemetry.flappy?.gamesStarted)||0)+(Number(sessionTelemetry.objectives?.completed)||0)+(Number(sessionTelemetry.interaction?.dougClicks)||0);
+  return {sectionsVisited,sectionDwellMs,flyingCollected,forcedSpawns,hiddenCommands,resumeClicks,externalClicks,uniqueCommands,themeAndDebugActions,gameActivity,activeMs:currentTelemetryActiveMs()};
+}
+function computePlayerModel({record=false}={}){
+  const t=sessionTelemetry, m=playerModelMetrics();
+  const achievementsFound=Array.isArray(t.achievements?.keys)?t.achievements.keys.length:Number(t.achievements?.unlocks)||0;
+  const inspectTargets=Number(t.modes?.inspectHoverCount)||0;
+  const scores={
+    explorer:
+      m.sectionsVisited*2.1+(Number(t.portfolio?.heroSignalClicks)||0)*1.35+(Number(t.portfolio?.galleryOpens)||0)*1.8+
+      inspectTargets*1.25+(Number(t.economy?.castlesChecked)||0)*1.5+Math.min(5,m.flyingCollected*.25),
+    completionist:
+      achievementsFound*1.9+(Number(t.objectives?.completed)||0)*2.1+(Number(t.economy?.heartsCollected)||0)*1.15+
+      (Number(t.economy?.keysCollected)||0)*1.25+(Number(t.achievements?.hints)||0)*.7+(Number(t.economy?.shopPurchases)||0)*.8,
+    tinkerer:
+      (Number(t.console?.commands)||0)*.42+m.uniqueCommands*1.05+(Number(t.console?.invalid)||0)*.6+inspectTargets*.9+
+      m.themeAndDebugActions*.7+(Number(t.wish?.blueprintOpens)||0)*2.2+(Number(t.wish?.validInserted)||0)*4+
+      (Number(t.economy?.shopEquips)||0)*1.1+(Number(t.economy?.shopUnequips)||0)*.8,
+    arcade:
+      (Number(t.arcade?.ufoDestroyed)||0)*1.35+(Number(t.arcade?.bossDefeated)||0)*6+(Number(t.arcade?.playerHits)||0)*.5+
+      (Number(t.flappy?.gamesStarted)||0)*1.4+(Number(t.flappy?.highScore)||0)*.28+(Number(t.combos?.starPowerUfoKills)||0)*1.8,
+    chaos:
+      m.hiddenCommands*2.2+(Number(t.achievements?.godmodeUses)||0)*7+(Number(t.console?.invalid)||0)*1.05+
+      (Number(t.modes?.themeChanges)||0)*.55+m.forcedSpawns*.65+(Number(t.interaction?.clicks)||0)/55+
+      (Number(t.modes?.particleToggles)||0)*.7+(Number(t.modes?.vibeToggles)||0)*.7,
+    professional:
+      m.sectionsVisited*2.25+(m.sectionDwellMs/60000)*1.35+m.externalClicks*1.7+m.resumeClicks*2.8+
+      Math.max(0,8-m.gameActivity*.55),
+    correct:
+      (Number(t.economy?.bonesCollected)||0)*4+(Number(t.interaction?.dougClicks)||0)*2+
+      (Number(t.console?.commandCounts?.doug)||0)*2+(Number(t.economy?.heartsCollected)||0)*.45,
+    speedrunner:
+      (Number(t.assistance?.cheatUses)||0)*4.5+(Number(t.assistance?.godmodeUses)||0)*8+m.hiddenCommands*2.8+
+      (Number(t.assistance?.easyModeUses)||0)*1.2+((achievementsFound>=8&&m.activeMs<6*60*1000)?7:0)
+  };
+  const evidence=Math.round(
+    m.sectionsVisited+achievementsFound+(Number(t.console?.commands)||0)*.55+m.flyingCollected*.45+
+    (Number(t.arcade?.ufoDestroyed)||0)+(Number(t.flappy?.gamesStarted)||0)+(Number(t.interaction?.dougClicks)||0)*.6+
+    (Number(t.objectives?.completed)||0)*1.5+m.externalClicks*.8
+  );
+  const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const [primaryKey,primaryScore]=ranked[0];
+  const [secondaryKey,secondaryScore]=ranked[1];
+  const enoughEvidence=evidence>=8 && primaryScore>=7;
+  const closeRace=enoughEvidence && secondaryScore>=7 && primaryScore-secondaryScore<2.25;
+  const confidence=enoughEvidence?Math.max(48,Math.min(96,Math.round(52+Math.min(22,(primaryScore-secondaryScore)*5)+Math.min(22,evidence*1.2)))):Math.min(47,Math.max(12,evidence*5));
+  const primary=PLAYER_ARCHETYPES[primaryKey];
+  const secondary=PLAYER_ARCHETYPES[secondaryKey];
+  const label=!enoughEvidence?'FORMING':closeRace?`${primary.label} / ${secondary.label}`:primary.label;
+  const summary=!enoughEvidence?'Keep exploring. The model needs more behavior before pretending it knows what you are doing.':closeRace?`${primary.summary} ${secondary.summary}`:primary.summary;
+  const result={label,primary:enoughEvidence?primaryKey:null,secondary:closeRace?secondaryKey:null,confidence,evidence,scores:Object.fromEntries(Object.entries(scores).map(([k,v])=>[k,Math.round(v*10)/10])),summary,metrics:m};
+  if(record){
+    const pm=t.playerModel;
+    pm.evaluations=(Number(pm.evaluations)||0)+1;
+    const changed=pm.label!==label;
+    pm.label=label; pm.primary=result.primary; pm.secondary=result.secondary; pm.confidence=confidence; pm.evidence=evidence; pm.lastUpdatedAt=Date.now();
+    if(changed){
+      pm.history.push({t:Date.now(),label,confidence,evidence});
+      if(pm.history.length>20) pm.history.splice(0,pm.history.length-20);
+    }
+    telemetryScheduleSave();
+  }
+  return result;
+}
+function formatSessionDuration(ms){
+  const total=Math.max(0,Math.floor((Number(ms)||0)/1000));
+  const minutes=Math.floor(total/60), seconds=total%60;
+  return minutes?`${minutes}m ${String(seconds).padStart(2,'0')}s`:`${seconds}s`;
+}
+function sessionStatsSnapshot(){
+  telemetryCommitActive();
+  const model=computePlayerModel({record:true});
+  const sections=['games','career','consulting','crafting','tools','about'];
+  const sectionsVisited=sections.filter(id=>(Number(sessionTelemetry.sections?.[id]?.visits)||0)>0).length;
+  const collected=sumNumericValues(sessionTelemetry.flying?.collected);
+  return {
+    duration:formatSessionDuration(currentTelemetryActiveMs()),
+    sectionsVisited,sectionsTotal:sections.length,
+    signals:unlockedAchievements.size,signalsTotal:ACHIEVEMENT_KEYS.length,
+    flyingCollected:collected,
+    ufoDestroyed:Number(sessionTelemetry.arcade?.ufoDestroyed)||0,
+    bossDefeated:Number(sessionTelemetry.arcade?.bossDefeated)||0,
+    bones:Number(sessionTelemetry.economy?.bonesCollected)||0,
+    hearts:Number(sessionTelemetry.economy?.heartsCollected)||0,
+    rupeesEarned:Number(sessionTelemetry.economy?.rupeesEarned)||0,
+    rupeesSpent:Number(sessionTelemetry.economy?.rupeesSpent)||0,
+    wallet:rupeeWallet,
+    shopOwned:shopOwned.size,
+    flappyHigh:Math.max(Number(sessionTelemetry.flappy?.highScore)||0,Number(flappySessionHighScore)||0),
+    consoleCommands:Number(sessionTelemetry.console?.commands)||0,
+    wishes:Number(sessionTelemetry.wish?.successful)||0,
+    objectives:Number(sessionTelemetry.objectives?.completed)||0,
+    themes:availableThemeModes().length,
+    assistance:{
+      hints:Number(sessionTelemetry.assistance?.hintUses)||0,
+      cheats:Number(sessionTelemetry.assistance?.cheatUses)||0,
+      easy:Number(sessionTelemetry.assistance?.easyModeUses)||0,
+      godmode:Number(sessionTelemetry.assistance?.godmodeUses)||0
+    },
+    model
+  };
+}
+function printSessionStats(){
+  const x=sessionStatsSnapshot();
+  consolePrint('SESSION TELEMETRY','good');
+  consolePrint(`Time Exploring      ${x.duration}`);
+  consolePrint(`Sections Visited    ${x.sectionsVisited} / ${x.sectionsTotal}`);
+  consolePrint(`Signals Found       ${x.signals} / ${x.signalsTotal}`);
+  consolePrint(`Flying Objects      ${x.flyingCollected}`);
+  consolePrint(`UFOs Destroyed      ${x.ufoDestroyed}`);
+  consolePrint(`Boss UFOs           ${x.bossDefeated}`);
+  consolePrint(`Doug Bones          ${x.bones}`);
+  consolePrint(`Morale              ${x.bones}`);
+  consolePrint(`Hearts              ${x.hearts}`);
+  consolePrint(`Rupees Earned       ${x.rupeesEarned}`);
+  consolePrint(`Rupees Spent        ${x.rupeesSpent}`);
+  consolePrint(`Wallet              ${x.wallet}`);
+  consolePrint(`Shop Items Owned    ${x.shopOwned}`);
+  consolePrint(`Mippi Bird High     ${x.flappyHigh}`);
+  consolePrint(`Console Commands    ${x.consoleCommands}`);
+  consolePrint(`Wishes Made         ${x.wishes}`);
+  consolePrint(`Objectives Complete ${x.objectives}`);
+  consolePrint(`Themes Unlocked     ${x.themes} / 3`);
+  consolePrint('');
+  consolePrint(`PLAYER MODEL // ${x.model.label}`,'good');
+  consolePrint(x.model.summary);
+  consolePrint(`MODEL CONFIDENCE // ${x.model.confidence}%`);
+  const used=[];
+  if(x.assistance.easy) used.push('Easy Mode');
+  if(x.assistance.hints) used.push(`Hints x${x.assistance.hints}`);
+  if(x.assistance.cheats) used.push(`Cheat x${x.assistance.cheats}`);
+  if(x.assistance.godmode) used.push('God Mode');
+  consolePrint(`ASSISTANCE // ${used.length?used.join(' · '):'None'}`);
+}
+Object.defineProperty(window,'__MIPPI_PLAYER_MODEL__',{
+  value:Object.freeze({snapshot:()=>JSON.parse(JSON.stringify(computePlayerModel({record:false})))}),
+  enumerable:false,
+  configurable:false
+});
+window.setInterval(()=>computePlayerModel({record:true}),15000);
+
 navToggle?.addEventListener('click', () => {
   const open = nav.classList.toggle('open');
   navToggle.setAttribute('aria-expanded', String(open));
@@ -42,6 +468,8 @@ hardwareWarningClose?.addEventListener('click', () => hardwareWarning?.classList
 
 document.querySelectorAll('.signal').forEach(button => {
   button.addEventListener('click', () => {
+    telemetryCount('portfolio','heroSignalClicks');
+    telemetryMeaningful('hero_signal',{target:button.dataset.target||'unknown'});
     const target = document.getElementById(button.dataset.target);
     target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -49,6 +477,8 @@ document.querySelectorAll('.signal').forEach(button => {
 
 lensToggle?.addEventListener('click', () => {
   const active = heavyWater.classList.toggle('lens-active');
+  telemetryCount('portfolio','secondPersonToggles');
+  telemetryMeaningful('second_person_lens',{active});
   lensToggle.textContent = active ? 'Return to Primary View' : 'Activate Second-Person Lens';
   lensToggle.setAttribute('aria-pressed', String(active));
 });
@@ -58,6 +488,8 @@ const tools = [...document.querySelectorAll('.tool-card')];
 filters.forEach(button => {
   button.addEventListener('click', () => {
     const selected = button.dataset.filter;
+    telemetryCount('portfolio.filters',selected||'unknown');
+    telemetryMeaningful('tool_filter',{filter:selected||'unknown'});
     filters.forEach(filter => filter.classList.toggle('active', filter === button));
     tools.forEach(card => {
       const states = card.dataset.status?.split(' ') ?? [];
@@ -140,10 +572,25 @@ const ledgerClose = document.querySelector('#ledger-close');
 const ledgerList = document.querySelector('#ledger-list');
 const inspectToggle = document.querySelector('#inspect-toggle');
 const themeCycle = document.querySelector('#theme-cycle');
+const objectiveHud = document.querySelector('#dynamic-objective');
+const objectiveKicker = document.querySelector('#objective-kicker');
+const objectiveTitle = document.querySelector('#objective-title');
+const objectiveDetail = document.querySelector('#objective-detail');
+const objectiveProgressText = document.querySelector('#objective-progress-text');
+const objectiveReward = document.querySelector('#objective-reward');
+const objectiveBar = document.querySelector('#objective-progress-fill');
+const objectiveDismiss = document.querySelector('#objective-dismiss');
 const progressHud = document.querySelector('#progress-hud');
 const heartMeter = document.querySelector('#heart-meter');
 const rupeeCount = document.querySelector('#rupee-count');
 const rupeeMeter = document.querySelector('#rupee-meter');
+const shopPopup = document.querySelector('#shop-popup');
+const shopClose = document.querySelector('#shop-close');
+const shopItemsEl = document.querySelector('#shop-items');
+const shopWalletCount = document.querySelector('#shop-wallet-count');
+const shopEquippedName = document.querySelector('#shop-equipped-name');
+const shopUnequip = document.querySelector('#shop-unequip');
+const shopMerchant = document.querySelector('#shop-merchant');
 const unrealGiftPopup = document.querySelector('#unreal-gift-popup');
 const unrealGiftAccept = document.querySelector('#unreal-gift-accept');
 const unrealGiftDecline = document.querySelector('#unreal-gift-decline');
@@ -155,6 +602,8 @@ const THEME_MODE_KEY = 'mippi-theme-mode-v1';
 const HEART_KEY = 'mippi-heart-pickups-v1';
 const HEART_REWARD_KEY = 'mippi-heart-reward-v1';
 const RUPEE_WALLET_KEY = 'mippi-rupee-wallet-v1';
+const RUPEE_DISCOVERED_KEY = 'mippi-rupee-discovered-v1';
+const SHOP_STATE_KEY = 'mippi-shop-state-v1';
 const LEGENDARY_UNLOCK_KEY = 'mippi-legendary-unlocked';
 const LEGENDARY_THEME_KEY = 'mippi-legendary-theme';
 const INSPECT_KEY = 'mippi-inspect-mode';
@@ -175,13 +624,63 @@ try { heartCount=Math.max(0,Math.min(5,Number(localStorage.getItem(HEART_KEY)||0
 let cursorPowerLevel=0;
 let rupeeWallet=0;
 try { rupeeWallet=Math.max(0,Number(localStorage.getItem(RUPEE_WALLET_KEY)||0)); } catch (_) {}
+let rupeeDiscovered=false;
+const SHOP_ITEMS=[
+  {id:'lucky-charm',name:'Lucky Charm',cost:2,slot:'gameplay',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
+  {id:'dog-whistle',name:'Dog Whistle',cost:2,slot:'gameplay',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
+  {id:'star-extender',name:'Star Extender',cost:3,slot:'gameplay',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
+  {id:'slowpoke',name:'Slowpoke',cost:3,slot:'gameplay',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
+  {id:'tractor-beam',name:'Tractor Beam',cost:4,slot:'gameplay',tag:'COLLECTION',description:'Nearby friendly flying pickups bend subtly toward the cursor.'},
+  {id:'galaga-warranty',name:'Galaga Warranty',cost:4,slot:'gameplay',tag:'ARCADE',description:'The first hostile shot from each UFO encounter is visibly deflected.'},
+  {id:'golden-trigger',name:'Golden Trigger',cost:5,slot:'gameplay',tag:'LEGENDARY',requires:'legendary',description:'Legendary cursor shots acquire targets farther away and travel faster.'},
+  {id:'production-discount',name:'Production Discount',cost:6,slot:'passive',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'}
+];
+let shopOwned=new Set();
+let shopEquipped=null;
+try {
+  const stored=JSON.parse(localStorage.getItem(SHOP_STATE_KEY)||'{}');
+  shopOwned=new Set(Array.isArray(stored.owned)?stored.owned.filter(id=>SHOP_ITEMS.some(item=>item.id===id)):[]);
+  shopEquipped=typeof stored.equipped==='string'&&shopOwned.has(stored.equipped)?stored.equipped:null;
+  rupeeDiscovered=localStorage.getItem(RUPEE_DISCOVERED_KEY)==='1'||rupeeWallet>0||shopOwned.size>0;
+  if(rupeeDiscovered) localStorage.setItem(RUPEE_DISCOVERED_KEY,'1');
+} catch (_) { rupeeDiscovered=rupeeWallet>0; }
+
+function shopItem(id){ return SHOP_ITEMS.find(item=>item.id===id)||null; }
+function shopHasEquipped(id){ return shopEquipped===id; }
+function shopDiscountActive(){ return shopOwned.has('production-discount'); }
+function shopItemAvailable(item){ return !item.requires || (item.requires==='legendary' && legendaryUnlocked); }
+function shopPrice(item){
+  if(shopOwned.has(item.id)) return 0;
+  if(shopDiscountActive() && item.id!=='production-discount') return Math.max(1,Math.floor(item.cost*.75));
+  return item.cost;
+}
+function persistShopState(){
+  try{localStorage.setItem(SHOP_STATE_KEY,JSON.stringify({owned:[...shopOwned],equipped:shopEquipped}));}catch(_){}
+  syncShopTelemetrySnapshot();
+}
+function applyShopEquipmentState(){
+  document.body.dataset.shopEquipped=shopEquipped||'';
+  if(!shopHasEquipped('tractor-beam')) document.querySelectorAll('.game-pickup,.doug-bone,.shooting-star').forEach(el=>{el.style.translate='';});
+}
+function updateProgressHudVisibility(){
+  heartMeter?.classList.toggle('visible',heartCount>0);
+  rupeeMeter?.classList.toggle('visible',rupeeDiscovered);
+  progressHud?.classList.toggle('visible',heartCount>0||rupeeDiscovered);
+}
+function syncShopTelemetrySnapshot(){
+  const economy=telemetryPath('economy');
+  economy.shopOwnedSnapshot=[...shopOwned];
+  economy.shopEquippedSnapshot=shopEquipped;
+  economy.walletSnapshot=rupeeWallet;
+  telemetryScheduleSave();
+}
 
 function updateAchievementProgress(extraCount = null) {
   const count = unlockedAchievements.size;
   if (achievementProgress) achievementProgress.textContent = typeof extraCount === 'string' ? extraCount : `${count} / ${ACHIEVEMENT_KEYS.length} FOUND`;
   if (ledgerCount) ledgerCount.textContent = `${count}/${ACHIEVEMENT_KEYS.length}`;
   ledgerTrigger?.classList.toggle('visible', count > 0);
-  progressHud?.classList.toggle('visible', heartCount > 0);
+  updateProgressHudVisibility();
   syncProgressHudPosition();
   renderLedger();
   updateCompletionState();
@@ -203,6 +702,50 @@ function currentThemeMode(){
   if(document.body.classList.contains('theme-legendary')) return 'legendary';
   if(document.body.classList.contains('theme-complete')) return 'epic';
   return 'rare';
+}
+
+const DOUG_THEME_IMAGES={
+  rare:'assets/doug.jpg',
+  epic:'assets/doug-complete.webp',
+  legendary:'assets/doug-legendary.jpg'
+};
+const DOUG_THEME_ALTS={
+  rare:'Doug sitting happily in tall grass',
+  epic:'Doug wearing a blue scarf in the Epic theme',
+  legendary:'Doug wearing teal sunglasses and a scarf in the Legendary theme'
+};
+const DOUG_COOL_IMAGES={
+  rare:'assets/doug-cool-rare.jpg',
+  epic:'assets/doug-cool-epic.jpg',
+  legendary:'assets/doug-cool-legendary.png'
+};
+const DOUG_COOL_ALTS={
+  rare:'Doug wearing sunglasses in the Rare theme',
+  epic:'Doug in the Epic cool state',
+  legendary:'Doug wearing sunglasses in the Legendary cool state'
+};
+function getDougImageConfig({mode=currentThemeMode(),cool=false}={}){
+  return cool
+    ? {src:DOUG_COOL_IMAGES[mode]||DOUG_COOL_IMAGES.rare,alt:DOUG_COOL_ALTS[mode]||DOUG_COOL_ALTS.rare}
+    : {src:DOUG_THEME_IMAGES[mode]||DOUG_THEME_IMAGES.rare,alt:DOUG_THEME_ALTS[mode]||DOUG_THEME_ALTS.rare};
+}
+function syncDougThemeVisuals(){
+  const dougThemeImage=document.querySelector('.doug-photo');
+  if(dougThemeImage){
+    const cool=!!document.querySelector('.doug-card')?.classList.contains('doug-star-cool');
+    const config=getDougImageConfig({cool});
+    dougThemeImage.src=config.src;
+    dougThemeImage.alt=config.alt;
+  }
+  const peek=document.querySelector('.doug-peek');
+  if(peek){
+    const img=peek.querySelector('img');
+    if(img){
+      const config=getDougImageConfig({cool:peek.classList.contains('star-cool')});
+      img.src=config.src;
+      img.alt=config.alt;
+    }
+  }
 }
 
 function availableThemeModes(){
@@ -233,12 +776,7 @@ function applyThemeMode(requestedMode, { persist=true } = {}){
   document.body.classList.toggle('theme-complete', mode==='epic' || mode==='legendary');
   document.body.classList.toggle('theme-legendary', mode==='legendary');
 
-  const dougThemeImage=document.querySelector('.doug-photo');
-  if(dougThemeImage){
-    const themed=mode!=='rare';
-    dougThemeImage.src=themed?'assets/doug-complete.webp':'assets/doug.jpg';
-    dougThemeImage.alt=themed?'Doug wearing a blue scarf in an unlocked theme':'Doug sitting happily in tall grass';
-  }
+  syncDougThemeVisuals();
 
   if(persist){
     try{
@@ -261,6 +799,7 @@ function applyLegendaryTheme(active, options={}){
 }
 
 function cycleThemeMode(){
+  telemetryCount('modes','themeAttempts');
   const modes=availableThemeModes();
   if(modes.length===1){
     showTransientToast('THEME // RARE','Explore more of the site to unlock additional themes.','RARITY // 1 OF 3','SYSTEM');
@@ -269,6 +808,9 @@ function cycleThemeMode(){
   const current=currentThemeMode();
   const index=Math.max(0,modes.indexOf(current));
   const next=modes[(index+1)%modes.length];
+  telemetryCount('modes','themeChanges');
+  telemetryUnique('modes','themeModes',next);
+  telemetryMeaningful('theme_changed',{mode:next});
   applyThemeMode(next);
   consolePrint(`THEME // ${next.toUpperCase()}`,'good');
 }
@@ -282,7 +824,9 @@ function unlockLegendaryMode(){
   legendaryUnlocked=true;
   try{ localStorage.setItem(LEGENDARY_UNLOCK_KEY,'1'); }catch(_){}
   applyThemeMode('legendary');
+  if(shopPopup?.classList.contains('open')) renderShop();
   if(firstUnlock){
+    telemetryMeaningful('legendary_unlocked');
     consolePrint('LEGENDARY THEME UNLOCKED // rarity upgraded to gold.','good');
   }
   return true;
@@ -328,14 +872,14 @@ function updateHeartMeter(){
   const hearts=[...heartMeter.querySelectorAll('span')];
   hearts.forEach((heart,index)=>{ heart.textContent=index<heartCount?'♥':'♡'; heart.classList.toggle('filled',index<heartCount); });
   heartMeter.setAttribute('aria-label',`Heart pickups: ${heartCount} of 5`);
-  rupeeMeter?.classList.toggle('visible',heartCount>0);
-  progressHud?.classList.toggle('visible',heartCount>0);
+  updateProgressHudVisibility();
   syncProgressHudPosition();
 }
 function updateRupeeMeter(){
   if(rupeeCount) rupeeCount.textContent=String(rupeeWallet);
-  rupeeMeter?.classList.toggle('visible',heartCount>0);
-  progressHud?.classList.toggle('visible',heartCount>0);
+  if(shopWalletCount) shopWalletCount.textContent=String(rupeeWallet);
+  updateProgressHudVisibility();
+  if(shopPopup?.classList.contains('open')) renderShop();
   syncProgressHudPosition();
 }
 function openUnrealGift(){
@@ -343,9 +887,11 @@ function openUnrealGift(){
   unrealGiftPopup.classList.add('open'); unrealGiftPopup.setAttribute('aria-hidden','false');
 }
 function closeUnrealGift(){ unrealGiftPopup?.classList.remove('open'); unrealGiftPopup?.setAttribute('aria-hidden','true'); }
-unrealGiftDecline?.addEventListener('click',closeUnrealGift);
-unrealGiftAccept?.addEventListener('click',()=>window.setTimeout(closeUnrealGift,100));
+unrealGiftDecline?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_declined'); closeUnrealGift(); });
+unrealGiftAccept?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_accepted'); window.setTimeout(closeUnrealGift,100); });
 function collectHeart(){
+  telemetryCount('economy','heartsCollected');
+  telemetryMeaningful('heart_collected',{count:heartCount+1});
   if(heartCount<5){
     heartCount++;
     try{localStorage.setItem(HEART_KEY,String(heartCount));}catch(_){}
@@ -356,6 +902,7 @@ function collectHeart(){
   }
   if(heartCount>=5 && !heartRewardShown){
     heartRewardShown=true;
+    telemetryMeaningful('heart_reward_unlocked');
     try{localStorage.setItem(HEART_REWARD_KEY,'1');}catch(_){}
     window.setTimeout(openUnrealGift,420);
   }
@@ -397,6 +944,12 @@ function getNextUnachievedKey() {
 }
 
 function showNextAchievementHint({ intro=false } = {}) {
+  if(intro) telemetryCount('achievements','introHints');
+  else {
+    telemetryCount('achievements','hints');
+    telemetryCount('assistance','hintUses');
+    telemetryMeaningful('hint_requested');
+  }
   const key = getNextUnachievedKey();
   if (!key) {
     showSystemToast('No undiscovered signals.', 'You found everything. The hint system has nothing left to spoil.', `${ACHIEVEMENT_KEYS.length} / ${ACHIEVEMENT_KEYS.length} FOUND`);
@@ -417,7 +970,7 @@ achievementClose?.addEventListener('click', hideAchievementToast);
 hintTrigger?.addEventListener('click', () => showNextAchievementHint());
 
 function syncProgressHudPosition(){
-  if(!progressHud) return;
+  if(!progressHud){ syncObjectiveHudPosition(); return; }
   const isOpen=!!ledger?.classList.contains('open');
   progressHud.classList.toggle('ledger-open',isOpen);
   progressHud.style.top='auto';
@@ -427,8 +980,12 @@ function syncProgressHudPosition(){
     const bottomGap=Math.max(12,ledgerBottom+rect.height+10);
     progressHud.style.bottom=`${bottomGap}px`;
   }else{
-    progressHud.style.bottom=window.innerWidth<=620?'58px':'60px';
+    const controls=document.querySelector('#discovery-controls');
+    const controlsRect=controls?.getBoundingClientRect?.();
+    const collapsedBottom=controlsRect?.height>0?Math.max(12,window.innerHeight-controlsRect.top+8):(window.innerWidth<=620?58:60);
+    progressHud.style.bottom=`${Math.round(collapsedBottom)}px`;
   }
+  syncObjectiveHudPosition();
 }
 function openLedger() {
   if (!ledger) return;
@@ -470,6 +1027,12 @@ function showAchievement(key, { force = false, demoIndex = null } = {}) {
   const firstDiscovery = !force && unlockedAchievements.size === 0;
   if (!force) {
     unlockedAchievements.add(key);
+    telemetryCount('achievements','unlocks');
+    telemetryUnique('achievements','keys',key);
+    const sources=telemetryPath('achievements.sources');
+    sources[key]='organic';
+    telemetryMeaningful('achievement_unlocked',{key,source:'organic'});
+    if(unlockedAchievements.size===ACHIEVEMENT_KEYS.length) telemetryMeaningful('epic_unlocked');
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...unlockedAchievements])); } catch (_) {}
   }
   if (firstDiscovery) window.clearTimeout(introHintTimer);
@@ -491,15 +1054,20 @@ ledgerTrigger?.addEventListener('click', () => {
 });
 ledgerClose?.addEventListener('click', closeLedger);
 
-function setInspectMode(active) {
+function setInspectMode(active, {telemetry=true} = {}) {
+  const changed=document.body.classList.contains('inspect-mode')!==active;
   document.body.classList.toggle('inspect-mode', active);
+  if(changed && telemetry){
+    telemetryCount('modes','inspectToggles');
+    telemetryMeaningful('inspect_mode',{active});
+  }
   inspectToggle?.classList.toggle('active', active);
   if (inspectToggle) inspectToggle.textContent = active ? 'Inspect Mode: On' : 'Inspect Mode';
   try { localStorage.setItem(INSPECT_KEY, active ? '1' : '0'); } catch (_) {}
 }
 let inspectPref = false;
 try { inspectPref = localStorage.getItem(INSPECT_KEY) === '1'; } catch (_) {}
-setInspectMode(inspectPref);
+setInspectMode(inspectPref,{telemetry:false});
 inspectToggle?.addEventListener('click', () => setInspectMode(!document.body.classList.contains('inspect-mode')));
 themeCycle?.addEventListener('click', cycleThemeMode);
 [
@@ -573,13 +1141,32 @@ function reactDoug(message) {
   window.clearTimeout(dougReactionTimer);
   dougReactionTimer = window.setTimeout(() => dougReaction.classList.remove('show'), 2200);
 }
-doug?.addEventListener('click', () => {
+function petDoug(source='card',sourceEl=doug){
   dougClicks += 1;
+  telemetryCount('interaction','dougClicks');
+  telemetryCount('interaction.dougPetSources',source);
+  if(dougClicks===1) telemetryMeaningful('doug_interaction',{source});
+  else telemetryMeaningful('doug_pet',{source,count:dougClicks});
   const index = Math.min(dougReactions.length - 1, Math.floor((dougClicks - 1) / 2));
-  reactDoug(dougReactions[index]);
+  const message=dougReactions[index];
+  reactDoug(message);
+  burstDougPaws(document.body.classList.contains('theme-complete')?6:4,sourceEl);
+  if(source==='peek'){
+    const peek=sourceEl?.closest?.('.doug-peek')||sourceEl;
+    const label=peek?.querySelector?.('strong');
+    if(label) label.textContent=message;
+    if(peek){
+      peek.classList.add('petted');
+      window.setTimeout(()=>peek.classList.remove('petted'),280);
+      clearTimeout(dougPeekTimer);
+      dougPeekTimer=setTimeout(()=>{peek.classList.remove('show','star-cool');syncDougThemeVisuals();},2400);
+    }
+  }
   if (dougClicks === 5) showAchievement('doug');
   if (dougClicks >= 12) dougCard?.classList.add('doug-command');
-});
+  syncDougThemeVisuals();
+}
+doug?.addEventListener('click', () => petDoug('card',doug));
 
 // A rare ambient signal drifts through the viewport from time to time.
 const ambientSecret = document.createElement('button');
@@ -597,13 +1184,16 @@ function scheduleAmbientSecret(initial = false) {
     ambientSecret.style.left = `${x}vw`;
     ambientSecret.style.top = `${y}vh`;
     ambientSecret.classList.add('visible');
+    telemetryFlyingSpawn('ghost_anomaly');
     window.setTimeout(() => {
+      if(ambientSecret.classList.contains('visible')) telemetryFlyingMiss('ghost_anomaly');
       ambientSecret.classList.remove('visible');
       scheduleAmbientSecret(false);
     }, 8500);
   }, wait);
 }
 ambientSecret.addEventListener('click', () => {
+  telemetryFlyingCollect('ghost_anomaly','direct');
   ambientSecret.classList.remove('visible');
   showAchievement('ghost');
   scheduleAmbientSecret(false);
@@ -626,8 +1216,13 @@ const consoleTipButton = document.querySelector('#console-tip-button');
 let consoleHistory = [];
 let consoleHistoryIndex = 0;
 function openConsole(open = true) {
+  const wasOpen=devConsole?.classList.contains('open')||false;
   devConsole?.classList.toggle('open', open);
   devConsole?.setAttribute('aria-hidden', String(!open));
+  if(open!==wasOpen){
+    telemetryCount('console',open?'opens':'closes');
+    if(open) telemetryMeaningful('console_opened');
+  }
   if (open) window.setTimeout(() => consoleInput?.focus(), 60);
 }
 function consolePrint(text, cls = '') {
@@ -652,11 +1247,427 @@ let dougBoneCount = 0;
 let ufoKills = 0;
 let nextBossKillThreshold = 10;
 let ufoBossActive = false;
+let ufoCalmUntil = 0;
+let arcadeCursorHits = 0;
 let vibeEnabled = false;
 let vibeTimer = null;
 let vibeAgent = null;
 let lumenLayer = null;
 let lumenEnabled = false;
+
+// Adaptive Game Director -----------------------------------------------------
+// Invisible pacing layer. It never gates portfolio content, never invalidates
+// progress, and Easy Mode always overrides it. The Director only changes the
+// frequency/generosity of ambient game systems and hostile arcade pressure.
+const DIRECTOR_PROFILES={
+  quiet:{pickupDelay:1.75,secretDelay:1.55,ufoDelay:1.95,boneDelay:1.55,flight:1.05,hostileCadence:1.12,projectileDuration:1.04,targetBonus:0},
+  curious:{pickupDelay:1,secretDelay:1,ufoDelay:1,boneDelay:1,flight:1,hostileCadence:1,projectileDuration:1,targetBonus:0},
+  engaged:{pickupDelay:.84,secretDelay:.94,ufoDelay:.86,boneDelay:.90,flight:1.02,hostileCadence:.94,projectileDuration:1,targetBonus:10},
+  struggling:{pickupDelay:.70,secretDelay:.86,ufoDelay:1.08,boneDelay:.78,flight:1.32,hostileCadence:1.28,projectileDuration:1.18,targetBonus:42},
+  mastery:{pickupDelay:.72,secretDelay:.84,ufoDelay:.73,boneDelay:.82,flight:.92,hostileCadence:.82,projectileDuration:.92,targetBonus:0}
+};
+const directorRuntime={
+  state:DIRECTOR_PROFILES[sessionTelemetry.director?.state]?sessionTelemetry.director.state:'curious',
+  stateSince:Date.now(),candidate:null,candidateSince:0,lastEvaluation:0,lastOpportunityAt:0,lastStateAccounting:Date.now()
+};
+function directorSum(obj){ return Object.values(obj||{}).reduce((sum,value)=>sum+(Number(value)||0),0); }
+function directorLiveActiveMs(){
+  const committed=Number(sessionTelemetry.session.activeMs)||0;
+  return committed+(telemetryActiveStarted==null?0:Math.max(0,performance.now()-telemetryActiveStarted));
+}
+function directorLiveSectionDwell(){
+  let total=Object.values(sessionTelemetry.sections||{}).reduce((sum,entry)=>sum+(Number(entry?.dwellMs)||0),0);
+  telemetrySectionActive.forEach(started=>{ total+=Math.max(0,performance.now()-started); });
+  return total;
+}
+function directorMetrics(){
+  const collected=directorSum(sessionTelemetry.flying?.collected);
+  const missed=directorSum(sessionTelemetry.flying?.missed);
+  const forced=directorSum(sessionTelemetry.flying?.forced);
+  const spawned=Math.max(0,directorSum(sessionTelemetry.flying?.spawned)-forced);
+  const naturalAttempts=Math.max(0,collected+missed-Math.min(forced,collected+missed));
+  const collectRate=naturalAttempts>0?collected/naturalAttempts:1;
+  const ufoSpawned=Number(sessionTelemetry.arcade?.ufoSpawned)||0;
+  const ufoDestroyed=Number(sessionTelemetry.arcade?.ufoDestroyed)||0;
+  const ufoRate=ufoSpawned>0?ufoDestroyed/ufoSpawned:1;
+  const achievementCount=Number(sessionTelemetry.achievements?.unlocks)||0;
+  const consoleCommands=Number(sessionTelemetry.console?.commands)||0;
+  const shopPurchases=Number(sessionTelemetry.economy?.shopPurchases)||0;
+  const flappyStarts=Number(sessionTelemetry.flappy?.gamesStarted)||0;
+  const dougPets=Number(sessionTelemetry.interaction?.dougClicks)||0;
+  const modeToggles=['inspectToggles','slowmoToggles','particleToggles','lumenToggles','naniteToggles','vibeToggles'].reduce((n,k)=>n+(Number(sessionTelemetry.modes?.[k])||0),0);
+  const gameScore=achievementCount*2+collected*1.05+ufoDestroyed*1.4+(Number(sessionTelemetry.arcade?.bossHits)||0)*.45+(Number(sessionTelemetry.arcade?.bossDefeated)||0)*3+Math.min(consoleCommands,12)*.55+shopPurchases*1.7+flappyStarts*1.2+Math.min(dougPets,8)*.35+Math.min(modeToggles,10)*.45;
+  const sectionsVisited=Object.values(sessionTelemetry.sections||{}).filter(entry=>(Number(entry?.visits)||0)>0).length;
+  const professionalDwell=directorLiveSectionDwell();
+  const professionalActions=(Number(sessionTelemetry.interaction?.externalClicks)||0)+(Number(sessionTelemetry.portfolio?.galleryOpens)||0)+directorSum(sessionTelemetry.portfolio?.resumeClicks);
+  const activeMs=directorLiveActiveMs();
+  const now=Date.now();
+  const recentGameEvents=(sessionTelemetry.timeline||[]).filter(event=>now-(Number(event?.t)||0)<90000 && !['section_first_visit','external_link'].includes(event?.type)).length;
+  return {collected,missed,spawned,naturalAttempts,collectRate,ufoSpawned,ufoDestroyed,ufoRate,achievementCount,gameScore,sectionsVisited,professionalDwell,professionalActions,activeMs,recentGameEvents,lastMeaningfulAgo:now-(Number(sessionTelemetry.session.lastMeaningfulAt)||now)};
+}
+function directorClassify(metrics){
+  const professionalReader=metrics.activeMs>55000 && metrics.sectionsVisited>=2 && metrics.professionalDwell>42000 && metrics.gameScore<4.5;
+  if(professionalReader) return {state:'quiet',reason:'professional_reader'};
+  const collectibleStruggle=metrics.gameScore>=4 && metrics.collected>=1 && metrics.naturalAttempts>=6 && metrics.collectRate<.30;
+  const arcadeStruggle=metrics.ufoSpawned>=4 && metrics.ufoDestroyed>=1 && metrics.ufoRate<.34;
+  if(collectibleStruggle||arcadeStruggle) return {state:'struggling',reason:collectibleStruggle?'collection_friction':'arcade_friction'};
+  const masteryByCollection=metrics.naturalAttempts>=8 && metrics.collectRate>=.62 && metrics.collected>=8;
+  const masteryByArcade=metrics.ufoSpawned>=5 && metrics.ufoRate>=.66 && metrics.ufoDestroyed>=4;
+  if(metrics.gameScore>=20 && metrics.achievementCount>=3 && (masteryByCollection||masteryByArcade)) return {state:'mastery',reason:masteryByArcade?'arcade_mastery':'interaction_mastery'};
+  if(metrics.gameScore>=7 || metrics.recentGameEvents>=5) return {state:'engaged',reason:'active_play'};
+  if(metrics.activeMs>100000 && metrics.gameScore<2.5) return {state:'quiet',reason:'low_game_engagement'};
+  return {state:'curious',reason:'baseline_exploration'};
+}
+function directorAccountStateTime(){
+  const now=Date.now(),elapsed=Math.max(0,now-directorRuntime.lastStateAccounting);
+  directorRuntime.lastStateAccounting=now;
+  const stateMs=telemetryPath('director.stateMs');
+  stateMs[directorRuntime.state]=(Number(stateMs[directorRuntime.state])||0)+elapsed;
+}
+function directorSetState(next,reason){
+  if(!DIRECTOR_PROFILES[next]||next===directorRuntime.state) return;
+  directorAccountStateTime();
+  const previous=directorRuntime.state;
+  directorRuntime.state=next; directorRuntime.stateSince=Date.now(); directorRuntime.candidate=null; directorRuntime.candidateSince=0;
+  document.body.dataset.directorState=next;
+  sessionTelemetry.director.state=next; sessionTelemetry.director.lastReason=reason;
+  sessionTelemetry.director.transitions=(Number(sessionTelemetry.director.transitions)||0)+1;
+  if(!Array.isArray(sessionTelemetry.director.stateChanges)) sessionTelemetry.director.stateChanges=[];
+  sessionTelemetry.director.stateChanges.push({t:Date.now(),from:previous,to:next,reason});
+  if(sessionTelemetry.director.stateChanges.length>24) sessionTelemetry.director.stateChanges.splice(0,sessionTelemetry.director.stateChanges.length-24);
+  telemetryScheduleSave();
+}
+function directorEvaluate(){
+  directorAccountStateTime();
+  sessionTelemetry.director.evaluations=(Number(sessionTelemetry.director.evaluations)||0)+1;
+  const metrics=directorMetrics();
+  const result=directorClassify(metrics);
+  const now=Date.now();
+  if(result.state===directorRuntime.state){ directorRuntime.candidate=null; directorRuntime.candidateSince=0; sessionTelemetry.director.lastReason=result.reason; }
+  else if(directorRuntime.candidate!==result.state){ directorRuntime.candidate=result.state; directorRuntime.candidateSince=now; }
+  else if(now-directorRuntime.candidateSince>=9000 && now-directorRuntime.stateSince>=14000){ directorSetState(result.state,result.reason); }
+  directorRuntime.lastEvaluation=now;
+  directorMaybeBreakDrought(metrics);
+  telemetryScheduleSave();
+}
+function directorProfile(){ return DIRECTOR_PROFILES[directorRuntime.state]||DIRECTOR_PROFILES.curious; }
+function directorDelay(kind,min,max){
+  const base=min+Math.random()*Math.max(0,max-min);
+  if(easyModeEnabled) return base;
+  const p=directorProfile();
+  const key=kind==='shooting_star'?'secretDelay':kind==='ufo'?'ufoDelay':kind==='bone'?'boneDelay':'pickupDelay';
+  return base*(Number(p[key])||1);
+}
+function directorFlightMultiplier(){ return easyModeEnabled?1:(Number(directorProfile().flight)||1); }
+function directorHostileCadenceMultiplier(){ return easyModeEnabled?1:(Number(directorProfile().hostileCadence)||1); }
+function directorProjectileDurationMultiplier(){ return easyModeEnabled?1:(Number(directorProfile().projectileDuration)||1); }
+function directorTargetBonus(){ return easyModeEnabled?0:(Number(directorProfile().targetBonus)||0); }
+function directorAttentionBlocked(){
+  if(document.visibilityState!=='visible') return true;
+  if(document.activeElement?.matches?.('input,textarea,select')) return true;
+  if(achievement?.classList.contains('show') || ledger?.classList.contains('open')) return true;
+  return !!document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game');
+}
+function directorAllowsAmbient(kind,{force=false}={}){
+  if(force||easyModeEnabled) return true;
+  if(directorAttentionBlocked()){
+    sessionTelemetry.director.attentionBlocks=(Number(sessionTelemetry.director.attentionBlocks)||0)+1;
+    telemetryScheduleSave();
+    return false;
+  }
+  return true;
+}
+function directorMaybeBreakDrought(metrics=directorMetrics()){
+  if(easyModeEnabled || directorRuntime.state==='quiet' || !document.body.classList.contains('theme-complete')) return;
+  if(directorAttentionBlocked()) return;
+  if(document.querySelector('.shooting-star,.galaga-secret,.game-pickup,.doug-bone')) return;
+  const threshold=directorRuntime.state==='struggling'?45000:directorRuntime.state==='engaged'?60000:directorRuntime.state==='mastery'?72000:68000;
+  const now=Date.now();
+  if(metrics.lastMeaningfulAgo<threshold || now-directorRuntime.lastOpportunityAt<threshold) return;
+  directorRuntime.lastOpportunityAt=now;
+  sessionTelemetry.director.droughtAssists=(Number(sessionTelemetry.director.droughtAssists)||0)+1;
+  telemetryScheduleSave();
+  spawnGamePickup();
+}
+function startAdaptiveDirector(){
+  document.body.dataset.directorState=directorRuntime.state;
+  sessionTelemetry.director.state=directorRuntime.state;
+  window.setTimeout(directorEvaluate,4500);
+  window.setInterval(directorEvaluate,8000);
+  window.addEventListener('pagehide',directorAccountStateTime);
+}
+Object.defineProperty(window,'__MIPPI_DIRECTOR__',{
+  value:Object.freeze({snapshot:()=>({state:directorRuntime.state,profile:{...directorProfile()},metrics:directorMetrics(),telemetry:JSON.parse(JSON.stringify(sessionTelemetry.director||{}))})}),
+  enumerable:false,configurable:false
+});
+
+
+// Dynamic Objectives --------------------------------------------------------
+// Short optional goals turn systems the visitor already understands into a
+// temporary reason to play with them. This is deliberately not a quest log:
+// one objective at a time, no failure state, no required completion.
+const OBJECTIVE_FRIENDLY_KINDS=new Set(['rupee','heart','1up','star','key','bone','shooting_star']);
+const OBJECTIVE_SECTION_IDS=['games','career','consulting','crafting','tools','about'];
+const OBJECTIVE_DEFS=[
+  {id:'signal-sweep',category:'DISCOVERY',title:'Find one more hidden Signal.',goal:1,reward:1,
+    eligible:()=>unlockedAchievements.size>0 && unlockedAchievements.size<ACHIEVEMENT_KEYS.length,
+    detail:'The site is already telling you that something else reacts.'},
+  {id:'field-trip',category:'EXPLORATION',title:'Visit three unexplored sections.',goal:3,reward:1,
+    eligible:()=>OBJECTIVE_SECTION_IDS.filter(id=>!(Number(sessionTelemetry.sections?.[id]?.visits)||0)).length>=3,
+    detail:'No speed requirement. The work is still the point.'},
+  {id:'inspection',category:'EXPLORATION',title:'Inspect one annotated element.',goal:1,reward:1,
+    eligible:()=>unlockedAchievements.size>0,
+    detail:'Turn on Inspect Mode in the Signal Ledger, then look around.'},
+  {id:'pickup-catch',category:'COLLECTION',title:'Catch any flying pickup.',goal:1,reward:1,
+    eligible:()=>document.body.classList.contains('theme-complete') && !reduceMotion,
+    detail:'Any friendly pickup counts. Clicking, Star Power, and Legendary shots are all valid.'},
+  {id:'pickup-variety',category:'COLLECTION',title:'Collect two different pickup types.',goal:2,reward:2,
+    eligible:()=>document.body.classList.contains('theme-complete') && !reduceMotion && directorSum(sessionTelemetry.flying?.collected)>=2,
+    detail:'Different things should ask for different attention.'},
+  {id:'heart-signal',category:'COLLECTION',title:'Collect one Heart.',goal:1,reward:1,
+    eligible:()=>document.body.classList.contains('theme-complete') && !reduceMotion && heartCount<5,
+    detail:'Positive signal detected somewhere in the flight schedule.'},
+  {id:'airspace',category:'ARCADE',title:'Destroy two regular UFOs.',goal:2,reward:1,
+    eligible:()=>document.body.classList.contains('theme-complete') && !reduceMotion && !ufoBossActive,
+    detail:'Clear a little airspace without waiting for the Boss.'},
+  {id:'contact-damage',category:'SYSTEM COMBO',title:'Destroy a UFO with Star Power contact.',goal:1,reward:2,advanced:true,
+    eligible:()=>document.body.classList.contains('theme-complete') && !reduceMotion && document.body.classList.contains('star-power') && !ufoBossActive,
+    detail:'No click required. Touch the target while the power is active.'},
+  {id:'legendary-shot',category:'MASTERY',title:'Hit a flying target with a Legendary shot.',goal:1,reward:2,advanced:true,
+    eligible:()=>legendaryUnlocked && document.body.classList.contains('theme-legendary') && !reduceMotion,
+    detail:'Use the extra verb Legendary Mode gave you.'},
+  {id:'field-test',category:'LOADOUT',title:'Collect a pickup with a Shop modifier equipped.',goal:1,reward:1,
+    eligible:()=>!!shopEquipped && document.body.classList.contains('theme-complete') && !reduceMotion,
+    detail:'Put the loadout to work rather than leaving it in the menu.'},
+  {id:'loadout',category:'LOADOUT',title:'Equip one owned gameplay upgrade.',goal:1,reward:1,
+    eligible:()=>!shopEquipped && SHOP_ITEMS.some(item=>item.slot==='gameplay' && shopOwned.has(item.id)),
+    detail:'Owned gear can be swapped freely. Pick what matters right now.'}
+];
+const objectiveRuntime={active:null,nextEligibleAt:Date.now()+32000,lastCategory:null,started:false};
+function objectiveDef(id){ return OBJECTIVE_DEFS.find(def=>def.id===id)||null; }
+function objectiveCompletedIds(){ return new Set(sessionTelemetry.objectives?.completedIds||[]); }
+function objectiveDismissedIds(){ return new Set(sessionTelemetry.objectives?.dismissedIds||[]); }
+function objectiveCooldownMs(){
+  if(easyModeEnabled) return 24000+Math.random()*16000;
+  const state=directorRuntime.state;
+  if(state==='mastery') return 34000+Math.random()*22000;
+  if(state==='engaged') return 42000+Math.random()*26000;
+  if(state==='struggling') return 52000+Math.random()*28000;
+  return 62000+Math.random()*32000;
+}
+function objectiveProgressLabel(active=objectiveRuntime.active){
+  if(!active) return '';
+  return `${Math.min(active.progress,active.goal)} / ${active.goal}`;
+}
+function objectiveRender(){
+  const active=objectiveRuntime.active;
+  if(!objectiveHud) return;
+  if(!active){
+    objectiveHud.classList.remove('show','complete','attention-muted');
+    objectiveHud.setAttribute('aria-hidden','true');
+    window.setTimeout(syncObjectiveHudPosition,20);
+    return;
+  }
+  const def=objectiveDef(active.id);
+  const complete=!!active.complete;
+  objectiveHud.classList.toggle('complete',complete);
+  objectiveHud.classList.add('show');
+  objectiveHud.setAttribute('aria-hidden','false');
+  if(objectiveKicker) objectiveKicker.textContent=complete?'OBJECTIVE COMPLETE':`OPTIONAL OBJECTIVE // ${def?.category||'SIGNAL'}`;
+  if(objectiveTitle) objectiveTitle.textContent=complete?'Signal resolved.':def?.title||active.id;
+  if(objectiveDetail) objectiveDetail.textContent=complete?(active.unlockedWallet?`${active.reward} rupee${active.reward===1?'':'s'} added. Click RUPEES to open the newly discovered Shop.`:`${active.reward} rupee${active.reward===1?'':'s'} added to the wallet.`):(def?.detail||'Optional. Ignore it if something else is more interesting.');
+  if(objectiveProgressText) objectiveProgressText.textContent=complete?'COMPLETE':objectiveProgressLabel(active);
+  if(objectiveReward) objectiveReward.textContent=`${complete?'REWARD':'REWARD'} // ${active.reward} RUPEE${active.reward===1?'':'S'}`;
+  if(objectiveBar) objectiveBar.style.width=`${Math.max(0,Math.min(100,(active.progress/Math.max(1,active.goal))*100))}%`;
+  if(objectiveDismiss) objectiveDismiss.hidden=complete;
+  syncObjectiveHudPosition();
+}
+function syncObjectiveHudPosition(){
+  if(!objectiveHud) return;
+  let bottom=window.innerWidth<=620?58:60;
+  const hudVisible=progressHud?.classList.contains('visible');
+  if(hudVisible){
+    const r=progressHud.getBoundingClientRect();
+    if(r.height>0) bottom=Math.max(bottom,window.innerHeight-r.top+8);
+  }else if(ledger?.classList.contains('open')){
+    const r=ledger.getBoundingClientRect();
+    if(r.height>0) bottom=Math.max(bottom,window.innerHeight-r.top+8);
+  }
+  objectiveHud.style.bottom=`${Math.round(bottom)}px`;
+}
+function objectiveMarkUnique(field,id){
+  telemetryUnique('objectives',field,id);
+}
+function objectiveStart(def,{contextual=false}={}){
+  if(!def || objectiveRuntime.active) return false;
+  objectiveRuntime.active={id:def.id,category:def.category,goal:def.goal,reward:def.reward,progress:0,startedAt:Date.now(),unique:new Set(),complete:false,contextual};
+  objectiveRuntime.lastCategory=def.category;
+  telemetryCount('objectives','offered');
+  telemetryCount('objectives.categoryCounts',def.category);
+  objectiveMarkUnique('offeredIds',def.id);
+  telemetryMeaningful('objective_offered',{id:def.id,category:def.category,contextual});
+  objectiveRender();
+  objectiveSeedOpportunity(def);
+  return true;
+}
+function objectiveFinish(){
+  const active=objectiveRuntime.active;
+  if(!active || active.complete) return;
+  active.complete=true; active.progress=active.goal;
+  telemetryCount('objectives','completed');
+  telemetryCount('objectives','rupeesEarned',active.reward);
+  objectiveMarkUnique('completedIds',active.id);
+  active.unlockedWallet=!rupeeDiscovered;
+  telemetryMeaningful('objective_completed',{id:active.id,category:active.category,reward:active.reward});
+  awardRupees(active.reward,{source:'objective',announce:'silent'});
+  consolePrint(`OPTIONAL OBJECTIVE COMPLETE // ${active.id.toUpperCase().replaceAll('-',' ')} // +${active.reward} RUPEE${active.reward===1?'':'S'}`,'good');
+  objectiveRender();
+  objectiveRuntime.nextEligibleAt=Date.now()+objectiveCooldownMs();
+  window.setTimeout(()=>{
+    if(objectiveRuntime.active===active){ objectiveRuntime.active=null; objectiveRender(); }
+  },3600);
+}
+function objectiveDismissActive(){
+  const active=objectiveRuntime.active;
+  if(!active || active.complete) return;
+  telemetryCount('objectives','dismissed');
+  objectiveMarkUnique('dismissedIds',active.id);
+  telemetryMeaningful('objective_dismissed',{id:active.id,category:active.category});
+  objectiveRuntime.active=null;
+  objectiveRuntime.nextEligibleAt=Date.now()+Math.max(45000,objectiveCooldownMs());
+  objectiveRender();
+}
+function objectiveCancel(reason='state_changed'){
+  const active=objectiveRuntime.active;
+  if(!active || active.complete) return;
+  telemetryCount('objectives','canceled');
+  telemetryMeaningful('objective_canceled',{id:active.id,reason});
+  objectiveRuntime.active=null;
+  objectiveRuntime.nextEligibleAt=Date.now()+30000;
+  objectiveRender();
+}
+function objectiveEligiblePool(){
+  const completed=objectiveCompletedIds(), dismissed=objectiveDismissedIds();
+  const state=directorRuntime.state;
+  return OBJECTIVE_DEFS.filter(def=>{
+    if(completed.has(def.id)||dismissed.has(def.id)) return false;
+    if(def.advanced && !['engaged','mastery'].includes(state) && !easyModeEnabled) return false;
+    try{return !!def.eligible();}catch(_){return false;}
+  });
+}
+function objectiveChoose(){
+  let pool=objectiveEligiblePool();
+  if(!pool.length) return null;
+  const alternate=pool.filter(def=>def.category!==objectiveRuntime.lastCategory);
+  if(alternate.length) pool=alternate;
+  // Underused categories get a small implicit preference without turning the
+  // system into deterministic rotation.
+  const weighted=[];
+  pool.forEach(def=>{
+    const uses=Number(sessionTelemetry.objectives?.categoryCounts?.[def.category])||0;
+    const copies=Math.max(1,3-Math.min(2,uses));
+    for(let i=0;i<copies;i++) weighted.push(def);
+  });
+  return weighted[Math.floor(Math.random()*weighted.length)]||pool[0];
+}
+function objectiveCanOffer(){
+  if(objectiveRuntime.active || Date.now()<objectiveRuntime.nextEligibleAt) return false;
+  if(document.visibilityState!=='visible' || directorRuntime.state==='quiet' || directorAttentionBlocked()) return false;
+  const metrics=directorMetrics();
+  if(!easyModeEnabled && metrics.activeMs<32000) return false;
+  return easyModeEnabled || metrics.gameScore>=4 || unlockedAchievements.size>=2;
+}
+function objectiveMaybeOffer(){
+  if(!objectiveCanOffer()) return;
+  const def=objectiveChoose();
+  if(def) objectiveStart(def);
+}
+function objectiveTryContextual(id){
+  if(objectiveRuntime.active || directorRuntime.state==='quiet' || directorAttentionBlocked()) return false;
+  const def=objectiveDef(id);
+  if(!def || objectiveCompletedIds().has(id) || objectiveDismissedIds().has(id)) return false;
+  try{ if(!def.eligible()) return false; }catch(_){ return false; }
+  return objectiveStart(def,{contextual:true});
+}
+function objectiveSeedOpportunity(def){
+  if(!def) return;
+  const trySeed=(attempt=0)=>{
+    const active=objectiveRuntime.active;
+    if(!active || active.id!==def.id || active.complete) return;
+    if(directorAttentionBlocked()){
+      if(attempt<4) window.setTimeout(()=>trySeed(attempt+1),1800);
+      return;
+    }
+    if(['pickup-catch','pickup-variety','field-test','legendary-shot'].includes(def.id)){
+      if(!document.querySelector('.game-pickup,.doug-bone,.shooting-star')) spawnGamePickup();
+    }else if(def.id==='heart-signal'){
+      if(!document.querySelector('.game-pickup[data-kind="heart"]')) spawnGamePickup('heart');
+    }else if(['airspace','contact-damage'].includes(def.id)){
+      if(!document.querySelector('.galaga-secret') && !ufoBossActive) spawnGalaga();
+    }
+  };
+  window.setTimeout(()=>trySeed(),def.id==='contact-damage'?650:1800);
+}
+function objectiveIncrement(amount=1){
+  const active=objectiveRuntime.active;
+  if(!active || active.complete) return;
+  active.progress=Math.min(active.goal,active.progress+amount);
+  objectiveRender();
+  if(active.progress>=active.goal) objectiveFinish();
+}
+function objectiveHandleEvent(type,detail={}){
+  // Context-sensitive objective: activating Star Power can immediately create
+  // an interesting system-combo opportunity instead of waiting for RNG.
+  if(type==='star_power' && !objectiveRuntime.active){
+    window.setTimeout(()=>objectiveTryContextual('contact-damage'),80);
+  }
+  const active=objectiveRuntime.active;
+  if(!active || active.complete || type.startsWith('objective_')) return;
+  const friendly=OBJECTIVE_FRIENDLY_KINDS.has(detail.kind);
+  switch(active.id){
+    case 'signal-sweep': if(type==='achievement_unlocked') objectiveIncrement(); break;
+    case 'field-trip':
+      if(type==='section_first_visit' && OBJECTIVE_SECTION_IDS.includes(detail.id) && !active.unique.has(detail.id)){ active.unique.add(detail.id); objectiveIncrement(); }
+      break;
+    case 'inspection': if(type==='inspect_target') objectiveIncrement(); break;
+    case 'pickup-catch': if(type==='flying_collected' && friendly) objectiveIncrement(); break;
+    case 'pickup-variety':
+      if(type==='flying_collected' && friendly && !active.unique.has(detail.kind)){ active.unique.add(detail.kind); objectiveIncrement(); }
+      break;
+    case 'heart-signal': if(type==='heart_collected') objectiveIncrement(); break;
+    case 'airspace': if(type==='flying_collected' && detail.kind==='ufo') objectiveIncrement(); break;
+    case 'contact-damage': if(type==='flying_collected' && detail.kind==='ufo' && detail.method==='star_power') objectiveIncrement(); break;
+    case 'legendary-shot': if(type==='flying_collected' && detail.method==='legendary') objectiveIncrement(); break;
+    case 'field-test': if(type==='flying_collected' && friendly && !!shopEquipped) objectiveIncrement(); break;
+    case 'loadout': if(type==='shop_equip') objectiveIncrement(); break;
+  }
+}
+function objectiveTick(){
+  const active=objectiveRuntime.active;
+  if(active && !active.complete){
+    objectiveHud?.classList.toggle('attention-muted',directorAttentionBlocked());
+    // Quiet mode should quietly get the objective layer out of the way rather
+    // than nagging someone who has settled into professional reading.
+    if(directorRuntime.state==='quiet' && Date.now()-active.startedAt>22000) objectiveCancel('director_quiet');
+    // A contextual Star Power challenge expires silently once its short combo
+    // window is gone. It is not a failure and can return in a later session.
+    else if(active.id==='contact-damage' && !document.body.classList.contains('star-power') && Date.now()-active.startedAt>5000) objectiveCancel('combo_window_closed');
+  }
+  objectiveMaybeOffer();
+}
+function startDynamicObjectives(){
+  if(objectiveRuntime.started) return;
+  objectiveRuntime.started=true;
+  objectiveEventSink=objectiveHandleEvent;
+  objectiveDismiss?.addEventListener('click',objectiveDismissActive);
+  window.addEventListener('resize',syncObjectiveHudPosition,{passive:true});
+  window.setTimeout(objectiveMaybeOffer,9000);
+  window.setInterval(objectiveTick,6000);
+}
+Object.defineProperty(window,'__MIPPI_OBJECTIVES__',{
+  value:Object.freeze({snapshot:()=>({active:objectiveRuntime.active?{id:objectiveRuntime.active.id,category:objectiveRuntime.active.category,progress:objectiveRuntime.active.progress,goal:objectiveRuntime.active.goal,reward:objectiveRuntime.active.reward,complete:objectiveRuntime.active.complete}:null,nextEligibleAt:objectiveRuntime.nextEligibleAt,telemetry:JSON.parse(JSON.stringify(sessionTelemetry.objectives||{}))})}),
+  enumerable:false,configurable:false
+});
 let compileTimer = null;
 let compileRapidTimers = [];
 let compileCount = 639427;
@@ -726,6 +1737,8 @@ function unlockWishCommand(source='CELESTIAL SIGNAL'){
   const already=hasWish();
   if(!already){
     try{localStorage.setItem(WISH_KEY,'1');}catch(_){}
+    telemetryCount('wish','commandUnlocks');
+    telemetryMeaningful('wish_command_unlocked');
     showTransientToast('SECRET COMMAND UNLOCKED','The console now understands: wish',source);
     consolePrint('WISH COMMAND UNLOCKED // reality interface available.','good');
   } else {
@@ -735,6 +1748,9 @@ function unlockWishCommand(source='CELESTIAL SIGNAL'){
   return !already;
 }
 function nextCheat(){
+  telemetryCount('achievements','cheats');
+  telemetryCount('assistance','cheatUses');
+  telemetryMeaningful('cheat_requested');
   const key=getNextUnachievedKey();
   if(!key) return consolePrint('CHEAT // All achievements are already unlocked. You have become the walkthrough.','good');
   const i=ACHIEVEMENT_KEYS.indexOf(key)+1, a=ACHIEVEMENTS[key];
@@ -743,21 +1759,28 @@ function nextCheat(){
 }
 
 function setSlowmo(active){
+  if(slowmoEnabled!==active){
+    telemetryCount('modes','slowmoToggles');
+    telemetryMeaningful('slowmo',{active});
+  }
   slowmoEnabled=active;
   document.body.classList.toggle('slowmo-mode',active);
   document.querySelectorAll('.shooting-star,.galaga-secret,.game-pickup,.doug-bone').forEach(el=>{
     const base=Number(el.dataset.baseDuration||0);
-    if(base>0) el.style.setProperty('--dur',`${base*(active?2:1)}s`);
+    if(base>0) el.style.setProperty('--dur',`${base*directorFlightMultiplier()*(shopHasEquipped('slowpoke')?1.35:1)*(active?2:1)}s`);
   });
 }
 function setFlightDuration(el, seconds){
   el.dataset.baseDuration=String(seconds);
-  el.style.setProperty('--dur',`${seconds*(slowmoEnabled?2:1)}s`);
+  el.style.setProperty('--dur',`${seconds*directorFlightMultiplier()*(shopHasEquipped('slowpoke')?1.35:1)*(slowmoEnabled?2:1)}s`);
 }
 function removeWhenFlightEnds(el){
   // Let the animation own lifetime. Fixed removal timers caused SLOWMO actors
   // to disappear halfway through their route after duration was doubled.
-  el.addEventListener('animationend',()=>el.remove(),{once:true});
+  el.addEventListener('animationend',()=>{
+    if(el.isConnected && el.dataset.telemetryKind) telemetryFlyingMiss(el.dataset.telemetryKind);
+    el.remove();
+  },{once:true});
 }
 
 function registerNaniteScene(scene, THREE){
@@ -780,7 +1803,7 @@ function registerNaniteScene(scene, THREE){
   const apply=active=>entries.forEach(e=>{ e.obj.geometry=active?e.geometry:e.originalGeometry; e.obj.material=active?e.material:e.originalMaterial; });
   naniteControllers.push(apply); apply(naniteEnabled);
 }
-function setNanite(active){ naniteEnabled=active; document.body.classList.toggle('nanite-mode',active); naniteControllers.forEach(fn=>fn(active)); }
+function setNanite(active){ if(naniteEnabled!==active) telemetryCount('modes','naniteToggles'); naniteEnabled=active; document.body.classList.toggle('nanite-mode',active); naniteControllers.forEach(fn=>fn(active)); }
 
 function ensureLumenLayer(){
   if(lumenLayer) return lumenLayer;
@@ -795,7 +1818,7 @@ function ensureLumenLayer(){
   }
   document.body.appendChild(lumenLayer); return lumenLayer;
 }
-function setLumen(active){ lumenEnabled=active; ensureLumenLayer().classList.toggle('active',active); document.body.classList.toggle('lumen-mode',active); }
+function setLumen(active){ if(lumenEnabled!==active) telemetryCount('modes','lumenToggles'); lumenEnabled=active; ensureLumenLayer().classList.toggle('active',active); document.body.classList.toggle('lumen-mode',active); }
 
 const vibeLines=[
   'AI PAIR // making it more scalable',
@@ -812,6 +1835,7 @@ function ensureVibeAgent(){
   vibeAgent=document.createElement('div'); vibeAgent.className='vibe-agent'; vibeAgent.innerHTML='<i></i><span>AI PAIR // ONLINE</span>'; document.body.appendChild(vibeAgent); return vibeAgent;
 }
 function setVibe(active){
+  if(vibeEnabled!==active) telemetryCount('modes','vibeToggles');
   vibeEnabled=active; document.body.classList.toggle('vibe-mode',active); const agent=ensureVibeAgent(); agent.classList.toggle('active',active); window.clearInterval(vibeTimer);
   if(active){
     let i=0; agent.querySelector('span').textContent=vibeLines[i];
@@ -851,6 +1875,8 @@ function updateBlueprintState(){
   requestAnimationFrame(updateBlueprintWires);
 }
 function openBlueprint(){
+  telemetryCount('wish','blueprintOpens');
+  telemetryMeaningful('blueprint_opened');
   blueprintPopup?.classList.add('open'); blueprintPopup?.setAttribute('aria-hidden','false');
   updateBlueprintState();
   requestAnimationFrame(()=>requestAnimationFrame(updateBlueprintWires));
@@ -859,6 +1885,10 @@ function closeBlueprint(){ blueprintPopup?.classList.remove('open'); blueprintPo
 blueprintClose?.addEventListener('click',closeBlueprint);
 blueprintPopup?.addEventListener('click',e=>{ if(e.target===blueprintPopup) closeBlueprint(); });
 blueprintAddValid?.addEventListener('click',()=>{
+  if(!wishHasIsValid){
+    telemetryCount('wish','validInserted');
+    telemetryMeaningful('blueprint_validated');
+  }
   wishHasIsValid=true; try{sessionStorage.setItem(WISH_VALID_KEY,'1')}catch(_){} updateBlueprintState();
   window.setTimeout(updateBlueprintWires,40);
   consolePrint('Blueprint graph updated: Is Valid inserted between Wish Event and Grant Wish.','good');
@@ -984,6 +2014,7 @@ function burstMoneyFromConsole(){
 }
 
 function grantValidatedWish(wishText){
+  telemetryCount('wish','successful');
   consolePrint('IsValid: TRUE','good');
   consolePrint(`Wish accepted: ${wishText}`,'good');
   const text=wishText.toLowerCase();
@@ -991,18 +2022,21 @@ function grantValidatedWish(wishText){
   unlockLegendaryMode();
 
   if(/\bmippi\b|mippithedork/.test(text)){
+    telemetryWishBranch('mippi');
     consolePrint('Wish granted. Mippi is available to work on your project. Convenient how that worked out.','good');
     showTransientToast('WISH GRANTED', 'Mippi is available to work on your project.', 'BLUEPRINT // SUCCESS', 'SYSTEM');
     window.setTimeout(openWishContact,450);
     return;
   }
   if(/\bblender\b/.test(text)){
+    telemetryWishBranch('blender');
     consolePrint('Wish granted. Blender has been removed from the universe.','good');
     showTransientToast('WISH GRANTED', 'Preparing universal software removal.', 'EARTH-1218', 'SYSTEM');
     window.setTimeout(startBlenderUninstall,420);
     return;
   }
   if(/\$|\bmoney\b|\bbucks?\b|\bdollars?\b|\bcash\b|\busd\b|\bmoolah\b|\bpayday\b/.test(text)){
+    telemetryWishBranch('money');
     const response='Wish granted. Your money will arrive through trickle-down economics. It should reach you any decade now. 😉';
     consolePrint(response,'good');
     showTransientToast('WISH GRANTED', 'Your payout has entered the trickle-down pipeline. 😉', 'ECONOMY // WORKING AS DESIGNED', 'SYSTEM');
@@ -1010,6 +2044,7 @@ function grantValidatedWish(wishText){
     return;
   }
   if(/\bwish(?:es)?\b/.test(text)){
+    telemetryWishBranch('hal');
     const response="I'm sorry Dave, I'm afraid I can't do that.";
     consolePrint(response,'warn');
     showTransientToast('REQUEST DENIED', response, 'HAL // ONLINE', 'SYSTEM');
@@ -1017,11 +2052,15 @@ function grantValidatedWish(wishText){
     return;
   }
 
+  telemetryWishBranch('generic');
   consolePrint('Wish granted. Reality has been updated within acceptable tolerances.','good');
   showTransientToast('WISH GRANTED', 'The reference was valid. The runtime survived.', 'BLUEPRINT // SUCCESS', 'SYSTEM');
 }
 
 function unlockAllAchievementsGodMode(){
+  telemetryCount('achievements','godmodeUses');
+  telemetryCount('assistance','godmodeUses');
+  telemetryMeaningful('godmode_used');
   completionCelebrated=true;
   ACHIEVEMENT_KEYS.forEach(key=>unlockedAchievements.add(key));
   try{ localStorage.setItem(STORAGE_KEY,JSON.stringify([...unlockedAchievements])); }catch(_){}
@@ -1083,6 +2122,8 @@ function ensureFlappyGame(){
   const shareButton=flappyPanel.querySelector('#flappy-share');
   const shareMenu=flappyPanel.querySelector('#flappy-share-menu');
   shareButton?.addEventListener('click',()=>{
+    telemetryCount('flappy','shares');
+    telemetryMeaningful('flappy_share',{score:flappySessionHighScore});
     const text=`I scored ${flappySessionHighScore} in Mippi Bird on Mippi's portfolio.`;
     if(navigator.share){
       navigator.share({title:'Mippi Bird High Score',text,url:location.href}).catch(()=>{});
@@ -1104,8 +2145,8 @@ function ensureFlappyGame(){
   flappyCanvas?.addEventListener('pointerdown',event=>{
     event.preventDefault();
     if(!flappyState) return;
-    if(flappyState.gameOver){ resetFlappyGame(); flappyState.started=true; flappyState.vy=flappyJumpStrength(); return; }
-    if(!flappyState.started) flappyState.started=true;
+    if(flappyState.gameOver){ resetFlappyGame(); flappyState.started=true; telemetryCount('flappy','gamesStarted'); telemetryMeaningful('flappy_started'); flappyState.vy=flappyJumpStrength(); return; }
+    if(!flappyState.started){ flappyState.started=true; telemetryCount('flappy','gamesStarted'); telemetryMeaningful('flappy_started'); }
     flappyState.vy=flappyJumpStrength();
   });
   flappyBirdImage=new Image();
@@ -1130,6 +2171,8 @@ function closeFlappyGame(){
   cancelAnimationFrame(flappyRaf); flappyRaf=0;
 }
 function openFlappyGame(){
+  telemetryCount('flappy','opens');
+  telemetryMeaningful('flappy_opened');
   ensureFlappyGame();
   resetFlappyGame();
   flappyPanel.classList.add('open');
@@ -1142,6 +2185,19 @@ function openFlappyGame(){
     flappyRaf=requestAnimationFrame(frame);
   };
   flappyRaf=requestAnimationFrame(frame);
+}
+function maybeRewardFlappyMilestone(score){
+  const rewards={5:1,10:1,20:2};
+  const amount=rewards[score];
+  if(!amount) return;
+  const claimed=Array.isArray(sessionTelemetry.flappy?.rupeeMilestones)?sessionTelemetry.flappy.rupeeMilestones:[];
+  if(claimed.includes(score)) return;
+  telemetryUnique('flappy','rupeeMilestones',score);
+  telemetryCount('flappy','rupeesEarned',amount);
+  telemetryMeaningful('flappy_rupee_milestone',{score,amount});
+  awardRupees(amount,{source:'mippi_bird',announce:'silent'});
+  consolePrint(`MIPPI BIRD MILESTONE // SCORE ${score} // +${amount} RUPEE${amount===1?'':'S'}`,'good');
+  showTransientToast('MIPPI BIRD MILESTONE',`Score ${score}. The economy has reluctantly recognized your bird skills.`,`+${amount} RUPEE${amount===1?'':'S'}`,'ARCADE');
 }
 function drawFlappyFrame(dt){
   if(!flappyCtx || !flappyState) return;
@@ -1159,6 +2215,7 @@ function drawFlappyFrame(dt){
   for(let x=0;x<w;x+=26){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
   for(let y=0;y<h;y+=26){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
 
+  const wasGameOver=s.gameOver;
   if(!s.gameOver && s.started){
     s.vy += flappyGravity()*dt;
     s.y += s.vy*dt;
@@ -1174,15 +2231,21 @@ function drawFlappyFrame(dt){
       if(!p.scored && p.x+pipeW<bx){
         p.scored=true; s.score++;
         flappySessionHighScore=Math.max(flappySessionHighScore,s.score);
+        telemetryMax('flappy','highScore',flappySessionHighScore);
         const score=flappyPanel.querySelector('#flappy-score');
         const high=flappyPanel.querySelector('#flappy-high-score');
         if(score) score.textContent=`SCORE ${s.score}`;
         if(high) high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
+        maybeRewardFlappyMilestone(s.score);
       }
       const topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
       if(bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY)) s.gameOver=true;
     }
     if(by-bh/2<0 || by+bh/2>h) s.gameOver=true;
+  }
+  if(!wasGameOver && s.gameOver){
+    telemetryCount('flappy','deaths');
+    telemetryMeaningful('flappy_game_over',{score:s.score});
   }
 
   for(const p of s.pipes){
@@ -1231,6 +2294,7 @@ function emitCommandParticle(){
   document.body.appendChild(p); setTimeout(()=>p.remove(),2600);
 }
 function setParticleBoost(active){
+  telemetryCount('modes','particleToggles');
   document.body.classList.toggle('particle-boost',active);
   if(particleFieldTimer){clearInterval(particleFieldTimer);particleFieldTimer=null;}
   if(active){
@@ -1239,39 +2303,116 @@ function setParticleBoost(active){
   }
 }
 
-function openShop(){
-  const r=rupeeWallet;
-  consolePrint(`SHOP // WALLET ${r} RUPEE${r===1?'':'S'}`,'good');
-  if(r<=0){
-    consolePrint('SHOPKEEPER // You have no rupees. Browsing is free, which is fortunate.','warn');
-  }else if(r<3){
-    consolePrint('SHOPKEEPER // 1-2 rupees. I can offer you a knowing nod and absolutely no refunds.');
-  }else if(r<5){
-    consolePrint('SHOPKEEPER // 3-4 rupees. You qualify for the imaginary bargain bin.');
-  }else if(r<8){
-    consolePrint('SHOPKEEPER // 5-7 rupees. Respectable adventurer money. Premium inventory is still concept art.');
-  }else if(r<10){
-    consolePrint('SHOPKEEPER // 8-9 rupees. Almost VIP. Please continue engaging with the local economy.');
-  }else if(r<15){
-    consolePrint('SHOPKEEPER // 10+ RUPEES. VIP CUSTOMER DETECTED. The velvet rope has been rendered.');
-  }else{
-    consolePrint('SHOPKEEPER // You have accumulated enough currency to destabilize a portfolio website. The shopkeeper has retired.','good');
-  }
+function shopMerchantLine(){
+  const available=SHOP_ITEMS.filter(shopItemAvailable);
+  const unowned=available.filter(item=>!shopOwned.has(item.id));
+  if(!unowned.length) return 'SHOPKEEPER // You bought the entire roadmap. Please stop giving the portfolio ideas.';
+  if(rupeeWallet<=0) return 'SHOPKEEPER // You have no rupees. Browsing remains aggressively free.';
+  const cheapest=Math.min(...unowned.map(shopPrice));
+  if(rupeeWallet<cheapest) return `SHOPKEEPER // You are ${cheapest-rupeeWallet} rupee${cheapest-rupeeWallet===1?'':'s'} short of the cheapest remaining bad decision.`;
+  if(shopDiscountActive()) return 'SHOPKEEPER // Production Discount active. Somehow procurement became progression.';
+  if(rupeeWallet>=10) return 'SHOPKEEPER // That wallet is becoming a design problem. Spend irresponsibly.';
+  return 'SHOPKEEPER // Inventory is real now. This has gone much too far.';
 }
+function renderShop(){
+  if(!shopItemsEl) return;
+  if(shopWalletCount) shopWalletCount.textContent=String(rupeeWallet);
+  const equipped=shopItem(shopEquipped);
+  if(shopEquippedName) shopEquippedName.textContent=equipped?.name?.toUpperCase()||'NONE';
+  if(shopUnequip){ shopUnequip.disabled=!equipped; shopUnequip.classList.toggle('visible',!!equipped); }
+  const items=SHOP_ITEMS;
+  shopItemsEl.innerHTML=items.map(item=>{
+    const locked=!shopItemAvailable(item);
+    const owned=shopOwned.has(item.id), equippedNow=shopEquipped===item.id, passive=item.slot==='passive';
+    const price=shopPrice(item);
+    const discount=shopDiscountActive()&&!owned&&item.id!=='production-discount'&&price<item.cost;
+    const displayName=locked?'???':item.name;
+    const displayDescription=locked?'Unlock Legendary Mode to unlock this item.':item.description;
+    const displayTag=locked?'LEGENDARY // LOCKED':item.tag;
+    let priceText=owned?'OWNED':discount?`${item.cost} → ${price} RUPEES`:`${price} RUPEE${price===1?'':'S'}`;
+    let action='buy', label=`BUY // ${price} RUPEE${price===1?'':'S'}`, disabled=rupeeWallet<price;
+    if(locked){ action='locked'; label='LOCKED // LEGENDARY'; disabled=true; priceText='???'; }
+    else if(owned&&passive){ action='passive'; label='PASSIVE // ACTIVE'; disabled=true; }
+    else if(owned&&equippedNow){ action='equipped'; label='EQUIPPED'; disabled=true; }
+    else if(owned){ action='equip'; label='EQUIP'; disabled=false; }
+    return `<article class="shop-item ${owned?'owned':''} ${equippedNow?'equipped':''} ${locked?'locked':''}" data-shop-id="${item.id}">
+      <div class="shop-item-top"><span>${displayTag}</span><b>${priceText}</b></div>
+      <h4>${displayName}</h4>
+      <p>${displayDescription}</p>
+      <button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${label}</button>
+    </article>`;
+  }).join('');
+  if(shopMerchant) shopMerchant.textContent=shopMerchantLine();
+}
+function equipShopItem(id,{announce=true}={}){
+  const item=shopItem(id);
+  if(!item||item.slot!=='gameplay'||!shopOwned.has(id)||!shopItemAvailable(item)) return false;
+  if(shopEquipped===id) return true;
+  shopEquipped=id;
+  persistShopState(); applyShopEquipmentState(); renderShop();
+  telemetryCount('economy','shopEquips'); telemetryUnique('economy','shopEquippedItems',id); telemetryMeaningful('shop_equip',{id});
+  if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped. One slot, one bad idea at a time.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'ONE GAMEPLAY MODIFIER','SHOP'); }
+  return true;
+}
+function unequipShopItem(){
+  if(!shopEquipped) return;
+  const previous=shopItem(shopEquipped);
+  shopEquipped=null; persistShopState(); applyShopEquipmentState(); renderShop();
+  telemetryCount('economy','shopUnequips'); telemetryMeaningful('shop_unequip',{id:previous?.id||'unknown'});
+  consolePrint(`SHOP // ${previous?.name||'Gameplay modifier'} unequipped. Raw portfolio difficulty restored.`,'good');
+}
+function purchaseShopItem(id){
+  const item=shopItem(id);
+  if(!item||!shopItemAvailable(item)) return;
+  if(shopOwned.has(id)){ if(item.slot==='gameplay') equipShopItem(id); return; }
+  const price=shopPrice(item);
+  if(rupeeWallet<price){
+    consolePrint(`SHOPKEEPER // ${item.name} costs ${price} rupees. Wallet: ${rupeeWallet}. Arithmetic remains undefeated.`,'warn');
+    shopPopup?.querySelector(`[data-shop-id="${id}"]`)?.classList.add('shop-denied');
+    window.setTimeout(()=>shopPopup?.querySelector(`[data-shop-id="${id}"]`)?.classList.remove('shop-denied'),320);
+    return;
+  }
+  rupeeWallet-=price; shopOwned.add(id);
+  telemetryCount('economy','rupeesSpent',price); telemetryCount('economy','shopPurchases'); telemetryUnique('economy','shopOwnedItems',id); telemetryMeaningful('shop_purchase',{id,cost:price});
+  try{localStorage.setItem(RUPEE_WALLET_KEY,String(rupeeWallet));}catch(_){}
+  persistShopState();
+  if(item.slot==='gameplay') equipShopItem(id,{announce:false});
+  else applyShopEquipmentState();
+  updateRupeeMeter(); renderShop();
+  const detail=item.slot==='passive'?`${item.name} is permanently active.`:`${item.name} equipped. Owned items can be swapped for free.`;
+  consolePrint(`PURCHASE COMPLETE // ${item.name.toUpperCase()} // -${price} RUPEE${price===1?'':'S'} // WALLET ${rupeeWallet}`,'good');
+  showTransientToast('PURCHASE COMPLETE',detail,`-${price} R // WALLET ${rupeeWallet}`,'SHOP');
+}
+function openShop(){
+  if(!shopPopup) return;
+  telemetryCount('economy','shopOpens'); telemetryMeaningful('shop_open',{wallet:rupeeWallet});
+  renderShop(); shopPopup.classList.add('open'); shopPopup.setAttribute('aria-hidden','false');
+  consolePrint(`SHOP // WALLET ${rupeeWallet} RUPEE${rupeeWallet===1?'':'S'} // ${shopOwned.size} ITEM${shopOwned.size===1?'':'S'} OWNED`,'good');
+}
+function closeShop(){ shopPopup?.classList.remove('open'); shopPopup?.setAttribute('aria-hidden','true'); }
+shopClose?.addEventListener('click',closeShop);
+shopPopup?.addEventListener('pointerdown',event=>{ if(event.target===shopPopup) closeShop(); });
+shopItemsEl?.addEventListener('click',event=>{
+  const button=event.target.closest('button[data-shop-id]'); if(!button||button.disabled) return;
+  const id=button.dataset.shopId, action=button.dataset.shopAction;
+  if(action==='buy') purchaseShopItem(id); else if(action==='equip') equipShopItem(id);
+});
+shopUnequip?.addEventListener('click',unequipShopItem);
+rupeeMeter?.addEventListener('click',openShop);
 
 function listCommands(){
   consolePrint('CORE     help · clear · version · about · home · top · inspect · theme · debug');
   consolePrint('NAV      games · career · consulting · crafting · tools · resumes · projects');
   consolePrint('LINKS    github · fab · steam · unreal source · learning');
   consolePrint('PROJECT  heavywater · azure · unmark · mob · nda');
-  consolePrint('SYSTEM   achievements · reset_achievements · cheat · particles · hero · signal · colors');
+  consolePrint('SYSTEM   achievements · reset_achievements · cheat · stats · particles · hero · signal · colors');
   consolePrint('FUN      doug · shipit · joke · galaga · twinkle · shroom · rupee · shop · hey listen · stars · wish · vibe · play');
   consolePrint('UNREAL   stat fps · stat unit · stat none · blueprint · compile · cook · slowmo · easy mode · lumen · nanite');
 }
 const COMMANDS = {
   help(){ listCommands(); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.43 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.52 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -1282,6 +2423,7 @@ const COMMANDS = {
   achievements(){ ledgerTrigger?.classList.add('visible'); openLedger(); consolePrint(`Ledger opened: ${unlockedAchievements.size}/${ACHIEVEMENT_KEYS.length} found.`,'good'); },
   reset_achievements(){ unlockedAchievements.clear(); try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(THEME_KEY);localStorage.removeItem(THEME_MODE_KEY);localStorage.removeItem(LEGENDARY_UNLOCK_KEY);localStorage.removeItem(LEGENDARY_THEME_KEY);}catch(_){} legendaryUnlocked=false; applyThemeMode('rare',{persist:false}); updateThemeCycleControl(); hideAchievementToast(); closeLedger(); updateAchievementProgress(); scheduleAchievementIntroHint({resetSession:true}); consolePrint('Achievement progress reset.','warn'); },
   cheat(){ nextCheat(); },
+  stats(){ printSessionStats(); },
   doug(){ reactDoug(randomLine(['Doug has reviewed the command.','Doug requests snacks before execution.','Doug approves this branch.','Doug has assumed temporary production control.'])); burstDougPaws(4); consolePrint('Doug status: operational. Morale: excellent. Meeting discipline: questionable.'); },
   github(){ window.open('https://github.com/mippi-the-dork','_blank','noopener'); },
   fab(){ window.open('https://www.fab.com/sellers/Mippithedork','_blank','noopener'); },
@@ -1317,9 +2459,12 @@ const COMMANDS = {
   'stat none'(){ setStatMode(null); consolePrint('Stats hidden.'); },
   blueprint(){ openBlueprint(); consolePrint('Opening BP_WishManager. There may be a familiar runtime problem in here.'); },
   cook(){ consolePrint('Cooking content... please enjoy this authentic period of uncertainty.'); },
-  slowmo(){ setSlowmo(!slowmoEnabled); consolePrint(`SLOWMO ${slowmoEnabled?'0.5x':'1.0x'} // flying objects ${slowmoEnabled?'slowed; Mippi Bird gravity softened':'restored; Mippi Bird physics normal'}.`,'good'); },
+  slowmo(){ setSlowmo(!slowmoEnabled); consolePrint(`SLOWMO ${slowmoEnabled?'0.5x':'1.0x'} // ${slowmoEnabled?'flying objects and hostile projectiles slowed; Mippi Bird gravity softened':'flying objects and hostile projectiles restored; Mippi Bird physics normal'}.`,'good'); },
   'easy mode'(){
     easyModeEnabled=!easyModeEnabled;
+    telemetryCount('modes','easyModeToggles');
+    if(easyModeEnabled) telemetryCount('assistance','easyModeUses');
+    telemetryMeaningful('easy_mode',{active:easyModeEnabled});
     document.body.classList.toggle('easy-mode',easyModeEnabled);
     if(easyModeTimer){ window.clearInterval(easyModeTimer); easyModeTimer=null; }
     if(easyModeEnabled){
@@ -1341,6 +2486,7 @@ const COMMANDS = {
     const star=document.querySelector('.shooting-star');
     if(!star) return consolePrint('PLEASE // manners noted, but there is no shooting star here to ask nicely.','warn');
     consolePrint('PLEASE // the shooting star appreciates your manners.','good');
+    star.dataset.telemetryCollectMethod='please';
     star.click();
   },
   'i know mippi'(){
@@ -1360,6 +2506,8 @@ consoleForm?.addEventListener('submit', event => {
   if (consolePending === 'wish') {
     consolePending = null;
     const wishText=raw;
+    telemetryCount('wish','attempts');
+    telemetryMeaningful('wish_attempt',{validated:wishHasIsValid});
     consolePrint('Your wish is being granted.','good');
     const wrap=document.createElement('div'); wrap.className='console-progress'; const bar=document.createElement('i'); wrap.appendChild(bar); consoleOutput?.appendChild(wrap);
     let progress=0; const timer=setInterval(()=>{
@@ -1368,7 +2516,7 @@ consoleForm?.addEventListener('submit', event => {
         clearInterval(timer);
         setTimeout(()=>{
           if(wishHasIsValid) grantValidatedWish(wishText);
-          else { consolePrint('ERROR: Blueprint Runtime Error: Accessed None trying to read property WishFulfillment.','warn'); consolePrint('Suggestion: add an IsValid node and try believing harder.'); }
+          else { telemetryCount('wish','failed'); telemetryMeaningful('wish_failed',{reason:'invalid_reference'}); consolePrint('ERROR: Blueprint Runtime Error: Accessed None trying to read property WishFulfillment.','warn'); consolePrint('Suggestion: add an IsValid node and try believing harder.'); }
         },220);
       }
     },120);
@@ -1377,6 +2525,9 @@ consoleForm?.addEventListener('submit', event => {
   }
   const normalized=raw.toLowerCase().replace(/\s+/g,' ').trim();
   const command = COMMANDS[normalized] ? normalized : normalized.split(' ')[0];
+  const hiddenCommands=new Set(['godmode','god mode','please','i know mippi']);
+  const valid=Boolean(COMMANDS[command]);
+  telemetryRecordCommand(valid?command:'unknown',{valid,hidden:hiddenCommands.has(command)});
   if (COMMANDS[command]) COMMANDS[command](); else consolePrint(`Unknown command: ${normalized}. Type help.`,'warn');
   if (consoleInput) consoleInput.value = '';
 });
@@ -1392,6 +2543,7 @@ window.addEventListener('keydown', event => {
     openConsole(!devConsole?.classList.contains('open'));
     return;
   }
+  if (event.key === 'Escape' && shopPopup?.classList.contains('open')) { closeShop(); return; }
   if (event.key === 'Escape' && unrealGiftPopup?.classList.contains('open')) { closeUnrealGift(); return; }
   if (event.key === 'Escape' && blenderPopup?.classList.contains('open')) { if(blenderOk?.disabled) return; closeBlenderPopup(); return; }
   if (event.key === 'Escape' && wishContactPopup?.classList.contains('open')) { closeWishContact(); return; }
@@ -1438,6 +2590,14 @@ window.addEventListener('pointermove',event=>{
   if(document.body.classList.contains('inspect-mode')){
     const target=event.target.closest?.('[data-dev-note]');
     if(target && target.dataset.devNote){
+      if(inspectTarget!==target){
+        const inspectKey=target.id||target.classList?.[0]||target.tagName.toLowerCase();
+        const alreadyInspected=(sessionTelemetry.modes?.inspectTargets||[]).includes(inspectKey);
+        telemetryCount('modes','inspectHoverCount');
+        telemetryUnique('modes','inspectTargets',inspectKey);
+        if(!alreadyInspected) telemetryMeaningful('inspect_target',{target:inspectKey});
+        else if(objectiveEventSink) objectiveEventSink('inspect_target',{target:inspectKey});
+      }
       inspectTarget=target; inspectTooltip.textContent=target.dataset.devNote; inspectTooltip.classList.add('show');
       const pad=14, w=Math.min(430,window.innerWidth-28); let x=event.clientX+16, y=event.clientY+18;
       if(x+w>window.innerWidth-pad) x=Math.max(pad,event.clientX-w-16);
@@ -1448,8 +2608,8 @@ window.addEventListener('pointermove',event=>{
 },{passive:true});
 
 // Doug emits actual visible paw particles from the photo position.
-function burstDougPaws(count=5){
-  const img=document.querySelector('.doug-photo'); if(!img) return;
+function burstDougPaws(count=5,sourceEl=null){
+  const img=sourceEl?.matches?.('img')?sourceEl:(sourceEl?.querySelector?.('img')||document.querySelector('.doug-photo')); if(!img) return;
   const r=img.getBoundingClientRect();
   const symbols=['🐾','🐾','❤','♥'];
   for(let i=0;i<count;i++){
@@ -1460,12 +2620,21 @@ function burstDougPaws(count=5){
     document.body.appendChild(paw); setTimeout(()=>paw.remove(),1350);
   }
 }
-doug?.addEventListener('click',()=>burstDougPaws(document.body.classList.contains('theme-complete')?6:4));
+// Doug pet feedback is handled by the shared petDoug() interaction above.
 
 // Completion-theme cursor aura and trail.
 const cursorAura=document.createElement('div'); cursorAura.className='completion-cursor-aura'; document.body.appendChild(cursorAura);
 const powerCursor=document.createElement('div'); powerCursor.className='power-cursor'; powerCursor.setAttribute('aria-hidden','true'); document.body.appendChild(powerCursor);
 let starPowerTimer=null, starPowerBurstTimer=null;
+const announcedSystemCombos=new Set(Array.isArray(sessionTelemetry.combos?.announced)?sessionTelemetry.combos.announced:[]);
+function announceSystemCombo(id,title,detail){
+  if(announcedSystemCombos.has(id)) return;
+  announcedSystemCombos.add(id);
+  telemetryUnique('combos','announced',id);
+  telemetryMeaningful('system_combo',{id});
+  consolePrint(`SYSTEM COMBO // ${title.toUpperCase()} // ${detail}`,'good');
+  showTransientToast('SYSTEM COMBO',detail,title.toUpperCase(),'INTERACTION');
+}
 function updatePowerCursor(){
   document.body.classList.toggle('cursor-grown',cursorPowerLevel>0);
   document.body.classList.toggle('cursor-power-1',cursorPowerLevel===1);
@@ -1475,9 +2644,15 @@ function updatePowerCursor(){
 function advanceCursorPower(){
   cursorPowerLevel=(cursorPowerLevel+1)%3;
   updatePowerCursor();
-  const message=cursorPowerLevel===1?'MUSHROOM ACQUIRED // cursor size increased.':cursorPowerLevel===2?'MUSHROOM ACQUIRED // cursor at maximum size. Please point responsibly.':'MUSHROOM ACQUIRED // cursor wrapped back to normal size.';
+  const legendary=document.body.classList.contains('theme-legendary');
+  const rangeNote=legendary&&cursorPowerLevel>0?' Legendary targeting range increased.':legendary&&cursorPowerLevel===0?' Legendary targeting range returned to normal.':'';
+  const message=(cursorPowerLevel===1?'MUSHROOM ACQUIRED // cursor size increased.':cursorPowerLevel===2?'MUSHROOM ACQUIRED // cursor at maximum size. Please point responsibly.':'MUSHROOM ACQUIRED // cursor wrapped back to normal size.')+rangeNote;
   consolePrint(message,'good');
-  showTransientToast('MUSHROOM ACQUIRED',cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.',`CURSOR SIZE // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'}`,'POWER-UP');
+  showTransientToast('MUSHROOM ACQUIRED',(cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.')+rangeNote,`CURSOR SIZE // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'}`,'POWER-UP');
+  if(legendary&&cursorPowerLevel>0){
+    telemetryCount('combos','legendaryMushroom');
+    announceSystemCombo('legendary-mushroom','Mushroom + Legendary','A larger cursor also expands Legendary target acquisition.');
+  }
 }
 function emitRainbowCursorSpark(){
   const colors=['#ff3b30','#ff9500','#ffcc00','#34c759','#00c7be','#0a84ff','#bf5af2','#ff2d55'];
@@ -1494,15 +2669,23 @@ function collectStarPowerHoverTarget(){
   if(!document.body.classList.contains('star-power')) return;
   const hit=document.elementFromPoint(latestPointer.x,latestPointer.y)?.closest?.('.shooting-star,.galaga-secret,.game-pickup,.doug-bone');
   if(!hit?.isConnected || hit.dataset.starPowerHit==='1') return;
+  const repeatableBoss=hit.classList.contains('boss-ufo');
   hit.dataset.starPowerHit='1';
+  hit.dataset.telemetryCollectMethod='star_power';
   hit.click();
+  if(repeatableBoss){
+    window.setTimeout(()=>{ if(hit?.isConnected) delete hit.dataset.starPowerHit; },700);
+  }
 }
 function activateStarPower(){
+  telemetryCount('modes','starPowerActivations');
+  telemetryMeaningful('star_power');
   document.body.classList.remove('star-power'); void document.body.offsetWidth; document.body.classList.add('star-power');
   clearTimeout(starPowerTimer); clearInterval(starPowerBurstTimer);
   for(let i=0;i<9;i++) setTimeout(emitRainbowCursorSpark,i*45);
   starPowerBurstTimer=setInterval(()=>{ emitRainbowCursorSpark(); collectStarPowerHoverTarget(); },70);
-  starPowerTimer=setTimeout(()=>{ document.body.classList.remove('star-power'); clearInterval(starPowerBurstTimer); starPowerBurstTimer=null; },3600);
+  const starPowerDuration=shopHasEquipped('star-extender')?5600:3600;
+  starPowerTimer=setTimeout(()=>{ document.body.classList.remove('star-power'); clearInterval(starPowerBurstTimer); starPowerBurstTimer=null; },starPowerDuration);
   consolePrint('STAR POWER // temporary rainbow cursor effect enabled. Flying objects are collected on contact.','good');
 }
 let lastSpark=0;
@@ -1511,6 +2694,15 @@ window.addEventListener('pointermove',event=>{
   latestPointer.x=event.clientX; latestPointer.y=event.clientY;
   powerCursor.style.left=`${event.clientX}px`; powerCursor.style.top=`${event.clientY}px`;
   cursorAura.style.left=`${event.clientX}px`; cursorAura.style.top=`${event.clientY}px`;
+  if(shopHasEquipped('tractor-beam')){
+    document.querySelectorAll('.game-pickup,.doug-bone,.shooting-star').forEach(el=>{
+      if(!el.isConnected) return;
+      const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+      const dx=event.clientX-cx, dy=event.clientY-cy, distance=Math.hypot(dx,dy);
+      if(distance<260){ const pull=Math.min(38,(260-distance)*.18); el.style.translate=`${dx/(distance||1)*pull}px ${dy/(distance||1)*pull}px`; }
+      else el.style.translate='';
+    });
+  }
   if(!document.body.classList.contains('theme-complete') || reduceMotion) return;
   const legendary=document.body.classList.contains('theme-legendary');
   const now=performance.now(); if(now-lastSpark<(legendary?18:34)) return; lastSpark=now;
@@ -1543,25 +2735,58 @@ function explodeAt(x,y,count=18){
   for(let i=0;i<count;i++){ const p=document.createElement('i');p.className='arcade-pixel';p.style.left=`${x}px`;p.style.top=`${y}px`;p.style.background=colors[i%colors.length];p.style.setProperty('--dx',`${(Math.random()-.5)*150}px`);p.style.setProperty('--dy',`${(Math.random()-.5)*120}px`);document.body.appendChild(p);setTimeout(()=>p.remove(),850); }
 }
 
-function fireUfoProjectile(ship){
+function showArcadeCursorHit(x,y){
+  arcadeCursorHits++;
+  telemetryCount('arcade','cursorHits');
+  telemetryMeaningful('ufo_projectile_hit',{count:arcadeCursorHits});
+  const flash=document.createElement('i');
+  flash.className='arcade-hit-flash';
+  flash.style.setProperty('--hit-x',`${Math.max(0,Math.min(window.innerWidth,x))/window.innerWidth*100}%`);
+  flash.style.setProperty('--hit-y',`${Math.max(0,Math.min(window.innerHeight,y))/window.innerHeight*100}%`);
+  document.body.appendChild(flash);
+  window.setTimeout(()=>flash.remove(),360);
+  explodeAt(x,y,7);
+  if(arcadeCursorHits===1) consolePrint('ARCADE HIT // cosmetic damage only. Your resume remains unharmed.','warn');
+}
+function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
   if(!ship?.isConnected || reduceMotion) return;
+  telemetryCount('arcade','hostileShots');
   const r=ship.getBoundingClientRect();
   const sx=r.left+r.width/2, sy=r.top+r.height/2;
-  const tx=latestPointer.x, ty=latestPointer.y;
+  let tx=latestPointer.x+offsetX, ty=latestPointer.y+offsetY;
+  const warrantyDeflect=shopHasEquipped('galaga-warranty') && ship.dataset.warrantyUsed!=='1';
+  if(warrantyDeflect){
+    ship.dataset.warrantyUsed='1';
+    const side=Math.random()<.5?-1:1; tx+=side*(130+Math.random()*100); ty+=(Math.random()-.5)*150;
+    telemetryCount('economy','shopDeflections'); telemetryMeaningful('galaga_warranty_deflect');
+    consolePrint('GALAGA WARRANTY // first hostile shot deflected. Coverage inexplicably honored.','good');
+  }
   const dx=tx-sx, dy=ty-sy;
   const distance=Math.hypot(dx,dy);
   if(distance<24) return;
   const shot=document.createElement('i');
-  shot.className='ufo-projectile';
+  shot.className=`ufo-projectile${warrantyDeflect?' warranty-deflected':''}`;
   shot.style.left=`${sx}px`; shot.style.top=`${sy}px`;
   shot.style.setProperty('--dx',`${dx}px`); shot.style.setProperty('--dy',`${dy}px`);
-  shot.style.setProperty('--shot-dur',`${Math.max(.24,Math.min(.95,distance/820))}s`);
+  const baseShotDuration=Math.max(.24,Math.min(.95,distance/820));
+  shot.style.setProperty('--shot-dur',`${baseShotDuration*directorProjectileDurationMultiplier()*(slowmoEnabled?2:1)}s`);
+  if(slowmoEnabled){
+    telemetryCount('combos','slowmoHostileShots');
+    announceSystemCombo('slowmo-hostile-fire','Slowmo + UFO','Hostile projectiles are slowed too. Fair is fair.');
+  }
   document.body.appendChild(shot);
-  shot.addEventListener('animationend',()=>{ if(shot.isConnected){ explodeAt(tx,ty,4); shot.remove(); } },{once:true});
+  shot.addEventListener('animationend',()=>{
+    if(!shot.isConnected) return;
+    const cursorDistance=Math.hypot(latestPointer.x-tx,latestPointer.y-ty);
+    if(!warrantyDeflect && cursorDistance<=30) showArcadeCursorHit(tx,ty);
+    else explodeAt(tx,ty,4);
+    shot.remove();
+  },{once:true});
 }
-
-function nearestFlyingTarget(x,y,maxDistance=365){
-  let best=null, bestDistance=maxDistance;
+function nearestFlyingTarget(x,y,maxDistance=null){
+  const cursorRangeBonus=cursorPowerLevel*55;
+  const acquisition=maxDistance??((shopHasEquipped('golden-trigger')?485:365)+cursorRangeBonus+directorTargetBonus());
+  let best=null, bestDistance=acquisition;
   document.querySelectorAll('.shooting-star,.galaga-secret,.game-pickup,.doug-bone').forEach(el=>{
     if(!el.isConnected) return;
     const r=el.getBoundingClientRect();
@@ -1574,6 +2799,7 @@ function nearestFlyingTarget(x,y,maxDistance=365){
 
 function fireLegendaryPlayerShot(x,y,target){
   if(!target?.isConnected) return;
+  telemetryCount('arcade','playerShots');
   const shot=document.createElement('i');
   shot.className='legendary-player-projectile';
   shot.style.left=`${x}px`; shot.style.top=`${y}px`;
@@ -1586,11 +2812,13 @@ function fireLegendaryPlayerShot(x,y,target){
     const dx=tx-px, dy=ty-py, dist=Math.hypot(dx,dy);
     if(dist<18){
       shot.remove();
+      telemetryCount('arcade','playerHits');
+      target.dataset.telemetryCollectMethod='legendary';
       target.click();
       return;
     }
     const dt=Math.min(.035,(now-last)/1000); last=now;
-    const travel=Math.min(dist,1050*dt);
+    const travel=Math.min(dist,(shopHasEquipped('golden-trigger')?1380:1050)*dt);
     px+=dx/dist*travel; py+=dy/dist*travel;
     shot.style.transform=`translate3d(${px-x}px,${py-y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
     raf=requestAnimationFrame(step);
@@ -1619,10 +2847,13 @@ function randomEdgeFlight(margin=220){
 }
 function spawnShootingStar(force=false){
   if((!document.body.classList.contains('theme-complete')||reduceMotion) && !force) return;
+  if(!directorAllowsAmbient('shooting_star',{force})) return;
   const f=randomEdgeFlight(240);
-  const star=document.createElement('button'); star.className='shooting-star fly'; star.type='button'; star.setAttribute('aria-label','A bright shooting star');
+  const star=document.createElement('button'); star.className='shooting-star fly'; star.type='button'; star.setAttribute('aria-label','A bright shooting star'); star.dataset.telemetryKind='shooting_star';
+  telemetryFlyingSpawn('shooting_star',{forced:force}); telemetryCount('wish','shootingStarsSpawned');
   star.style.left=`${f.sx}px`; star.style.top=`${f.sy}px`; star.style.setProperty('--dx',`${f.dx}px`); star.style.setProperty('--dy',`${f.dy}px`); star.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(star,2.05+Math.random()*1.15);
   star.addEventListener('click',()=>{ 
+    const method=telemetryCollectionMethod(star); telemetryFlyingCollect('shooting_star',method); telemetryCount('wish','shootingStarsCollected');
     const r=star.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,24);
     const first=!hasWish();
     unlockWishCommand('CELESTIAL SIGNAL');
@@ -1631,77 +2862,176 @@ function spawnShootingStar(force=false){
   });
   document.body.appendChild(star); removeWhenFlightEnds(star);
 }
+function ufoCycleProgress(){
+  const cycleStart=nextBossKillThreshold-10;
+  return Math.max(0,Math.min(10,ufoKills-cycleStart));
+}
+function ufoThreatTier(){
+  const progress=ufoCycleProgress();
+  if(progress>=7) return 3;
+  if(progress>=4) return 2;
+  return 1;
+}
+function queueDirectorBossSpawn(delay=900){
+  window.setTimeout(()=>{
+    if(!easyModeEnabled && directorAttentionBlocked()){ queueDirectorBossSpawn(900); return; }
+    spawnBossUfo(true);
+  },delay);
+}
 function maybeSpawnUfoBoss(){
   if(ufoBossActive || ufoKills<nextBossKillThreshold) return;
   nextBossKillThreshold+=10;
   consolePrint('ARCADE WARNING // LARGE CONTACT INBOUND. Apparently ten UFOs was the aggro threshold.','warn');
   showTransientToast('ARCADE WARNING','Large contact inbound.','10 UFOs DESTROYED','BOSS SIGNAL');
-  window.setTimeout(()=>spawnBossUfo(true),900);
+  queueDirectorBossSpawn(900);
 }
-function registerUfoKill(){
+function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
   ufoKills++;
-  const toward=((ufoKills-1)%10)+1;
-  consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points // UFOs ${toward}/10`,'good');
+  telemetryCount('arcade','ufoDestroyed');
+  telemetryFlyingCollect('ufo',method);
+  if(method==='star_power'){
+    telemetryCount('combos','starPowerUfoKills');
+    announceSystemCombo('star-power-ufo','Star Power + UFO','Star Power turns cursor contact into anti-air.');
+  }
+  const droppedRupee=Math.random()<.30;
+  if(droppedRupee){
+    awardArcadeRupees(1,x,y,'ufo');
+    telemetryCount('economy','ufoRupeeDrops');
+  }
+  const toward=ufoKills%10===0?10:ufoKills%10;
+  consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/10`,'good');
+  if(toward===5){
+    consolePrint('ARCADE NETWORK // hostile response increasing. Apparently they have analytics too.','warn');
+    showTransientToast('ARCADE NETWORK','Hostile response is increasing.','5 / 10 CONTACTS','ESCALATION');
+  }else if(toward===8){
+    consolePrint('ARCADE NETWORK // formation aggression elevated. Something larger is paying attention.','warn');
+  }
   maybeSpawnUfoBoss();
 }
 function spawnBossUfo(force=false){
   if(ufoBossActive) return;
   if((!document.body.classList.contains('theme-complete')||reduceMotion) && !force) return;
   ufoBossActive=true;
+  telemetryCount('arcade','bossSpawned');
+  telemetryFlyingSpawn('boss_ufo',{forced:force});
+  telemetryMeaningful('boss_spawned');
   const f=randomEdgeFlight(180);
   const ship=document.createElement('button');
-  ship.className='galaga-secret boss-ufo fly'; ship.type='button'; ship.setAttribute('aria-label','Arcade boss UFO');
-  ship.innerHTML='<span class="boss-ufo-label">BOSS</span><span class="boss-ufo-health" aria-hidden="true"><i></i></span>';
+  ship.className='galaga-secret boss-ufo fly'; ship.type='button'; ship.setAttribute('aria-label','Arcade boss UFO, core integrity six of six');
+  ship.innerHTML='<span class="boss-ufo-label">BOSS</span><span class="boss-ufo-health" aria-hidden="true"><i></i></span><span class="boss-ufo-integrity">CORE 6 / 6</span>';
   ship.style.left=`${f.sx}px`; ship.style.top=`${f.sy}px`; ship.style.setProperty('--dx',`${f.dx}px`); ship.style.setProperty('--dy',`${f.dy}px`); ship.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(ship,15+Math.random()*4);
   let hp=6;
   const hpFill=ship.querySelector('.boss-ufo-health i');
-  const updateHp=()=>{ if(hpFill) hpFill.style.width=`${Math.max(0,hp)/6*100}%`; ship.dataset.hp=String(hp); };
+  const integrity=ship.querySelector('.boss-ufo-integrity');
+  const updateHp=()=>{
+    if(hpFill) hpFill.style.width=`${Math.max(0,hp)/6*100}%`;
+    if(integrity) integrity.textContent=`CORE ${Math.max(0,hp)} / 6`;
+    ship.dataset.hp=String(hp);
+    ship.setAttribute('aria-label',`Arcade boss UFO, core integrity ${Math.max(0,hp)} of six`);
+  };
   updateHp();
   let ufoFireTimer=null;
-  const stopBoss=()=>{ if(ufoFireTimer){window.clearInterval(ufoFireTimer);ufoFireTimer=null;} if(ship.isConnected) ship.remove(); ufoBossActive=false; window.setTimeout(maybeSpawnUfoBoss,900); };
+  let defeated=false;
+  const stopBoss=()=>{
+    if(ufoFireTimer){window.clearInterval(ufoFireTimer);ufoFireTimer=null;}
+    if(ship.isConnected) ship.remove();
+    ufoBossActive=false;
+    window.setTimeout(maybeSpawnUfoBoss,900);
+  };
+  const bossVolley=()=>{
+    if(!ship.isConnected) return;
+    if(hp>=5){
+      fireUfoProjectile(ship);
+      window.setTimeout(()=>fireUfoProjectile(ship),150);
+    }else if(hp>=3){
+      fireUfoProjectile(ship,{offsetX:-46});
+      window.setTimeout(()=>fireUfoProjectile(ship,{offsetX:46}),120);
+      window.setTimeout(()=>fireUfoProjectile(ship),240);
+    }else{
+      fireUfoProjectile(ship,{offsetX:-82,offsetY:18});
+      window.setTimeout(()=>fireUfoProjectile(ship,{offsetY:-26}),95);
+      window.setTimeout(()=>fireUfoProjectile(ship,{offsetX:82,offsetY:18}),190);
+    }
+  };
   ship.addEventListener('click',()=>{
     if(!ship.isConnected) return;
+    const method=telemetryCollectionMethod(ship);
+    telemetryCount('arcade','bossHits');
+    telemetryCount('arcade.bossHitMethods',method);
+    if(method==='star_power'){
+      telemetryCount('combos','starPowerBossHits');
+      announceSystemCombo('star-power-boss','Star Power + Boss','Cursor contact damages the Boss, but only once per brief contact window.');
+    }
     hp--;
-    const r=ship.getBoundingClientRect();
-    explodeAt(r.left+r.width/2,r.top+r.height/2,hp<=0?58:10);
+    const r=ship.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    explodeAt(cx,cy,hp<=0?58:10);
     if(hp<=0){
-      consolePrint('ARCADE BOSS DESTROYED // +5000 definitely-real points // management has been notified.','good');
-      showTransientToast('BOSS DEFEATED','The large arcade contact has been removed from production.','+5000 DEFINITELY-REAL POINTS','ARCADE');
+      defeated=true;
+      ufoCalmUntil=Date.now()+8000;
+      telemetryCount('arcade','bossDefeated'); telemetryFlyingCollect('boss_ufo',method); telemetryMeaningful('boss_defeated',{method});
+      telemetryCount('economy','bossRupeeRewards',3);
+      awardArcadeRupees(3,cx,cy,'boss_ufo');
+      consolePrint('ARCADE BOSS DESTROYED // +5000 definitely-real points // +3 RUPEES // airspace temporarily clear.','good');
+      showTransientToast('BOSS DEFEATED','The large arcade contact has been removed from production. Three rupees recovered.','+3 RUPEES // +5000 DEFINITELY-REAL POINTS','ARCADE');
       stopBoss();
     }else{
       updateHp();
       ship.classList.add('boss-hit'); window.setTimeout(()=>ship.classList.remove('boss-hit'),140);
-      consolePrint(`ARCADE BOSS HIT // ${hp}/6 integrity remaining.`,'warn');
+      consolePrint(`ARCADE BOSS HIT // ${hp}/6 core integrity remaining.`,'warn');
     }
   });
-  ship.addEventListener('animationend',()=>{ consolePrint('ARCADE BOSS ESCAPED // this will absolutely be mentioned in the postmortem.','warn'); stopBoss(); },{once:true});
+  ship.addEventListener('animationend',()=>{
+    if(defeated) return;
+    telemetryCount('arcade','bossEscaped'); telemetryFlyingMiss('boss_ufo'); telemetryMeaningful('boss_escaped');
+    nextBossKillThreshold=Math.min(nextBossKillThreshold,ufoKills+4);
+    ufoCalmUntil=Date.now()+3000;
+    consolePrint(`ARCADE BOSS ESCAPED // reacquisition expected after ${Math.max(1,nextBossKillThreshold-ufoKills)} more UFO contacts.`,'warn');
+    showTransientToast('BOSS ESCAPED','The contact got away, but the next boss opportunity is closer.','REACQUIRE // SHORTENED','ARCADE');
+    stopBoss();
+  },{once:true});
   document.body.appendChild(ship);
-  ufoFireTimer=window.setInterval(()=>{
-    fireUfoProjectile(ship);
-    window.setTimeout(()=>fireUfoProjectile(ship),120);
-  },480+Math.floor(Math.random()*180));
-  window.setTimeout(()=>fireUfoProjectile(ship),260);
+  ufoFireTimer=window.setInterval(bossVolley,(610+Math.floor(Math.random()*170))*directorHostileCadenceMultiplier());
+  window.setTimeout(bossVolley,320);
 }
 function spawnGalaga(force=false){
+  if(ufoBossActive && !force) return;
+  if(Date.now()<ufoCalmUntil && !force) return;
   if((!document.body.classList.contains('theme-complete')||reduceMotion) && !force) return;
+  if(!directorAllowsAmbient('ufo',{force})) return;
+  const threat=ufoThreatTier();
   const f=randomEdgeFlight(120);
-  const ship=document.createElement('button'); ship.className='galaga-secret fly'; ship.type='button'; ship.setAttribute('aria-label','A tiny arcade ship');
-  ship.style.left=`${f.sx}px`; ship.style.top=`${f.sy}px`; ship.style.setProperty('--dx',`${f.dx}px`); ship.style.setProperty('--dy',`${f.dy}px`); ship.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(ship,6.5+Math.random()*4.5);
+  const ship=document.createElement('button'); ship.className=`galaga-secret fly ufo-threat-${threat}`; ship.type='button'; ship.setAttribute('aria-label',`A tiny arcade ship, threat tier ${threat}`); ship.dataset.telemetryKind='ufo'; ship.dataset.threat=String(threat);
+  telemetryCount('arcade','ufoSpawned'); telemetryCount('arcade.threatSpawns',String(threat)); telemetryFlyingSpawn('ufo',{forced:force,threat});
+  ship.style.left=`${f.sx}px`; ship.style.top=`${f.sy}px`; ship.style.setProperty('--dx',`${f.dx}px`); ship.style.setProperty('--dy',`${f.dy}px`); ship.style.setProperty('--angle',`${f.angle}deg`);
+  const baseDuration=threat===1?6.5:threat===2?6.15:5.8;
+  setFlightDuration(ship,baseDuration+Math.random()*4.1);
   let ufoFireTimer=null;
   const stopUfoFire=()=>{ if(ufoFireTimer){ window.clearInterval(ufoFireTimer); ufoFireTimer=null; } };
-  ship.addEventListener('click',()=>{ const r=ship.getBoundingClientRect();explodeAt(r.left+r.width/2,r.top+r.height/2,30);registerUfoKill();stopUfoFire();ship.remove(); });
-  ship.addEventListener('animationend',stopUfoFire,{once:true});
+  const firePattern=()=>{
+    if(threat===1){
+      fireUfoProjectile(ship);
+    }else if(threat===2){
+      fireUfoProjectile(ship);
+      if(Math.random()<.32) window.setTimeout(()=>fireUfoProjectile(ship),150);
+    }else{
+      fireUfoProjectile(ship);
+      if(Math.random()<.58) window.setTimeout(()=>fireUfoProjectile(ship),120);
+    }
+  };
+  ship.addEventListener('click',()=>{ const method=telemetryCollectionMethod(ship); const r=ship.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; explodeAt(cx,cy,30);registerUfoKill(method,cx,cy);stopUfoFire();ship.remove(); });
+  ship.addEventListener('animationend',()=>{ telemetryCount('arcade','ufoEscaped'); stopUfoFire(); },{once:true});
   document.body.appendChild(ship);
-  ufoFireTimer=window.setInterval(()=>fireUfoProjectile(ship),780+Math.floor(Math.random()*340));
-  window.setTimeout(()=>fireUfoProjectile(ship),420);
+  const cadence=threat===1?900+Math.floor(Math.random()*360):threat===2?700+Math.floor(Math.random()*280):560+Math.floor(Math.random()*230);
+  ufoFireTimer=window.setInterval(firePattern,cadence*directorHostileCadenceMultiplier());
+  window.setTimeout(firePattern,threat===1?440:threat===2?360:280);
   removeWhenFlightEnds(ship);
 }
 (function scheduleSecrets(){
-  const delay=easyModeEnabled ? 11000+Math.random()*9000 : 36000+Math.random()*52000;
+  const delay=easyModeEnabled ? 11000+Math.random()*9000 : directorDelay('shooting_star',36000,88000);
   setTimeout(()=>{spawnShootingStar();scheduleSecrets();},delay);
 })();
 (function scheduleGalaga(){
-  const delay=easyModeEnabled ? 14000+Math.random()*12000 : 52000+Math.random()*78000;
+  const delay=easyModeEnabled ? 14000+Math.random()*12000 : directorDelay('ufo',52000,130000);
   setTimeout(()=>{spawnGalaga();scheduleGalaga();},delay);
 })();
 
@@ -1725,6 +3055,8 @@ function spawnCastle(){
   castle.style.left=`${10+Math.random()*76}%`;
   target.appendChild(castle); activeCastle=castle;
   castle.addEventListener('click',()=>{
+    telemetryCount('economy','castlesChecked');
+    telemetryMeaningful('castle_checked');
     castle.remove();
     if(activeCastle===castle) activeCastle=null;
     castleQuestActive=false;
@@ -1745,22 +3077,41 @@ function dougIsVisible(){
   const r=dougCard.getBoundingClientRect();
   return r.bottom>0 && r.top<window.innerHeight && r.right>0 && r.left<window.innerWidth;
 }
-function showDougPeek(){
+function showDougPeek({starPowered=false}={}){
   let peek=document.querySelector('.doug-peek');
   if(!peek){
-    peek=document.createElement('div'); peek.className='doug-peek';
-    peek.innerHTML=`<div class="doug-peek-hearts">♥ ♥ ♥</div><img alt="Doug peeking onto the page"/><strong>Doug approves this acquisition.</strong>`;
+    peek=document.createElement('button'); peek.type='button'; peek.className='doug-peek'; peek.setAttribute('aria-label','Pet Doug');
+    peek.innerHTML=`<div class="doug-peek-hearts">♥ ♥ ♥</div><img alt="Doug peeking onto the page"/><strong>Doug approves this acquisition. Pet Doug.</strong>`;
+    peek.addEventListener('click',()=>petDoug('peek',peek));
     document.body.appendChild(peek);
   }
-  const img=peek.querySelector('img'); if(img) img.src=document.body.classList.contains('theme-complete')?'assets/doug-complete.webp':'assets/doug.jpg';
+  const label=peek.querySelector('strong'); if(label) label.textContent=starPowered?'STAR POWER // Doug approves. Pet the cool dog.':'Doug approves this acquisition. Pet Doug.';
+  peek.classList.toggle('star-cool',starPowered);
+  syncDougThemeVisuals();
   peek.classList.remove('show'); void peek.offsetWidth; peek.classList.add('show');
-  clearTimeout(dougPeekTimer); dougPeekTimer=setTimeout(()=>peek.classList.remove('show'),3300);
+  clearTimeout(dougPeekTimer); dougPeekTimer=setTimeout(()=>{peek.classList.remove('show','star-cool');syncDougThemeVisuals();},4300);
 }
-function collectDougBone(){
+function flashDougStarCool(){
+  if(!dougCard) return;
+  dougCard.classList.add('doug-star-cool');
+  syncDougThemeVisuals();
+  window.setTimeout(()=>{dougCard.classList.remove('doug-star-cool'); syncDougThemeVisuals();},2600);
+}
+function collectDougBone(method='direct'){
   dougBoneCount++;
-  if(dougIsVisible()){ reactDoug('Doug approves this acquisition.'); burstDougPaws(6); }
-  else showDougPeek();
-  consolePrint(`BONE ACQUIRED // Doug approves this acquisition. MORALE ${dougBoneCount}.`,'good');
+  telemetryCount('economy','bonesCollected');
+  telemetryFlyingCollect('bone',method);
+  const starPowered=document.body.classList.contains('star-power');
+  if(starPowered){
+    telemetryCount('combos','starPowerDoug');
+    announceSystemCombo('star-power-doug','Star Power + Doug','Doug has achieved maximum cool.');
+  }
+  if(dougIsVisible()){
+    reactDoug(starPowered?'Doug has achieved maximum cool.':'Doug approves this acquisition.');
+    burstDougPaws(starPowered?9:6,doug);
+    if(starPowered) flashDougStarCool();
+  } else showDougPeek({starPowered});
+  consolePrint(`BONE ACQUIRED // Doug approves this acquisition. MORALE ${dougBoneCount}${starPowered?' // MAXIMUM COOL':''}.`,'good');
 }
 
 // Completion-theme ambient pickups add more game-like motion without competing with content.
@@ -1781,27 +3132,61 @@ function getPickupMarkup(kind){
 let pickupsSinceKey=0;
 function choosePickupDefinition(){
   const nonKeys=pickupKinds.filter(entry=>entry.kind!=='key');
-  if(castleQuestActive || activeCastle) return nonKeys[Math.floor(Math.random()*nonKeys.length)];
+  const lucky=shopHasEquipped('lucky-charm');
+  const chooseNonKey=()=>{
+    if(!lucky) return nonKeys[Math.floor(Math.random()*nonKeys.length)];
+    const weighted=[];
+    nonKeys.forEach(entry=>{ const copies=(entry.kind==='heart'||entry.kind==='star')?3:2; for(let i=0;i<copies;i++) weighted.push(entry); });
+    return weighted[Math.floor(Math.random()*weighted.length)];
+  };
+  if(castleQuestActive || activeCastle) return chooseNonKey();
   const keyDef=pickupKinds.find(entry=>entry.kind==='key');
-  // A little randomness, plus a pity rule. Keys stay special without asking someone
-  // to stare at the page for half an afternoon waiting for probability to apologize.
-  if(pickupsSinceKey>=3 || Math.random()<0.26){ pickupsSinceKey=0; return keyDef; }
+  // A little randomness, plus a pity rule. Lucky Charm tightens both without
+  // turning the uncommon pickups into guaranteed schedule spam.
+  if(pickupsSinceKey>=(lucky?2:3) || Math.random()<(lucky?.36:.26)){ pickupsSinceKey=0; return keyDef; }
   pickupsSinceKey++;
-  return nonKeys[Math.floor(Math.random()*nonKeys.length)];
+  return chooseNonKey();
 }
-function collectRupee(){
-  const value=1;
-  const before=rupeeWallet;
-  rupeeWallet+=value;
-  try{localStorage.setItem(RUPEE_WALLET_KEY,String(rupeeWallet));}catch(_){}
-  updateRupeeMeter();
-  consolePrint(`RUPEE ACQUIRED // +1 // WALLET ${rupeeWallet} // merchant inventory: suspiciously empty`,'good');
-  showTransientToast('RUPEE ACQUIRED','+1 rupee. The economy continues to technically exist.',`WALLET // ${rupeeWallet}`,'ECONOMY');
+function awardRupees(amount=1,{source='pickup',announce='pickup'}={}){
+  const value=Math.max(0,Math.floor(Number(amount)||0));
+  if(!value) return;
+  const before=rupeeWallet, first=!rupeeDiscovered;
+  rupeeWallet+=value; rupeeDiscovered=true;
+  telemetryCount('economy','rupeesEarned',value);
+  telemetryCount('economy.rupeeSources',source,value);
+  telemetryMeaningful(source==='pickup'?'rupee_collected':'rupee_reward',{amount:value,source,wallet:rupeeWallet});
+  try{localStorage.setItem(RUPEE_WALLET_KEY,String(rupeeWallet));localStorage.setItem(RUPEE_DISCOVERED_KEY,'1');}catch(_){}
+  updateRupeeMeter(); syncShopTelemetrySnapshot();
+  if(announce==='pickup'){
+    consolePrint(`RUPEE ACQUIRED // +${value} // WALLET ${rupeeWallet} // shop inventory: regrettably real`,'good');
+    if(first) showTransientToast('WALLET UNLOCKED',`${value} rupee${value===1?'':'s'} acquired. Click the RUPEES counter or type shop to spend them.`,`WALLET // ${rupeeWallet}`,'ECONOMY');
+    else showTransientToast('RUPEE ACQUIRED',`+${value} rupee${value===1?'':'s'}. Purchasing power increased.`,`WALLET // ${rupeeWallet}`,'ECONOMY');
+  }
   if(before<10 && rupeeWallet>=10){
-    window.setTimeout(()=>showTransientToast('WALLET MILESTONE','10 rupees collected. You have achieved local economic significance.','ECONOMY // PROBABLY FINE','SYSTEM'),650);
+    window.setTimeout(()=>showTransientToast('WALLET MILESTONE','10 rupees. You can invest in Production Discount or buy several smaller upgrades now.','ECONOMY // CHOICE DETECTED','SYSTEM'),650);
   }
 }
+function collectRupee(){ awardRupees(1,{source:'pickup',announce:'pickup'}); }
+function awardArcadeRupees(amount,x,y,source='ufo'){
+  const value=Math.max(1,Math.floor(amount));
+  const count=Math.min(5,value);
+  for(let i=0;i<count;i++){
+    const chip=document.createElement('i');
+    chip.className='arcade-rupee-reward';
+    chip.textContent='◆';
+    chip.style.left=`${x+(Math.random()-.5)*20}px`; chip.style.top=`${y+(Math.random()-.5)*16}px`;
+    chip.style.setProperty('--rx',`${(Math.random()-.5)*80}px`); chip.style.setProperty('--ry',`${-45-Math.random()*70}px`);
+    document.body.appendChild(chip);
+    window.setTimeout(()=>chip.remove(),900);
+  }
+  window.setTimeout(()=>awardRupees(value,{source,announce:'silent'}),180);
+}
 function handleGamePickup(def,item){
+  const method=telemetryCollectionMethod(item);
+  telemetryFlyingCollect(def.kind,method);
+  if(def.kind==='key') telemetryCount('economy','keysCollected');
+  else if(def.kind==='1up') telemetryCount('economy','mushroomsCollected');
+  else if(def.kind==='star') telemetryCount('economy','starsCollected');
   const r=item.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,18);
   if(def.kind==='heart') collectHeart();
   else if(def.kind==='1up') advanceCursorPower();
@@ -1815,41 +3200,50 @@ function handleGamePickup(def,item){
 }
 function spawnGamePickup(forcedKind=null,force=false){
   if((!document.body.classList.contains('theme-complete')||reduceMotion) && !force) return;
+  if(!directorAllowsAmbient('pickup',{force})) return;
   const f=randomEdgeFlight(100);
   // Do not naturally spawn another key while a castle is waiting. Forced test pickups
   // are allowed because console commands are allowed to be irresponsible.
   const def=forcedKind ? pickupKinds.find(entry=>entry.kind===forcedKind) : choosePickupDefinition();
   if(!def) return;
-  const item=document.createElement('button'); item.type='button'; item.className='game-pickup'; item.dataset.kind=def.kind; item.innerHTML=getPickupMarkup(def.kind); item.setAttribute('aria-label',`A hidden ${def.kind} pickup`);
+  const item=document.createElement('button'); item.type='button'; item.className='game-pickup'; item.dataset.kind=def.kind; item.dataset.telemetryKind=def.kind; item.innerHTML=getPickupMarkup(def.kind);
+  telemetryFlyingSpawn(def.kind,{forced:force}); item.setAttribute('aria-label',`A hidden ${def.kind} pickup`);
   item.style.left=`${f.sx}px`; item.style.top=`${f.sy}px`; item.style.setProperty('--dx',`${f.dx}px`); item.style.setProperty('--dy',`${f.dy}px`); item.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(item,5.2+Math.random()*4.6);
   item.addEventListener('click',()=>handleGamePickup(def,item));
   document.body.appendChild(item); removeWhenFlightEnds(item);
 }
 (function schedulePickups(){
-  const delay=easyModeEnabled ? 2600+Math.random()*3200 : 13000+Math.random()*13000;
+  const delay=easyModeEnabled ? 2600+Math.random()*3200 : directorDelay('pickup',13000,26000);
   setTimeout(()=>{spawnGamePickup();schedulePickups();},delay);
 })();
 
 // Once Doug assumes command, bones become a recurring background pickup until reload/reset.
 function spawnDougBone(){
   if(!dougCard?.classList.contains('doug-command')||reduceMotion) return;
+  if(!directorAllowsAmbient('bone')) return;
   const f=randomEdgeFlight(90); const bone=document.createElement('button'); bone.type='button'; bone.className='doug-bone'; bone.setAttribute('aria-label','Doug-approved bone pickup');
   bone.innerHTML=`<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
   bone.style.left=`${f.sx}px`; bone.style.top=`${f.sy}px`; bone.style.setProperty('--dx',`${f.dx}px`); bone.style.setProperty('--dy',`${f.dy}px`); bone.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(bone,5.4+Math.random()*3.8);
-  bone.addEventListener('click',()=>{ const r=bone.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,14); collectDougBone(); bone.remove(); });
+  bone.dataset.telemetryKind='bone'; telemetryFlyingSpawn('bone');
+  bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const r=bone.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,14); collectDougBone(method); bone.remove(); });
   document.body.appendChild(bone); removeWhenFlightEnds(bone);
 }
 (function scheduleDougBones(){
-  const delay=easyModeEnabled ? 3000+Math.random()*4000 : 7000+Math.random()*8000;
+  const delay=easyModeEnabled ? 3000+Math.random()*4000 : shopHasEquipped('dog-whistle') ? directorDelay('bone',4300,9300) : directorDelay('bone',7000,15000);
   setTimeout(()=>{spawnDougBone();scheduleDougBones();},delay);
 })();
 
+applyShopEquipmentState();
+syncShopTelemetrySnapshot();
 updateHeartMeter();
 updateRupeeMeter();
 updateAchievementProgress();
 scheduleAchievementIntroHint();
 if(unlockedAchievements.size===ACHIEVEMENT_KEYS.length) applyThemeMode(preferredUnlockedTheme(),{persist:false});
 else updateThemeCycleControl();
+syncDougThemeVisuals();
+window.setTimeout(()=>computePlayerModel({record:true}),1200);
+startAdaptiveDirector();
 // Shared Three.js loader. PreviewLocal.bat serves the site over localhost so module imports behave like GitHub Pages.
 let threePromise;
 function loadThree() {
@@ -1861,6 +3255,7 @@ function loadThree() {
 const canvas = document.querySelector('#hero-canvas');
 const fallback = document.querySelector('#scene-fallback');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+startDynamicObjectives();
 
 async function initScene() {
   try {
@@ -2100,6 +3495,8 @@ async function initScene() {
       raycaster.setFromCamera(pointer, camera);
       const hits = raycaster.intersectObjects(clickable, false);
       if (hits[0]) {
+        telemetryCount('portfolio','heroSignalClicks');
+        telemetryMeaningful('hero_signal',{target:hits[0].object.userData.key||'unknown'});
         showAchievement('signal');
         document.getElementById(hits[0].object.userData.key)?.scrollIntoView({ behavior:'smooth' });
       }
@@ -2372,6 +3769,7 @@ function renderAzureGalleryThumbs() {
 
 function showAzureGalleryImage(index) {
   if (!azureGalleryImage) return;
+  telemetryUnique('portfolio','galleryImagesViewed',String((index + azureGalleryImages.length) % azureGalleryImages.length));
   azureGalleryIndex = (index + azureGalleryImages.length) % azureGalleryImages.length;
   const image = azureGalleryImages[azureGalleryIndex];
   azureGalleryImage.src = image.full;
@@ -2393,6 +3791,8 @@ function showAzureGalleryImage(index) {
 
 function openAzureGallery(index = 0) {
   if (!azureGallery) return;
+  telemetryCount('portfolio','galleryOpens');
+  telemetryMeaningful('azure_gallery_opened');
   azureGalleryLastFocus = document.activeElement;
   renderAzureGalleryThumbs();
   showAzureGalleryImage(index);

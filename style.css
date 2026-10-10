@@ -2231,29 +2231,10 @@ body { position:relative; }
   .games-tools-icons img { width:48px; height:48px; }
 }
 
-/* Inspect mode */
-[data-dev-note] { position:relative; }
-body.inspect-mode [data-dev-note] { outline:1px dashed rgba(93,174,255,.32); outline-offset:-2px; }
-body.inspect-mode [data-dev-note]::after {
-  content:attr(data-dev-note);
-  position:absolute;
-  z-index:500;
-  left:16px;
-  bottom:16px;
-  max-width:min(480px,calc(100% - 32px));
-  padding:9px 11px;
-  border:1px solid rgba(93,174,255,.45);
-  background:rgba(6,11,18,.94);
-  color:#b9ddff;
-  font:700 9px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;
-  letter-spacing:.06em;
-  opacity:0;
-  transform:translateY(5px);
-  pointer-events:none;
-  transition:opacity .14s ease,transform .14s ease;
-  box-shadow:0 14px 34px rgba(0,0,0,.36);
-}
-body.inspect-mode [data-dev-note]:hover::after { opacity:1; transform:translateY(0); }
+/* Inspect mode
+   Notes are surfaced through the fixed .inspect-tooltip below. Do not assign
+   positioning to [data-dev-note] itself: structural targets may already be
+   absolute/fixed and changing their positioning mutates the page layout. */
 
 /* Achievement ledger */
 .ledger-trigger {
@@ -2304,6 +2285,7 @@ body.inspect-mode [data-dev-note]:hover::after { opacity:1; transform:translateY
 .ledger-entry .num { color:#4c6681; font:800 9px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
 .ledger-entry strong { display:block; font-size:12px; color:#66788d; }
 .ledger-entry small { display:block; margin-top:2px; color:#4f6073; font-size:10px; }
+.ledger-hint-label { color:#6885a3; font-size:8px; font-weight:800; letter-spacing:.08em; }
 .ledger-entry.unlocked { border-color:rgba(47,147,255,.19); background:rgba(0,112,224,.035); }
 .ledger-entry.unlocked .num { color:var(--accent-bright); }
 .ledger-entry.unlocked strong { color:#eef7ff; }
@@ -2367,7 +2349,7 @@ body.inspect-mode [data-dev-note]:hover::after { opacity:1; transform:translateY
 /* Rare clickable ambient signal */
 .ambient-secret {
   position:fixed;
-  z-index:18;
+  z-index:10050;
   width:24px;
   height:24px;
   border:1px solid rgba(105,191,255,.66);
@@ -3291,3 +3273,1527 @@ body.azure-gallery-open { overflow:hidden; }
   .azure-gallery-next { right:6px; }
   .azure-gallery-thumb { width:88px; height:50px; }
 }
+
+
+/* v2.29 guided discovery + playful console simulations */
+.achievement { bottom:62px !important; padding-right:40px; }
+.achievement-close {
+  position:absolute; right:8px; top:8px; display:none; width:26px; height:26px; padding:0;
+  border:0; background:transparent; color:#7690aa; font:400 20px/1 sans-serif; cursor:pointer;
+}
+.achievement.hint-toast .achievement-close { display:block; }
+.achievement.hint-toast { pointer-events:auto; border-left-color:#ffd36b; border-color:rgba(255,211,107,.38); }
+.achievement.hint-toast .achievement-topline span { color:#ffd36b; }
+.hint-trigger {
+  position:fixed; right:18px; bottom:18px; z-index:251; min-height:34px; padding:0 13px;
+  border:1px solid rgba(255,211,107,.36); background:rgba(15,17,19,.94); color:#ffe39a;
+  font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.15em; cursor:pointer;
+  box-shadow:0 12px 36px rgba(0,0,0,.28); transition:border-color .16s ease,background .16s ease,transform .16s ease;
+}
+.hint-trigger:hover { border-color:rgba(255,222,130,.72); background:rgba(67,53,18,.42); transform:translateY(-1px); }
+body.theme-complete .hint-trigger { border-color:rgba(255,197,93,.48); color:#ffe9a9; background:rgba(28,13,31,.94); }
+
+/* Faux Blueprint editor opened from the console. */
+.blueprint-popup,.compile-popup {
+  position:fixed; inset:0; z-index:420; display:grid; place-items:center; padding:24px;
+  background:rgba(0,0,0,.48); opacity:0; pointer-events:none; transition:opacity .16s ease; backdrop-filter:blur(3px);
+}
+.blueprint-popup.open,.compile-popup.open { opacity:1; pointer-events:auto; }
+.blueprint-window { width:min(780px,calc(100vw - 32px)); border:1px solid #3a4653; background:#171a1e; box-shadow:0 28px 100px rgba(0,0,0,.75); font-family:Segoe UI,Arial,sans-serif; }
+.blueprint-titlebar { height:34px; display:flex; align-items:center; justify-content:space-between; padding:0 10px 0 13px; background:#252a30; color:#d8dde3; font-size:12px; border-bottom:1px solid #080a0c; }
+.blueprint-titlebar button { border:0; background:transparent; color:#aeb7c0; font-size:20px; cursor:pointer; }
+.blueprint-toolbar { height:38px; display:flex; align-items:center; gap:18px; padding:0 12px; color:#aeb8c3; font-size:10px; background:#20252a; border-bottom:1px solid #0b0d10; }
+.blueprint-toolbar b { color:#efb65b; } .blueprint-toolbar i { margin-left:auto; font-style:normal; color:#747f8a; }
+.blueprint-stage { position:relative; height:300px; overflow:hidden; background-color:#10151b; background-image:linear-gradient(rgba(87,112,137,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(87,112,137,.10) 1px,transparent 1px); background-size:16px 16px; }
+.bp-wires { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.bp-wire { fill:none; stroke:#e8edf2; stroke-width:3; filter:drop-shadow(0 0 2px rgba(255,255,255,.2)); }
+.bp-wire-valid-a,.bp-wire-valid-b { display:none; }
+.bp-node { position:absolute; top:93px; width:150px; min-height:106px; border:1px solid #060708; border-radius:5px; background:#17191d; box-shadow:0 8px 18px rgba(0,0,0,.45); color:#e5e8ec; font-size:10px; }
+.bp-node-head { height:19px; padding:3px 7px; border-radius:4px 4px 0 0; color:#fff; font-size:8px; font-weight:800; letter-spacing:.07em; }
+.bp-node strong { display:block; padding:8px 9px 5px; font-size:13px; }
+.bp-node small { display:block; padding:5px 9px; color:#858e98; border-top:1px solid rgba(255,255,255,.05); }
+.bp-event { left:74px; } .bp-event .bp-node-head { background:#a51e2c; }
+.bp-grant { right:73px; } .bp-grant .bp-node-head { background:#1666a5; }
+.bp-valid { display:none; left:calc(50% - 74px); } .bp-valid .bp-node-head { background:#62666b; }
+.bp-pin { display:flex; align-items:center; gap:5px; padding:4px 9px; color:#bec7d0; }
+.bp-pin.out { justify-content:flex-end; } .bp-pin i { display:inline-block; width:9px; height:9px; border-radius:50%; background:#fff; box-shadow:0 0 0 1px #222; }
+.bp-pin.valid i { background:#fff; }
+.bp-add-valid { position:absolute; left:50%; top:132px; transform:translate(-50%,-50%); z-index:3; width:28px; height:28px; border:1px solid #76889b; border-radius:50%; background:#202830; color:#e8f1f8; font:700 20px/24px Segoe UI,sans-serif; cursor:pointer; box-shadow:0 0 0 4px rgba(16,21,27,.78); }
+.bp-add-valid:hover { background:#2c83c5; border-color:#74c8ff; }
+.blueprint-stage.validated .bp-wire-direct,.blueprint-stage.validated .bp-add-valid { display:none; }
+.blueprint-stage.validated .bp-wire-valid-a,.blueprint-stage.validated .bp-wire-valid-b,.blueprint-stage.validated .bp-valid { display:block; }
+.blueprint-status { padding:7px 12px; color:#d6a85e; background:#1b2025; border-top:1px solid #303840; font:700 9px/1.2 Consolas,monospace; letter-spacing:.05em; }
+.blueprint-stage.validated + .blueprint-status { color:#69d39f; }
+
+/* Intentionally cursed shader compilation dialog. */
+.compile-window { width:min(520px,calc(100vw - 32px)); display:grid; grid-template-columns:54px 1fr auto; gap:14px 16px; align-items:center; padding:20px; border:1px solid #46525f; background:#20252b; color:#edf2f7; box-shadow:0 30px 100px rgba(0,0,0,.78); font-family:Segoe UI,Arial,sans-serif; }
+.compile-icon { grid-row:1 / span 2; width:48px; height:48px; display:grid; place-items:center; border-radius:5px; background:#0a74b8; color:#fff; font-weight:800; font-size:17px; }
+.compile-copy strong { display:block; font-size:14px; } .compile-copy small { display:block; margin-top:4px; color:#aeb7c0; font-size:10px; }
+.compile-progress { grid-column:2; height:14px; border:1px solid #0a0c0e; background:#101317; overflow:hidden; }
+.compile-progress i { display:block; width:0; height:100%; background:linear-gradient(90deg,#0d77bd,#30a0e5); transition:width .2s linear; }
+#compile-percent { grid-column:3; grid-row:2; color:#cdd6df; font:700 11px Consolas,monospace; }
+#compile-cancel { grid-column:3; grid-row:1; align-self:start; border:1px solid #596673; background:#2c333a; color:#dce3ea; min-width:72px; height:28px; cursor:pointer; }
+#compile-cancel:hover { background:#39434c; }
+
+/* Incorrect Lumen settings: soft light and dark splotches breathing at unrelated rates. */
+.lumen-artifacts { position:fixed; inset:0; z-index:62; pointer-events:none; overflow:hidden; opacity:0; transition:opacity .35s ease; }
+.lumen-artifacts.active { opacity:1; }
+.lumen-blob { position:absolute; display:block; border-radius:50%; filter:blur(55px); opacity:0; animation:lumen-breathe var(--lumen-dur,8s) var(--lumen-delay,0s) ease-in-out infinite alternate; }
+.lumen-blob.light { background:rgba(171,220,255,.24); mix-blend-mode:lighten; }
+.lumen-blob.dark { background:rgba(0,0,0,.46); mix-blend-mode:multiply; }
+@keyframes lumen-breathe { 0%{opacity:.04;transform:scale(.72) translate(-5%,4%)} 42%{opacity:.5} 100%{opacity:.14;transform:scale(1.22) translate(7%,-5%)} }
+
+/* Vibe mode: a tiny AI pair-programmer that is visibly busy whether or not it understands the task. */
+.vibe-agent { position:fixed; z-index:190; left:24px; top:90px; display:flex; align-items:center; gap:9px; max-width:min(360px,calc(100vw - 48px)); padding:8px 11px; border:1px solid rgba(109,232,255,.0); background:rgba(8,14,22,.0); color:#b5dffb; font:800 9px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace; opacity:0; pointer-events:none; transform:translateY(-8px); transition:.22s ease; }
+.vibe-agent.active { opacity:1; transform:none; border-color:rgba(109,232,255,.34); background:rgba(8,14,22,.91); animation:vibe-roam 13s ease-in-out infinite alternate; }
+.vibe-agent i { width:9px; height:9px; flex:0 0 auto; border-radius:50%; background:#68e7ff; box-shadow:0 0 12px #68e7ff,0 0 24px rgba(191,76,255,.5); animation:vibe-thinking .7s ease-in-out infinite alternate; }
+body.vibe-mode #ambient-canvas { filter:hue-rotate(18deg) saturate(1.22); }
+body.vibe-mode::after { content:""; position:fixed; inset:0; z-index:61; pointer-events:none; background:linear-gradient(110deg,transparent 20%,rgba(88,226,255,.025) 42%,rgba(209,82,255,.035) 57%,transparent 76%); background-size:220% 100%; animation:vibe-scan 4s linear infinite; mix-blend-mode:screen; }
+@keyframes vibe-thinking { to{transform:scale(1.45);background:#d061ff;} }
+@keyframes vibe-scan { to{background-position:-220% 0;} }
+@keyframes vibe-roam { 0%{translate:0 0} 35%{translate:8vw 4vh} 68%{translate:2vw 12vh} 100%{translate:13vw 6vh} }
+
+body.wish-granted::before { content:""; position:fixed; inset:0; z-index:60; pointer-events:none; background:radial-gradient(circle at 50% 50%,rgba(112,238,255,.18),rgba(216,77,255,.08) 22%,transparent 58%); animation:wish-pulse 1.1s ease-in-out 3 alternate; mix-blend-mode:screen; }
+@keyframes wish-pulse { from{opacity:.2;transform:scale(.92)} to{opacity:1;transform:scale(1.08)} }
+
+@media (max-width:620px) {
+  .achievement { right:12px !important; bottom:56px !important; width:calc(100vw - 24px); }
+  .hint-trigger { right:12px; bottom:12px; }
+  .blueprint-popup,.compile-popup { padding:10px; }
+  .blueprint-window { width:100%; }
+  .blueprint-toolbar { gap:9px; overflow:hidden; } .blueprint-toolbar i { display:none; }
+  .blueprint-stage { height:330px; }
+  .bp-event { left:18px; top:56px; } .bp-grant { right:18px; top:208px; } .bp-valid { left:calc(50% - 75px); top:132px; }
+  .bp-add-valid { top:164px; }
+  .bp-wires { display:none; }
+  .compile-window { grid-template-columns:44px 1fr; }
+  .compile-icon { width:40px; height:40px; }
+  #compile-cancel { grid-column:2; grid-row:3; justify-self:end; }
+  #compile-percent { grid-column:2; grid-row:2; justify-self:end; }
+  .compile-progress { grid-column:2; }
+}
+
+
+/* v2.30 Blueprint wiring, wish branches, and non-interactive communication polish */
+/* Project names and status labels communicate information. Only their actual links should behave like controls. */
+.consult-project-item:hover { background:transparent !important; }
+.consult-project-name,
+.project-state,
+.meta-row span,
+.feature-status span,
+.tool-roadmap-copy .card-kicker { pointer-events:none; cursor:default !important; }
+
+/* Execution wires now terminate on the real pin locations calculated by script.js. */
+.bp-wires { inset:0; width:100%; height:100%; overflow:visible; }
+.bp-pin i { position:relative; z-index:4; }
+.bp-wire { stroke:#f1f4f7; stroke-width:3.2; stroke-linecap:round; }
+.blueprint-stage.validated .bp-wire-valid-a,
+.blueprint-stage.validated .bp-wire-valid-b { display:block; }
+@media (max-width:620px) {
+  .bp-wires { display:block !important; }
+  .bp-wire { stroke-width:2.6; }
+}
+
+/* Special wish-result windows. */
+.wish-special-popup {
+  position:fixed; inset:0; z-index:470; display:grid; place-items:center; padding:24px;
+  background:rgba(0,0,0,.56); opacity:0; pointer-events:none; transition:opacity .18s ease; backdrop-filter:blur(4px);
+}
+.wish-special-popup.open { opacity:1; pointer-events:auto; }
+.wish-special-window {
+  position:relative; width:min(560px,calc(100vw - 32px)); padding:28px;
+  border:1px solid rgba(88,166,255,.38); background:linear-gradient(145deg,#121a24,#0a0f16 72%);
+  color:#e9f2fb; box-shadow:0 28px 100px rgba(0,0,0,.78),0 0 50px rgba(0,112,224,.09);
+}
+.wish-special-kicker { display:block; color:#67b8ff; font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.16em; }
+.wish-special-window h3 { margin:10px 0 8px; font-size:28px; }
+.wish-special-window p { margin:0; color:#9fb0c2; line-height:1.55; }
+.wish-special-close { position:absolute; top:10px; right:10px; width:30px; height:30px; border:0; background:transparent; color:#92a3b4; font-size:22px; cursor:pointer; }
+.wish-contact-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:22px; }
+.wish-contact-actions a { display:grid; place-items:center; min-height:44px; border:1px solid rgba(80,164,241,.38); background:rgba(0,112,224,.08); color:#dceeff; text-decoration:none; font:800 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; transition:.16s ease; }
+.wish-contact-actions a:hover { border-color:#58a6ff; background:rgba(0,112,224,.18); transform:translateY(-1px); }
+
+.blender-window { width:min(650px,calc(100vw - 32px)); }
+.blender-window #blender-title { white-space:nowrap; font-size:clamp(20px,3.2vw,28px); }
+.blender-progress { height:16px; margin-top:20px; border:1px solid #050709; background:#080b0f; overflow:hidden; }
+.blender-progress i { display:block; width:0; height:100%; background:linear-gradient(90deg,#ea7600,#ffb15a); transition:width .055s linear; }
+#blender-percent { display:block; margin-top:8px; color:#f4b36d; font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace; }
+#blender-ok { display:block; min-width:86px; height:34px; margin:20px 0 0 auto; border:1px solid #4f5d69; background:#242b32; color:#77828d; cursor:not-allowed; }
+#blender-ok.ready { color:#fff; border-color:#e78528; background:#a94e00; cursor:pointer; }
+#blender-ok.ready:hover { background:#c96000; }
+
+/* HAL 9000 would like a word. */
+.hal-overlay { position:fixed; inset:0; z-index:465; display:grid; place-items:center; pointer-events:none; background:rgba(0,0,0,.72); opacity:0; transition:opacity .65s ease; }
+.hal-overlay.show { animation:hal-visit 3s ease-in-out both; }
+.hal-eye { position:relative; width:180px; height:180px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle,#090909 0 46%,#1d1d1d 47% 59%,#060606 60% 100%); box-shadow:0 0 0 12px #141414,0 0 0 13px #343434,0 30px 100px rgba(0,0,0,.9); }
+.hal-eye::before { content:""; width:92px; height:92px; border-radius:50%; background:radial-gradient(circle at 43% 38%,#fff 0 2%,#ffbf72 3% 7%,#ff2c14 8% 34%,#8e0500 46%,#210000 66%,#050000 100%); box-shadow:0 0 22px rgba(255,30,0,.95),0 0 64px rgba(255,0,0,.55); }
+.hal-eye i { position:absolute; width:150px; height:150px; border-radius:50%; border:1px solid rgba(255,255,255,.07); }
+@keyframes hal-visit { 0%{opacity:0} 24%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+
+@media (max-width:620px) {
+  .wish-special-popup { padding:10px; }
+  .wish-contact-actions { grid-template-columns:1fr; }
+  .hal-eye { width:130px; height:130px; }
+  .hal-eye::before { width:66px; height:66px; }
+}
+
+/* Neutralize the legacy hover treatment on consulting labels. Steam links remain interactive. */
+.consult-title-grid span:hover { background:transparent !important; color:inherit !important; border-color:inherit !important; }
+.consult-title-grid .project-state:hover { border-color:var(--line) !important; }
+
+
+/* v2.31 usability, input fallback, castle loop, and Legendary rarity pass */
+/* A tiny warning only appears when WebGL is absent or the renderer clearly reports software rendering. */
+.hardware-warning {
+  position:sticky; top:var(--header); z-index:119; display:none; align-items:center; justify-content:center; gap:12px;
+  min-height:34px; padding:7px max(42px,calc((100vw - var(--max))/2));
+  border-bottom:1px solid rgba(255,184,71,.26); background:rgba(45,31,10,.96); color:#e7d4a9;
+  font:700 9px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.025em; text-align:center;
+}
+.hardware-warning.show { display:flex; }
+.hardware-warning b { color:#ffd477; }
+.hardware-warning a { color:#fff0ba; }
+.hardware-warning button { position:absolute; right:max(12px,calc((100vw - var(--max))/2)); top:50%; translate:0 -50%; width:26px; height:26px; border:0; background:transparent; color:#c4ad7b; cursor:pointer; font-size:18px; }
+
+/* Doug is for petting, not filing paperwork. */
+.doug-secret { cursor:grab !important; }
+.doug-secret:active { cursor:grabbing !important; }
+
+/* Discovery controls share a dock so Legendary mode can sit directly beside Signals. */
+.discovery-controls { position:fixed; left:18px; bottom:18px; z-index:245; display:flex; align-items:center; gap:7px; pointer-events:none; }
+.discovery-controls > button { pointer-events:auto; }
+.ledger-trigger { position:static !important; left:auto !important; bottom:auto !important; }
+.legendary-trigger {
+  display:none; align-items:center; min-height:34px; padding:0 11px; border:1px solid rgba(255,190,55,.38);
+  background:rgba(25,17,7,.94); color:#f3cd75; font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.10em; cursor:pointer; box-shadow:0 12px 36px rgba(0,0,0,.28);
+}
+.legendary-trigger.visible { display:inline-flex; }
+.legendary-trigger[aria-pressed="true"] { border-color:rgba(255,205,82,.76); color:#fff3bd; background:linear-gradient(90deg,rgba(122,72,8,.45),rgba(61,39,8,.82)); box-shadow:0 0 24px rgba(255,182,35,.14),0 12px 36px rgba(0,0,0,.32); }
+.ledger-console-tip { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.ledger-console-tip button { min-width:24px; height:22px; padding:0 6px; border:1px solid rgba(118,157,196,.35); border-bottom-width:2px; border-radius:3px; background:#101a24; color:#dcecff; font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace; cursor:pointer; }
+.ledger-console-tip button:hover { border-color:var(--accent-bright); background:rgba(0,112,224,.10); }
+
+/* Non-star sprites keep their readable upright orientation while their positions follow the flight path. */
+.game-pickup, .doug-bone, .galaga-secret { transform:none; }
+@keyframes pickup-flight {
+  from { transform:translate3d(0,0,0) scale(.82); opacity:0; }
+  8% { opacity:1; }
+  46% { transform:translate3d(calc(var(--dx) * .46),calc(var(--dy) * .46 - 18px),0) scale(1); }
+  90% { opacity:1; }
+  to { transform:translate3d(var(--dx),var(--dy),0) scale(.88); opacity:0; }
+}
+@keyframes galaga-flight {
+  from { transform:translate3d(0,0,0); opacity:0; }
+  6% { opacity:1; }
+  34% { transform:translate3d(calc(var(--dx) * .34),calc(var(--dy) * .34 - 28px),0); }
+  67% { transform:translate3d(calc(var(--dx) * .67),calc(var(--dy) * .67 + 20px),0); }
+  92% { opacity:1; }
+  to { transform:translate3d(var(--dx),var(--dy),0); opacity:0; }
+}
+
+/* Each key unlocks one castle check along a section boundary. */
+.section { position:relative; }
+.section-castle {
+  position:absolute; z-index:24; top:-23px; width:46px; height:42px; margin-left:-23px; padding:3px;
+  border:0; background:transparent; color:#9dd7ff; cursor:pointer; filter:drop-shadow(0 0 7px rgba(47,147,255,.42));
+  animation:castle-arrive .38s ease-out both;
+}
+.section-castle::before { content:""; position:absolute; left:-32px; right:-32px; top:23px; height:1px; z-index:-1; background:linear-gradient(90deg,transparent,var(--line),var(--line),transparent); }
+.section-castle svg { width:100%; height:100%; overflow:visible; fill:#173c61; stroke:#8fd6ff; stroke-width:2; vector-effect:non-scaling-stroke; transition:transform .15s ease,filter .15s ease; }
+.section-castle:hover svg { transform:translateY(-3px) scale(1.08); filter:drop-shadow(0 0 8px rgba(111,220,255,.66)); }
+body.theme-complete .section-castle { color:#e48bff; filter:drop-shadow(0 0 8px rgba(231,89,255,.44)); }
+body.theme-complete .section-castle svg { fill:#421d58; stroke:#f3a3ff; }
+body.theme-legendary .section-castle { filter:drop-shadow(0 0 9px rgba(255,190,45,.56)); }
+body.theme-legendary .section-castle svg { fill:#69400a; stroke:#ffe39a; }
+@keyframes castle-arrive { from{opacity:0;transform:translateY(7px) scale(.72)} to{opacity:1;transform:none} }
+
+/* Legendary rarity tier. Completion mode remains underneath it, gold wins visually. */
+body.theme-complete.theme-legendary {
+  --bg:#0d0a05; --bg-deep:#080603; --bg-2:#171006;
+  --panel:rgba(35,25,10,.94); --panel-2:rgba(45,31,11,.94); --panel-3:rgba(20,14,6,.96);
+  --line:rgba(255,214,119,.14); --line-strong:rgba(255,220,135,.27); --line-blue:rgba(224,164,44,.48);
+  --text:#fffaf0; --muted:#c9b88f; --muted-2:#8f7d58; --warning:#ffd166;
+  --accent:#c78512; --accent-bright:#ffc63d; --accent-2:#ffe49a; --accent-soft:rgba(218,151,25,.13);
+  background:radial-gradient(circle at 14% 0%,rgba(255,180,35,.15),transparent 34rem),radial-gradient(circle at 86% 24%,rgba(121,73,8,.10),transparent 42rem),linear-gradient(180deg,rgba(255,223,142,.018),transparent 260px),#0c0a06;
+}
+body.theme-complete.theme-legendary .site-header { background:rgba(17,13,7,.91) !important; border-bottom-color:rgba(255,192,55,.18); box-shadow:0 1px 0 rgba(255,222,132,.08),inset 0 -1px 0 rgba(255,173,32,.13); }
+body.theme-complete.theme-legendary .brand-mark { border-color:rgba(255,197,61,.52); background:linear-gradient(180deg,rgba(213,143,20,.20),rgba(103,60,7,.08)),#18130b; box-shadow:inset 0 0 22px rgba(255,181,34,.11),0 0 20px rgba(255,178,28,.06); }
+body.theme-complete.theme-legendary .brand-logo { filter:sepia(1) saturate(6) hue-rotate(350deg) brightness(1.24) contrast(1.02); }
+body.theme-complete.theme-legendary .hero { background:linear-gradient(180deg,#100d08,#090806); border-bottom-color:rgba(255,190,50,.16); }
+body.theme-complete.theme-legendary .hero::after { background:linear-gradient(to right,rgba(14,11,6,.91) 0%,rgba(14,11,6,.34) 47%,rgba(14,11,6,.50) 100%),linear-gradient(to bottom,transparent 60%,rgba(11,9,5,.95) 100%); }
+body.theme-complete.theme-legendary .hero h1,
+body.theme-complete.theme-legendary .section-heading h2,
+body.theme-complete.theme-legendary .career-primary h3,
+body.theme-complete.theme-legendary .career-direction strong,
+body.theme-complete.theme-legendary .career-nda h3,
+body.theme-complete.theme-legendary .tool-feature-copy h3,
+body.theme-complete.theme-legendary .consult-card h3,
+body.theme-complete.theme-legendary .resource-card h3,
+body.theme-complete.theme-legendary .games-tools-callout h3,
+body.theme-complete.theme-legendary .studio-card strong,
+body.theme-complete.theme-legendary .ledger-head h3,
+body.theme-complete.theme-legendary .about-years .big-number {
+  background:linear-gradient(105deg,#fffdf5 0%,#fff1bd 25%,#ffd86a 52%,#edae2b 75%,#fff5d2 100%) !important;
+  -webkit-background-clip:text !important; background-clip:text !important; color:transparent !important; text-shadow:0 0 30px rgba(255,177,38,.10);
+}
+body.theme-complete.theme-legendary .eyebrow, body.theme-complete.theme-legendary .card-kicker, body.theme-complete.theme-legendary .tool-wip-note, body.theme-complete.theme-legendary .about-scene-label, body.theme-complete.theme-legendary .achievement-topline span { color:#ffc94d !important; }
+body.theme-complete.theme-legendary a:not(.button):not(.tool-main-link):not(.project-steam-link) { color:#e9b83f; }
+body.theme-complete.theme-legendary .tool-card, body.theme-complete.theme-legendary .resume-card, body.theme-complete.theme-legendary .feature-card, body.theme-complete.theme-legendary .tool-feature, body.theme-complete.theme-legendary .resource-card, body.theme-complete.theme-legendary .consult-project-row, body.theme-complete.theme-legendary .career-primary, body.theme-complete.theme-legendary .career-direction, body.theme-complete.theme-legendary .career-nda, body.theme-complete.theme-legendary .about-panel, body.theme-complete.theme-legendary .doug-card, body.theme-complete.theme-legendary .games-tools-callout { border-color:rgba(255,194,61,.28) !important; box-shadow:inset 0 0 0 1px rgba(255,218,128,.02),0 0 30px rgba(255,177,35,.025); }
+body.theme-complete.theme-legendary .tool-card:hover, body.theme-complete.theme-legendary .resume-card:hover, body.theme-complete.theme-legendary .feature-card:hover, body.theme-complete.theme-legendary .tool-feature:hover, body.theme-complete.theme-legendary .resource-card:hover, body.theme-complete.theme-legendary .consult-project-row:hover, body.theme-complete.theme-legendary .studio-card:hover, body.theme-complete.theme-legendary .about-links a:hover, body.theme-complete.theme-legendary .doug-card:hover { border-color:rgba(255,213,112,.62) !important; box-shadow:0 14px 46px rgba(255,180,35,.08),inset 0 0 0 1px rgba(255,226,143,.04); }
+body.theme-complete.theme-legendary .button.primary { background:linear-gradient(180deg,#d59b24,#9e6509); border-color:#f2bd4f; color:#1a1104; }
+body.theme-complete.theme-legendary .button.ghost:hover, body.theme-complete.theme-legendary .tool-action.secondary:hover, body.theme-complete.theme-legendary .tag:hover { border-color:rgba(255,205,87,.52) !important; box-shadow:0 0 18px rgba(255,181,31,.09); }
+body.theme-complete.theme-legendary .ledger-trigger { border-color:rgba(255,198,70,.58); background:linear-gradient(90deg,rgba(135,82,9,.25),rgba(255,191,50,.06)),rgba(18,13,7,.95); }
+body.theme-complete.theme-legendary .ledger-entry.unlocked { border-color:rgba(255,199,72,.26); background:linear-gradient(90deg,rgba(164,101,11,.10),rgba(255,220,125,.025)); box-shadow:inset 2px 0 0 rgba(255,190,48,.48); }
+body.theme-complete.theme-legendary .ledger-entry.unlocked .num, body.theme-complete.theme-legendary .ledger-trigger b, body.theme-complete.theme-legendary .achievement-topline b { color:#ffd86a !important; }
+body.theme-complete.theme-legendary .completion-cursor-aura { border-color:rgba(255,214,104,.36); box-shadow:0 0 30px rgba(255,182,32,.20),inset 0 0 20px rgba(255,222,125,.07); }
+body.theme-complete.theme-legendary .game-pickup-icon, body.theme-complete.theme-legendary .doug-bone-icon { filter:sepia(.45) saturate(1.65) drop-shadow(0 0 10px rgba(255,194,62,.42)); }
+body.theme-complete.theme-legendary #about-canvas, body.theme-complete.theme-legendary #ambient-canvas { filter:sepia(.15) saturate(1.18) contrast(1.04); }
+body.theme-complete.theme-legendary .achievement { border-color:rgba(255,195,60,.50); background:linear-gradient(145deg,rgba(45,30,7,.97),rgba(15,12,7,.98)); box-shadow:0 20px 64px rgba(0,0,0,.52),0 0 32px rgba(255,182,34,.08); }
+
+body.theme-complete.theme-legendary .achievement-ledger {
+  background:
+    radial-gradient(circle at 90% 0%,rgba(255,211,110,.10),transparent 18rem),
+    radial-gradient(circle at 10% 100%,rgba(173,104,12,.11),transparent 18rem),
+    linear-gradient(145deg,rgba(42,29,8,.98),rgba(14,10,5,.98));
+  border-color:rgba(255,197,61,.58);
+  box-shadow:0 24px 72px rgba(0,0,0,.58),0 0 34px rgba(255,183,35,.07);
+}
+body.theme-complete.theme-legendary .dev-console {
+  background:linear-gradient(180deg,rgba(28,19,7,.985),rgba(10,8,5,.99));
+  border-color:rgba(255,197,61,.45);
+  box-shadow:0 24px 72px rgba(0,0,0,.60),0 0 32px rgba(255,184,39,.06);
+}
+body.theme-complete.theme-legendary .scene-guide { border-color:rgba(255,204,88,.48); color:#e9c56b; }
+body.theme-complete.theme-legendary .scene-readout { color:#ffe6a2; }
+body.theme-complete.theme-legendary .filter.active { background:rgba(112,70,8,.42); border-color:rgba(255,202,82,.55); color:#ffeab0; }
+body.theme-complete.theme-legendary .hardware-warning { border-bottom-color:rgba(255,196,59,.30); background:linear-gradient(90deg,rgba(72,45,7,.97),rgba(27,20,9,.98)); }
+
+
+@media (max-width:620px) {
+  .hardware-warning { top:var(--header); padding:8px 44px 8px 12px; justify-content:flex-start; text-align:left; flex-wrap:wrap; }
+  .hardware-warning a { width:100%; }
+  .discovery-controls { left:12px; bottom:12px; max-width:calc(100vw - 24px); flex-wrap:wrap; }
+  .achievement-ledger { bottom:96px; }
+  .legendary-trigger { font-size:7px; }
+}
+
+/* v2.32 Legendary palette cleanup, key-gated castle loop, and SLOWMO lifetime fix */
+/* Legendary is intentionally warmer than Completion: gold + amber + orange lead,
+   with teal/cyan as the cool complementary signal color. No violet should leak through. */
+body.theme-complete.theme-legendary {
+  --bg:#0e0904;
+  --bg-deep:#080502;
+  --bg-2:#1a0f05;
+  --panel:rgba(39,23,8,.95);
+  --panel-2:rgba(49,29,9,.95);
+  --panel-3:rgba(22,13,5,.97);
+  --line:rgba(255,194,91,.17);
+  --line-strong:rgba(255,211,126,.31);
+  --line-blue:rgba(56,210,207,.42);
+  --text:#fff8e8;
+  --muted:#d9c39d;
+  --muted-2:#9f8562;
+  --accent:#f59b23;
+  --accent-bright:#ffd166;
+  --accent-soft:rgba(245,155,35,.17);
+  --accent-2:#42d8d4;
+  --warning:#ffbb3f;
+  --hot-pink:#ff7a1a;
+  background:
+    radial-gradient(circle at 13% 0%,rgba(255,123,24,.20),transparent 34rem),
+    radial-gradient(circle at 89% 22%,rgba(60,215,211,.10),transparent 32rem),
+    radial-gradient(circle at 52% 72%,rgba(255,191,54,.055),transparent 30rem),
+    linear-gradient(180deg,rgba(255,255,255,.015),transparent 260px),
+    var(--bg) !important;
+}
+body.theme-complete.theme-legendary::before {
+  opacity:.22;
+  background-image:
+    linear-gradient(rgba(255,226,168,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,139,28,.020) 1px,transparent 1px) !important;
+}
+
+body.theme-complete.theme-legendary .site-header {
+  background:rgba(18,11,5,.92) !important;
+  border-bottom-color:rgba(255,175,55,.24) !important;
+  box-shadow:0 1px 0 rgba(255,213,127,.09),0 0 48px rgba(255,118,19,.055),inset 0 -1px 0 rgba(46,210,207,.07) !important;
+}
+body.theme-complete.theme-legendary .brand-mark,
+body.theme-complete.theme-legendary .filter.active {
+  background:linear-gradient(135deg,rgba(255,132,25,.26),rgba(54,213,209,.12)),#1b1006 !important;
+  border-color:rgba(255,190,75,.58) !important;
+  box-shadow:inset 0 0 22px rgba(255,126,22,.13),0 0 22px rgba(55,214,211,.055) !important;
+}
+body.theme-complete.theme-legendary .brand-logo {
+  filter:sepia(1) saturate(5.4) hue-rotate(344deg) brightness(1.20) contrast(1.06) !important;
+}
+body.theme-complete.theme-legendary .hero {
+  background:
+    radial-gradient(circle at 76% 45%,rgba(255,116,20,.13),transparent 25rem),
+    radial-gradient(circle at 62% 58%,rgba(49,211,207,.075),transparent 22rem),
+    linear-gradient(180deg,#120b05,#090603) !important;
+  border-bottom-color:rgba(255,178,49,.18) !important;
+}
+body.theme-complete.theme-legendary .hero::after {
+  background:linear-gradient(to right,rgba(15,9,4,.93) 0%,rgba(15,9,4,.35) 47%,rgba(15,9,4,.53) 100%),linear-gradient(to bottom,transparent 60%,rgba(10,6,3,.96) 100%) !important;
+}
+
+/* Typography gets a warmer legendary gradient with a restrained teal glint. */
+body.theme-complete.theme-legendary .hero h1,
+body.theme-complete.theme-legendary .section-heading h2,
+body.theme-complete.theme-legendary .about-head h2,
+body.theme-complete.theme-legendary .career-primary h3,
+body.theme-complete.theme-legendary .career-direction strong,
+body.theme-complete.theme-legendary .career-nda h3,
+body.theme-complete.theme-legendary .tool-feature-copy h3,
+body.theme-complete.theme-legendary .consult-card h3,
+body.theme-complete.theme-legendary .resource-card h3,
+body.theme-complete.theme-legendary .games-tools-callout h3,
+body.theme-complete.theme-legendary .studio-card strong,
+body.theme-complete.theme-legendary .ledger-head h3,
+body.theme-complete.theme-legendary .about-years strong,
+body.theme-complete.theme-legendary .about-years .big-number {
+  background:linear-gradient(105deg,#fff9e7 0%,#ffe49a 28%,#ffc13d 52%,#ff7a1a 76%,#57dfdb 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  text-shadow:0 0 30px rgba(255,129,25,.10) !important;
+}
+body.theme-complete.theme-legendary .eyebrow,
+body.theme-complete.theme-legendary .card-kicker,
+body.theme-complete.theme-legendary .mini-label,
+body.theme-complete.theme-legendary .tool-wip-note,
+body.theme-complete.theme-legendary .about-scene-label,
+body.theme-complete.theme-legendary .achievement-topline span { color:#ffad36 !important; }
+body.theme-complete.theme-legendary .scene-readout,
+body.theme-complete.theme-legendary .tool-action.primary,
+body.theme-complete.theme-legendary .project-steam-link,
+body.theme-complete.theme-legendary .azure-gallery-hint { color:#6be8e4 !important; }
+body.theme-complete.theme-legendary a:not(.button):not(.tool-main-link):not(.project-steam-link) { color:#e9bd52 !important; }
+body.theme-complete.theme-legendary .site-nav a:hover,
+body.theme-complete.theme-legendary .text-action:hover,
+body.theme-complete.theme-legendary .site-footer a:hover,
+body.theme-complete.theme-legendary .about-links a:hover { color:#55ddd9 !important; }
+body.theme-complete.theme-legendary .about-years > span:last-child,
+body.theme-complete.theme-legendary .footer-line { color:#d9c39d !important; }
+body.theme-complete.theme-legendary ::selection,
+body.theme-complete.theme-legendary .card-kicker::selection { background:rgba(255,125,24,.48) !important; color:#fff !important; }
+
+/* Surfaces: orange/gold light, teal technical accent. */
+body.theme-complete.theme-legendary .tool-card,
+body.theme-complete.theme-legendary .resume-card,
+body.theme-complete.theme-legendary .feature-card {
+  background:linear-gradient(180deg,rgba(255,131,24,.035),rgba(48,210,206,.013)),var(--panel-3) !important;
+}
+body.theme-complete.theme-legendary .panel,
+body.theme-complete.theme-legendary .feature-card,
+body.theme-complete.theme-legendary .tool-card,
+body.theme-complete.theme-legendary .resume-card,
+body.theme-complete.theme-legendary .about-grid,
+body.theme-complete.theme-legendary .consult-grid,
+body.theme-complete.theme-legendary .studio-wall,
+body.theme-complete.theme-legendary .tool-feature-visual,
+body.theme-complete.theme-legendary .azure-gallery-shell {
+  border-color:rgba(255,184,68,.22) !important;
+}
+body.theme-complete.theme-legendary .tool-card:hover,
+body.theme-complete.theme-legendary .resume-card:hover,
+body.theme-complete.theme-legendary .feature-card:hover,
+body.theme-complete.theme-legendary .tool-feature:hover,
+body.theme-complete.theme-legendary .resource-card:hover,
+body.theme-complete.theme-legendary .consult-project-row:hover,
+body.theme-complete.theme-legendary .studio-card:hover,
+body.theme-complete.theme-legendary .about-links a:hover,
+body.theme-complete.theme-legendary .doug-card:hover {
+  border-color:rgba(255,185,67,.62) !important;
+  box-shadow:0 14px 46px rgba(255,112,18,.085),inset 0 0 0 1px rgba(66,216,212,.035) !important;
+}
+body.theme-complete.theme-legendary .games-tools-callout:hover {
+  background:linear-gradient(135deg,rgba(255,121,21,.095),rgba(55,213,209,.032)) !important;
+}
+body.theme-complete.theme-legendary .tag,
+body.theme-complete.theme-legendary .project-state,
+body.theme-complete.theme-legendary .tool-action.secondary {
+  border-color:rgba(255,176,57,.28) !important;
+  background:rgba(255,126,20,.045) !important;
+}
+body.theme-complete.theme-legendary .project-state { color:#62ddd9 !important; }
+body.theme-complete.theme-legendary .tool-action.primary,
+body.theme-complete.theme-legendary .project-steam-link { border-color:rgba(66,216,212,.46) !important; }
+body.theme-complete.theme-legendary .button.primary {
+  background:linear-gradient(180deg,#f2a62c,#c96c0e) !important;
+  border-color:#ffc45e !important;
+  color:#1b0f03 !important;
+}
+body.theme-complete.theme-legendary .button.ghost:hover,
+body.theme-complete.theme-legendary .tool-action.secondary:hover,
+body.theme-complete.theme-legendary .tag:hover,
+body.theme-complete.theme-legendary .tool-action.primary:hover,
+body.theme-complete.theme-legendary .project-steam-link:hover,
+body.theme-complete.theme-legendary .resource-actions a:hover,
+body.theme-complete.theme-legendary .button:hover {
+  border-color:rgba(65,220,216,.58) !important;
+  box-shadow:0 0 18px rgba(54,211,208,.09) !important;
+}
+body.theme-complete.theme-legendary .intro-strip > div:nth-child(even)::before { background-color:rgba(255,132,23,.03) !important; }
+
+/* Legendary image treatment: warm bronze/orange body with cool teal highlights. */
+body.theme-complete.theme-legendary .studio-card { background:#ff7418 !important; }
+body.theme-complete.theme-legendary .studio-card .studio-image {
+  -webkit-filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  mix-blend-mode:multiply !important;
+}
+body.theme-complete.theme-legendary .studio-card::after {
+  background:#087f84 !important;
+  opacity:.68 !important;
+  mix-blend-mode:lighten !important;
+}
+body.theme-complete.theme-legendary .studio-card:hover::after {
+  background:linear-gradient(135deg,rgba(5,126,132,.96),rgba(255,117,24,.38)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete.theme-legendary .studio-card:hover .studio-image {
+  -webkit-filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+  filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+}
+body.theme-complete.theme-legendary .studio-card strong { text-shadow:0 0 20px rgba(255,131,24,.13) !important; }
+
+body.theme-complete.theme-legendary .azure-altar .tool-feature-visual { background:#ff7418 !important; }
+body.theme-complete.theme-legendary .azure-altar .tool-feature-visual::before {
+  -webkit-filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  mix-blend-mode:multiply !important;
+}
+body.theme-complete.theme-legendary .azure-altar .tool-feature-visual::after {
+  background:#087f84 !important;
+  opacity:.68 !important;
+  mix-blend-mode:lighten !important;
+}
+body.theme-complete.theme-legendary .azure-altar:hover .tool-feature-visual::after {
+  background:linear-gradient(135deg,rgba(5,126,132,.96),rgba(255,117,24,.38)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete.theme-legendary .azure-altar:hover .tool-feature-visual::before {
+  -webkit-filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+  filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+}
+
+body.theme-complete.theme-legendary .unmark-visual { background:#ff7418 !important; }
+body.theme-complete.theme-legendary .unmark-lockup,
+body.theme-complete.theme-legendary .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.95) !important;
+  filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.95) !important;
+  mix-blend-mode:multiply !important;
+}
+body.theme-complete.theme-legendary .unmark-visual::after {
+  background:#087f84 !important;
+  opacity:.68 !important;
+  mix-blend-mode:lighten !important;
+}
+body.theme-complete.theme-legendary .unmark-feature:hover .unmark-visual::after,
+body.theme-complete.theme-legendary .tool-feature:hover .tool-feature-visual::after {
+  background:linear-gradient(135deg,rgba(5,126,132,.96),rgba(255,117,24,.38)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete.theme-legendary .unmark-feature:hover .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.02) !important;
+  filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.02) !important;
+}
+body.theme-complete.theme-legendary .doug-photo {
+  filter:sepia(.14) saturate(1.10) hue-rotate(346deg) contrast(1.025);
+  box-shadow:0 0 0 1px rgba(255,184,65,.22),0 0 34px rgba(255,121,18,.09),0 0 26px rgba(55,211,208,.035) !important;
+}
+
+/* Ledger, toast, console and utility UI. */
+body.theme-complete.theme-legendary .achievement,
+body.theme-complete.theme-legendary .achievement-ledger,
+body.theme-complete.theme-legendary .dev-console {
+  border-color:rgba(255,183,61,.52) !important;
+  box-shadow:0 24px 80px rgba(57,28,4,.46),0 0 40px rgba(255,123,21,.075) !important;
+}
+body.theme-complete.theme-legendary .achievement-ledger {
+  background:
+    radial-gradient(circle at 90% 0%,rgba(57,217,213,.085),transparent 18rem),
+    radial-gradient(circle at 10% 100%,rgba(255,125,24,.115),transparent 18rem),
+    linear-gradient(145deg,rgba(48,27,7,.985),rgba(14,9,4,.985)) !important;
+}
+body.theme-complete.theme-legendary .ledger-head { border-bottom-color:rgba(255,186,65,.24) !important; }
+body.theme-complete.theme-legendary .ledger-entry { border-color:rgba(255,194,86,.10) !important; background:rgba(255,255,255,.014) !important; }
+body.theme-complete.theme-legendary .ledger-entry.unlocked {
+  border-color:rgba(61,218,214,.27) !important;
+  background:linear-gradient(90deg,rgba(255,130,20,.085),rgba(55,214,210,.032)) !important;
+  box-shadow:inset 2px 0 0 rgba(255,163,40,.48) !important;
+}
+body.theme-complete.theme-legendary .ledger-entry.unlocked .num,
+body.theme-complete.theme-legendary .ledger-trigger b,
+body.theme-complete.theme-legendary .achievement-topline b { color:#ffd064 !important; }
+body.theme-complete.theme-legendary .ledger-entry.unlocked strong,
+body.theme-complete.theme-legendary .achievement span { color:#ffbd54 !important; }
+body.theme-complete.theme-legendary .ledger-controls button.active {
+  border-color:rgba(55,216,212,.58) !important;
+  background:rgba(38,175,173,.10) !important;
+}
+body.theme-complete.theme-legendary .ledger-trigger {
+  border-color:rgba(255,180,52,.58) !important;
+  background:linear-gradient(90deg,rgba(156,77,7,.25),rgba(48,206,203,.055)),rgba(19,11,5,.96) !important;
+}
+body.theme-complete.theme-legendary .legendary-trigger[aria-pressed="true"] {
+  border-color:rgba(255,190,68,.76);
+  color:#fff0b5;
+  background:linear-gradient(90deg,rgba(166,79,8,.50),rgba(117,54,5,.68),rgba(10,75,77,.24));
+  box-shadow:0 0 24px rgba(255,120,18,.12),0 12px 36px rgba(0,0,0,.32);
+}
+body.theme-complete.theme-legendary .inspect-tooltip {
+  border-color:rgba(54,216,212,.50) !important;
+  color:#d9fffd !important;
+  box-shadow:0 18px 52px rgba(22,10,2,.62),0 0 32px rgba(47,205,202,.10) !important;
+}
+body.theme-complete.theme-legendary .completion-cursor-aura {
+  border-color:rgba(255,185,65,.36) !important;
+  box-shadow:0 0 30px rgba(255,121,22,.18),inset 0 0 20px rgba(65,219,215,.055) !important;
+}
+body.theme-complete.theme-legendary .console-progress > i { background:linear-gradient(90deg,#ff7a1a,#ffc43f,#46d9d5) !important; }
+body.theme-complete.theme-legendary .scene-guide { border-color:rgba(56,215,211,.42) !important; color:#68e5e1 !important; }
+body.theme-complete.theme-legendary .hardware-warning { border-bottom-color:rgba(255,174,50,.30) !important; background:linear-gradient(90deg,rgba(78,34,4,.97),rgba(25,18,7,.98),rgba(5,58,61,.95)) !important; }
+body.theme-complete.theme-legendary .ledger-console-tip button { border-color:rgba(55,213,210,.35); background:#0c2424; color:#d9fffd; }
+body.theme-complete.theme-legendary .ledger-console-tip button:hover { border-color:#54dfdb; background:rgba(49,204,201,.10); }
+
+/* Completion sprites use gold/orange bodies and teal/cyan support colors in Legendary. */
+body.theme-complete.theme-legendary .game-pickup-icon,
+body.theme-complete.theme-legendary .doug-bone-icon {
+  filter:drop-shadow(0 0 9px rgba(255,153,37,.34)) drop-shadow(0 0 14px rgba(58,216,212,.14)) !important;
+}
+body.theme-complete.theme-legendary .game-pickup:hover .game-pickup-icon {
+  filter:drop-shadow(0 0 10px rgba(255,142,27,.42)) drop-shadow(0 0 18px rgba(59,219,215,.25)) !important;
+}
+body.theme-complete.theme-legendary .game-pickup[data-kind="heart"] .pickup-fill { fill:#ff7b35 !important; stroke:#ffd4a3 !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="star"] .pickup-fill { fill:#ffd24f !important; stroke:#fff0ad !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="rupee"] .pickup-fill { fill:#24bdbb !important; stroke:#9ff4ef !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="rupee"] .pickup-line { stroke:#d8fffc !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="1up"] .pickup-cap { fill:#2bc8ac !important; stroke:#c4fff2 !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="key"] .pickup-key-ring,
+body.theme-complete.theme-legendary .game-pickup[data-kind="key"] .pickup-key-body { fill:#ffc43f !important; stroke:#fff0a6 !important; }
+body.theme-complete.theme-legendary .game-pickup[data-kind="key"] .pickup-key-hole { fill:#342008 !important; }
+body.theme-complete.theme-legendary .doug-bone-icon g { fill:#ffd78a !important; stroke:#48d7d3 !important; }
+body.theme-complete.theme-legendary .doug-paw { color:#ffc752; text-shadow:0 0 15px rgba(255,132,22,.34),0 0 24px rgba(55,215,211,.12) !important; }
+body.theme-complete.theme-legendary .doug-paw:nth-of-type(even) { color:#48d9d5 !important; }
+
+body.theme-complete.theme-legendary .shooting-star::before {
+  box-shadow:0 0 12px #fff,0 0 26px #53dfdc,0 0 38px #ff8c24 !important;
+}
+body.theme-complete.theme-legendary .shooting-star::after {
+  background:linear-gradient(90deg,transparent,rgba(255,119,22,.30),rgba(67,220,216,.70),#fff1b2) !important;
+}
+body.theme-complete.theme-legendary .galaga-secret {
+  filter:drop-shadow(0 0 8px rgba(62,221,217,.38)) !important;
+}
+body.theme-complete.theme-legendary .galaga-secret::before {
+  background:#ff8b25 !important;
+  box-shadow:-9px 7px 0 #43d9d5,9px 7px 0 #43d9d5,-15px 14px 0 #ffc53f,15px 14px 0 #ffc53f,-4px 15px 0 #fff0bd,4px 15px 0 #fff0bd !important;
+}
+body.theme-complete.theme-legendary .ambient-secret {
+  border-color:rgba(66,220,216,.68) !important;
+  background:rgba(32,183,181,.12) !important;
+  box-shadow:0 0 24px rgba(57,211,208,.24),inset 0 0 12px rgba(255,157,41,.08) !important;
+}
+body.theme-complete.theme-legendary .ambient-secret::after { border-color:rgba(136,243,239,.78) !important; }
+body.theme-complete.theme-legendary .azure-gallery-thumb.active { border-color:#ff9a2d !important; }
+body.theme-complete.theme-legendary #about-canvas,
+body.theme-complete.theme-legendary #ambient-canvas { filter:saturate(1.15) contrast(1.055) sepia(.06) !important; }
+
+/* One key, one castle. The next castle waits for the next key pickup. */
+body.theme-complete.theme-legendary .section-castle { filter:drop-shadow(0 0 9px rgba(255,134,25,.48)) !important; }
+body.theme-complete.theme-legendary .section-castle svg { fill:#6f3708 !important; stroke:#52dcd8 !important; }
+body.theme-complete.theme-legendary .section-castle:hover svg { filter:drop-shadow(0 0 9px rgba(71,221,217,.58)) !important; }
+
+/* Any remaining standard-theme blue accents become teal/cyan in Legendary instead of fighting the warm palette. */
+body.theme-complete.theme-legendary .career-timeline-list time,
+body.theme-complete.theme-legendary .credit-line span,
+body.theme-complete.theme-legendary .tool-card.wireframe::before,
+body.theme-complete.theme-legendary .tool-wip-note { color:#52dcd8 !important; }
+body.theme-complete.theme-legendary .consult-title-grid .project-steam-link,
+body.theme-complete.theme-legendary .resource-actions a.primary,
+body.theme-complete.theme-legendary .epic-learning-mark,
+body.theme-complete.theme-legendary .nda-logo-slot,
+body.theme-complete.theme-legendary .camera-eye,
+body.theme-complete.theme-legendary .eye-lens {
+  border-color:rgba(65,216,212,.46) !important;
+}
+body.theme-complete.theme-legendary .resource-actions a.primary,
+body.theme-complete.theme-legendary .project-steam-link,
+body.theme-complete.theme-legendary .tool-main-link:hover,
+body.theme-complete.theme-legendary .nda-logo-slot:hover {
+  background:rgba(44,195,192,.07) !important;
+}
+body.theme-complete.theme-legendary .eye-lens { box-shadow:0 0 28px rgba(61,218,214,.30) !important; }
+body.theme-complete.theme-legendary .eye-ray { background:linear-gradient(90deg,#7df0ec 0%,rgba(59,211,208,.56) 62%,transparent 100%) !important; }
+body.theme-complete.theme-legendary .heavy-water.lens-active .camera-eye { border-color:#67e5e1 !important; box-shadow:0 0 0 1px rgba(58,215,211,.30),0 0 55px rgba(58,215,211,.28) !important; }
+body.theme-complete.theme-legendary .heavy-water.lens-active .eye-ray { box-shadow:0 0 10px rgba(58,215,211,.28) !important; }
+body.theme-complete.theme-legendary .fallback-core { filter:sepia(.28) saturate(1.55) hue-rotate(340deg) drop-shadow(0 0 28px rgba(57,214,210,.20)) !important; }
+body.theme-complete.theme-legendary .doug-secret:hover { box-shadow:0 12px 35px rgba(55,214,210,.10) !important; }
+body.theme-complete.theme-legendary .about-callout,
+body.theme-complete.theme-legendary #crafting .link-card,
+body.theme-complete.theme-legendary .resource-intro,
+body.theme-complete.theme-legendary .games-tools-callout {
+  background:linear-gradient(145deg,rgba(255,123,22,.065),rgba(55,210,207,.022)),var(--panel-3) !important;
+}
+body.theme-complete.theme-legendary .console-output { color:#a8c9c3 !important; }
+body.theme-complete.theme-legendary .console-line.cmd { color:#d9f4ef !important; }
+body.theme-complete.theme-legendary .doug-reaction { border-color:rgba(55,215,211,.36) !important; background:rgba(18,14,7,.96) !important; color:#dffbf7 !important; }
+body.theme-complete.theme-legendary .doug-card.doug-command { box-shadow:inset 0 0 0 1px rgba(54,213,209,.22),0 16px 50px rgba(0,0,0,.24) !important; }
+
+/* v2.33 theme consistency, themed pickups, hover-state inversion, and Legendary hero polish */
+
+/* DEFAULT RARITY // Unreal blue + cyan. Ambient pickups should belong to the base world. */
+body:not(.theme-complete) .game-pickup-icon {
+  filter:drop-shadow(0 0 9px rgba(47,147,255,.34)) drop-shadow(0 0 16px rgba(80,218,255,.10));
+}
+body:not(.theme-complete) .game-pickup:hover .game-pickup-icon {
+  filter:drop-shadow(0 0 11px rgba(93,174,255,.48)) drop-shadow(0 0 19px rgba(89,229,255,.20));
+}
+body:not(.theme-complete) .game-pickup[data-kind="heart"] .pickup-fill { fill:#2f93ff; stroke:#b7e2ff; }
+body:not(.theme-complete) .game-pickup[data-kind="star"] .pickup-fill { fill:#8fd6ff; stroke:#effaff; }
+body:not(.theme-complete) .game-pickup[data-kind="rupee"] .pickup-fill { fill:#087bdc; stroke:#72e8ff; }
+body:not(.theme-complete) .game-pickup[data-kind="rupee"] .pickup-line { stroke:#dcfbff; }
+body:not(.theme-complete) .game-pickup[data-kind="1up"] .pickup-cap { fill:#48cfff; stroke:#d8f8ff; }
+body:not(.theme-complete) .game-pickup[data-kind="1up"] .pickup-spot { fill:#f1fcff; }
+body:not(.theme-complete) .game-pickup[data-kind="1up"] .pickup-stem { fill:#dceeff; stroke:#78bfff; }
+body:not(.theme-complete) .game-pickup[data-kind="1up"] .pickup-eye { fill:#082a48; }
+body:not(.theme-complete) .game-pickup[data-kind="key"] .pickup-key-ring,
+body:not(.theme-complete) .game-pickup[data-kind="key"] .pickup-key-body { fill:#5daeff; stroke:#d8f3ff; }
+body:not(.theme-complete) .game-pickup[data-kind="key"] .pickup-key-hole { fill:#0a2138; }
+body:not(.theme-complete) .doug-bone-icon { filter:drop-shadow(0 0 9px rgba(47,147,255,.32)); }
+body:not(.theme-complete) .doug-bone-icon g { fill:#e7f4ff; stroke:#5daeff; }
+body:not(.theme-complete) .galaga-secret { filter:drop-shadow(0 0 8px rgba(80,218,255,.38)); }
+body:not(.theme-complete) .galaga-secret::before {
+  background:#2f93ff;
+  box-shadow:-9px 7px 0 #67e8ff,9px 7px 0 #67e8ff,-15px 14px 0 #176fc4,15px 14px 0 #176fc4,-4px 15px 0 #e9f8ff,4px 15px 0 #e9f8ff;
+}
+
+/* COMPLETION RARITY // Violet + hot pink + cyan, with no leftover base-blue UI. */
+body.theme-complete:not(.theme-legendary) .brand-logo {
+  filter:hue-rotate(58deg) saturate(1.48) brightness(1.08) drop-shadow(0 0 9px rgba(209,91,255,.18));
+}
+body.theme-complete:not(.theme-legendary) .hint-trigger {
+  border-color:rgba(255,79,200,.46); color:#ffd6f0;
+  background:linear-gradient(90deg,rgba(139,43,190,.30),rgba(35,190,214,.08)),rgba(25,10,34,.96);
+}
+body.theme-complete:not(.theme-legendary) .hint-trigger:hover {
+  border-color:rgba(103,232,255,.68); color:#e8fdff; background:rgba(71,23,93,.94);
+}
+body.theme-complete:not(.theme-legendary) .ledger-console-tip button {
+  border-color:rgba(218,112,255,.40); background:#1c1027; color:#f5ddff;
+}
+body.theme-complete:not(.theme-legendary) .ledger-console-tip button:hover {
+  border-color:#67e8ff; background:rgba(103,232,255,.09); color:#e9feff;
+}
+body.theme-complete:not(.theme-legendary) .hardware-warning {
+  border-bottom-color:rgba(223,119,255,.28);
+  background:linear-gradient(90deg,rgba(48,16,67,.98),rgba(18,10,28,.98),rgba(7,43,52,.96));
+  color:#decce9;
+}
+body.theme-complete:not(.theme-legendary) .hardware-warning b { color:#ff8bd7; }
+body.theme-complete:not(.theme-legendary) .hardware-warning a { color:#82edf8; }
+body.theme-complete:not(.theme-legendary) .hardware-warning button { color:#bb9acb; }
+body.theme-complete:not(.theme-legendary) .ambient-secret {
+  border-color:rgba(255,91,207,.66); background:rgba(174,55,232,.12);
+  box-shadow:0 0 24px rgba(255,79,200,.25),inset 0 0 12px rgba(103,232,255,.10);
+}
+body.theme-complete:not(.theme-legendary) .ambient-secret::after { border-color:rgba(115,238,255,.80); }
+body.theme-complete:not(.theme-legendary) .section-castle { color:#ef94ff; filter:drop-shadow(0 0 9px rgba(238,86,255,.46)); }
+body.theme-complete:not(.theme-legendary) .section-castle svg { fill:#421854; stroke:#89efff; }
+body.theme-complete:not(.theme-legendary) .section-castle:hover svg { filter:drop-shadow(0 0 9px rgba(255,85,202,.52)); }
+
+body.theme-complete:not(.theme-legendary) .game-pickup-icon,
+body.theme-complete:not(.theme-legendary) .doug-bone-icon {
+  filter:drop-shadow(0 0 10px rgba(255,79,200,.38)) drop-shadow(0 0 16px rgba(103,232,255,.16));
+}
+body.theme-complete:not(.theme-legendary) .game-pickup:hover .game-pickup-icon {
+  filter:drop-shadow(0 0 11px rgba(255,79,200,.52)) drop-shadow(0 0 20px rgba(103,232,255,.26));
+}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="heart"] .pickup-fill { fill:#ff4fc8; stroke:#ffd8f1; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="star"] .pickup-fill { fill:#c66cff; stroke:#f5dcff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="rupee"] .pickup-fill { fill:#38d6e8; stroke:#c4fbff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="rupee"] .pickup-line { stroke:#f0feff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="1up"] .pickup-cap { fill:#9f52f2; stroke:#efd9ff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="1up"] .pickup-spot { fill:#ff8bd7; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="1up"] .pickup-stem { fill:#f0ddff; stroke:#72eaff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="1up"] .pickup-eye { fill:#2a0b38; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="key"] .pickup-key-ring,
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="key"] .pickup-key-body { fill:#df72ff; stroke:#8ff3ff; }
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="key"] .pickup-key-hole { fill:#261032; }
+body.theme-complete:not(.theme-legendary) .doug-bone-icon g { fill:#f4ddff; stroke:#ff58c9; }
+body.theme-complete:not(.theme-legendary) .galaga-secret { filter:drop-shadow(0 0 9px rgba(103,232,255,.44)); }
+body.theme-complete:not(.theme-legendary) .galaga-secret::before {
+  background:#ff4fc8;
+  box-shadow:-9px 7px 0 #67e8ff,9px 7px 0 #67e8ff,-15px 14px 0 #a952ff,15px 14px 0 #a952ff,-4px 15px 0 #f9eaff,4px 15px 0 #f9eaff;
+}
+
+/* IMAGE STATE FLIP // the more energetic treatment is now the resting state.
+   Hovering settles the image back into the quieter treatment instead of amplifying it. */
+body.theme-complete:not(.theme-legendary) .studio-card .studio-image {
+  -webkit-filter:grayscale(100%) contrast(1.12) brightness(1.02) !important;
+  filter:grayscale(100%) contrast(1.12) brightness(1.02) !important;
+}
+body.theme-complete:not(.theme-legendary) .studio-card::after {
+  background:linear-gradient(135deg,rgba(0,43,150,.94),rgba(255,69,191,.32)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete:not(.theme-legendary) .studio-card:hover { filter:none !important; }
+body.theme-complete:not(.theme-legendary) .studio-card:hover .studio-image {
+  -webkit-filter:grayscale(100%) contrast(1.06) brightness(.94) !important;
+  filter:grayscale(100%) contrast(1.06) brightness(.94) !important;
+}
+body.theme-complete:not(.theme-legendary) .studio-card:hover::after {
+  background:#002b96 !important; opacity:.72 !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-altar .tool-feature-visual::before,
+body.theme-complete:not(.theme-legendary) .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) contrast(1.12) brightness(1.02) !important;
+  filter:grayscale(100%) contrast(1.12) brightness(1.02) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-altar .tool-feature-visual::after,
+body.theme-complete:not(.theme-legendary) .unmark-visual::after {
+  background:linear-gradient(135deg,rgba(0,43,150,.94),rgba(255,69,191,.32)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-altar:hover .tool-feature-visual::before,
+body.theme-complete:not(.theme-legendary) .unmark-feature:hover .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) contrast(1.06) brightness(.94) !important;
+  filter:grayscale(100%) contrast(1.06) brightness(.94) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-altar:hover .tool-feature-visual::after,
+body.theme-complete:not(.theme-legendary) .unmark-feature:hover .unmark-visual::after {
+  background:#002b96 !important; opacity:.72 !important;
+}
+
+/* LEGENDARY IMAGE STATE FLIP // same behavior, using orange/gold + teal. */
+body.theme-complete.theme-legendary .studio-card .studio-image {
+  -webkit-filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+  filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+}
+body.theme-complete.theme-legendary .studio-card::after {
+  background:linear-gradient(135deg,rgba(5,126,132,.96),rgba(255,117,24,.38)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete.theme-legendary .studio-card:hover { filter:none !important; }
+body.theme-complete.theme-legendary .studio-card:hover .studio-image {
+  -webkit-filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+}
+body.theme-complete.theme-legendary .studio-card:hover::after {
+  background:#087f84 !important; opacity:.68 !important;
+}
+body.theme-complete.theme-legendary .azure-altar .tool-feature-visual::before,
+body.theme-complete.theme-legendary .unmark-lockup,
+body.theme-complete.theme-legendary .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+  filter:grayscale(100%) sepia(12%) contrast(1.14) brightness(1.01) !important;
+}
+body.theme-complete.theme-legendary .azure-altar .tool-feature-visual::after,
+body.theme-complete.theme-legendary .unmark-visual::after {
+  background:linear-gradient(135deg,rgba(5,126,132,.96),rgba(255,117,24,.38)) !important;
+  opacity:.78 !important;
+}
+body.theme-complete.theme-legendary .azure-altar:hover .tool-feature-visual::before,
+body.theme-complete.theme-legendary .unmark-feature:hover .unmark-lockup-clean {
+  -webkit-filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+  filter:grayscale(100%) sepia(15%) contrast(1.08) brightness(.93) !important;
+}
+body.theme-complete.theme-legendary .azure-altar:hover .tool-feature-visual::after,
+body.theme-complete.theme-legendary .unmark-feature:hover .unmark-visual::after {
+  background:#087f84 !important; opacity:.68 !important;
+}
+
+/* Legendary cursor is intentionally more extravagant than Completion. */
+body.theme-complete.theme-legendary .completion-cursor-aura {
+  width:62px; height:62px; margin:-31px 0 0 -31px; opacity:.88;
+  border:1px solid rgba(255,199,76,.48) !important;
+  box-shadow:0 0 34px rgba(255,118,20,.25),0 0 58px rgba(59,218,214,.12),inset 0 0 24px rgba(255,224,137,.10) !important;
+}
+body.theme-complete.theme-legendary .cursor-spark {
+  mix-blend-mode:screen;
+  animation-timing-function:cubic-bezier(.16,.74,.24,1);
+}
+
+
+/* ==========================================================================
+   v2.34 // THEME CHROME, ARCADE COMBAT, AND YET ANOTHER MINI-GAME
+   ========================================================================== */
+body.theme-complete:not(.theme-legendary) .filter:hover,
+body.theme-complete:not(.theme-legendary) .filter:focus-visible {
+  color:#fff4fd !important;
+  background:linear-gradient(135deg,rgba(185,61,242,.64),rgba(255,79,200,.42),rgba(47,201,220,.22)) !important;
+  border-color:#67e8ff !important;
+  box-shadow:0 0 18px rgba(255,79,200,.14),inset 0 0 18px rgba(103,232,255,.05) !important;
+}
+body.theme-complete.theme-legendary .filter:hover,
+body.theme-complete.theme-legendary .filter:focus-visible {
+  color:#fff7db !important;
+  background:linear-gradient(135deg,rgba(218,119,18,.62),rgba(255,184,48,.30),rgba(39,190,187,.22)) !important;
+  border-color:#55ddd9 !important;
+  box-shadow:0 0 18px rgba(255,145,24,.14),inset 0 0 18px rgba(72,219,215,.06) !important;
+}
+body.theme-complete.theme-legendary .filter.active {
+  color:#fff2bd !important;
+  background:linear-gradient(135deg,rgba(218,119,18,.52),rgba(49,190,187,.15)),#1b1006 !important;
+  border-color:rgba(255,198,78,.64) !important;
+}
+body.theme-complete.theme-legendary .section-action-row .button.ghost:hover,
+body.theme-complete.theme-legendary .section-action-row .button.ghost:focus-visible {
+  color:#70eee9 !important;
+  border-color:#4bd9d5 !important;
+  background:linear-gradient(180deg,rgba(46,201,197,.10),rgba(255,143,25,.05)) !important;
+}
+
+.azure-gallery-stage { isolation:isolate; }
+.azure-gallery-stage::after {
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0;
+}
+.azure-gallery-stage img { position:relative; z-index:0; }
+.azure-gallery-nav { z-index:3; }
+
+body.theme-complete:not(.theme-legendary) .azure-gallery-backdrop { background:rgba(9,2,14,.92) !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-shell {
+  background:#0d0712 !important; border-color:rgba(213,105,255,.46) !important;
+  box-shadow:0 28px 110px rgba(0,0,0,.68),0 0 58px rgba(208,75,255,.10) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-gallery-head,
+body.theme-complete:not(.theme-legendary) .azure-gallery-thumbs,
+body.theme-complete:not(.theme-legendary) .azure-gallery-help {
+  background:linear-gradient(90deg,#15091e,#0a1018) !important;
+  border-color:rgba(255,91,207,.18) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-gallery-head span,
+body.theme-complete:not(.theme-legendary) .azure-gallery-help { color:#caaee0 !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-head strong,
+body.theme-complete:not(.theme-legendary) .azure-gallery-close { color:#ff8bd7 !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-stage { background:#09040d !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-stage::after {
+  opacity:.14; background:linear-gradient(135deg,rgba(185,63,255,.42),transparent 42%,rgba(70,230,243,.26)); mix-blend-mode:screen;
+}
+body.theme-complete:not(.theme-legendary) .azure-gallery-nav {
+  color:#fbeeff !important; border-color:rgba(213,105,255,.36) !important; background:rgba(35,12,48,.72) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-gallery-nav:hover { border-color:#67e8ff !important; background:rgba(103,232,255,.12) !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-thumb { border-color:rgba(214,117,255,.20) !important; background:#100717 !important; }
+body.theme-complete:not(.theme-legendary) .azure-gallery-thumb:hover,
+body.theme-complete:not(.theme-legendary) .azure-gallery-thumb.active {
+  border-color:#ff62ca !important; box-shadow:0 0 14px rgba(103,232,255,.10) !important;
+}
+body.theme-complete:not(.theme-legendary) .azure-gallery-thumb img { filter:saturate(.92) hue-rotate(7deg) !important; }
+
+body.theme-complete.theme-legendary .azure-gallery-backdrop { background:rgba(8,4,1,.93) !important; }
+body.theme-complete.theme-legendary .azure-gallery-shell {
+  background:#130b04 !important; border-color:rgba(255,188,64,.50) !important;
+  box-shadow:0 28px 110px rgba(0,0,0,.72),0 0 62px rgba(255,133,20,.11) !important;
+}
+body.theme-complete.theme-legendary .azure-gallery-head,
+body.theme-complete.theme-legendary .azure-gallery-thumbs,
+body.theme-complete.theme-legendary .azure-gallery-help {
+  background:linear-gradient(90deg,#1c1005,#071515) !important; border-color:rgba(255,181,49,.19) !important;
+}
+body.theme-complete.theme-legendary .azure-gallery-head span,
+body.theme-complete.theme-legendary .azure-gallery-help { color:#cdb78d !important; }
+body.theme-complete.theme-legendary .azure-gallery-head strong { color:#ffd061 !important; }
+body.theme-complete.theme-legendary .azure-gallery-close { color:#65e5e0 !important; }
+body.theme-complete.theme-legendary .azure-gallery-stage { background:#080502 !important; }
+body.theme-complete.theme-legendary .azure-gallery-stage::after {
+  opacity:.16; background:linear-gradient(135deg,rgba(255,126,17,.42),transparent 46%,rgba(45,209,205,.28)); mix-blend-mode:screen;
+}
+body.theme-complete.theme-legendary .azure-gallery-nav {
+  color:#fff2c2 !important; border-color:rgba(255,193,69,.38) !important; background:rgba(39,21,5,.76) !important;
+}
+body.theme-complete.theme-legendary .azure-gallery-nav:hover {
+  color:#79f1ec !important; border-color:#4bd9d5 !important; background:rgba(39,180,177,.12) !important;
+}
+body.theme-complete.theme-legendary .azure-gallery-thumb { border-color:rgba(255,187,61,.22) !important; background:#160d05 !important; }
+body.theme-complete.theme-legendary .azure-gallery-thumb:hover,
+body.theme-complete.theme-legendary .azure-gallery-thumb.active {
+  border-color:#ff9d2f !important; box-shadow:0 0 14px rgba(69,218,214,.12) !important;
+}
+body.theme-complete.theme-legendary .azure-gallery-thumb img { filter:sepia(.13) saturate(1.07) hue-rotate(346deg) !important; }
+
+.ufo-projectile {
+  position:fixed; z-index:72; width:14px; height:3px; margin:-1.5px 0 0 -7px; border-radius:999px; pointer-events:none;
+  background:#ff55c8; box-shadow:0 0 8px #ff55c8,0 0 15px #67e8ff; transform-origin:center;
+  animation:ufo-projectile-flight var(--shot-dur,.6s) linear forwards;
+}
+@keyframes ufo-projectile-flight { to { transform:translate3d(var(--dx),var(--dy),0) scaleX(.55); opacity:.16; } }
+body.theme-complete.theme-legendary .ufo-projectile { background:#ff9a24; box-shadow:0 0 8px #ff9a24,0 0 16px #55dfda; }
+
+.legendary-player-projectile {
+  position:fixed; z-index:74; width:22px; height:5px; margin:-2.5px 0 0 -11px; border-radius:999px; pointer-events:none;
+  background:linear-gradient(90deg,#fff2b2,#ffc13d 55%,#43dcd7); box-shadow:0 0 9px #ffc13d,0 0 18px rgba(67,220,215,.72); transform-origin:center;
+}
+
+.flappy-game {
+  position:fixed; z-index:460; top:72px; right:18px; width:min(520px,calc(100vw - 36px)); display:none;
+  border:1px solid rgba(93,174,255,.42); background:#07111d; box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 28px rgba(47,147,255,.08);
+}
+.flappy-game.open { display:block; }
+.flappy-head { min-height:42px; padding:0 8px 0 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(93,174,255,.20); background:#0a1624; }
+.flappy-head > div { display:flex; align-items:center; gap:14px; }
+.flappy-head span,.flappy-head strong,.flappy-help,.flappy-head button { font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.10em; }
+.flappy-head span { color:#8da8c4; }
+.flappy-head strong { color:#72c8ff; }
+.flappy-head button { min-height:28px; padding:0 9px; border:1px solid rgba(93,174,255,.28); background:transparent; color:#d8ecff; cursor:pointer; }
+.flappy-head button:hover { border-color:#67cfff; color:#fff; }
+#flappy-canvas { display:block; width:100%; height:auto; cursor:pointer; touch-action:none; }
+.flappy-help { padding:8px 10px 9px; color:#7189a3; text-align:right; border-top:1px solid rgba(93,174,255,.14); }
+body.theme-complete:not(.theme-legendary) .flappy-game { border-color:rgba(211,105,255,.48); background:#0e0715; box-shadow:0 24px 70px rgba(0,0,0,.58),0 0 30px rgba(255,79,200,.10); }
+body.theme-complete:not(.theme-legendary) .flappy-head { background:linear-gradient(90deg,#180b22,#07161b); border-color:rgba(255,79,200,.20); }
+body.theme-complete:not(.theme-legendary) .flappy-head strong { color:#ff65cb; }
+body.theme-complete:not(.theme-legendary) .flappy-head button { border-color:rgba(103,232,255,.36); color:#dffcff; }
+body.theme-complete.theme-legendary .flappy-game { border-color:rgba(255,190,66,.52); background:#100904; box-shadow:0 24px 70px rgba(0,0,0,.62),0 0 32px rgba(255,136,18,.11); }
+body.theme-complete.theme-legendary .flappy-head { background:linear-gradient(90deg,#1d1005,#071716); border-color:rgba(255,179,44,.21); }
+body.theme-complete.theme-legendary .flappy-head span { color:#c9b287; }
+body.theme-complete.theme-legendary .flappy-head strong { color:#ffc64a; }
+body.theme-complete.theme-legendary .flappy-head button { border-color:rgba(73,219,215,.40); color:#68e5e0; }
+@media (max-width:620px){ .flappy-game { top:64px; right:6px; width:calc(100vw - 12px); } }
+
+/* v2.35 input, progression HUD, pickup power-ups, and tiny-game polish */
+/* This page is interaction-heavy. Prevent drag-selection from fighting flying-object clicks. */
+html, body, body * { -webkit-user-select:none; user-select:none; }
+input, textarea, pre, code, .console-output { -webkit-user-select:text; user-select:text; }
+
+/* Theme rarity is now one cycling control beside Signals: Rare -> Epic -> Legendary. */
+.theme-cycle-trigger {
+  display:inline-flex; align-items:center; min-height:34px; padding:0 11px;
+  border:1px solid rgba(93,174,255,.38); background:rgba(9,15,23,.94); color:#b8dcff;
+  font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.10em;
+  cursor:pointer; box-shadow:0 12px 36px rgba(0,0,0,.28); transition:.16s ease;
+}
+.theme-cycle-trigger:hover,.theme-cycle-trigger:focus-visible { border-color:#67cfff; color:#fff; background:rgba(21,76,126,.24); outline:0; }
+body.theme-complete:not(.theme-legendary) .theme-cycle-trigger { border-color:rgba(211,105,255,.48); color:#f0c9ff; background:linear-gradient(90deg,rgba(103,34,138,.30),rgba(20,51,64,.28)),rgba(12,7,17,.94); }
+body.theme-complete:not(.theme-legendary) .theme-cycle-trigger:hover { border-color:#67e8ff; color:#fff; box-shadow:0 0 20px rgba(255,79,200,.10),0 12px 36px rgba(0,0,0,.28); }
+body.theme-complete.theme-legendary .theme-cycle-trigger { border-color:rgba(255,194,67,.54); color:#ffe49a; background:linear-gradient(90deg,rgba(121,69,8,.48),rgba(22,72,70,.28)),rgba(22,13,5,.95); box-shadow:0 0 22px rgba(255,151,25,.08),0 12px 36px rgba(0,0,0,.32); }
+body.theme-complete.theme-legendary .theme-cycle-trigger:hover { border-color:#55ddd9; color:#fff5cf; background:linear-gradient(90deg,rgba(190,98,10,.52),rgba(35,151,148,.24)),rgba(24,14,5,.96); }
+
+/* Inspect and the five-heart side quest share one row in the ledger. */
+.ledger-controls { grid-template-columns:minmax(0,1fr) auto !important; align-items:stretch; }
+.heart-meter { min-height:34px; display:flex; align-items:center; justify-content:center; gap:4px; padding:0 9px; border:1px solid var(--line); background:rgba(255,255,255,.018); color:#4c6076; font:900 18px/1 Georgia,serif; }
+.heart-meter span { width:15px; text-align:center; transition:color .15s ease,transform .15s ease,text-shadow .15s ease; }
+.heart-meter span.filled { color:#ff5b85; transform:scale(1.08); text-shadow:0 0 10px rgba(255,79,120,.38); }
+body.theme-complete:not(.theme-legendary) .heart-meter { border-color:rgba(214,104,255,.22); background:rgba(95,24,125,.08); }
+body.theme-complete:not(.theme-legendary) .heart-meter span.filled { color:#ff5acb; text-shadow:0 0 12px rgba(255,80,204,.48); }
+body.theme-complete.theme-legendary .heart-meter { border-color:rgba(255,190,61,.24); background:rgba(98,57,6,.10); }
+body.theme-complete.theme-legendary .heart-meter span.filled { color:#ff7b35; text-shadow:0 0 12px rgba(255,135,35,.48); }
+
+/* Unreal Source heart reward. */
+.unreal-gift-window { width:min(520px,calc(100vw - 36px)); text-align:center; }
+.unreal-gift-logo { display:block; width:min(300px,76%); max-height:90px; object-fit:contain; margin:24px auto 18px; animation:unreal-gift-float 1.8s ease-in-out infinite; filter:drop-shadow(0 14px 20px rgba(0,0,0,.34)); }
+.unreal-gift-actions { display:flex; justify-content:center; gap:9px; margin-top:18px; }
+.unreal-gift-actions a,.unreal-gift-actions button { min-width:116px; min-height:38px; display:inline-flex; align-items:center; justify-content:center; border:1px solid rgba(93,174,255,.36); background:#0a1624; color:#dceeff; text-decoration:none; font:800 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.09em; cursor:pointer; }
+.unreal-gift-actions a:hover,.unreal-gift-actions button:hover { border-color:#67cfff; color:#fff; }
+@keyframes unreal-gift-float { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-9px) rotate(1deg)} }
+body.theme-complete:not(.theme-legendary) .unreal-gift-actions a,body.theme-complete:not(.theme-legendary) .unreal-gift-actions button { border-color:rgba(211,105,255,.44); background:#160a20; }
+body.theme-complete.theme-legendary .unreal-gift-actions a,body.theme-complete.theme-legendary .unreal-gift-actions button { border-color:rgba(255,191,63,.48); background:#1a1006; color:#ffe7a2; }
+body.theme-complete.theme-legendary .unreal-gift-actions a:hover,body.theme-complete.theme-legendary .unreal-gift-actions button:hover { border-color:#55ddd9; color:#7cf1ec; }
+
+/* The particles console command now has a very visible screen-space result too. */
+.command-particle { position:fixed; z-index:62; border-radius:50%; pointer-events:none; opacity:0; animation:command-particle 2.35s ease-out forwards; mix-blend-mode:screen; }
+@keyframes command-particle { 0%{opacity:0;transform:translate(0,0) scale(.35)} 12%{opacity:.9} 100%{opacity:0;transform:translate(var(--px),var(--py)) scale(.1)} }
+
+/* Browser cursors cannot be scaled reliably, so mushrooms switch to a lightweight custom pointer. */
+.power-cursor { position:fixed; z-index:9999; left:0; top:0; width:28px; height:36px; pointer-events:none; opacity:0; transform:translate(-3px,-3px); clip-path:polygon(0 0,0 86%,23% 67%,38% 100%,53% 92%,38% 61%,68% 61%); background:linear-gradient(135deg,#fff 0 56%,#62bfff 57% 100%); filter:drop-shadow(0 2px 1px rgba(0,0,0,.7)) drop-shadow(0 0 6px rgba(93,174,255,.42)); transition:width .12s ease,height .12s ease,opacity .12s ease; }
+body.cursor-grown,body.cursor-grown * { cursor:none !important; }
+body.cursor-grown .power-cursor { opacity:1; }
+body.cursor-power-1 .power-cursor { width:32px; height:42px; }
+body.cursor-power-2 .power-cursor { width:46px; height:60px; background:linear-gradient(135deg,#fff6cc 0 52%,#ffc94a 53% 72%,#45ddd8 73% 100%); filter:drop-shadow(0 3px 2px rgba(0,0,0,.7)) drop-shadow(0 0 10px rgba(255,194,61,.48)); }
+
+/* Regular stars give the cursor a short Mario-style rainbow frenzy. */
+.rainbow-cursor-spark { position:fixed; z-index:9996; width:6px; height:6px; margin:-3px 0 0 -3px; border-radius:50%; pointer-events:none; mix-blend-mode:screen; box-shadow:0 0 10px currentColor; animation:rainbow-cursor-spark .58s ease-out forwards; }
+@keyframes rainbow-cursor-spark { from{opacity:1;transform:translate(0,0) scale(1.2)} to{opacity:0;transform:translate(var(--rx),var(--ry)) scale(.1)} }
+body.star-power .completion-cursor-aura { opacity:1 !important; width:72px !important; height:72px !important; border:3px solid #fff !important; animation:star-power-ring .24s linear infinite !important; box-shadow:0 0 18px #ff3b30,0 0 28px #ffcc00,0 0 38px #34c759,0 0 48px #0a84ff,0 0 58px #bf5af2 !important; }
+@keyframes star-power-ring { to{filter:hue-rotate(360deg);transform:translate(-50%,-50%) rotate(360deg) scale(1.05)} }
+
+/* Doug only interrupts the viewport when his normal card is offscreen. */
+.doug-peek { position:fixed; z-index:470; left:50%; bottom:-280px; width:min(280px,46vw); transform:translateX(-50%); pointer-events:none; text-align:center; transition:bottom .34s cubic-bezier(.2,.9,.3,1.12); filter:drop-shadow(0 -14px 28px rgba(0,0,0,.42)); }
+.doug-peek.show { bottom:-46px; }
+.doug-peek img { display:block; width:100%; max-height:250px; object-fit:cover; object-position:50% 28%; border-radius:48% 48% 0 0; border:1px solid rgba(93,174,255,.30); }
+.doug-peek strong { position:absolute; left:50%; top:12px; transform:translateX(-50%); width:max-content; max-width:92vw; padding:7px 10px; background:rgba(5,10,16,.93); border:1px solid rgba(93,174,255,.34); color:#e7f4ff; font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; }
+.doug-peek-hearts { position:absolute; z-index:2; left:50%; top:-28px; transform:translateX(-50%); color:#ff6d91; font-size:24px; letter-spacing:8px; animation:doug-peek-hearts 1s ease-in-out infinite alternate; }
+@keyframes doug-peek-hearts { to{transform:translateX(-50%) translateY(-8px) scale(1.08);filter:drop-shadow(0 0 8px currentColor)} }
+body.theme-complete:not(.theme-legendary) .doug-peek img { border-color:rgba(218,106,255,.40); }
+body.theme-complete.theme-legendary .doug-peek img { border-color:rgba(255,191,61,.46); }
+body.theme-complete.theme-legendary .doug-peek-hearts { color:#ff8a37; }
+
+/* UFO shots are intentionally high-contrast. They are gameplay, not subtle ambience. */
+.ufo-projectile, body.theme-complete.theme-legendary .ufo-projectile { background:#fff !important; box-shadow:0 0 7px #fff,0 0 15px #c9f7ff,0 0 24px rgba(103,232,255,.86) !important; }
+
+/* Console header now carries its onboarding copy without crowding the title. */
+.console-head { gap:12px; }
+.console-head > span { flex:0 0 auto; }
+.console-head > small { flex:1; color:#607b95; font:600 8px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.02em; text-transform:none; }
+body.theme-complete:not(.theme-legendary) .console-head > small { color:#a98abb; }
+body.theme-complete.theme-legendary .console-head > small { color:#af9870; }
+
+/* Mippi Bird starts paused, so this hint remains readable before gravity joins the meeting. */
+.flappy-help { min-height:30px; }
+
+@media (max-width:620px){
+  .heart-meter { gap:2px; padding:0 6px; }
+  .heart-meter span { width:12px; font-size:15px; }
+  .theme-cycle-trigger { font-size:7px; }
+  .console-head > small { display:none; }
+}
+.theme-cycle-trigger { position:relative; }
+.theme-cycle-trigger::after { content:attr(data-tip); position:absolute; left:0; bottom:calc(100% + 9px); width:220px; padding:7px 9px; border:1px solid var(--line-strong); background:rgba(5,10,16,.97); color:#a9c4df; font:700 9px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:0; text-transform:none; text-align:left; opacity:0; transform:translateY(5px); pointer-events:none; transition:.14s ease; box-shadow:0 12px 34px rgba(0,0,0,.38); }
+.theme-cycle-trigger:hover::after,.theme-cycle-trigger:focus-visible::after { opacity:1; transform:none; }
+body.theme-complete:not(.theme-legendary) .theme-cycle-trigger::after { border-color:rgba(211,105,255,.36); color:#dfc9eb; background:rgba(14,7,20,.98); }
+body.theme-complete.theme-legendary .theme-cycle-trigger::after { border-color:rgba(255,191,63,.36); color:#dbc596; background:rgba(18,11,5,.98); }
+
+
+/* ==========================================================================
+   v2.36 // Wish UI theme parity, explicit action colors, and capitalism FX
+   ========================================================================== */
+
+/* The hero GitHub button is a real control, so give it an explicit themed color
+   instead of allowing whichever global anchor rule happens to win today. */
+body.theme-complete:not(.theme-legendary) .hero-actions .button.ghost {
+  color:#f5dcff !important;
+  border-color:rgba(220,132,255,.34) !important;
+  background:rgba(177,60,255,.045) !important;
+}
+body.theme-complete:not(.theme-legendary) .hero-actions .button.ghost:hover,
+body.theme-complete:not(.theme-legendary) .hero-actions .button.ghost:focus-visible {
+  color:#74efff !important;
+  border-color:#67e8ff !important;
+  background:linear-gradient(135deg,rgba(177,60,255,.16),rgba(62,220,255,.09)) !important;
+}
+body.theme-complete.theme-legendary .hero-actions .button.ghost {
+  color:#ffe7a0 !important;
+  border-color:rgba(255,187,69,.38) !important;
+  background:linear-gradient(135deg,rgba(255,126,22,.055),rgba(55,213,209,.025)) !important;
+}
+body.theme-complete.theme-legendary .hero-actions .button.ghost:hover,
+body.theme-complete.theme-legendary .hero-actions .button.ghost:focus-visible {
+  color:#70eee9 !important;
+  border-color:#4bd9d5 !important;
+  background:linear-gradient(135deg,rgba(255,136,24,.11),rgba(48,208,204,.10)) !important;
+}
+
+/* Second-person lens is communication AND interaction. Theme both resting and active states. */
+body.theme-complete:not(.theme-legendary) #second-person-toggle {
+  color:#e89cff !important;
+  text-shadow:0 0 18px rgba(201,76,255,.14);
+}
+body.theme-complete:not(.theme-legendary) #second-person-toggle::before { color:#67e8ff !important; }
+body.theme-complete:not(.theme-legendary) #second-person-toggle:hover,
+body.theme-complete:not(.theme-legendary) #second-person-toggle:focus-visible,
+body.theme-complete:not(.theme-legendary) #second-person-toggle[aria-pressed="true"] { color:#ff78d1 !important; }
+body.theme-complete:not(.theme-legendary) #second-person-toggle[aria-pressed="true"]::before { color:#8ff4ff !important; }
+
+body.theme-complete.theme-legendary #second-person-toggle {
+  color:#ffd269 !important;
+  text-shadow:0 0 18px rgba(255,145,24,.12);
+}
+body.theme-complete.theme-legendary #second-person-toggle::before { color:#55ddd9 !important; }
+body.theme-complete.theme-legendary #second-person-toggle:hover,
+body.theme-complete.theme-legendary #second-person-toggle:focus-visible,
+body.theme-complete.theme-legendary #second-person-toggle[aria-pressed="true"] { color:#71eee9 !important; }
+body.theme-complete.theme-legendary #second-person-toggle[aria-pressed="true"]::before { color:#ffb13c !important; }
+
+/* Wish result popups: Epic / Completion treatment. */
+body.theme-complete:not(.theme-legendary) .wish-special-popup {
+  background:rgba(7,2,12,.70) !important;
+}
+body.theme-complete:not(.theme-legendary) .wish-special-window {
+  border-color:rgba(215,104,255,.52) !important;
+  background:
+    radial-gradient(circle at 88% 8%,rgba(80,225,255,.09),transparent 15rem),
+    radial-gradient(circle at 8% 92%,rgba(205,69,255,.11),transparent 16rem),
+    linear-gradient(145deg,#1b0d26,#0b0811 72%) !important;
+  color:#fff7ff !important;
+  box-shadow:0 28px 100px rgba(0,0,0,.78),0 0 54px rgba(189,63,255,.13) !important;
+}
+body.theme-complete:not(.theme-legendary) .wish-special-kicker { color:#ff78d1 !important; }
+body.theme-complete:not(.theme-legendary) .wish-special-window h3 { color:#faeaff !important; }
+body.theme-complete:not(.theme-legendary) .wish-special-window p { color:#c8b1d5 !important; }
+body.theme-complete:not(.theme-legendary) .wish-special-close { color:#bd9fca !important; }
+body.theme-complete:not(.theme-legendary) .wish-special-close:hover { color:#72efff !important; }
+body.theme-complete:not(.theme-legendary) .wish-contact-actions a {
+  border-color:rgba(211,105,255,.46) !important;
+  background:linear-gradient(135deg,rgba(174,56,241,.10),rgba(53,215,236,.045)) !important;
+  color:#f5dcff !important;
+}
+body.theme-complete:not(.theme-legendary) .wish-contact-actions a:hover {
+  border-color:#67e8ff !important;
+  background:linear-gradient(135deg,rgba(208,72,255,.18),rgba(51,220,240,.11)) !important;
+  color:#8ff4ff !important;
+  box-shadow:0 0 18px rgba(91,228,255,.08);
+}
+body.theme-complete:not(.theme-legendary) .blender-progress {
+  border-color:rgba(216,112,255,.40) !important;
+  background:#09050d !important;
+}
+body.theme-complete:not(.theme-legendary) .blender-progress i {
+  background:linear-gradient(90deg,#a43cff,#ff4fc8,#67e8ff) !important;
+}
+body.theme-complete:not(.theme-legendary) #blender-percent { color:#f0a4ff !important; }
+body.theme-complete:not(.theme-legendary) #blender-ok.ready {
+  color:#fff !important;
+  border-color:#67e8ff !important;
+  background:linear-gradient(180deg,#b13cff,#7b25b8) !important;
+}
+body.theme-complete:not(.theme-legendary) #blender-ok.ready:hover { background:linear-gradient(180deg,#c64dff,#8b2dcc) !important; }
+
+/* Wish result popups: Legendary treatment. Gold/orange lead, teal handles technical/action affordances. */
+body.theme-complete.theme-legendary .wish-special-popup {
+  background:rgba(8,5,2,.74) !important;
+}
+body.theme-complete.theme-legendary .wish-special-window {
+  border-color:rgba(255,190,67,.58) !important;
+  background:
+    radial-gradient(circle at 88% 8%,rgba(57,215,211,.085),transparent 15rem),
+    radial-gradient(circle at 8% 92%,rgba(255,122,22,.11),transparent 16rem),
+    linear-gradient(145deg,#241405,#0d0904 72%) !important;
+  color:#fff7df !important;
+  box-shadow:0 28px 100px rgba(0,0,0,.80),0 0 58px rgba(255,138,24,.11) !important;
+}
+body.theme-complete.theme-legendary .wish-special-kicker { color:#ffad36 !important; }
+body.theme-complete.theme-legendary .wish-special-window h3 { color:#ffe7a0 !important; }
+body.theme-complete.theme-legendary .wish-special-window p { color:#d8c29d !important; }
+body.theme-complete.theme-legendary .wish-special-close { color:#bda77c !important; }
+body.theme-complete.theme-legendary .wish-special-close:hover { color:#64e6e1 !important; }
+body.theme-complete.theme-legendary .wish-contact-actions a {
+  border-color:rgba(255,185,64,.48) !important;
+  background:linear-gradient(135deg,rgba(255,124,20,.105),rgba(53,211,207,.045)) !important;
+  color:#ffe8a6 !important;
+}
+body.theme-complete.theme-legendary .wish-contact-actions a:hover {
+  border-color:#55ddd9 !important;
+  background:linear-gradient(135deg,rgba(255,137,24,.16),rgba(47,210,206,.12)) !important;
+  color:#7cf1ec !important;
+  box-shadow:0 0 18px rgba(55,215,211,.08);
+}
+body.theme-complete.theme-legendary .blender-progress {
+  border-color:rgba(255,188,65,.42) !important;
+  background:#0c0804 !important;
+}
+body.theme-complete.theme-legendary .blender-progress i {
+  background:linear-gradient(90deg,#ff7418,#ffb72f,#55ddd9) !important;
+}
+body.theme-complete.theme-legendary #blender-percent { color:#ffd36b !important; }
+body.theme-complete.theme-legendary #blender-ok.ready {
+  color:#171003 !important;
+  border-color:#ffd06a !important;
+  background:linear-gradient(180deg,#f3ae32,#cf7111) !important;
+}
+body.theme-complete.theme-legendary #blender-ok.ready:hover {
+  border-color:#55ddd9 !important;
+  background:linear-gradient(180deg,#ffc04c,#d97b16) !important;
+}
+
+/* Money wish FX. Coins begin physically behind the console, then escape upward and fall away. */
+.money-coin {
+  position:fixed;
+  z-index:299;
+  left:var(--coin-x);
+  top:var(--coin-y);
+  width:var(--coin-size,30px);
+  height:var(--coin-size,30px);
+  margin:calc(var(--coin-size,30px) * -.5) 0 0 calc(var(--coin-size,30px) * -.5);
+  border:2px solid #fff0a7;
+  border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,#fff3a5 0 9%,#ffd54d 10% 35%,#e89a13 62%,#9e5c08 100%);
+  color:#744000;
+  box-shadow:0 0 12px rgba(255,194,57,.34),inset 0 0 0 2px rgba(129,70,4,.30);
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  font:900 calc(var(--coin-size,30px) * .46)/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  animation:money-coin-fall var(--coin-duration) cubic-bezier(.18,.65,.28,1) var(--coin-delay) forwards;
+  will-change:transform,opacity;
+}
+.money-coin::after { content:"$"; transform:translateY(-.5px); }
+@keyframes money-coin-fall {
+  0% { transform:translate3d(0,0,0) rotate(0deg) scale(.65); opacity:0; }
+  6% { opacity:1; }
+  27% { transform:translate3d(var(--coin-mid-x),var(--coin-rise),0) rotate(var(--coin-spin-mid)) scale(1); opacity:1; }
+  100% { transform:translate3d(var(--coin-end-x),var(--coin-fall),0) rotate(var(--coin-spin-end)) scale(.84); opacity:.92; }
+}
+body.theme-complete:not(.theme-legendary) .money-coin {
+  box-shadow:0 0 14px rgba(255,196,57,.38),0 0 22px rgba(205,76,255,.10),inset 0 0 0 2px rgba(129,70,4,.30);
+}
+body.theme-complete.theme-legendary .money-coin {
+  border-color:#fff2b6;
+  box-shadow:0 0 16px rgba(255,179,33,.52),0 0 28px rgba(55,215,211,.10),inset 0 0 0 2px rgba(129,70,4,.30);
+}
+
+
+/* ============================================================================
+   v2.37 // Wish popup hard-theme pass
+   These selectors are deliberately specific. Somewhere, a generic link selector
+   is always waiting to turn one legendary button purple again.
+   ============================================================================ */
+body.theme-complete:not(.theme-legendary) #wish-contact-popup .contact-window,
+body.theme-complete:not(.theme-legendary) #blender-popup .blender-window {
+  border-color:#ca64f4 !important;
+  background:radial-gradient(circle at 88% 6%,rgba(103,232,255,.12),transparent 14rem),radial-gradient(circle at 8% 94%,rgba(255,79,200,.12),transparent 15rem),linear-gradient(145deg,#20102d,#0a0710 74%) !important;
+  color:#fff5ff !important;
+  box-shadow:0 28px 100px rgba(0,0,0,.82),0 0 58px rgba(190,66,255,.16) !important;
+}
+body.theme-complete:not(.theme-legendary) #wish-contact-popup .wish-special-kicker,
+body.theme-complete:not(.theme-legendary) #blender-popup .wish-special-kicker { color:#ff61c9 !important; }
+body.theme-complete:not(.theme-legendary) #wish-contact-popup h3,
+body.theme-complete:not(.theme-legendary) #blender-popup h3 { color:#f8e8ff !important; text-shadow:0 0 20px rgba(194,73,255,.12); }
+body.theme-complete:not(.theme-legendary) #wish-contact-popup p,
+body.theme-complete:not(.theme-legendary) #blender-popup p { color:#d4bfe1 !important; }
+body.theme-complete:not(.theme-legendary) #wish-contact-popup .wish-special-close { color:#d6afe7 !important; }
+body.theme-complete:not(.theme-legendary) #wish-contact-popup .wish-contact-actions a {
+  color:#f8e6ff !important; border-color:rgba(206,91,255,.62) !important;
+  background:linear-gradient(135deg,rgba(179,52,241,.18),rgba(67,224,238,.07)) !important;
+}
+body.theme-complete:not(.theme-legendary) #wish-contact-popup .wish-contact-actions a:hover {
+  color:#8df6ff !important; border-color:#67e8ff !important;
+  background:linear-gradient(135deg,rgba(224,76,255,.24),rgba(59,226,241,.15)) !important;
+}
+body.theme-complete:not(.theme-legendary) #blender-popup .blender-progress { border-color:#c764f4 !important; background:#09050d !important; box-shadow:inset 0 0 12px rgba(174,57,236,.12); }
+body.theme-complete:not(.theme-legendary) #blender-popup .blender-progress i { background:linear-gradient(90deg,#9d3dff,#ff4fc8,#67e8ff) !important; box-shadow:0 0 16px rgba(103,232,255,.16); }
+body.theme-complete:not(.theme-legendary) #blender-popup #blender-percent { color:#f0a4ff !important; }
+body.theme-complete:not(.theme-legendary) #blender-popup #blender-ok { border-color:#5c3b6c !important; background:#1a1020 !important; color:#826d8c !important; }
+body.theme-complete:not(.theme-legendary) #blender-popup #blender-ok.ready { border-color:#67e8ff !important; background:linear-gradient(180deg,#b642ed,#7626af) !important; color:#fff !important; }
+
+body.theme-complete.theme-legendary #wish-contact-popup .contact-window,
+body.theme-complete.theme-legendary #blender-popup .blender-window {
+  border-color:#f5b53c !important;
+  background:radial-gradient(circle at 88% 6%,rgba(67,224,220,.13),transparent 14rem),radial-gradient(circle at 8% 94%,rgba(255,119,20,.16),transparent 15rem),linear-gradient(145deg,#281705,#0d0904 74%) !important;
+  color:#fff6d9 !important;
+  box-shadow:0 28px 100px rgba(0,0,0,.84),0 0 62px rgba(255,143,25,.18) !important;
+}
+body.theme-complete.theme-legendary #wish-contact-popup .wish-special-kicker,
+body.theme-complete.theme-legendary #blender-popup .wish-special-kicker { color:#ff9630 !important; }
+body.theme-complete.theme-legendary #wish-contact-popup h3,
+body.theme-complete.theme-legendary #blender-popup h3 { color:#ffe39a !important; text-shadow:0 0 22px rgba(255,157,32,.13); }
+body.theme-complete.theme-legendary #wish-contact-popup p,
+body.theme-complete.theme-legendary #blender-popup p { color:#dec89d !important; }
+body.theme-complete.theme-legendary #wish-contact-popup .wish-special-close { color:#cdb684 !important; }
+body.theme-complete.theme-legendary #wish-contact-popup .wish-special-close:hover { color:#6df3ed !important; }
+body.theme-complete.theme-legendary #wish-contact-popup .wish-contact-actions a {
+  color:#ffe4a0 !important; border-color:rgba(255,181,54,.64) !important;
+  background:linear-gradient(135deg,rgba(255,120,19,.17),rgba(62,218,214,.07)) !important;
+}
+body.theme-complete.theme-legendary #wish-contact-popup .wish-contact-actions a:hover {
+  color:#79f1eb !important; border-color:#55ddd9 !important;
+  background:linear-gradient(135deg,rgba(255,143,26,.24),rgba(57,219,214,.15)) !important;
+}
+body.theme-complete.theme-legendary #blender-popup .blender-progress { border-color:#e8a934 !important; background:#0a0703 !important; box-shadow:inset 0 0 12px rgba(255,159,28,.13); }
+body.theme-complete.theme-legendary #blender-popup .blender-progress i { background:linear-gradient(90deg,#ff6c17,#ffb42f,#55ddd9) !important; box-shadow:0 0 18px rgba(85,221,217,.14); }
+body.theme-complete.theme-legendary #blender-popup #blender-percent { color:#ffd163 !important; }
+body.theme-complete.theme-legendary #blender-popup #blender-ok { border-color:#624618 !important; background:#1e1407 !important; color:#8f7548 !important; }
+body.theme-complete.theme-legendary #blender-popup #blender-ok.ready { border-color:#ffd269 !important; background:linear-gradient(180deg,#f2ad31,#c9680d) !important; color:#171003 !important; }
+body.theme-complete.theme-legendary #blender-popup #blender-ok.ready:hover { border-color:#55ddd9 !important; color:#13201f !important; }
+
+@media (max-width:700px){
+  .blender-window #blender-title { white-space:normal; }
+}
+
+/* ========================================================================== 
+   v2.38 // Compact collection HUD, shop economy, and Star Power contact pickup
+   ========================================================================== */
+
+/* The heart side quest and rupee wallet live outside the ledger now. The HUD
+   sits over SIGNALS while collapsed and jumps above the ledger when it opens. */
+.progress-hud {
+  position:fixed;
+  left:18px;
+  bottom:60px;
+  z-index:247;
+  display:grid;
+  gap:5px;
+  min-width:136px;
+  opacity:0;
+  transform:translateY(6px);
+  pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease,top .18s ease,bottom .18s ease;
+}
+.progress-hud.visible { opacity:1; transform:none; }
+.rupee-meter,
+.progress-hud .heart-meter {
+  min-height:30px;
+  border:1px solid rgba(93,174,255,.30);
+  background:rgba(7,13,20,.94);
+  box-shadow:0 9px 24px rgba(0,0,0,.24);
+}
+.rupee-meter {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 9px;
+  color:#72e8ff;
+  font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.12em;
+}
+.rupee-meter b { color:#e8fbff; font-size:10px; letter-spacing:.06em; }
+.progress-hud .heart-meter {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:0 9px;
+  color:#4c6076;
+  font:900 18px/1 Georgia,serif;
+}
+.progress-hud .heart-meter span { width:15px; text-align:center; transition:color .15s ease,transform .15s ease,text-shadow .15s ease; }
+.progress-hud .heart-meter span.filled { color:#ff5b85; transform:scale(1.08); text-shadow:0 0 10px rgba(255,79,120,.38); }
+
+/* Inspect Mode no longer has to share a row with five hearts. */
+.ledger-controls { grid-template-columns:1fr !important; }
+
+body.theme-complete:not(.theme-legendary) .rupee-meter,
+body.theme-complete:not(.theme-legendary) .progress-hud .heart-meter {
+  border-color:rgba(211,105,255,.34);
+  background:linear-gradient(90deg,rgba(84,24,112,.16),rgba(15,42,52,.18)),rgba(11,7,16,.95);
+}
+body.theme-complete:not(.theme-legendary) .rupee-meter { color:#67e8ff; }
+body.theme-complete:not(.theme-legendary) .rupee-meter b { color:#dffcff; }
+body.theme-complete:not(.theme-legendary) .progress-hud .heart-meter span.filled { color:#ff5acb; text-shadow:0 0 12px rgba(255,80,204,.48); }
+
+body.theme-complete.theme-legendary .rupee-meter,
+body.theme-complete.theme-legendary .progress-hud .heart-meter {
+  border-color:rgba(255,190,61,.34);
+  background:linear-gradient(90deg,rgba(110,61,6,.23),rgba(17,64,62,.17)),rgba(20,12,5,.96);
+  box-shadow:0 9px 26px rgba(255,157,24,.035),0 9px 24px rgba(0,0,0,.28);
+}
+body.theme-complete.theme-legendary .rupee-meter { color:#55ddd9; }
+body.theme-complete.theme-legendary .rupee-meter b { color:#fff0ae; }
+body.theme-complete.theme-legendary .progress-hud .heart-meter span.filled { color:#ff7b35; text-shadow:0 0 12px rgba(255,135,35,.48); }
+
+@media (max-width:620px){
+  .progress-hud { left:12px; bottom:58px; min-width:124px; }
+  .progress-hud .heart-meter { gap:2px; padding:0 6px; }
+  .progress-hud .heart-meter span { width:12px; font-size:15px; }
+}
+
+
+/* ==========================================================================
+   v2.39 // Discovery tuning, tiny HUD fixes, Easy Mode, and Mippi Bird scores
+   ========================================================================== */
+.ambient-secret { z-index:10050 !important; }
+.ambient-secret.visible { pointer-events:auto !important; }
+
+.progress-hud { pointer-events:none; }
+.rupee-meter { display:none; }
+.progress-hud.visible .rupee-meter.visible { display:flex; }
+.progress-hud.ledger-open { z-index:248; }
+
+.flappy-footer {
+  min-height:34px; display:grid; grid-template-columns:auto auto 1fr; align-items:center;
+  gap:8px; padding:5px 8px 6px 10px; border-top:1px solid rgba(93,174,255,.14);
+  background:rgba(4,10,17,.92);
+}
+.flappy-footer > strong,.flappy-footer button { font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.09em; }
+.flappy-footer > strong { color:#72c8ff; white-space:nowrap; }
+.flappy-footer .flappy-help { padding:0; border:0; text-align:right; }
+.flappy-share-wrap { position:relative; }
+#flappy-share { min-height:24px; padding:0 8px; border:1px solid rgba(93,174,255,.28); background:rgba(255,255,255,.02); color:#d8ecff; cursor:pointer; }
+#flappy-share:hover { border-color:#67cfff; color:#fff; }
+.flappy-share-menu {
+  position:absolute; left:0; bottom:calc(100% + 6px); z-index:4; display:none; min-width:118px;
+  padding:5px; gap:4px; border:1px solid rgba(93,174,255,.32); background:rgba(5,11,18,.98);
+  box-shadow:0 12px 34px rgba(0,0,0,.48);
+}
+.flappy-share-menu.open { display:grid; }
+.flappy-share-menu button { min-height:25px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.02); color:#9eb9d4; cursor:pointer; text-align:left; padding:0 7px; }
+.flappy-share-menu button:hover { border-color:#67cfff; color:#fff; }
+
+body.theme-complete:not(.theme-legendary) .flappy-footer { border-color:rgba(255,79,200,.18); background:rgba(13,6,18,.94); }
+body.theme-complete:not(.theme-legendary) .flappy-footer > strong { color:#ff65cb; }
+body.theme-complete:not(.theme-legendary) #flappy-share,
+body.theme-complete:not(.theme-legendary) .flappy-share-menu { border-color:rgba(103,232,255,.34); }
+body.theme-complete:not(.theme-legendary) #flappy-share:hover,
+body.theme-complete:not(.theme-legendary) .flappy-share-menu button:hover { border-color:#ff59ca; color:#fff; }
+
+body.theme-complete.theme-legendary .flappy-footer { border-color:rgba(255,179,44,.20); background:rgba(19,10,4,.95); }
+body.theme-complete.theme-legendary .flappy-footer > strong { color:#ffc64a; }
+body.theme-complete.theme-legendary #flappy-share,
+body.theme-complete.theme-legendary .flappy-share-menu { border-color:rgba(73,219,215,.38); }
+body.theme-complete.theme-legendary #flappy-share:hover,
+body.theme-complete.theme-legendary .flappy-share-menu button:hover { border-color:#ffc64a; color:#fff4cf; }
+
+@media (max-width:620px){
+  .flappy-footer { grid-template-columns:1fr auto; }
+  .flappy-footer .flappy-help { grid-column:1/-1; text-align:left; }
+}
+
+/* ==========================================================================
+   v2.40 // Hero size hardening
+   The hero used min-height historically, which left its final block size open
+   to downstream content/layout interactions. Keep the opening scene bounded.
+   ========================================================================== */
+.hero {
+  height: clamp(620px, calc(100svh - var(--header)), 760px);
+  min-height: 0;
+}
+.hero-scene-wrap,
+#hero-canvas {
+  min-height: 0;
+  max-height: 100%;
+}
+.hero-overlay {
+  height: 100%;
+  min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .hero {
+    height: 720px;
+    min-height: 0;
+  }
+  .hero-overlay {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+
+/* ==========================================================================
+   v2.41 // Inspect metadata must never mutate layout
+   The Hero regression in v2.39 came from [data-dev-note] forcing position:relative
+   onto .hero-scene-wrap. Inspect Mode is now presentation-only.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   v2.42 // Arcade boss escalation
+   Ten regular UFO takedowns create a larger six-hit contact. Yes, the portfolio has a boss fight now.
+   ========================================================================== */
+.boss-ufo {
+  z-index:86 !important;
+  width:104px !important;
+  height:72px !important;
+  filter:drop-shadow(0 0 10px rgba(103,232,255,.58)) drop-shadow(0 0 24px rgba(47,147,255,.25)) !important;
+}
+.boss-ufo::before {
+  left:34px !important; top:10px !important; width:34px !important; height:18px !important;
+  background:#2f93ff !important;
+  box-shadow:-17px 10px 0 #67e8ff,17px 10px 0 #67e8ff,-28px 22px 0 #176fc4,28px 22px 0 #176fc4,-15px 32px 0 #dff8ff,15px 32px 0 #dff8ff,0 24px 0 #fff !important;
+}
+.boss-ufo-label {
+  position:absolute; left:50%; top:-15px; transform:translateX(-50%); color:#dff8ff;
+  font:900 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.18em; text-shadow:0 0 8px currentColor;
+}
+.boss-ufo-health {
+  position:absolute; left:14px; right:14px; bottom:-10px; height:4px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.72); overflow:hidden;
+}
+.boss-ufo-health i { display:block; width:100%; height:100%; background:linear-gradient(90deg,#2f93ff,#67e8ff); box-shadow:0 0 8px #67e8ff; transition:width .15s ease; }
+.boss-ufo.boss-hit::before { filter:brightness(2.25) drop-shadow(0 0 12px #fff); }
+body.theme-complete:not(.theme-legendary) .boss-ufo { filter:drop-shadow(0 0 12px rgba(255,79,200,.62)) drop-shadow(0 0 25px rgba(103,232,255,.24)) !important; }
+body.theme-complete:not(.theme-legendary) .boss-ufo::before {
+  background:#ff4fc8 !important;
+  box-shadow:-17px 10px 0 #67e8ff,17px 10px 0 #67e8ff,-28px 22px 0 #a952ff,28px 22px 0 #a952ff,-15px 32px 0 #f9eaff,15px 32px 0 #f9eaff,0 24px 0 #fff !important;
+}
+body.theme-complete:not(.theme-legendary) .boss-ufo-label { color:#ff9ade; }
+body.theme-complete:not(.theme-legendary) .boss-ufo-health i { background:linear-gradient(90deg,#b653ff,#ff4fc8,#67e8ff); box-shadow:0 0 9px #ff4fc8; }
+body.theme-complete.theme-legendary .boss-ufo { filter:drop-shadow(0 0 13px rgba(255,173,45,.70)) drop-shadow(0 0 27px rgba(67,224,220,.28)) !important; }
+body.theme-complete.theme-legendary .boss-ufo::before {
+  background:#ff9a24 !important;
+  box-shadow:-17px 10px 0 #43e0dc,17px 10px 0 #43e0dc,-28px 22px 0 #d66a0d,28px 22px 0 #d66a0d,-15px 32px 0 #fff0b5,15px 32px 0 #fff0b5,0 24px 0 #fff !important;
+}
+body.theme-complete.theme-legendary .boss-ufo-label { color:#ffd86a; }
+body.theme-complete.theme-legendary .boss-ufo-health i { background:linear-gradient(90deg,#ff7a1a,#ffc83d,#43e0dc); box-shadow:0 0 10px #ffc83d; }

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- MOBILE WARNING: This site is not ready for mobile viewing. Good luck to anyone who uses it on mobile. -->
+<!-- Yes, I know responsive design exists. I also know scope exists. One of those won today. -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,13 +10,33 @@
   <title>Mippi The Dork | Game Designer, Design Director, Consultant</title>
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.27" />
+  <link rel="stylesheet" href="style.css?v=2.43" />
 </head>
 <body>
+  <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
+  <!-- ACCESSIBILITY NOTE: decorative canvases are aria-hidden; meaningful navigation remains normal HTML so the portfolio still works if WebGL rage-quits. -->
+  <!-- PERFORMANCE NOTE: Three.js is lazy-loaded from a CDN. Static content is intentionally useful before the renderer arrives. -->
+  <!-- CONTENT NOTE: External project links open in new tabs because losing your place in a portfolio is a bad side quest. -->
+  <!-- MIPPI: Keep the page clean and professional. -->
+  <!-- GIPITI: Absolutely. Minimal. Tasteful. Restrained. -->
+  <!-- MIPPI: Also add achievements. -->
+  <!-- GIPITI: Sure. -->
+  <!-- MIPPI: And a hidden console. -->
+  <!-- GIPITI: ...sure. -->
+  <!-- MIPPI: And wishes, shader compilation, Flappy Bird, rupees, dog bones, UFOs, a shop, cheat codes, and three rarity themes. -->
+  <!-- GIPITI: I need you to understand that this is a portfolio website. -->
+  <!-- MIPPI: Correct. Make the UFO shoot at the mouse. -->
+  <!-- GIPITI: Of course. Why did I ask. -->
+  <!-- MIPPI: Oh, and after ten UFOs there should be a boss. -->
+  <!-- GIPITI: I am updating my LinkedIn status to Open To Work. -->
+  <!-- If you are reading this in View Source, congratulations. You found the part of web development where all the bodies are buried. -->
+  <!-- INTERNET EXPLORER SPECIAL CONSIDERATION: tested in IE6 by absolutely nobody. Please float:left responsibly. -->
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="ambient-canvas" aria-hidden="true"></canvas>
 
-  <header class="site-header" id="top">
+  <!-- NAVIGATION CONTRACT: section IDs are public API now. Console commands, scene signals, and ordinary links all depend on them. -->
+  <!-- CSS NOTE: sticky headers are easy until literally anything else is fixed-position. -->
+  <header class="site-header" id="top" data-dev-note="UI NOTE // The header stays deliberately compact. It is navigation, not a second portfolio fighting the first one.">
     <a class="brand" href="#top" aria-label="Mippi The Dork home">
       <span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="assets/mippi-logo-blue.png" alt="" /></span>
       <span class="brand-copy">
@@ -34,7 +56,18 @@
     </nav>
   </header>
 
+  <div class="hardware-warning" id="hardware-warning" role="status" aria-live="polite">
+    <span><b>Having performance issues?</b> Your browser appears to be using software rendering. Hardware acceleration may be disabled.</span>
+    <a href="https://support.chess.com/en/articles/9635438-improve-responsiveness-with-hardware-acceleration" target="_blank" rel="noreferrer">How to enable it in major browsers ↗</a>
+    <button type="button" id="hardware-warning-close" aria-label="Dismiss performance notice">×</button>
+  </div>
+
+  <!-- TODO: Rename final_final_really_final_layout_v7 before ship. Do not ask which v7. -->
+  <!-- Browser QA matrix: Chrome, Firefox, Edge, Safari, and vibes. -->
+  <!-- Web development is game development where every player brings their own renderer. -->
   <main id="main">
+    <!-- RENDERER NOTE: The hero scene uses one canvas, one camera, and substantially more emotional investment than originally budgeted. -->
+    <!-- FALLBACK NOTE: If WebGL fails, the DOM version below preserves the same navigation concept without pretending the GPU is fine. -->
     <section class="hero" aria-labelledby="hero-title" data-dev-note="DEV NOTE // The hero is a navigable Three.js scene. The shapes are section shortcuts, not decoration.">
       <div class="hero-scene-wrap" aria-hidden="true">
         <canvas id="hero-canvas"></canvas>
@@ -72,13 +105,15 @@
       </div>
     </section>
 
-    <section class="section intro-strip" aria-label="Quick profile">
+    <!-- Four stats, zero loot boxes. This remains the most ethical progression system on the page. -->
+    <section class="section intro-strip" aria-label="Quick profile" data-dev-note="DESIGN NOTE // The opening stats are a quick read for recruiters, collaborators, and anyone speedrunning the portfolio.">
       <div><strong>25+</strong><span>Years in Games</span></div>
       <div><strong>Design</strong><span>Direction + Systems</span></div>
       <div><strong>Indie</strong><span>Consultation</span></div>
       <div><strong>UE5</strong><span>Tools + Workflow</span></div>
     </section>
 
+    <!-- DESIGN NOTE: if the player misses the affordance, it was not actually obvious. -->
     <section class="section" id="games" data-scene="games">
       <div class="section-heading">
         <div>
@@ -150,6 +185,8 @@
       </a>
     </section>
 
+    <!-- CAREER DATA: 25+ years compressed until the scrollbar agreed to cooperate. -->
+    <!-- TODO circa 2009: verify layout at 1024x768. History has closed this ticket. -->
     <section class="section career-section" id="career" data-scene="career" data-dev-note="DEV NOTE // Career history is curated here. The résumé links below hold the exhaustive chronology.">
       <div class="section-heading">
         <div>
@@ -161,7 +198,7 @@
 
       <div class="career-board">
         <article class="career-primary" data-dev-note="DEV NOTE // The image is intentionally obscured. The shipped work is public; the Game Director project is not.">
-          <span class="card-kicker">MOST RECENT STUDIO ROLE // 2024–2026</span>
+          <span class="card-kicker">MOST RECENT STUDIO ROLE // 2024-2026</span>
           <h3>Studio Design Director</h3>
           <p>At Mob Entertainment, I oversaw design operations and creative quality across five active studio titles, including annual <strong>Poppy Playtime</strong> chapters, while scaling the design department into specialized Game, Level, Technical, and Cinematic Design teams. I also served as Game Director on an unannounced project that remains under NDA.</p>
           <div class="tag-row"><span>Mob Entertainment</span><span>Poppy Playtime</span><span>Studio Design</span><span>Game Direction</span></div>
@@ -194,19 +231,19 @@
           <article class="studio-card studio-mob">
             <img class="studio-image" src="assets/career-real/mob-poppy.webp" alt="" aria-hidden="true" />
             <strong>Mob Entertainment</strong>
-            <span>Studio Design Director / Game Director · 2024–2026</span>
+            <span>Studio Design Director / Game Director · 2024-2026</span>
             <div class="studio-art" aria-hidden="true">POPPY PLAYTIME</div>
           </article>
           <article class="studio-card studio-oberha5li">
             <img class="studio-image" src="assets/career-real/oberha5li.webp" alt="" aria-hidden="true" />
             <strong>Oberha5li</strong>
-            <span>Creative Direction / Lead Design · 2022–2025</span>
+            <span>Creative Direction / Lead Design · 2022-2025</span>
             <div class="studio-art" aria-hidden="true">LIVE PERFORMANCE TOOLS</div>
           </article>
           <article class="studio-card studio-seven20">
             <img class="studio-image" src="assets/career-real/seven20-deadmau5.webp" alt="" aria-hidden="true" />
             <strong>Seven20 &amp; deadmau5</strong>
-            <span>Lead Design · 2021–2023</span>
+            <span>Lead Design · 2021-2023</span>
             <div class="studio-art" aria-hidden="true">deadmau5</div>
           </article>
           <article class="studio-card studio-squareenix">
@@ -218,55 +255,55 @@
           <article class="studio-card studio-gamigo">
             <img class="studio-image" src="assets/career-real/gamigo.webp" alt="" aria-hidden="true" />
             <strong>Gamigo</strong>
-            <span>Localization · 2011–2012</span>
+            <span>Localization · 2011-2012</span>
             <div class="studio-art" aria-hidden="true">LIVE MMORPG</div>
           </article>
           <article class="studio-card studio-aeria">
             <img class="studio-image" src="assets/career-real/aeria-12sky.webp" alt="" aria-hidden="true" />
             <strong>Aeria Games</strong>
-            <span>Community Management / Localization · 2009–2012</span>
+            <span>Community Management / Localization · 2009-2012</span>
             <div class="studio-art" aria-hidden="true">12SKY</div>
           </article>
           <article class="studio-card studio-ncsoft">
             <img class="studio-image" src="assets/career-real/ncsoft-aion.webp" alt="" aria-hidden="true" />
             <strong>NCSoft</strong>
-            <span>Live Content Design · 2010–2011</span>
+            <span>Live Content Design · 2010-2011</span>
             <div class="studio-art" aria-hidden="true">MMORPG LIVE CONTENT</div>
           </article>
           <article class="studio-card studio-changyou">
             <img class="studio-image" src="assets/career-real/changyou.webp" alt="" aria-hidden="true" />
             <strong>ChangYou</strong>
-            <span>Live Content Design / Programming · 2009–2010</span>
+            <span>Live Content Design / Programming · 2009-2010</span>
             <div class="studio-art" aria-hidden="true">WESTERN MMO SYSTEMS</div>
           </article>
           <article class="studio-card studio-ea">
             <img class="studio-image" src="assets/career-real/ea-sports.webp" alt="" aria-hidden="true" />
             <strong>Electronic Arts</strong>
-            <span>Performance Capture · 2008–2010</span>
+            <span>Performance Capture · 2008-2010</span>
             <div class="studio-art" aria-hidden="true">AAA SPORTS</div>
           </article>
           <article class="studio-card studio-insomniac">
             <img class="studio-image" src="assets/career-real/insomniac-ratchet.webp" alt="" aria-hidden="true" />
             <strong>Insomniac Games</strong>
-            <span>Technical Design / Weapons · 2005–2008</span>
+            <span>Technical Design / Weapons · 2005-2008</span>
             <div class="studio-art" aria-hidden="true">WEAPON SYSTEMS</div>
           </article>
           <article class="studio-card studio-naughtydog">
             <img class="studio-image" src="assets/career-real/naughtydog-jak.webp" alt="" aria-hidden="true" />
             <strong>Naughty Dog</strong>
-            <span>Technical Art / Design · 2005–2008</span>
+            <span>Technical Art / Design · 2005-2008</span>
             <div class="studio-art" aria-hidden="true">TECHNICAL DESIGN</div>
           </article>
           <article class="studio-card studio-rockstar">
             <img class="studio-image" src="assets/career-real/rockstar-gta.webp" alt="" aria-hidden="true" />
             <strong>Rockstar Games</strong>
-            <span>Gameplay Design / Tools · 2004–2005</span>
+            <span>Gameplay Design / Tools · 2004-2005</span>
             <div class="studio-art" aria-hidden="true">SECRET CO-OP // AAA SONY</div>
           </article>
           <article class="studio-card studio-sony">
             <img class="studio-image" src="assets/career-real/sony-playstation.webp" alt="" aria-hidden="true" />
             <strong>Sony Computer Entertainment America</strong>
-            <span>QA Internship · 1998–2002</span>
+            <span>QA Internship · 1998-2002</span>
             <div class="studio-art" aria-hidden="true">PROJECT GAP</div>
           </article>
         </div>
@@ -278,14 +315,14 @@
           <p>Not a full résumé, just the milestones that best explain the range.</p>
         </div>
         <div class="career-timeline-list">
-          <article><time>2024–2026</time><div><strong>Mob Entertainment</strong><span>Game Direction and Studio Design leadership across five active titles, including Poppy Playtime.</span></div></article>
-          <article><time>2012–2025</time><div><strong>Creative Technology &amp; Real-Time Media</strong><span>Element3D / Star Trek Into Darkness work, live performance technology, AR ventures, and Unreal Engine show systems with deadmau5 and Seven20.</span></div></article>
-          <article><time>2008–2013</time><div><strong>EA → Aeria / ChangYou / NCSoft / Gamigo → Square Enix</strong><span>Performance capture, live-service systems, MMORPG content, localization, and design/programming support for Tomb Raider and Dragon Quest projects.</span></div></article>
-          <article><time>2004–2008</time><div><strong>Rockstar → Naughty Dog / Insomniac</strong><span>Gameplay mechanics, hidden co-op, weapon systems, VFX, technical art, and internal pipeline tools during an early AAA run.</span></div></article>
-          <article><time>1998–2002</time><div><strong>Sony SCEA</strong><span>Early QA, balance, and bug reporting through Project GAP, followed by Sony-sponsored formal education in game design.</span></div></article>
+          <article><time>2024-2026</time><div><strong>Mob Entertainment</strong><span>Game Direction and Studio Design leadership across five active titles, including Poppy Playtime.</span></div></article>
+          <article><time>2012-2025</time><div><strong>Creative Technology &amp; Real-Time Media</strong><span>Element3D / Star Trek Into Darkness work, live performance technology, AR ventures, and Unreal Engine show systems with deadmau5 and Seven20.</span></div></article>
+          <article><time>2008-2013</time><div><strong>EA → Aeria / ChangYou / NCSoft / Gamigo → Square Enix</strong><span>Performance capture, live-service systems, MMORPG content, localization, and design/programming support for Tomb Raider and Dragon Quest projects.</span></div></article>
+          <article><time>2004-2008</time><div><strong>Rockstar → Naughty Dog / Insomniac</strong><span>Gameplay mechanics, hidden co-op, weapon systems, VFX, technical art, and internal pipeline tools during an early AAA run.</span></div></article>
+          <article><time>1998-2002</time><div><strong>Sony SCEA</strong><span>Early QA, balance, and bug reporting through Project GAP, followed by Sony-sponsored formal education in game design.</span></div></article>
         </div>
       </div>
-      <div class="resume-panel" aria-label="Resume links">
+      <div class="resume-panel" aria-label="Resume links" data-dev-note="CONTENT NOTE // Short, Medium, and Long exist because different readers have very different tolerance for lore.">
         <div class="resume-panel-copy">
           <span class="card-kicker">RESUMES // PICK YOUR VERBOSITY</span>
           <h3>Want the full chronology?</h3>
@@ -300,6 +337,8 @@
 
     </section>
 
+    <!-- CONSULTING NOTE: Sometimes the bug is the design. Sometimes the bug is a meeting that should have been an email. -->
+    <!-- Consulting cards are content, not buttons. We learned that after accidentally giving every noun a hover state. -->
     <section class="section alt" id="consulting" data-scene="consulting">
       <div class="section-heading">
         <div>
@@ -337,6 +376,8 @@
       </div>
     </section>
 
+    <!-- Documentation is gameplay for people who enjoy spreadsheets. I am not judging. -->
+    <!-- DOCUMENTATION NOTE: explaining design clearly is still design work, no matter what Jira says. -->
     <section class="section" id="crafting" data-scene="crafting">
       <div class="section-heading">
         <div>
@@ -364,6 +405,9 @@
       </div>
     </section>
 
+    <!-- GAME DEV TRADITION: This started as one small editor annoyance and became a tools section. -->
+    <!-- TOOLING LAW: any workaround repeated three times is now a feature request. -->
+    <!-- CSS specificity has entered phase three of the boss fight below this point. -->
     <section class="section alt" id="tools" data-scene="tools">
       <div class="section-heading tools-heading">
         <div>
@@ -373,7 +417,7 @@
         <p>Editor tools built to remove friction from real Unreal Engine workflows. Filter by status or visibility.</p>
       </div>
 
-      <div class="filter-bar" role="group" aria-label="Filter Unreal tools">
+      <div class="filter-bar" role="group" aria-label="Filter Unreal tools" data-dev-note="TOOL NOTE // Filter state is intentionally simple. The interesting complexity belongs in the tools, not their portfolio controls.">
         <button type="button" class="filter active" data-filter="all">All</button>
         <button type="button" class="filter" data-filter="released">Released</button>
         <button type="button" class="filter" data-filter="wip">WIP</button>
@@ -438,6 +482,7 @@
         </div>
       </div>
 
+      <!-- Somewhere, a producer just asked whether this entire section can be finished before lunch. -->
       <div class="tool-feature-grid">
       <div class="tool-feature azure-altar" role="button" tabindex="0" aria-label="Open Azure Altar screenshot gallery" data-dev-note="R&amp;D NOTE // Azure Altar survives engine upgrades on purpose. If a workflow only works in a vacuum, it is not much of a workflow.">
         <div class="tool-feature-visual" aria-hidden="true"></div>
@@ -465,9 +510,10 @@
       </div>
       </div>
 
+      <!-- Community support is the original live service. -->
       <div class="unreal-resources">
         <div class="resource-intro"><span class="card-kicker">UNREAL COMMUNITY // KEEP LEARNING</span><h3>Two places every Unreal developer should know.</h3><p>Whether you're opening Unreal for the first time or have shipped with it for years, the engine gets better when you stay connected to the people using it and the material Epic publishes for it.</p></div>
-        <article class="resource-card unreal-source-card">
+        <article class="resource-card unreal-source-card" data-dev-note="COMMUNITY NOTE // Unreal Source is here because game development is easier when people share the weird fix that took them six hours.">
           <img src="https://unrealsource.com/content/images/2024/04/site-logo.svg" alt="Unreal Source" />
           <div><span class="card-kicker">COMMUNITY</span><h3>Unreal Source</h3><p>Join more than 130,000 Unreal developers sharing answers, workflows, discoveries, and hard-earned lessons.</p><div class="resource-actions"><a href="https://unrealsource.com/" target="_blank" rel="noreferrer">Visit Website ↗</a><a class="primary" href="https://discord.gg/unrealsource" target="_blank" rel="noreferrer">Join Discord ↗</a></div></div>
         </article>
@@ -483,11 +529,13 @@
       </div>
     </section>
 
+    <!-- MEMORY NOTE: About scenes are intentionally lighter than the hero. Two full-fat render loops would be a performance review for the wrong reason. -->
+    <!-- ABOUT PAGE RULE: eventually every portfolio needs a dog. -->
     <section class="section" id="about" data-scene="about">
       <div class="section-heading">
         <div>
           <p class="eyebrow">06 // ABOUT</p>
-          <h2>Mippi the Dork</h2>
+          <h2>MIPPI THE DORK</h2>
         </div>
         <p>Veteran game designer, design leader, consultant, game design educator, and Unreal Engine toolmaker. Still making games, building useful things, helping other developers, and staying close to the actual craft.</p>
       </div>
@@ -499,7 +547,7 @@
           <div class="about-years"><span class="big-number">25+</span><span>Years professionally<br />in game development</span></div>
           <div class="about-scene-label" aria-hidden="true">EXPERIENCE // STILL IN MOTION</div>
         </div>
-        <div class="about-links"><div class="about-links-label">ELSEWHERE // FIND ME ONLINE</div>
+        <div class="about-links" data-dev-note="NETWORK NOTE // External links are the one subsystem on this page that intentionally leaves the level."><div class="about-links-label">ELSEWHERE // FIND ME ONLINE</div>
           <a href="https://www.linkedin.com/in/mippithedork/" target="_blank" rel="noreferrer">LinkedIn <span>↗</span></a>
           <a href="https://crafting-play.vercel.app/" target="_blank" rel="noreferrer">Crafting Play <span>↗</span></a>
           <a href="https://github.com/mippi-the-dork" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
@@ -520,12 +568,18 @@
     </section>
   </main>
 
+  <!-- RELEASE NOTE: Never trust a task described as "just one last polish pass." -->
+  <!-- GIPITI: I think we are done. -->
+  <!-- MIPPI: Cool. Tiny thing. -->
+  <!-- GIPITI: There is no such thing as a tiny thing anymore. -->
+  <!-- The last 10 percent of polish is 90 percent of the commits. -->
   <footer class="site-footer">
     <span>© 2026 MIPPI THE DORK // DESIGN SYSTEM // ONLINE</span>
-    <a href="#top">Return to top ↑</a>
+    <a href="#top" id="return-to-top">Return to top ↑</a>
   </footer>
 
 
+  <!-- Screenshot modal. Because apparently screenshots need their own cinematic presentation now. -->
   <div class="azure-gallery" id="azure-gallery" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Azure Altar screenshot gallery">
     <button class="azure-gallery-backdrop" type="button" aria-label="Close gallery"></button>
     <div class="azure-gallery-shell">
@@ -543,32 +597,140 @@
     </div>
   </div>
 
+  <!-- Achievement state is local. Your browser is now technically a save-game system. -->
   <div class="achievement" id="achievement" role="status" aria-live="polite" aria-atomic="true">
-    <div class="achievement-topline"><span>ACHIEVEMENT UNLOCKED</span><b id="achievement-progress">0 / 10 FOUND</b></div>
+    <button class="achievement-close" id="achievement-close" type="button" aria-label="Close message">×</button>
+    <div class="achievement-topline"><span id="achievement-label">ACHIEVEMENT UNLOCKED</span><b id="achievement-progress">0 / 10 FOUND</b></div>
     <strong id="achievement-title">Curious Mind</strong>
-    <small id="achievement-detail">You kept clicking it.</small>
+    <small id="achievement-detail">You clicked the logo. Of course you did.</small>
   </div>
+  <button class="hint-trigger" id="hint-trigger" type="button" aria-controls="achievement">HINT</button>
 
-  <button class="ledger-trigger" id="ledger-trigger" type="button" aria-controls="achievement-ledger" aria-expanded="false">SIGNALS <b id="ledger-count">0/10</b></button>
+  <div class="discovery-controls" id="discovery-controls" data-dev-note="PROGRESSION NOTE // Signals unlock the Epic theme. A properly granted wish unlocks Legendary. Rare is always available.">
+    <button class="ledger-trigger" id="ledger-trigger" type="button" aria-controls="achievement-ledger" aria-expanded="false">SIGNALS <b id="ledger-count">0/10</b></button>
+    <button class="theme-cycle-trigger" id="theme-cycle" type="button" title="Explore the site to unlock more themes.">Theme: Rare</button>
+  </div>
+  <!-- Tiny HUD, because apparently the portfolio has health and an economy now. The sprint estimate remains unchanged. -->
+  <div class="progress-hud" id="progress-hud" aria-label="Collection status">
+    <div class="rupee-meter" id="rupee-meter" title="Rupees collected from flying pickups."><span>RUPEES</span><b id="rupee-count">0</b></div>
+    <div class="heart-meter" id="heart-meter" aria-label="Heart pickups: 0 of 5" title="Collect heart pickups hidden around the site.">
+      <span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>♡</span>
+    </div>
+  </div>
   <aside class="achievement-ledger" id="achievement-ledger" aria-hidden="true" aria-label="Achievement ledger">
     <div class="ledger-head"><div><span>DISCOVERY SYSTEM</span><h3>Achievement Ledger</h3></div><button type="button" id="ledger-close" aria-label="Close achievement ledger">×</button></div>
-    <p class="ledger-copy">Some things on this page reward curiosity. Undiscovered entries stay classified.</p>
+    <p class="ledger-copy">Some things on this page reward curiosity. Undiscovered entries carry a trace, not an answer.</p>
     <div class="ledger-list" id="ledger-list"></div>
     <div class="ledger-controls">
       <button type="button" id="inspect-toggle">Inspect Mode</button>
-      <button type="button" id="theme-toggle" disabled>Completion Theme Locked</button>
     </div>
-    <small>Tip: developers always leave a console somewhere.</small>
+    <small class="ledger-console-tip">Tip: Press <button type="button" id="console-tip-button" aria-label="Open developer console">~</button> to open the dev console.</small>
   </aside>
 
+  <div class="blueprint-popup" id="blueprint-popup" aria-hidden="true">
+    <div class="blueprint-window" role="dialog" aria-modal="true" aria-labelledby="blueprint-title">
+      <div class="blueprint-titlebar"><span id="blueprint-title">BP_WishManager // Event Graph</span><button type="button" id="blueprint-close" aria-label="Close Blueprint window">×</button></div>
+      <div class="blueprint-toolbar"><b>Compile</b><span>Save</span><span>Browse</span><span>Class Settings</span><i>DEBUG OBJECT: None</i></div>
+      <div class="blueprint-stage" id="blueprint-stage">
+        <!-- The wires are calculated from the actual pin positions in script.js. Hardcoded graph coordinates lasted exactly one version. Very Unreal. -->
+        <svg class="bp-wires" aria-hidden="true">
+          <path class="bp-wire bp-wire-direct" />
+          <path class="bp-wire bp-wire-valid-a" />
+          <path class="bp-wire bp-wire-valid-b" />
+        </svg>
+        <div class="bp-node bp-event"><div class="bp-node-head">EVENT</div><strong>Wish Event</strong><span class="bp-pin out">Exec <i id="bp-event-exec-out"></i></span><small>Wish Text</small></div>
+        <button class="bp-add-valid" id="blueprint-add-valid" type="button" aria-label="Insert Is Valid node">+</button>
+        <div class="bp-node bp-valid"><div class="bp-node-head">UTILITY</div><strong>Is Valid</strong><span class="bp-pin in"><i id="bp-valid-exec-in"></i>Exec</span><span class="bp-pin out valid">Is Valid <i id="bp-valid-exec-out"></i></span><small>WishFulfillment</small></div>
+        <div class="bp-node bp-grant"><div class="bp-node-head">FUNCTION</div><strong>Grant Wish</strong><span class="bp-pin in"><i id="bp-grant-exec-in"></i>Exec</span><small>Wish Text</small></div>
+      </div>
+      <div class="blueprint-status" id="blueprint-status">GRAPH STATUS // 1 POSSIBLE RUNTIME ERROR</div>
+    </div>
+  </div>
+
+  <div class="compile-popup" id="compile-popup" aria-hidden="true">
+    <div class="compile-window" role="dialog" aria-modal="true" aria-labelledby="compile-title">
+      <div class="compile-icon">UE</div>
+      <div class="compile-copy"><strong id="compile-title">Compiling Shaders (639,427)</strong><small>Please wait. Editor responsiveness may be reduced.</small></div>
+      <div class="compile-progress"><i id="compile-bar"></i></div><b id="compile-percent">0%</b>
+      <button type="button" id="compile-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Wish fulfillment has passed QA. QA was not invited to verify that statement. -->
+  <div class="wish-contact-popup wish-special-popup" id="wish-contact-popup" aria-hidden="true">
+    <div class="wish-special-window contact-window" role="dialog" aria-modal="true" aria-labelledby="wish-contact-title">
+      <button class="wish-special-close" id="wish-contact-close" type="button" aria-label="Close Contact Mippi">×</button>
+      <span class="wish-special-kicker">WISH FULFILLMENT // CONTACT ROUTE</span>
+      <h3 id="wish-contact-title">Contact Mippi</h3>
+      <p>Your wish is granted. Mippi is available to work on your project.</p>
+      <div class="wish-contact-actions">
+        <a href="https://discord.com/users/84656708814659584" target="_blank" rel="noreferrer">Discord</a>
+        <a href="https://www.linkedin.com/in/mippithedork/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a href="mailto:mippithedork@gmail.com">Email Mippi</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="blender-popup wish-special-popup" id="blender-popup" aria-hidden="true">
+    <div class="wish-special-window blender-window" role="dialog" aria-modal="true" aria-labelledby="blender-title">
+      <span class="wish-special-kicker">UNIVERSE MAINTENANCE</span>
+      <h3 id="blender-title">Uninstalling Blender from Earth-1218</h3>
+      <p id="blender-status">Locating installations...</p>
+      <div class="blender-progress"><i id="blender-bar"></i></div>
+      <b id="blender-percent">0%</b>
+      <button id="blender-ok" type="button" disabled>OK</button>
+    </div>
+  </div>
+
+  <!-- Five hearts later, the site stops pretending it is not a Zelda reference. -->
+  <div class="unreal-gift-popup wish-special-popup" id="unreal-gift-popup" aria-hidden="true">
+    <div class="wish-special-window unreal-gift-window" role="dialog" aria-modal="true" aria-labelledby="unreal-gift-title">
+      <span class="wish-special-kicker">FULL HEARTS // COMMUNITY ITEM FOUND</span>
+      <h3 id="unreal-gift-title">IT'S DANGEROUS TO GAME DEV ALONE! TAKE THIS.</h3>
+      <img class="unreal-gift-logo" src="https://unrealsource.com/content/images/2024/04/site-logo.svg" alt="Unreal Source" />
+      <p>Turns out the legendary item was other developers who know why your build broke.</p>
+      <div class="unreal-gift-actions">
+        <a id="unreal-gift-accept" href="https://discord.gg/unrealsource" target="_blank" rel="noreferrer">Accept</a>
+        <button id="unreal-gift-decline" type="button">No Thanks</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hal-overlay" id="hal-overlay" aria-hidden="true">
+    <div class="hal-eye" aria-hidden="true"><i></i></div>
+  </div>
+
+  <!-- ECONOMY NOTE: We now track rupees despite having zero shops. This is how feature dependencies are born. -->
+  <!-- Every respectable piece of software eventually grows a console. Every irresponsible one hides jokes in it. -->
+  <!-- FEATURE REQUEST TRIAGE: "Can the portfolio have Flappy Bird?" somehow survived prioritization. -->
+  <!-- CSS specificity is just aggro management for selectors. -->
   <div class="dev-console" id="dev-console" aria-hidden="true">
-    <div class="console-head"><span>MIPPI // DEV CONSOLE</span><button type="button" id="console-close" aria-label="Close console">×</button></div>
+    <div class="console-head"><span>MIPPI // DEV CONSOLE</span><small>use the command &quot;help&quot; to see a list of commands</small><button type="button" id="console-close" aria-label="Close console">×</button></div>
     <div class="console-output" id="console-output" aria-live="polite"><div>Type <b>help</b> for commands.</div></div>
     <form class="console-input-row" id="console-form"><span>&gt;</span><input id="console-input" autocomplete="off" spellcheck="false" aria-label="Developer console command" /></form>
   </div>
 
-  <script defer src="script.js?v=2.27"></script>
+  <!-- Shipping web code is just packaging a game where every platform is a different browser and nobody agreed on input. -->
+  <!-- PERF NOTE: If this comment has become the hottest thing in the profile, something has gone very wrong. -->
+  <!-- LEGACY SUPPORT: Netscape Navigator compatibility pending executive approval. -->
+  <!-- TODO FROM 2003: replace spacer.gif with something modern. We cannot find spacer.gif. -->
+  <!-- BUILD NOTE: Works on my machine remains undefeated as a cross-platform certification process. -->
+  <!-- DESIGN NOTE: If you found this comment with debug, the metagame is functioning as intended. -->
+  <!-- PRODUCTION NOTE: This feature was estimated at "like twenty minutes." Nobody wrote down who said that. -->
+  <!-- If you are reading this source looking for secrets, yes, that absolutely counts as playing. -->
+  <!-- This site started as a portfolio. It currently has achievements, cheat codes, shader compilation, wishes, and a dog progression system. Scope is healthy. -->
+  <!-- CACHE NOTE: If a change is definitely deployed and definitely invisible, congratulations on meeting browser caching. -->
+  <!-- SEMANTIC HTML NOTE: buttons do things, links go places, and divs are still being asked to cover several open positions. -->
+  <!-- QA NOTE: Tested by clicking everything until either the feature worked or morale improved. -->
+  <!-- NETWORK NOTE: no analytics package was invited to this party. Your UFO kill count remains between you and the browser tab. -->
+  <!-- TODO: add unit test for "Doug approves this acquisition." Priority: spiritually critical. -->
+  <!-- GIPITI: Can we at least delete the dead comments before release? -->
+  <!-- MIPPI: No, people like them. -->
+  <!-- GIPITI: This conversation is itself now a comment. -->
+  <!-- MIPPI: Perfect, ship it. -->
+  <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
+  <script defer src="script.js?v=2.43"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.27 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.43 -->

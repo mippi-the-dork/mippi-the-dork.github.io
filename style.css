@@ -6939,7 +6939,7 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
 .doug-review-board .wish-sequence-close.ready{border-color:#ffd166;color:#fff0bd;background:rgba(255,209,102,.08);}
 .game-success-window .wish-sequence-close.ready{border-color:#78ebbb;color:#e5fff4;background:rgba(72,220,160,.08);}
 
-/* v2.77 // Header music player + console help state polish */
+/* v2.78 // Header music player alignment + console help state polish */
 .site-header{overflow:visible;}
 
 /* The 100% reward now belongs to the sticky header instead of the bottom-right
@@ -6947,7 +6947,7 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
 .site-header > .music-player{
   position:absolute;
   top:calc(100% + 1px);
-  left:max(76px,calc((100vw - var(--max))/2 + 56px));
+  left:max(20px,calc((100vw - var(--max))/2));
   right:auto;
   bottom:auto;
   z-index:24;
@@ -7055,4 +7055,4 @@ body.theme-complete.theme-legendary .site-header > .music-player .music-track-li
   }
 }
 
-/* v2.77 // Music player aligns to the brand-copy text edge: header inset + 44px mark + 12px gap. */
+/* v2.78 // Music player aligns to the left edge of the Mippi logo square / header content inset. */

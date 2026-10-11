@@ -1,6 +1,6 @@
-// v2.77 // Header music player + console help polish + local preview hardening
+// v2.78 // Header music player + console help polish + local preview hardening
 const mippiRuntimeHealth={
-  version:'2.77',
+  version:'2.78',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -4229,7 +4229,7 @@ const COMMANDS = {
   dev(args=''){ devCommand(args); },
   help(){ listCommands(); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.77 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.78 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },

@@ -6881,11 +6881,11 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
   font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
 }
 .music-player[hidden]{display:none !important;}
-.music-player header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,200,61,.18);}
-.music-player header span,.music-player header strong{display:block;}
-.music-player header span{color:#55ddd9;font-size:7px;font-weight:900;letter-spacing:.14em;}
-.music-player header strong{margin-top:4px;color:#fff0b5;font-size:12px;letter-spacing:.04em;}
-.music-player header button{width:28px;height:28px;padding:0;border:1px solid rgba(255,200,61,.34);background:rgba(255,255,255,.025);color:#fff0b5;cursor:pointer;}
+.music-player .music-player-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,200,61,.18);}
+.music-player .music-player-head span,.music-player .music-player-head strong{display:block;}
+.music-player .music-player-head span{color:#55ddd9;font-size:7px;font-weight:900;letter-spacing:.14em;}
+.music-player .music-player-head strong{margin-top:4px;color:#fff0b5;font-size:12px;letter-spacing:.04em;}
+.music-player .music-player-head button{width:28px;height:28px;padding:0;border:1px solid rgba(255,200,61,.34);background:rgba(255,255,255,.025);color:#fff0b5;cursor:pointer;}
 .music-now{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;color:#9fdeda;font-size:7px;font-weight:800;letter-spacing:.08em;}
 .music-now b{color:#d8c789;font-size:7px;}
 .music-controls{display:grid;grid-template-columns:auto auto auto 1fr;gap:6px;margin-top:9px;}
@@ -6899,7 +6899,7 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
 .music-track-list button.active{border-color:rgba(255,200,61,.48);background:rgba(255,200,61,.08);color:#fff0b5;}
 .music-player.collapsed{width:min(246px,calc(100vw - 36px));}
 .music-player.collapsed .music-now,.music-player.collapsed .music-controls,.music-player.collapsed .music-track-list{display:none;}
-.music-player.collapsed header{padding-bottom:0;border-bottom:0;}
+.music-player.collapsed .music-player-head{padding-bottom:0;border-bottom:0;}
 .music-player.new-unlock{animation:music-player-unlock 1s ease-in-out 4;}
 @keyframes music-player-unlock{50%{box-shadow:0 0 28px rgba(255,200,61,.46),0 0 46px rgba(85,221,217,.18),0 20px 56px rgba(0,0,0,.48);}}
 @media(max-width:760px){
@@ -6938,3 +6938,119 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
 }
 .doug-review-board .wish-sequence-close.ready{border-color:#ffd166;color:#fff0bd;background:rgba(255,209,102,.08);}
 .game-success-window .wish-sequence-close.ready{border-color:#78ebbb;color:#e5fff4;background:rgba(72,220,160,.08);}
+
+/* v2.76 // Header music player + console help state polish */
+.site-header{overflow:visible;}
+
+/* The 100% reward now belongs to the sticky header instead of the bottom-right
+   gameplay controls. Its top edge is the anchor: expanding only grows down. */
+.site-header > .music-player{
+  position:absolute;
+  top:calc(100% + 1px);
+  left:max(20px,calc((100vw - var(--max))/2 + 95px));
+  right:auto;
+  bottom:auto;
+  z-index:24;
+  width:min(326px,calc(100vw - 40px));
+  max-height:min(520px,calc(100vh - var(--header) - 18px));
+  overflow:auto;
+  padding:11px;
+  border:1px solid rgba(47,147,255,.52);
+  background:linear-gradient(150deg,rgba(8,20,34,.98),rgba(5,12,20,.98));
+  color:#dff1ff;
+  box-shadow:0 18px 48px rgba(0,0,0,.48),inset 2px 0 0 rgba(47,147,255,.52);
+  transform:none;
+  transform-origin:top left;
+}
+.site-header > .music-player.collapsed{width:min(266px,calc(100vw - 40px));overflow:hidden;}
+.site-header > .music-player > .music-player-head{border-bottom-color:rgba(47,147,255,.20);}
+.site-header > .music-player > .music-player-head span{color:#67cfff;}
+.site-header > .music-player > .music-player-head strong{color:#e9f6ff;}
+.site-header > .music-player > .music-player-head button{border-color:rgba(47,147,255,.38);color:#bfe5ff;}
+.site-header > .music-player .music-now{color:#8fcfff;}
+.site-header > .music-player .music-now b{color:#a9c9e3;}
+.site-header > .music-player .music-controls button,
+.site-header > .music-player .music-controls a{border-color:rgba(47,147,255,.28);color:#cae9ff;}
+.site-header > .music-player .music-controls button:hover,
+.site-header > .music-player .music-controls button:focus-visible,
+.site-header > .music-player .music-controls a:hover,
+.site-header > .music-player .music-controls a:focus-visible{border-color:#67cfff;color:#fff;}
+.site-header > .music-player .music-track-list button{color:#8ea7bb;}
+.site-header > .music-player .music-track-list button span{color:#67cfff;}
+.site-header > .music-player .music-track-list button.active{border-color:rgba(47,147,255,.52);background:rgba(47,147,255,.09);color:#eef8ff;}
+
+body.theme-complete:not(.theme-legendary) .site-header > .music-player{
+  border-color:rgba(255,79,200,.48);
+  background:linear-gradient(150deg,rgba(31,10,40,.98),rgba(10,15,30,.98));
+  color:#ffe4f8;
+  box-shadow:0 18px 48px rgba(0,0,0,.50),inset 2px 0 0 rgba(103,232,255,.48);
+}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player > .music-player-head{border-bottom-color:rgba(255,79,200,.20);}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player > .music-player-head span,
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-track-list button span{color:#67e8ff;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player > .music-player-head strong{color:#ffdff7;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player > .music-player-head button,
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-controls button,
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-controls a{border-color:rgba(255,79,200,.32);color:#ffd6f3;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-now{color:#d9a6ff;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-now b{color:#67e8ff;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player .music-track-list button.active{border-color:rgba(255,79,200,.54);background:rgba(196,72,255,.10);color:#ffe8fb;}
+
+body.theme-complete.theme-legendary .site-header > .music-player{
+  border-color:rgba(255,200,61,.46);
+  background:linear-gradient(150deg,rgba(36,23,6,.98),rgba(7,24,24,.98));
+  color:#fff1bc;
+  box-shadow:0 18px 48px rgba(0,0,0,.50),inset 2px 0 0 rgba(85,221,217,.48);
+}
+body.theme-complete.theme-legendary .site-header > .music-player > .music-player-head{border-bottom-color:rgba(255,200,61,.18);}
+body.theme-complete.theme-legendary .site-header > .music-player > .music-player-head span,
+body.theme-complete.theme-legendary .site-header > .music-player .music-track-list button span{color:#55ddd9;}
+body.theme-complete.theme-legendary .site-header > .music-player > .music-player-head strong{color:#fff0b5;}
+body.theme-complete.theme-legendary .site-header > .music-player > .music-player-head button,
+body.theme-complete.theme-legendary .site-header > .music-player .music-controls button,
+body.theme-complete.theme-legendary .site-header > .music-player .music-controls a{border-color:rgba(255,200,61,.30);color:#f7e6a9;}
+body.theme-complete.theme-legendary .site-header > .music-player .music-now{color:#9fdeda;}
+body.theme-complete.theme-legendary .site-header > .music-player .music-now b{color:#d8c789;}
+body.theme-complete.theme-legendary .site-header > .music-player .music-track-list button.active{border-color:rgba(255,200,61,.48);background:rgba(255,200,61,.08);color:#fff0b5;}
+
+/* "wish" is always a crisp rainbow special command. The previous clickable
+   help rule reset its background to transparent while text remained clipped,
+   which left only the glow and made the word look like a smudge. */
+.console-help-command.console-wish-command,
+.console-help-command.console-wish-command:hover,
+.console-help-command.console-wish-command:focus-visible{
+  color:transparent !important;
+  background:linear-gradient(90deg,#ff3b30,#ff9500,#ffcc00,#34c759,#00c7be,#0a84ff,#bf5af2,#ff2d55,#ff3b30) !important;
+  background-size:260% 100% !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+  font-weight:900;
+  text-shadow:none !important;
+  filter:drop-shadow(0 0 2px rgba(103,232,255,.30));
+  animation:console-wish-rainbow 1.35s linear infinite;
+}
+.console-help-command.console-wish-command.console-wish-ready{
+  filter:drop-shadow(0 0 3px rgba(103,232,255,.66));
+}
+
+/* Blueprint becomes a live error-state command while the Wish reference is
+   broken, including help text that was printed before the error occurred. */
+.console-help-command.console-blueprint-error{
+  color:#ff515f !important;
+  -webkit-text-fill-color:#ff515f !important;
+  text-shadow:0 0 8px rgba(255,55,70,.58) !important;
+  animation:console-blueprint-help-alert .85s ease-in-out infinite alternate;
+}
+@keyframes console-blueprint-help-alert{to{color:#ff9aa3;text-shadow:0 0 12px rgba(255,55,70,.84);}}
+
+@media(max-width:760px){
+  .site-header > .music-player,
+  .site-header > .music-player.collapsed{
+    left:12px;
+    right:12px;
+    bottom:auto;
+    width:auto;
+    max-width:none;
+  }
+}

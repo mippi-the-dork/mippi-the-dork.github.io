@@ -10,7 +10,8 @@
   <title>Mippi The Dork | Game Designer, Design Director, Consultant</title>
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.72" />
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" crossorigin>
+  <link rel="stylesheet" href="style.css?v=2.76" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -54,6 +55,22 @@
       <a href="#tools">Tools</a>
       <a href="#about">About</a>
     </nav>
+    <!-- TRUE COMPLETION REWARD: six user-authored soundtrack slots. Files can be dropped into assets/music without changing the player. -->
+    <section class="music-player" id="music-player" aria-label="Unlocked music player" hidden>
+      <div class="music-player-head">
+        <div><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
+        <button id="music-collapse" type="button" aria-label="Collapse music player">−</button>
+      </div>
+      <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 6</b></div>
+      <div class="music-controls">
+        <button id="music-prev" type="button" aria-label="Previous song">PREV</button>
+        <button id="music-play" type="button">PLAY</button>
+        <button id="music-next" type="button" aria-label="Next song">NEXT</button>
+        <a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
+      </div>
+      <div class="music-track-list" id="music-track-list" aria-label="Song list"></div>
+      <audio id="music-audio" preload="metadata"></audio>
+    </section>
   </header>
 
   <div class="hardware-warning" id="hardware-warning" role="status" aria-live="polite">
@@ -818,23 +835,6 @@
     </div>
   </div>
 
-  <!-- TRUE COMPLETION REWARD: six user-authored soundtrack slots. Files can be dropped into assets/music without changing the player. -->
-  <section class="music-player" id="music-player" aria-label="Unlocked music player" hidden>
-    <header>
-      <div><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
-      <button id="music-collapse" type="button" aria-label="Collapse music player">−</button>
-    </header>
-    <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 6</b></div>
-    <div class="music-controls">
-      <button id="music-prev" type="button" aria-label="Previous song">PREV</button>
-      <button id="music-play" type="button">PLAY</button>
-      <button id="music-next" type="button" aria-label="Next song">NEXT</button>
-      <a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
-    </div>
-    <div class="music-track-list" id="music-track-list" aria-label="Song list"></div>
-    <audio id="music-audio" preload="metadata"></audio>
-  </section>
-
   <!-- Every respectable piece of software eventually grows a console. Every irresponsible one hides jokes in it. -->
   <!-- FEATURE REQUEST TRIAGE: "Can the portfolio have Flappy Bird?" somehow survived prioritization. -->
   <!-- CSS specificity is just aggro management for selectors. -->
@@ -863,9 +863,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.74"></script>
-  <script defer src="perspective-demo.js?v=2.74"></script>
+  <script defer src="script.js?v=2.76"></script>
+  <script defer src="perspective-demo.js?v=2.76"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.74 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.76 -->

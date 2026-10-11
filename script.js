@@ -1,6 +1,6 @@
-// v2.74 // Hidden DEV command category
+// v2.76 // Header music player + console help polish + local preview hardening
 const mippiRuntimeHealth={
-  version:'2.74',
+  version:'2.76',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -2697,15 +2697,27 @@ function consoleAttentionState(){
   }
   return null;
 }
+function updateConsoleHelpCommandVisuals(){
+  document.querySelectorAll('.console-wish-command').forEach(el=>{
+    el.classList.toggle('console-wish-ready',hasWishCharge());
+    el.title=hasWishCharge()?'Celestial charge ready // run wish': 'Run: wish';
+  });
+  document.querySelectorAll('[data-console-command="blueprint"]').forEach(el=>{
+    el.classList.toggle('console-blueprint-error',wishBlueprintErrorActive&&!wishHasIsValid);
+    el.title=(wishBlueprintErrorActive&&!wishHasIsValid)?'REPAIR REQUIRED // open BP_WishManager':'Run: blueprint';
+  });
+}
 function updateConsoleAttention(){
-  if(!consoleTipButton) return;
   const state=consoleAttentionState();
-  consoleTipButton.classList.toggle('attention-ready',!!state);
-  consoleTipButton.classList.toggle('attention-wish',state?.kind==='wish');
-  consoleTipButton.classList.toggle('attention-blueprint',state?.kind==='blueprint');
-  consoleTipButton.textContent=state?.label||'TIP // ~ DEV CONSOLE';
-  consoleTipButton.title=state?.title||'Press ~ to open the Dev Console.';
-  consoleTipButton.setAttribute('aria-label',state?.title||'Open developer console');
+  if(consoleTipButton){
+    consoleTipButton.classList.toggle('attention-ready',!!state);
+    consoleTipButton.classList.toggle('attention-wish',state?.kind==='wish');
+    consoleTipButton.classList.toggle('attention-blueprint',state?.kind==='blueprint');
+    consoleTipButton.textContent=state?.label||'TIP // ~ DEV CONSOLE';
+    consoleTipButton.title=state?.title||'Press ~ to open the Dev Console.';
+    consoleTipButton.setAttribute('aria-label',state?.title||'Open developer console');
+  }
+  updateConsoleHelpCommandVisuals();
 }
 function scheduleWishShootingStar(){
   window.setTimeout(()=>{
@@ -2742,12 +2754,7 @@ function consolePrintUnrealCommands(){
   consolePrintCommandGroup('UNREAL',['stat fps','stat unit','stat none','blueprint','compile','slowmo','easy mode','lumen','nanite']);
 }
 
-function updateWishCommandVisuals(){
-  document.querySelectorAll('.console-wish-command').forEach(el=>{
-    el.classList.toggle('console-wish-ready',hasWishCharge());
-    el.title=hasWishCharge()?'Celestial charge ready':'Requires a Shooting Star charge';
-  });
-}
+function updateWishCommandVisuals(){ updateConsoleHelpCommandVisuals(); }
 function persistWishCharge(){ try{localStorage.setItem(WISH_CHARGE_KEY,String(wishCharge));}catch(_){} updateWishCommandVisuals(); updateConsoleAttention(); updateMetaTrace(); renderLedger(); syncProgressHudPosition(); }
 function grantWishCharge(source='CELESTIAL SIGNAL'){
   const firstCommand=!hasWish();
@@ -4222,7 +4229,7 @@ const COMMANDS = {
   dev(args=''){ devCommand(args); },
   help(){ listCommands(); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.75 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.76 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -5669,14 +5676,15 @@ window.setInterval(updateFinaleReady,6500);window.setTimeout(updateFinaleReady,2
 // Shared Three.js loader. PreviewLocal.bat serves the site over localhost so module imports behave like GitHub Pages.
 let threePromise;
 let threeRecoveryTimer=null;
+const THREE_LOCAL_PREVIEW=/^(?:localhost|127\.0\.0\.1)$/.test(location.hostname);
 const THREE_MODULE_SOURCES=[
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.180.0/three.module.js',
   'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.180.0/three.module.js',
   'https://unpkg.com/three@0.180.0/build/three.module.js?module',
   'https://esm.sh/three@0.180.0',
   'https://esm.run/three@0.180.0'
 ];
-function scheduleThreeRecovery(delay=12000){
+function scheduleThreeRecovery(delay=THREE_LOCAL_PREVIEW?1200:7000){
   if(threeRecoveryTimer!=null)return;
   threeRecoveryTimer=window.setTimeout(()=>{
     threeRecoveryTimer=null;
@@ -5688,7 +5696,7 @@ function scheduleThreeRecovery(delay=12000){
     if(!mippiRuntimeHealth.three.about)initAboutScene();
   },delay);
 }
-async function importThreeFromFirstAvailable(timeoutMs=9000){
+async function importThreeFromFirstAvailable(timeoutMs=THREE_LOCAL_PREVIEW?3500:8000){
   const attempts=THREE_MODULE_SOURCES.map(src=>{
     mippiRuntimeHealth.three.attempts.push(src);
     return import(src).then(module=>({module,src})).catch(error=>{
@@ -5725,6 +5733,15 @@ window.addEventListener('online',()=>{
     if(threeRecoveryTimer!=null){window.clearTimeout(threeRecoveryTimer);threeRecoveryTimer=null;}
     scheduleThreeRecovery(750);
   }
+});
+window.addEventListener('load',()=>{
+  if(!THREE_LOCAL_PREVIEW)return;
+  window.setTimeout(()=>{
+    if(mippiRuntimeHealth.three.hero&&mippiRuntimeHealth.three.ambient&&mippiRuntimeHealth.three.about)return;
+    if(threeRecoveryTimer!=null){window.clearTimeout(threeRecoveryTimer);threeRecoveryTimer=null;}
+    threePromise=null;
+    scheduleThreeRecovery(50);
+  },5000);
 });
 
 // Three.js scene. The site remains fully usable if this import fails.

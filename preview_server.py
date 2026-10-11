@@ -14,8 +14,8 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
 
 server = ThreadingHTTPServer(("127.0.0.1", 0), NoCacheHandler)
 port = server.server_address[1]
-url = f"http://127.0.0.1:{port}/?v=2.12"
-print(f"Mippi Portfolio v2.12 preview: {url}")
+url = f"http://127.0.0.1:{port}/?v=2.72"
+print(f"Mippi Portfolio v2.72 preview: {url}")
 print("Close this window to stop the preview server.")
 threading.Timer(0.6, lambda: webbrowser.open(url)).start()
 server.serve_forever()

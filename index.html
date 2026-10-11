@@ -10,7 +10,7 @@
   <title>Mippi The Dork | Game Designer, Design Director, Consultant</title>
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.52" />
+  <link rel="stylesheet" href="style.css?v=2.72" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -125,11 +125,6 @@
 
       <div class="featured-project heavy-water" data-project="heavy-water" data-dev-note="DESIGN NOTE // Heavy Water treats camera perspective as a gameplay constraint rather than a presentation trick.">
         <div class="project-visual">
-          <div class="camera-eye" aria-hidden="true" data-label="CAMERA">
-            <div class="eye-lens"></div>
-            <div class="eye-ray"></div>
-          </div>
-          <div class="player-proxy" aria-hidden="true" data-label="PLAYER"><span></span></div>
           <div class="visual-copy">
             <span>SECOND PERSON // HORROR</span>
             <strong>PROJECT HEAVY WATER</strong>
@@ -144,9 +139,39 @@
             <div><dt>Genre</dt><dd>Horror</dd></div>
             <div><dt>Focus</dt><dd>Navigation · Vulnerability · Tension</dd></div>
           </dl>
-          <button class="text-action" type="button" id="second-person-toggle" aria-describedby="second-person-help">Activate Second-Person Lens</button>
-          <p class="lens-help" id="second-person-help">Concept visualization: separates the camera from the player proxy to illustrate the second-person relationship. It is not a gameplay simulation.</p>
         </div>
+        <section class="perspective-demo" data-dev-note="PERSPECTIVE NOTE // Drag the Player and compare the camera source across all three perspective models." data-design-note="DESIGN NOTE // CAMERA OWNERSHIP // The visualizer separates who the player controls from whose eyes provide the camera. Second person becomes legible by comparing it directly against familiar first- and third-person relationships.">
+          <div class="demo-container">
+            <header class="demo-header">
+              <div class="demo-header-copy">
+                <p class="eyebrow">GAME DESIGN // CAMERA PERSPECTIVE</p>
+                <h3>Perspective Visualizer</h3>
+                <p class="subtitle">Drag the Player to compare who you control with whose eyes you see through.</p>
+              </div>
+              <nav class="perspective-nav" aria-label="Camera perspective">
+                <button class="nav-btn" data-mode="1st" type="button">1ST PERSON</button>
+                <button class="nav-btn active" data-mode="2nd" type="button">2ND PERSON</button>
+                <button class="nav-btn" data-mode="3rd" type="button">3RD PERSON</button>
+              </nav>
+            </header>
+            <div class="viewport-grid">
+              <div class="panel map-panel">
+                <div class="canvas-wrapper"><canvas id="mapCanvas" width="480" height="420"></canvas></div>
+                <div class="panel-legend">
+                  <div class="legend-item"><span class="dot player-dot"></span> PLAYER - Player Controlled</div>
+                  <div class="legend-item"><span class="dot companionNpc-dot"></span> COMPANION NPC - AI Controlled</div>
+                </div>
+              </div>
+              <div class="panel view-panel">
+                <div class="canvas-wrapper relative">
+                  <canvas id="viewCanvas" width="480" height="420"></canvas>
+                  <div class="hud-overlay"><div class="hud-top-left">PERSPECTIVE VIEW</div><div class="hud-bottom-right">LIVE CAMERA</div></div>
+                </div>
+                <div class="panel-footer" id="viewDescription">The camera is NPC Controlled from that character's perspective.</div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div class="card-grid two-up games-support-grid">
@@ -606,7 +631,7 @@
   </div>
   <button class="hint-trigger" id="hint-trigger" type="button" aria-controls="achievement">HINT</button>
 
-  <div class="dynamic-objective" id="dynamic-objective" aria-hidden="true" aria-live="polite" data-dev-note="OBJECTIVE NOTE // One short optional goal at a time. The Director chooses them from systems you have already demonstrated interest in.">
+  <div class="dynamic-objective" id="dynamic-objective" aria-hidden="true" aria-live="polite" data-dev-note="OBJECTIVE NOTE // One timed optional goal at a time. The countdown bar communicates the reward window; failure is explicit and never gates progression.">
     <div class="objective-topline"><span id="objective-kicker">OPTIONAL OBJECTIVE</span><button id="objective-dismiss" type="button" aria-label="Dismiss optional objective">×</button></div>
     <strong id="objective-title">Catch any flying pickup.</strong>
     <small id="objective-detail">Optional means optional. Ignore it if something else is more interesting.</small>
@@ -617,22 +642,42 @@
   <div class="discovery-controls" id="discovery-controls" data-dev-note="PROGRESSION NOTE // Signals unlock the Epic theme. A properly granted wish unlocks Legendary. Rare is always available.">
     <button class="ledger-trigger" id="ledger-trigger" type="button" aria-controls="achievement-ledger" aria-expanded="false">SIGNALS <b id="ledger-count">0/10</b></button>
     <button class="theme-cycle-trigger" id="theme-cycle" type="button" title="Explore the site to unlock more themes.">Theme: Rare</button>
+    <button class="console-tip-dock" id="console-tip-button" type="button" aria-label="Open developer console" title="Press ~ to open the Dev Console.">TIP // ~ DEV CONSOLE</button>
   </div>
   <!-- Tiny HUD, because apparently the portfolio has health and an economy now. The sprint estimate remains unchanged. -->
   <div class="progress-hud" id="progress-hud" aria-label="Collection status">
-    <button class="rupee-meter" id="rupee-meter" type="button" aria-controls="shop-popup" title="Open the Rupee shop."><span>RUPEES</span><b id="rupee-count">0</b></button>
-    <div class="heart-meter" id="heart-meter" aria-label="Heart pickups: 0 of 5" title="Collect heart pickups hidden around the site.">
-      <span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>♡</span>
+    <div class="meta-trace" id="meta-trace" aria-live="polite" data-dev-note="PROGRESSION NOTE // This trace appears after Epic so completion still points toward a next discovery." data-design-note="DESIGN NOTE // POST-COMPLETION GUIDANCE // Epic is a milestone, not a dead end. The trace gives a direction without handing over the entire solution.">
+      <span id="meta-trace-kicker">LEGENDARY TRACE</span>
+      <b id="meta-trace-text">Watch the Epic sky.</b>
     </div>
+    <button class="rupee-meter" id="rupee-meter" type="button" aria-controls="shop-popup" title="Open the Rupee shop."><span>RUPEES</span><b id="rupee-count">0</b></button>
+    <button class="heart-meter" id="heart-meter" type="button" aria-label="Heart pickups: 0 of 5" title="Collect heart pickups hidden around the site." disabled>
+      <span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>♡</span>
+    </button>
+    <div class="cool-meter" id="cool-meter" aria-label="Doug coolness: 0 percent" title="Collect Doug Bones to build Coolness." data-dev-note="MORALE NOTE // Doug Bones now build a visible Coolness limit meter." data-design-note="DESIGN NOTE // ANTICIPATION // Coolness makes Doug's temporary limit state legible before it happens. The player can see a payoff approaching, choose to pursue Bones, and then exploit Cool Mode by petting Doug for immediate spawn opportunities.">
+      <div class="cool-meter-top"><span>COOLNESS</span><b id="cool-meter-value">0%</b></div>
+      <div class="cool-meter-track"><i id="cool-meter-fill"></i></div>
+    </div>
+    <div class="invasion-meter" id="invasion-meter" aria-label="Invasion progress: 0 percent" title="Ten UFO kills call a Boss. Every third Boss is a Super Boss." data-design-note="DESIGN NOTE // LONG-ARC PRESSURE // INVASION exposes the arcade escalation that used to be invisible. Regular UFOs build toward Bosses, Boss victories build toward the Super Boss, and the meter lets a player decide whether to keep pushing the arcade thread or return to the portfolio.">
+      <div class="system-meter-top"><span>INVASION</span><b id="invasion-meter-value">0%</b></div>
+      <div class="system-meter-track"><i id="invasion-meter-fill"></i></div>
+    </div>
+    <button class="castle-meter" id="castle-meter" type="button" aria-label="Castle run progress: 0 of 4" title="Check four Castles to complete a Castle Run." data-design-note="DESIGN NOTE // REPEATED JOKE, REAL PAYOFF // The Key and Castle gag can repeat, so the CASTLES meter gives repetition a destination. Four wrong Castles arm a claimable fireworks reward, then the loop resets without pretending the joke needs a giant progression tree." disabled>
+      <div class="system-meter-top"><span>CASTLES</span><b id="castle-meter-value">0 / 4</b></div>
+      <div class="system-meter-track segmented"><i id="castle-meter-fill"></i></div>
+    </button>
   </div>
+
+  <div class="play-mode-controls" id="play-mode-controls" aria-label="Interaction and analysis modes">
+    <button type="button" id="design-toggle" hidden>DESIGN</button>
+    <button type="button" id="inspect-toggle">INSPECT</button>
+    <button class="interact-mode-toggle" id="interact-toggle" type="button" hidden title="Purchase Interact Toggle in the Shop.">INTERACT // ON</button>
+  </div>
+
   <aside class="achievement-ledger" id="achievement-ledger" aria-hidden="true" aria-label="Achievement ledger">
     <div class="ledger-head"><div><span>DISCOVERY SYSTEM</span><h3>Achievement Ledger</h3></div><button type="button" id="ledger-close" aria-label="Close achievement ledger">×</button></div>
     <p class="ledger-copy">Some things on this page reward curiosity. Undiscovered entries carry a trace, not an answer.</p>
     <div class="ledger-list" id="ledger-list"></div>
-    <div class="ledger-controls">
-      <button type="button" id="inspect-toggle">Inspect Mode</button>
-    </div>
-    <small class="ledger-console-tip">Tip: Press <button type="button" id="console-tip-button" aria-label="Open developer console">~</button> to open the dev console.</small>
   </aside>
 
   <div class="blueprint-popup" id="blueprint-popup" aria-hidden="true">
@@ -647,7 +692,8 @@
           <path class="bp-wire bp-wire-valid-b" />
         </svg>
         <div class="bp-node bp-event"><div class="bp-node-head">EVENT</div><strong>Wish Event</strong><span class="bp-pin out">Exec <i id="bp-event-exec-out"></i></span><small>Wish Text</small></div>
-        <button class="bp-add-valid" id="blueprint-add-valid" type="button" aria-label="Insert Is Valid node">+</button>
+        <button class="bp-add-valid" id="blueprint-add-valid" type="button" aria-label="Insert Is Valid node" aria-describedby="blueprint-add-hint"><span aria-hidden="true">+</span></button>
+        <div class="bp-add-hint" id="blueprint-add-hint" role="note">CLICK + TO INSERT <b>Is Valid</b></div>
         <div class="bp-node bp-valid"><div class="bp-node-head">UTILITY</div><strong>Is Valid</strong><span class="bp-pin in"><i id="bp-valid-exec-in"></i>Exec</span><span class="bp-pin out valid">Is Valid <i id="bp-valid-exec-out"></i></span><small>WishFulfillment</small></div>
         <div class="bp-node bp-grant"><div class="bp-node-head">FUNCTION</div><strong>Grant Wish</strong><span class="bp-pin in"><i id="bp-grant-exec-in"></i>Exec</span><small>Wish Text</small></div>
       </div>
@@ -730,6 +776,65 @@
     </div>
   </div>
 
+
+  <!-- ENDING NOTE: Open-ended systems still deserve authored closure. -->
+  <!-- GIPITI: We finished the portfolio. -->
+  <!-- MIPPI: Great. -->
+  <!-- GIPITI: Please do not say "one more thing." -->
+  <!-- MIPPI: So I had an idea for the ending. -->
+  <!-- GIPITI: God damn it. -->
+  <div class="finale-overlay" id="finale-overlay" aria-hidden="true">
+    <div class="finale-center" role="dialog" aria-modal="true" aria-label="Portfolio finale">
+      <img class="finale-mippi-logo" src="assets/mippi-logo-blue-large.png" alt="Mippi logo" />
+      <strong id="finale-line"></strong><span id="finale-subline"></span><b id="finale-profile"></b>
+      <div class="finale-controls" id="finale-controls" hidden>
+        <button id="finale-stats" type="button">VIEW SESSION REPORT</button>
+        <button id="finale-continue" type="button">CONTINUE EXPLORING</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-GAME NOTE: The portfolio has telemetry, so naturally it now has a results screen. -->
+  <div class="session-debrief" id="session-debrief" aria-hidden="true">
+    <div class="session-debrief-window" role="dialog" aria-modal="true" aria-labelledby="session-debrief-title">
+      <button class="session-debrief-close" id="session-debrief-close" type="button" aria-label="Close session report">×</button>
+      <span class="session-debrief-kicker">SESSION COMPLETE // LOCAL TELEMETRY</span>
+      <h3 id="session-debrief-title">PLAYER PROFILE</h3>
+      <p class="session-debrief-summary" id="session-debrief-summary"></p>
+      <div class="session-debrief-grid" id="session-debrief-grid"></div>
+      <div class="session-debrief-observations">
+        <span>NOTABLE BEHAVIOR</span>
+        <div id="session-debrief-observations"></div>
+      </div>
+      <p class="session-debrief-assistance" id="session-debrief-assistance"></p>
+      <div class="session-debrief-actions">
+        <button type="button" data-debrief-share="x">SHARE ON X</button>
+        <button type="button" data-debrief-share="linkedin">LINKEDIN</button>
+        <button type="button" data-debrief-share="facebook">FACEBOOK</button>
+        <button type="button" data-debrief-share="copy">COPY RESULT</button>
+        <button type="button" id="session-debrief-continue">CONTINUE EXPLORING</button>
+      </div>
+      <small>Session behavior stays local to this browser tab. No analytics package was invited.</small>
+    </div>
+  </div>
+
+  <!-- TRUE COMPLETION REWARD: six user-authored soundtrack slots. Files can be dropped into assets/music without changing the player. -->
+  <section class="music-player" id="music-player" aria-label="Unlocked music player" hidden>
+    <header>
+      <div><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
+      <button id="music-collapse" type="button" aria-label="Collapse music player">−</button>
+    </header>
+    <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 6</b></div>
+    <div class="music-controls">
+      <button id="music-prev" type="button" aria-label="Previous song">PREV</button>
+      <button id="music-play" type="button">PLAY</button>
+      <button id="music-next" type="button" aria-label="Next song">NEXT</button>
+      <a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
+    </div>
+    <div class="music-track-list" id="music-track-list" aria-label="Song list"></div>
+    <audio id="music-audio" preload="metadata"></audio>
+  </section>
+
   <!-- Every respectable piece of software eventually grows a console. Every irresponsible one hides jokes in it. -->
   <!-- FEATURE REQUEST TRIAGE: "Can the portfolio have Flappy Bird?" somehow survived prioritization. -->
   <!-- CSS specificity is just aggro management for selectors. -->
@@ -758,8 +863,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.52"></script>
+  <script defer src="script.js?v=2.74"></script>
+  <script defer src="perspective-demo.js?v=2.74"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.52 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.74 -->

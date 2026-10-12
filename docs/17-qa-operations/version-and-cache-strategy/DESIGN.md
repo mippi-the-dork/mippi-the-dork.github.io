@@ -36,7 +36,7 @@ The goal is simple:
 This documentation baseline is:
 
 ```text
-v2.78
+v2.80
 ```
 
 The release label appears in several places.

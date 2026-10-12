@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > GitHub Pages Deployment > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Publishes the portfolio as a static GitHub Pages site with runtime files at the repository root and no backend requirement.
 
@@ -87,9 +87,9 @@ Runtime uses relative paths such as:
 
 ```text
 assets/...
-style.css?v=2.78
-script.js?v=2.78
-perspective-demo.js?v=2.78
+style.css?v=2.80
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 Case must match the deployed file system exactly.
@@ -104,7 +104,7 @@ cdn.jsdelivr.net
 
 Runtime races multiple Three.js module hosts.
 
-The site does not bundle Three.js locally in v2.78.
+The site does not bundle Three.js locally in v2.80.
 
 ## Hosted QA
 
@@ -127,7 +127,7 @@ After deployment:
 If a hosted change appears stale:
 
 - verify deployed source first,
-- verify v2.78-style query string was bumped for the new release,
+- verify v2.80-style query string was bumped for the new release,
 - hard reload only as diagnosis,
 - do not assume a successful hard reload means versioning is correct.
 ## Related Documentation

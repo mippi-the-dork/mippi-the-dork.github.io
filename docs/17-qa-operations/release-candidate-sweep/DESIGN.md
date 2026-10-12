@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Release Candidate Sweep > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Defines the final packaging, validation, local smoke, hosted smoke, and signoff sequence for a shippable portfolio release.
 
@@ -77,7 +77,7 @@ Do not rely on an already-open server tab.
 
 Verify:
 
-- correct v2.78-equivalent version,
+- correct v2.80 version,
 - no startup Console errors,
 - current CSS/JS visible,
 - Three.js either loads or gracefully falls back,

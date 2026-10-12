@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Downloads > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Enables per-track download for the currently selected soundtrack slot only when that track file has been confirmed available.
+**Feature summary:** Lets visitors download any of the 12 installed authored songs using readable title-based filenames.
 
 > This page is the canonical design documentation for **Music Downloads** within the Finale and Postgame category.
 
@@ -12,87 +12,75 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+- [Release History](../../../RELEASE_HISTORY.md)
+
 ## Design Intent
 
-The Music Player is not only a streaming toy.
+The Music Player is both a listening surface and a way to take the authored songs with you.
 
-The user-authored songs are intended to be downloadable individually.
+The current selected track owns the Download action.
 
-The player therefore includes a direct:
+## Installed Audio
 
-`DOWNLOAD`
+All 12 MP3 files ship in v2.80.
 
-action.
-
-## Selected-Track Model
-
-The download control applies to the currently selected track.
-
-To download another song:
-
-1. select its track slot,
-2. wait for availability check,
-3. use Download.
-
-This keeps the compact UI from needing six separate download buttons.
-
-It still provides individual per-track downloads.
-
-## Availability Gate
-
-Download must never point to a file the player has already determined is missing.
-
-Before metadata confirms the selected MP3 exists:
-
-- link points to `#`,
-- `aria-disabled=true`,
-- disabled styling applies.
-
-Clicking it is intercepted.
-
-The status line explains that the track file is not installed yet.
-
-## Native Download Attribute
-
-The player uses a normal HTML anchor with the `download` attribute.
-
-There is no custom fetch/blob download system.
-
-This keeps the feature compatible with static hosting.
-
-## Direct Asset Contract
-
-Once available, the download href is simply the track's MP3 path.
-
-Current file contract:
+Canonical source paths remain stable and numbered:
 
 ```text
 assets/music/song-01.mp3
 ...
-assets/music/song-06.mp3
+assets/music/song-12.mp3
 ```
 
-## Missing-File Transparency
+The numbered path is implementation-facing.
 
-A missing soundtrack file is treated as content pending, not as a broken player.
+The downloaded filename is player-facing.
 
-The slot stays visible.
+## Human-Readable Filenames
 
-The user can still inspect all six intended tracks.
+v2.80 changes the download filename to use the selected song title.
+
+Examples:
+
+```text
+Literally Unplayable.mp3
+Stat FPS.mp3
+One Player Too Many.mp3
+```
+
+Characters invalid in common filesystem names are replaced with hyphens.
+
+## Selected-Track Model
+
+The Download action always refers to the currently selected audio track.
+
+Opening lyrics for another song with the circled `?` does not change the Download target because it does not change the selected track.
+
+## Availability Gate
+
+The runtime still verifies the selected MP3 through the audio element before enabling Download.
+
+This protects against deployment or asset failures even though the normal v2.80 package includes all 12 files.
+
+## Static Hosting
+
+Download remains a native anchor using the HTML `download` attribute.
+
+No custom server, blob pipeline, or audio API is required.
 
 ## Design Rules
 
-- Download selected track only.
-- Require confirmed file availability.
-- Use normal static-host download link.
-- Missing file cannot download.
-- Disabled state must be visible and accessible.
-- Do not hide missing slots.
-- File path contract remains predictable.
+- Download follows selected playback track, not viewed lyrics track.
+- All 12 shipped songs should be downloadable.
+- Human-readable filename uses the song title.
+- Underlying source asset remains the stable numbered MP3.
+- Unavailable audio disables Download gracefully.
+- Downloading must not interrupt playback.
 
 ## Success Criteria
 
-Once authored MP3s are installed, each song can be selected and downloaded directly without changing the Music Player architecture.
+Each of the 12 installed tracks can be selected and downloaded as a clearly named MP3 while preserving the simple static-site architecture.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

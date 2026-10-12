@@ -11,17 +11,30 @@
             "id": "81ba51b67cf62ca5",
             "type": "leaf",
             "state": {
+              "type": "audio",
+              "state": {
+                "file": "assets/music/song-01.mp3"
+              },
+              "icon": "lucide-file-audio",
+              "title": "song-01"
+            }
+          },
+          {
+            "id": "a7f3dae66289030d",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/README.md",
+                "file": "Feedback.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "Feedback"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -161,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/README.md",
+                "file": "Feedback.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -188,16 +201,29 @@
       "bases:Create new base": false
     }
   },
-  "active": "81ba51b67cf62ca5",
+  "active": "a7f3dae66289030d",
   "lastOpenFiles": [
-    "docs/PERSISTENCE_KEY_REGISTRY.md",
-    "docs/README.md",
-    "docs/ACHIEVEMENT_CATALOG.md",
-    "docs/CONSOLE_COMMAND_CATALOG.md",
+    "assets/music/song-05.mp3",
+    "assets/music/I Made This.mp3",
+    "assets/music/song-01.mp3",
+    "Feedback.md",
+    "assets/music/song-02.mp3",
+    "assets/doug-complete.webp",
+    "assets/doug-cool-rare.jpg",
+    "assets/mob-pixel-logo.png",
+    "assets/mippi-logo-blue-large.png",
+    "assets/doug-legendary.jpg",
+    "assets/doug.jpg",
+    "assets/azure-altar.webp",
     "docs/FEATURE_RELATIONSHIPS.md",
-    "docs/OBJECTIVE_CATALOG.md",
-    "docs/RUNTIME_STATE_MAP.md",
+    "docs/CONSOLE_COMMAND_CATALOG.md",
+    "docs/ACHIEVEMENT_CATALOG.md",
     "docs/SHOP_INVENTORY_CATALOG.md",
+    "docs/RUNTIME_STATE_MAP.md",
+    "docs/PERSISTENCE_KEY_REGISTRY.md",
+    "docs/OBJECTIVE_CATALOG.md",
+    "docs/MUSIC_LYRICS_AUTHORING_GUIDE.md",
+    "docs/README.md",
     "docs/TELEMETRY_EVENT_CATALOG.md",
     "docs/UI_SURFACE_MAP.md",
     "docs/Home.md",
@@ -213,18 +239,12 @@
     "docs/14-dynamic-runtime/session-statistics/TECHNICAL.md",
     "docs/14-dynamic-runtime/session-statistics/DESIGN.md",
     "docs/14-dynamic-runtime-systems/telemetry-foundation/TECHNICAL.md",
-    "docs/14-dynamic-runtime-systems/telemetry-foundation/DESIGN.md",
     "docs/14-dynamic-runtime-systems/telemetry-foundation",
-    "docs/14-dynamic-runtime-systems/session-statistics/TECHNICAL.md",
-    "docs/14-dynamic-runtime-systems/session-statistics/DESIGN.md",
     "docs/14-dynamic-runtime-systems/session-statistics",
     "docs/14-dynamic-runtime-systems/recent-behavior-window",
     "docs/14-dynamic-runtime-systems/player-model-confidence",
     "docs/14-dynamic-runtime-systems/player-model",
     "docs/14-dynamic-runtime-systems/objective-timer-and-failure",
-    "docs/14-dynamic-runtime-systems/objective-opportunity-seeding",
-    "docs/14-dynamic-runtime-systems/objective-hud",
-    "docs/14-dynamic-runtime-systems/anti-drought-system",
-    "docs/14-dynamic-runtime-systems/adaptive-game-director"
+    "docs/14-dynamic-runtime-systems/objective-opportunity-seeding"
   ]
 }

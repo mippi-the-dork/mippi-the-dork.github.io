@@ -1,6 +1,6 @@
 # UI Surface Map
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 This document maps the major user-facing and runtime UI surfaces, their location, owner, and interaction priority.
 
@@ -230,7 +230,7 @@ Semantic red denial presentation.
 
 ### Other Wish-Specific Popups
 
-Includes authored Blender/contact/result surfaces as implemented in v2.78.
+Includes authored Blender/contact/result surfaces as implemented in the current v2.80 build.
 
 These focused Wish surfaces are part of the Attention Budget.
 
@@ -334,11 +334,61 @@ Important children:
 #music-play
 #music-next
 #music-download
+#music-repeat
+#music-shuffle
 #music-track-list
+#music-lyrics-panel
+#music-lyrics-title
+#music-lyrics-close
+#music-lyrics-content
 #music-audio
 ```
 
 It is header-attached and not part of the bottom fixed control cluster.
+
+### Music Player playlist rows
+
+Each v2.80 row contains two independent interactive targets:
+
+```text
+.music-track-select
+.music-track-info
+```
+
+`.music-track-select` changes the selected song.
+
+`.music-track-info` is the 23x23 circular `?` lyrics control. Opening it does not select or start that song.
+
+### Music playback options
+
+```text
+#music-repeat
+#music-shuffle
+```
+
+Repeat is a three-state control:
+
+```text
+LOOP OFF
+LOOP ALL
+LOOP 1
+```
+
+Shuffle is an independent on/off control.
+
+### Lyrics surface
+
+`#music-lyrics-panel` is embedded inside the expanded Music Player.
+
+It contains:
+
+- heading and current lyrics-song title,
+- close button,
+- scroll-contained lyric content,
+- optional timestamp column,
+- current-line highlight.
+
+The lyrics well scrolls internally and should not move the page when synchronization advances.
 
 ## Heavy Water Perspective Visualizer
 

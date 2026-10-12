@@ -1,8 +1,8 @@
 # Console Command Catalog
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-This is the authoritative v2.78 command catalog for the in-site Dev Console.
+This is the authoritative v2.80 command catalog for the in-site Dev Console.
 
 Normal player commands are case-insensitive after normalization.
 
@@ -18,7 +18,7 @@ The backtick or tilde key toggles the Console when the command input is not alre
 | --- | --- | --- |
 | `help` | Print clickable Help command groups. | `dev` is intentionally omitted from normal Help. |
 | `clear` | Clear Console output. | `cls` exists as an unlisted alias. |
-| `version` | Print portfolio build identity. | Reports v2.78 static GitHub Pages build. |
+| `version` | Print portfolio build identity. | Reports v2.80 static GitHub Pages build. |
 | `about` | Navigate to About. | |
 | `home` | Smooth-scroll to top. | |
 | `top` | Smooth-scroll to top. | Alias-like navigation command. |

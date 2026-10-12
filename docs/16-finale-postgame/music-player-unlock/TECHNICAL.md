@@ -12,7 +12,7 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
-- [Release History](../../../RELEASE_HISTORY.md)
+- [Release History](../../RELEASE_HISTORY.md)
 
 ## Persistent Key
 

@@ -6939,7 +6939,7 @@ body.theme-complete.theme-legendary.finale-ready .brand-mark{
 .doug-review-board .wish-sequence-close.ready{border-color:#ffd166;color:#fff0bd;background:rgba(255,209,102,.08);}
 .game-success-window .wish-sequence-close.ready{border-color:#78ebbb;color:#e5fff4;background:rgba(72,220,160,.08);}
 
-/* v2.78 // Header music player alignment + console help state polish */
+/* v2.79 // Header music player alignment + console help state polish */
 .site-header{overflow:visible;}
 
 /* The 100% reward now belongs to the sticky header instead of the bottom-right
@@ -7055,4 +7055,4 @@ body.theme-complete.theme-legendary .site-header > .music-player .music-track-li
   }
 }
 
-/* v2.78 // Music player aligns to the left edge of the Mippi logo square / header content inset. */
+/* v2.79 // Music player aligns to the left edge of the Mippi logo square / header content inset. */

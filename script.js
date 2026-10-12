@@ -1,6 +1,6 @@
-// v2.78 // Header music player + console help polish + local preview hardening
+// v2.79 // Header music player + console help polish + local preview hardening
 const mippiRuntimeHealth={
-  version:'2.78',
+  version:'2.79',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -1133,15 +1133,22 @@ function renderLedger() {
 
 
 const MUSIC_TRACKS=[
-  {title:'SONG 01',src:'assets/music/song-01.mp3'},
-  {title:'SONG 02',src:'assets/music/song-02.mp3'},
-  {title:'SONG 03',src:'assets/music/song-03.mp3'},
-  {title:'SONG 04',src:'assets/music/song-04.mp3'},
-  {title:'SONG 05',src:'assets/music/song-05.mp3'},
-  {title:'SONG 06',src:'assets/music/song-06.mp3'}
+  {title:'Literally Unplayable',src:'assets/music/song-01.mp3'},
+  {title:'Just Add Gameplay',src:'assets/music/song-02.mp3'},
+  {title:'Great Again',src:'assets/music/song-03.mp3'},
+  {title:'Inside My Head',src:'assets/music/song-04.mp3'},
+  {title:'I Made This',src:'assets/music/song-05.mp3'},
+  {title:'Come Back',src:'assets/music/song-06.mp3'},
+  {title:'Stat FPS',src:'assets/music/song-07.mp3'},
+  {title:'Every Byte',src:'assets/music/song-08.mp3'},
+  {title:'She Was Almost Gold',src:'assets/music/song-09.mp3'},
+  {title:"Everybody's Right",src:'assets/music/song-10.mp3'},
+  {title:'One Player Too Many',src:'assets/music/song-11.mp3'},
+  {title:'L-E-A-R-N',src:'assets/music/song-12.mp3'}
 ];
 let musicTrackIndex=0;
 let musicCurrentAvailable=false;
+let musicPlayWhenReady=false;
 function renderMusicTrackList(){
   if(!musicTrackList)return;
   musicTrackList.innerHTML=MUSIC_TRACKS.map((track,index)=>`<button type="button" data-music-track="${index}" class="${index===musicTrackIndex?'active':''}"><span>${String(index+1).padStart(2,'0')}</span><b>${track.title}</b></button>`).join('');
@@ -1158,13 +1165,14 @@ function selectMusicTrack(index,{autoplay=false}={}){
   musicTrackIndex=(Number(index)+MUSIC_TRACKS.length)%MUSIC_TRACKS.length;
   const track=MUSIC_TRACKS[musicTrackIndex];
   musicCurrentAvailable=false;
+  musicPlayWhenReady=autoplay;
   if(musicTrackTitle)musicTrackTitle.textContent=track.title;
   if(musicTrackCount)musicTrackCount.textContent=`TRACK ${musicTrackIndex+1} / ${MUSIC_TRACKS.length}`;
   if(musicTrackStatus)musicTrackStatus.textContent='CHECKING TRACK FILE...';
   if(musicPlay)musicPlay.textContent='PLAY';
   updateMusicDownload();renderMusicTrackList();
   musicAudio.pause();musicAudio.src=track.src;musicAudio.load();
-  if(autoplay){musicAudio.play().catch(()=>{});}
+  // Playback waits for this track's metadata rather than racing the source change.
 }
 function unlockMusicPlayer({announce=true}={}){
   const first=!musicPlayerUnlocked;
@@ -1172,7 +1180,7 @@ function unlockMusicPlayer({announce=true}={}){
   try{localStorage.setItem(MUSIC_UNLOCK_KEY,'1');}catch(_){}
   if(musicPlayer){musicPlayer.hidden=false;musicPlayer.classList.toggle('new-unlock',first);}
   if(first&&announce){
-    showTransientToast('MUSIC PLAYER UNLOCKED','100% complete. Six soundtrack slots are now permanently available until reset.','LEGENDARY REWARD','100% COMPLETE');
+    showTransientToast('MUSIC PLAYER UNLOCKED','100% complete. Twelve soundtrack tracks are now permanently available until reset.','LEGENDARY REWARD','100% COMPLETE');
     consolePrint('LEGENDARY REWARD // MUSIC PLAYER UNLOCKED // persists until reset.','good');
   }
   renderMusicTrackList();
@@ -1196,8 +1204,8 @@ function initMusicPlayer(){
     if(musicAudio.paused)musicAudio.play().catch(()=>{if(musicTrackStatus)musicTrackStatus.textContent='PLAYBACK UNAVAILABLE';});else musicAudio.pause();
   });
   musicDownload?.addEventListener('click',event=>{if(!musicCurrentAvailable){event.preventDefault();if(musicTrackStatus)musicTrackStatus.textContent='TRACK FILE NOT INSTALLED YET';}});
-  musicAudio?.addEventListener('loadedmetadata',()=>{musicCurrentAvailable=true;if(musicTrackStatus)musicTrackStatus.textContent='READY';updateMusicDownload();});
-  musicAudio?.addEventListener('error',()=>{musicCurrentAvailable=false;if(musicTrackStatus)musicTrackStatus.textContent='MUSIC FILE PENDING';updateMusicDownload();if(musicPlay)musicPlay.textContent='PLAY';});
+  musicAudio?.addEventListener('loadedmetadata',()=>{musicCurrentAvailable=true;if(musicTrackStatus)musicTrackStatus.textContent='READY';updateMusicDownload();if(musicPlayWhenReady){musicPlayWhenReady=false;musicAudio.play().catch(()=>{});}});
+  musicAudio?.addEventListener('error',()=>{musicPlayWhenReady=false;musicCurrentAvailable=false;if(musicTrackStatus)musicTrackStatus.textContent='MUSIC FILE PENDING';updateMusicDownload();if(musicPlay)musicPlay.textContent='PLAY';});
   musicAudio?.addEventListener('play',()=>{if(musicPlay)musicPlay.textContent='PAUSE';if(musicTrackStatus)musicTrackStatus.textContent='NOW PLAYING';});
   musicAudio?.addEventListener('pause',()=>{if(musicPlay)musicPlay.textContent='PLAY';if(musicCurrentAvailable&&musicTrackStatus)musicTrackStatus.textContent='READY';});
   musicAudio?.addEventListener('ended',()=>selectMusicTrack(musicTrackIndex+1,{autoplay:true}));
@@ -4229,7 +4237,7 @@ const COMMANDS = {
   dev(args=''){ devCommand(args); },
   help(){ listCommands(); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.78 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.79 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },

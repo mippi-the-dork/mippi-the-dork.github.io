@@ -12,7 +12,7 @@
 
 - [QA, Runtime Operations, and Deployment Index](../README.md)
 - [Design Documentation](DESIGN.md)
-- [Music Lyrics Authoring Guide](../../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
+- [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
 
 ## Public Runtime Exclusion List
 

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "file": "docs/README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ACHIEVEMENT_CATALOG"
+              "title": "README"
             }
           }
         ]
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "file": "docs/README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -188,13 +188,14 @@
       "bases:Create new base": false
     }
   },
-  "active": "dc00c65783fa3e7c",
+  "active": "81ba51b67cf62ca5",
   "lastOpenFiles": [
+    "docs/PERSISTENCE_KEY_REGISTRY.md",
+    "docs/README.md",
+    "docs/ACHIEVEMENT_CATALOG.md",
     "docs/CONSOLE_COMMAND_CATALOG.md",
     "docs/FEATURE_RELATIONSHIPS.md",
     "docs/OBJECTIVE_CATALOG.md",
-    "docs/PERSISTENCE_KEY_REGISTRY.md",
-    "docs/README.md",
     "docs/RUNTIME_STATE_MAP.md",
     "docs/SHOP_INVENTORY_CATALOG.md",
     "docs/TELEMETRY_EVENT_CATALOG.md",
@@ -202,7 +203,6 @@
     "docs/Home.md",
     "docs/QA/EXTENSIVE_QA_TEST_PLAN.md",
     "docs/QA/RELEASE_CHECKLIST.md",
-    "docs/ACHIEVEMENT_CATALOG.md",
     "docs/13-interaction-modes/README.md",
     "docs/15-perspective-visualizer/perspective-camera-controls/TECHNICAL.md",
     "docs/15-perspective-visualizer/perspective-camera-controls/DESIGN.md",

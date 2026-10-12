@@ -1,8 +1,8 @@
 # Persistence Key Registry
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-This is the authoritative v2.78 registry for Mippi-owned browser persistence identifiers.
+This is the authoritative v2.80 registry for Mippi-owned browser persistence identifiers.
 
 Use exact spelling and case.
 
@@ -60,6 +60,8 @@ Runtime-only state is documented in [Runtime State Map](RUNTIME_STATE_MAP.md).
 | `mippi-postgame-achievements-revealed-v1` | Postgame tier revealed | `1` after delayed reveal | Prevents repeat reveal sequence. |
 | `mippi-postgame-achievements-v1` | Unlocked postgame achievement keys | JSON array | Nine Epic plus Legendary capstone history. |
 | `mippi-music-player-unlocked-v1` | Music Player entitlement | `1` when unlocked | Persists until full reset. |
+| `mippi-music-repeat-v1` | Music repeat preference | `off` / `playlist` / `track` | Added in v2.80. Invalid/missing values default to `off`. |
+| `mippi-music-shuffle-v1` | Music Shuffle preference | `1` / `0` | Added in v2.80. Only `1` loads as enabled. |
 
 ## sessionStorage Registry
 
@@ -75,7 +77,7 @@ Runtime-only state is documented in [Runtime State Map](RUNTIME_STATE_MAP.md).
 
 | Identifier | Current status | Rule |
 | --- | --- | --- |
-| `mippiCompileStuck` | Defined as `COMPILE_STUCK_KEY` but not actively read or written in v2.78 `script.js`. | Do not treat as authoritative persisted state unless implementation begins using it. |
+| `mippiCompileStuck` | Defined as `COMPILE_STUCK_KEY` but not actively read or written in v2.80 `script.js`. | Do not treat as authoritative persisted state unless implementation begins using it. |
 
 ## Important Non-Storage `mippi-*` Names
 
@@ -124,7 +126,7 @@ Current selected theme authority:
 mippi-theme-mode-v1
 ```
 
-Compatibility keys still written in v2.78:
+Compatibility keys still written in v2.80:
 
 ```text
 mippi-completion-theme
@@ -149,7 +151,7 @@ Postgame Grand Tour uses persistent:
 mippi-postgame-sections-v1
 ```
 
-These are intentionally different scopes in v2.78.
+These are intentionally different scopes in v2.80.
 
 ## Wish State Split
 
@@ -212,19 +214,32 @@ Claiming the reward resets the first and preserves the second.
 
 ## Music Persistence
 
-Only entitlement persists:
+v2.80 persists three Music Player values:
 
 ```text
 mippi-music-player-unlocked-v1
+  final reward entitlement
+
+mippi-music-repeat-v1
+  off / playlist / track
+
+mippi-music-shuffle-v1
+  1 / 0
 ```
 
-v2.78 does not persist:
+The following remain runtime-only:
 
 - current track index,
 - current playback position,
 - playing/paused state,
 - collapsed/expanded state,
-- track availability cache.
+- track availability cache,
+- Shuffle bag/order,
+- Shuffle navigation history,
+- open lyrics track,
+- current lyric highlight.
+
+The full reset clears all three Music keys because they share the existing `mippi` namespace.
 
 ## Migration Notes
 

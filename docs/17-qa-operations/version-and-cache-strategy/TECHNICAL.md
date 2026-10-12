@@ -34,7 +34,7 @@ window.__MIPPI_RUNTIME__
 should return:
 
 ```text
-2.78
+2.80
 ```
 
 ## HTML Asset Versions

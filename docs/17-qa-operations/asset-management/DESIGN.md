@@ -106,7 +106,7 @@ Updating actual lyrics should not require changing:
 - JavaScript,
 - MP3 files.
 
-See [Music Lyrics Authoring Guide](../../../MUSIC_LYRICS_AUTHORING_GUIDE.md).
+See [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md).
 
 ## Asset Provenance
 

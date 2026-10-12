@@ -12,7 +12,7 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
-- [Music Lyrics Authoring Guide](../../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
+- [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
 
 ## Track Registry
 

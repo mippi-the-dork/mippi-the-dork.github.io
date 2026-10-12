@@ -12,7 +12,7 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
-- [Persistence Key Registry](../../../PERSISTENCE_KEY_REGISTRY.md)
+- [Persistence Key Registry](../../PERSISTENCE_KEY_REGISTRY.md)
 
 ## Storage Keys
 

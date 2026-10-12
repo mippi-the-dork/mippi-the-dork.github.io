@@ -49,7 +49,7 @@ Runtime-only state is documented in [Runtime State Map](RUNTIME_STATE_MAP.md).
 | `mippi-finale-wish-v1` | Validated Wish Finale condition | `1` when successful | Normal Finale requirement. |
 | `mippi-finale-boss-v1` | Boss Finale condition | `1` after normal or Super Boss victory | Normal Finale requirement. |
 | `mippi-wish-charge-v1` | Current Shooting Star wish charge | Integer 0 or 1 | One charge powers one Wish attempt. |
-| `mippiWishUnlocked` | Wish command discovered | `1` after first Shooting Star charge | Legacy-style key name retained in v2.78. |
+| `mippiWishUnlocked` | Wish command discovered | `1` after first Shooting Star charge | Legacy-style key name retained in v2.80. |
 | `mippi-mushroom-progress-v1` | Mushrooms toward next Bird life | Integer 0 to 19 | Persistent 20-Mushroom cycle. |
 | `mippi-bird-mushroom-lives-v1` | Banked Mippi Bird Mushroom lives | Nonnegative integer | Persistent consumable life bank. |
 | `mippi-castle-run-progress-v1` | Current Castle run progress | Integer 0 to 4 | 4 is claim-ready. |

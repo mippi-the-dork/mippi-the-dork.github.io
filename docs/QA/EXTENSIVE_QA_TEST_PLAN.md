@@ -1478,6 +1478,8 @@ For each state below, set it, reload, and verify expected persistence.
 | Postgame tier revealed | `dev postgame reveal` | Persists. |
 | 100% Complete | `dev postgame complete` | Persists. |
 | Music Player unlock | `dev music` or true 100% | Persists until reset. |
+| Music Repeat mode | Set LOOP ALL or LOOP 1 | Persists until reset. |
+| Music Shuffle preference | Turn Shuffle On | Persists until reset; randomized bag/history rebuilds. |
 | AI Wish corruption | `dev wish ai` | Should not become permanent across a normal page reload unless explicitly designed that way. |
 | Temporary Wish overlays | `dev wish engine` etc. | Should not resurrect unexpectedly after reload. |
 

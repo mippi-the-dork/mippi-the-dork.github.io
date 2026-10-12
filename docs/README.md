@@ -1,6 +1,8 @@
 # Mippi Portfolio Documentation
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Current documented state:** Mippi Portfolio v2.80
+
+**Comprehensive baseline:** v2.78, with v2.79 and v2.80 deltas integrated where behavior changed.
 
 This folder is the canonical documentation set for the Mippi portfolio experience.
 
@@ -30,7 +32,7 @@ Project-wide catalogs should not replace feature documentation. They exist to an
 - Which UI surface owns this control?
 - Which state is persistent, session-scoped, or runtime-only?
 
-For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for v2.78.
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.80 documented state.
 
 ## Numbered Documentation Categories
 
@@ -51,7 +53,7 @@ For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objectiv
 | [13. Interaction and Debug Modes](13-interaction-modes/README.md)                     |        9 | Interact, Inspect, Design, Vibe AI, Lumen, Nanite, Particle Boost, stat overlay, and control strip.            |
 | [14. Dynamic Runtime Systems](14-dynamic-runtime/README.md)                           |       16 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
 | [15. Project Heavy Water Perspective Visualizer](15-perspective-visualizer/README.md) |        8 | The tactical/live camera demonstration for first-, second-, and third-person camera ownership.                 |
-| [16. Finale and Postgame](16-finale-postgame/README.md)                               |       15 | Normal Finale, Session Report, postgame reveal, True Completion, and the six-track Music Player.               |
+| [16. Finale and Postgame](16-finale-postgame/README.md)                               |       15 | Normal Finale, Session Report, postgame reveal, True Completion, and the 12-track Music Player, repeat/shuffle options, and editable LRC lyrics.               |
 | [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       11 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep.     |
 
 Total feature folders:
@@ -67,6 +69,9 @@ Total canonical feature pages:
 ```
 
 ## Project-Wide References
+
+- [Release History](RELEASE_HISTORY.md)
+- [Music Lyrics Authoring Guide](MUSIC_LYRICS_AUTHORING_GUIDE.md)
 
 - [Feature Relationships](FEATURE_RELATIONSHIPS.md)
 - [Persistence Key Registry](PERSISTENCE_KEY_REGISTRY.md)
@@ -85,7 +90,7 @@ Total canonical feature pages:
 
 ## Documentation Rules
 
-- Use the exact v2.78 identifiers from the reference catalogs.
+- Use the exact identifiers from the current v2.80 reference catalogs.
 - Do not invent alternate names for storage keys or runtime IDs.
 - Keep visual theme state separate from gameplay progression state.
 - Treat localStorage, sessionStorage, and runtime-only state as different persistence classes.
@@ -95,7 +100,7 @@ Total canonical feature pages:
 - Update both `DESIGN.md` and `TECHNICAL.md` when a feature's player-facing behavior and implementation both change.
 - Do not create a second competing canonical source for the same feature.
 
-## v2.78 Release Identity
+## Current Release Identity
 
 Public runtime:
 
@@ -119,3 +124,7 @@ index-debug.html
 belong in source/QA packages, not the public runtime deployment.
 
 The full public reset is the boundary between one completed save state and a genuinely fresh experience.
+
+## Versioning Note
+
+Most feature documentation was authored against the comprehensive v2.78 baseline. When v2.79 or v2.80 changed a feature, the affected feature and cross-cutting pages are updated to v2.80. Unchanged feature pages may still show v2.78 as their implementation baseline because their documented behavior did not change in those releases.

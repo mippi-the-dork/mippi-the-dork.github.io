@@ -113,7 +113,7 @@ When logging a failure, include:
 Run this after every code change before doing deeper QA.
 
 - [ ] **SMOKE-001** - Launch through `PreviewLocal.bat`. Three.js Hero appears on the first load without manually refreshing.
-- [ ] **SMOKE-002** - Open Dev Console with `~`. Run `version`. It reports v2.78.
+- [ ] **SMOKE-002** - Open Dev Console with `~`. Run `version`. It reports v2.80.
 - [ ] **SMOKE-003** - Run `help`. No DEV category or DEV commands are shown.
 - [ ] **SMOKE-004** - Run `dev help`. DEV commands appear and are clickable.
 - [ ] **SMOKE-005** - Run `dev attention rupees`. Rupees HUD pulses because an affordable Shop item exists.
@@ -193,7 +193,7 @@ Expected:
 
 ## 3.4 Version and cache sanity
 
-- [ ] **BOOT-022** - `version` returns v2.78.
+- [ ] **BOOT-022** - `version` returns v2.80.
 - [ ] **BOOT-023** - `index.html` loads current `style.css`, `script.js`, and `perspective-demo.js` cache versions.
 - [ ] **BOOT-024** - `PreviewLocal.bat` opens a current-version URL with its per-launch cache token.
 - [ ] **BOOT-025** - Reloading locally does not accidentally show an older UI state because of cached JS/CSS.
@@ -832,7 +832,7 @@ dev mode design on
 
 # 17. Dynamic Optional Objectives
 
-There are 23 objective definitions in v2.78.
+There are 23 objective definitions in v2.80.
 
 Use:
 
@@ -1802,7 +1802,7 @@ Copy this when filing a bug:
 ## Bug
 
 **Test ID:**
-**Build:** v2.78
+**Build:** v2.80
 **Environment:** Local Preview / GitHub Pages
 **Browser:**
 **Viewport:**

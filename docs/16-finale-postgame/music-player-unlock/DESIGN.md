@@ -12,7 +12,7 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
-- [Release History](../../../RELEASE_HISTORY.md)
+- [Release History](../../RELEASE_HISTORY.md)
 
 ## Design Intent
 
@@ -119,4 +119,4 @@ True Completion produces a persistent, finished soundtrack reward with playback 
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
-- [Music Lyrics Authoring Guide](../../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
+- [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md)

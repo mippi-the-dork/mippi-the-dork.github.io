@@ -1,16 +1,18 @@
-MIPPI PORTFOLIO MUSIC PLAYER
+MIPPI PORTFOLIO POSTGAME SOUNDTRACK
 
-The true-completion Music Player looks for six MP3 files at these exact paths:
+These 12 authored songs are included in the order displayed in the Music Player.
 
-song-01.mp3
-song-02.mp3
-song-03.mp3
-song-04.mp3
-song-05.mp3
-song-06.mp3
+01. Literally Unplayable  ->  song-01.mp3
+02. Just Add Gameplay  ->  song-02.mp3
+03. Great Again  ->  song-03.mp3
+04. Inside My Head  ->  song-04.mp3
+05. I Made This  ->  song-05.mp3
+06. Come Back  ->  song-06.mp3
+07. Stat FPS  ->  song-07.mp3
+08. Every Byte  ->  song-08.mp3
+09. She Was Almost Gold  ->  song-09.mp3
+10. Everybody's Right  ->  song-10.mp3
+11. One Player Too Many  ->  song-11.mp3
+12. L-E-A-R-N  ->  song-12.mp3
 
-Until a file exists, that track slot stays visible but reports MUSIC FILE PENDING,
-and PLAY / DOWNLOAD remain unavailable for that track.
-
-When final song names are known, update MUSIC_TRACKS in script.js so the player
-shows the authored titles instead of SONG 01 through SONG 06.
+Every track is playable and individually downloadable in the unlocked Music Player.

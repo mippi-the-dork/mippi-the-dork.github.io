@@ -7056,3 +7056,194 @@ body.theme-complete.theme-legendary .site-header > .music-player .music-track-li
 }
 
 /* v2.79 // Music player aligns to the left edge of the Mippi logo square / header content inset. */
+
+/* v2.80 // Soundtrack controls, shuffle, repeat, and editable LRC lyrics. */
+.site-header > .music-player{
+  --music-highlight:#67cfff;
+  --music-highlight-rgb:47,147,255;
+  --music-soft:#9abfdb;
+}
+body.theme-complete:not(.theme-legendary) .site-header > .music-player{
+  --music-highlight:#ff68ce;
+  --music-highlight-rgb:255,79,200;
+  --music-soft:#d9b0e7;
+}
+body.theme-complete.theme-legendary .site-header > .music-player{
+  --music-highlight:#ffd15c;
+  --music-highlight-rgb:255,200,61;
+  --music-soft:#bbd9c6;
+}
+.music-play-options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:6px;
+}
+.site-header > .music-player .music-play-options button{
+  min-width:0;
+  min-height:28px;
+  padding:4px 5px;
+  border:1px solid rgba(var(--music-highlight-rgb),.26);
+  background:rgba(255,255,255,.025);
+  color:var(--music-soft);
+  font:900 8px/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.045em;
+  cursor:pointer;
+}
+.site-header > .music-player .music-play-options button:hover,
+.site-header > .music-player .music-play-options button:focus-visible{
+  color:var(--music-highlight);
+  border-color:var(--music-highlight);
+  outline:none;
+}
+.site-header > .music-player .music-play-options button[aria-pressed="true"]{
+  color:var(--music-highlight);
+  background:rgba(var(--music-highlight-rgb),.13);
+  border-color:rgba(var(--music-highlight-rgb),.64);
+  box-shadow:inset 2px 0 0 var(--music-highlight);
+}
+/* Track selections and lyric '?' indicators are independent hit targets. */
+.music-track-list .music-track-row{
+  display:flex;
+  align-items:stretch;
+  gap:4px;
+  min-width:0;
+}
+.site-header > .music-player .music-track-list .music-track-select{
+  display:flex;
+  flex:1 1 auto;
+  gap:7px;
+  min-width:0;
+  align-items:center;
+  padding:6px 5px;
+  border:1px solid rgba(255,255,255,.065);
+  background:rgba(255,255,255,.018);
+  color:var(--music-soft);
+  text-align:left;
+  cursor:pointer;
+}
+.site-header > .music-player .music-track-list .music-track-select span{
+  flex:none;
+  color:var(--music-highlight);
+}
+.site-header > .music-player .music-track-list .music-track-select b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:8px;
+}
+.site-header > .music-player .music-track-list .music-track-row.active .music-track-select{
+  color:var(--music-highlight);
+  border-color:rgba(var(--music-highlight-rgb),.52);
+  background:rgba(var(--music-highlight-rgb),.09);
+}
+.site-header > .music-player .music-track-list .music-track-info{
+  display:grid;
+  flex:0 0 23px;
+  place-items:center;
+  align-self:center;
+  width:23px;
+  height:23px;
+  padding:0;
+  border:1px solid rgba(var(--music-highlight-rgb),.45);
+  border-radius:50%;
+  background:rgba(var(--music-highlight-rgb),.045);
+  color:var(--music-highlight);
+  font:900 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  cursor:pointer;
+}
+.site-header > .music-player .music-track-list .music-track-info:hover,
+.site-header > .music-player .music-track-list .music-track-info:focus-visible,
+.site-header > .music-player .music-track-list .music-track-info.open{
+  outline:none;
+  color:#fff;
+  border-color:var(--music-highlight);
+  background:rgba(var(--music-highlight-rgb),.20);
+  box-shadow:0 0 9px rgba(var(--music-highlight-rgb),.20);
+}
+.site-header > .music-player .music-track-list .music-track-select:hover,
+.site-header > .music-player .music-track-list .music-track-select:focus-visible{
+  outline:none;
+  border-color:var(--music-highlight);
+}
+.music-lyrics-panel{
+  margin-top:10px;
+  padding:9px;
+  border:1px solid rgba(var(--music-highlight-rgb),.38);
+  background:rgba(0,0,0,.14);
+}
+.music-lyrics-panel[hidden]{display:none !important;}
+.music-lyrics-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+  padding-bottom:7px;
+  border-bottom:1px solid rgba(var(--music-highlight-rgb),.18);
+}
+.music-lyrics-head div{min-width:0;}
+.music-lyrics-head span,.music-lyrics-head strong{display:block;}
+.music-lyrics-head span{
+  color:var(--music-highlight);
+  font:900 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.10em;
+}
+.music-lyrics-head strong{
+  margin-top:4px;
+  color:inherit;
+  font:900 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.site-header > .music-player .music-lyrics-head button{
+  flex:none;
+  width:24px;
+  height:24px;
+  padding:0;
+  border:1px solid rgba(var(--music-highlight-rgb),.30);
+  background:transparent;
+  color:var(--music-highlight);
+  cursor:pointer;
+}
+.site-header > .music-player .music-lyrics-head button:hover{border-color:var(--music-highlight);}
+.music-lyrics-content{
+  position:relative;
+  max-height:180px;
+  min-height:44px;
+  overflow:auto;
+  padding:7px 0;
+  overscroll-behavior:contain;
+  scroll-behavior:smooth;
+}
+.music-lyric-line{
+  margin:0 0 7px;
+  padding:3px 5px;
+  color:var(--music-soft);
+  font:600 10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
+  overflow-wrap:anywhere;
+  border-left:2px solid transparent;
+  transition:color .18s ease,background .18s ease;
+}
+.music-lyric-line.current{
+  color:var(--music-highlight);
+  border-left-color:var(--music-highlight);
+  background:rgba(var(--music-highlight-rgb),.10);
+  font-weight:900;
+}
+.music-lyrics-empty{
+  margin:0;
+  padding:6px 3px;
+  color:var(--music-soft);
+  font:600 9px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.music-player.collapsed .music-play-options,
+.music-player.collapsed .music-lyrics-panel{display:none;}
+@media(max-width:760px){
+  .site-header > .music-player .music-track-list{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){
+  .music-lyrics-content{scroll-behavior:auto;}
+  .music-lyric-line{transition:none;}
+}
+
+.music-lyric-line.timed{display:grid;grid-template-columns:48px minmax(0,1fr);gap:6px;align-items:baseline;}
+.music-lyric-time{color:var(--music-soft);opacity:.65;font:800 8px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;}
+.music-lyric-line.current .music-lyric-time{color:var(--music-highlight);opacity:1;}

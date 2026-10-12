@@ -16,3 +16,10 @@ These 12 authored songs are included in the order displayed in the Music Player.
 12. L-E-A-R-N  ->  song-12.mp3
 
 Every track is playable and individually downloadable in the unlocked Music Player.
+
+LYRICS
+Each MP3 now has a matching editable LRC file:
+ song-01.lrc through song-12.lrc
+
+Use the full LYRICS_FORMAT_GUIDE.md in the project root for timestamp formatting,
+lyrics editing, and playback synchronization instructions.

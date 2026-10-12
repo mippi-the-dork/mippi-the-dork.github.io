@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.79" />
+  <link rel="stylesheet" href="style.css?v=2.80" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -55,20 +55,31 @@
       <a href="#tools">Tools</a>
       <a href="#about">About</a>
     </nav>
-    <!-- TRUE COMPLETION REWARD: six user-authored soundtrack slots. Files can be dropped into assets/music without changing the player. -->
+    <!-- TRUE COMPLETION REWARD: twelve user-authored soundtrack tracks. Files can be dropped into assets/music without changing the player. -->
     <section class="music-player" id="music-player" aria-label="Unlocked music player" hidden>
       <div class="music-player-head">
         <div><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
         <button id="music-collapse" type="button" aria-label="Collapse music player">−</button>
       </div>
-      <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 6</b></div>
+      <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 12</b></div>
       <div class="music-controls">
         <button id="music-prev" type="button" aria-label="Previous song">PREV</button>
         <button id="music-play" type="button">PLAY</button>
         <button id="music-next" type="button" aria-label="Next song">NEXT</button>
         <a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
       </div>
+      <div class="music-play-options" aria-label="Music playback options">
+        <button id="music-repeat" type="button" aria-label="Repeat off" title="Cycle repeat mode: Off, Playlist, Track">LOOP OFF</button>
+        <button id="music-shuffle" type="button" aria-pressed="false" aria-label="Shuffle off" title="Play tracks in random order">SHUFFLE OFF</button>
+      </div>
       <div class="music-track-list" id="music-track-list" aria-label="Song list"></div>
+      <section class="music-lyrics-panel" id="music-lyrics-panel" aria-label="Song lyrics" hidden>
+        <div class="music-lyrics-head">
+          <div><span>LYRICS //</span><strong id="music-lyrics-title">SONG</strong></div>
+          <button type="button" id="music-lyrics-close" aria-label="Close lyrics">×</button>
+        </div>
+        <div class="music-lyrics-content" id="music-lyrics-content" aria-live="off"></div>
+      </section>
       <audio id="music-audio" preload="metadata"></audio>
     </section>
   </header>
@@ -863,9 +874,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.79"></script>
-  <script defer src="perspective-demo.js?v=2.79"></script>
+  <script defer src="script.js?v=2.80"></script>
+  <script defer src="perspective-demo.js?v=2.80"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.79 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.80 -->

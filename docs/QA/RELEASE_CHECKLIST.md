@@ -1,6 +1,6 @@
 # Release Checklist
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 Use this as the final release-candidate signoff after feature QA is already complete.
 
@@ -24,12 +24,12 @@ It is intentionally shorter than the [Extensive QA Test Plan](EXTENSIVE_QA_TEST_
 - [ ] Preview server banner version matches.
 - [ ] Package/release notes use the same version.
 
-For v2.78 baseline, expected runtime asset queries are:
+For v2.80, expected runtime asset queries are:
 
 ```text
-style.css?v=2.78
-script.js?v=2.78
-perspective-demo.js?v=2.78
+style.css?v=2.80
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 ## 3. Public Package Hygiene
@@ -55,15 +55,16 @@ index-debug.html
 - [ ] All required referenced assets are present.
 - [ ] File/path case matches references exactly.
 
-Music exception during content staging:
+Music assets are no longer placeholder content in v2.80.
+
+Confirm:
 
 ```text
-assets/music/song-01.mp3
-...
-assets/music/song-06.mp3
+assets/music/song-01.mp3 ... song-12.mp3
+assets/music/song-01.lrc ... song-12.lrc
 ```
 
-may intentionally be absent if the release is still using the pending-track state.
+All 12 MP3s should be present. The 12 LRC files may remain metadata-only until actual lyrics are authored.
 
 ## 4. Static Validation
 
@@ -292,27 +293,46 @@ Do not use DEV for this pass.
 
 ## 12. Music Player
 
-### Missing Track Package
+### 12-Track Soundtrack
 
-- [ ] Six slots visible.
-- [ ] Missing tracks report pending.
-- [ ] Play does not break.
-- [ ] Download remains disabled.
+- [ ] Twelve rows visible in canonical order.
+- [ ] Every installed MP3 reaches READY.
+- [ ] Play/Pause works.
+- [ ] Manual Previous/Next works.
+- [ ] Automatic switching waits for metadata.
+- [ ] Static counter reads `TRACK 1 / 12`.
+- [ ] Collapse while playing does not interrupt audio.
+- [ ] Expand restores the full player state.
 
-### Installed Track Package
+### Repeat and Shuffle
 
-For every installed song:
+- [ ] Repeat cycles `LOOP OFF -> LOOP ALL -> LOOP 1 -> LOOP OFF`.
+- [ ] LOOP OFF stops at the end of a sequential or shuffled pass.
+- [ ] LOOP ALL begins another pass.
+- [ ] LOOP 1 repeats the current song and overrides Shuffle at song end.
+- [ ] Shuffle does not intentionally duplicate a track before its bag is exhausted.
+- [ ] Previous follows Shuffle listening history.
+- [ ] Repeat and Shuffle preferences survive reload.
+- [ ] Exact Shuffle order/history does not survive reload.
 
-- [ ] Metadata loads.
-- [ ] READY appears.
-- [ ] Play.
-- [ ] Pause.
-- [ ] Previous.
-- [ ] Next.
-- [ ] Ended auto-advance.
-- [ ] Download.
-- [ ] Collapse while playing.
-- [ ] Expand without playback reset.
+### Lyrics
+
+- [ ] Every row has an independent circled `?` control.
+- [ ] `?` opens lyrics without selecting/starting that track.
+- [ ] Metadata-only LRC shows `Lyrics coming soon`.
+- [ ] Missing LRC falls back without breaking audio.
+- [ ] Timed test lyrics show timestamp, highlight current line, and auto-scroll inside the lyrics panel.
+- [ ] Seeking updates current lyric.
+- [ ] HTML-like lyric text is displayed literally.
+- [ ] Closing/reopening lyrics reloads edited LRC content without requiring a full page refresh in local preview.
+
+### Downloads
+
+- [ ] All 12 installed songs download.
+- [ ] Download follows selected track, not viewed lyrics track.
+- [ ] Filename uses human-readable title.
+- [ ] Invalid filename characters sanitize to hyphens.
+- [ ] Full reset clears Music entitlement plus Repeat and Shuffle preferences.
 
 ## 13. Responsive Smoke
 

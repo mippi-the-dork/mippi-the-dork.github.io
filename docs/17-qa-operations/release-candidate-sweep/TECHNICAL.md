@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Release Candidate Sweep > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Defines the final packaging, validation, local smoke, hosted smoke, and signoff sequence for a shippable portfolio release.
 

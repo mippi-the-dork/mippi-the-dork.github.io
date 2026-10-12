@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Asset Management > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Defines what belongs in the public asset set, how local references should be validated, and which development-only files must remain outside the deployed runtime package.
 
@@ -12,16 +12,15 @@
 
 - [QA, Runtime Operations, and Deployment Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
 ## Design Intent
 
-The portfolio accumulated many image, audio, and development files during iteration.
+The portfolio accumulated many image, audio, documentation, and development files during iteration.
 
 Asset management has two goals:
 
 1. keep every referenced public asset available,
 2. avoid shipping dead, private, or development-only files simply because they happened to exist in the working folder.
-
-This is both cleanliness and risk reduction.
 
 ## Public vs Development
 
@@ -35,7 +34,9 @@ That includes:
 - referenced images,
 - icons,
 - gallery assets,
-- optional music files when authored,
+- installed soundtrack MP3s,
+- Music Player LRC files,
+- public documentation under `docs/`,
 - public favicon.
 
 Development-only helpers belong in source archives, not the public host.
@@ -53,9 +54,7 @@ index-debug.html
 *_DEV.md
 ```
 
-These files are useful during development and QA.
-
-They are not runtime dependencies.
+These files are useful during development and QA but are not visitor-facing runtime dependencies.
 
 ## Local Asset Validation
 
@@ -63,96 +62,87 @@ Release validation should scan local references from:
 
 - HTML,
 - CSS,
-- JavaScript
+- JavaScript,
+- documentation links where applicable
 
 and verify the files exist with matching case.
 
-This matters especially for static hosting where:
-
-```text
-Asset.png
-```
-
-and:
-
-```text
-asset.png
-```
-
-can behave differently depending on environment.
-
-A local Windows filesystem may hide a case mismatch that a hosted environment exposes.
+Static hosting can expose case errors that a local Windows filesystem may not.
 
 ## Music Assets
 
-The Music Player has an intentional exception.
+v2.80 is a music-ready release.
 
-It references six canonical paths:
+The public package now contains 12 authored MP3s:
 
 ```text
 assets/music/song-01.mp3
 ...
-assets/music/song-06.mp3
+assets/music/song-12.mp3
 ```
 
-Those files can legitimately be absent while the player UI is still under content staging.
-
-The runtime treats absence as:
+and 12 editable lyric files:
 
 ```text
-MUSIC FILE PENDING
+assets/music/song-01.lrc
+...
+assets/music/song-12.lrc
 ```
 
-rather than a fatal asset validation error.
+The MP3s are required soundtrack assets for the current package.
 
-A final music-ready release should of course verify all six.
+The LRC files are also expected, but their current contents are metadata-only templates. A metadata-only LRC is valid and intentionally produces the **Lyrics coming soon** state.
+
+The runtime still handles missing audio or lyrics gracefully, but missing files should be treated as a deployment defect in the normal v2.80 release rather than the intended content-staging state.
+
+## Lyrics Content Boundary
+
+The LRC files are independently editable content.
+
+Updating actual lyrics should not require changing:
+
+- HTML,
+- CSS,
+- JavaScript,
+- MP3 files.
+
+See [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md).
 
 ## Asset Provenance
 
-`ASSET_NOTES.md` tracks broad provenance and usage context for:
+`ASSET_NOTES.md` tracks broad provenance and usage context for project imagery and branding where maintained in the source package.
 
-- Mippi-supplied branding,
-- Heavy Water imagery,
-- Doug photos,
-- Azure Altar screenshots,
-- Unreal plugin icons,
-- career/reference imagery.
-
-The public package does not need that development note to render.
-
-The note exists for source/release management.
+It is source/release documentation, not a browser runtime dependency.
 
 ## Unused Asset Cleanup
 
 Before release, compare:
 
 - files in `assets/`,
-- references in source.
+- references in source,
+- runtime-derived paths.
 
-Remove files that are clearly obsolete unless they are intentionally retained for:
+Do not remove an asset merely because it is not visible on the first screen.
 
-- alternate runtime state,
-- gallery content,
-- future authored music slot,
-- source provenance.
+Many assets are state-gated or derived by convention.
 
-Do not delete only because an asset is not visible on the default first screen.
-
-Many assets are state-gated.
+For example, LRC files are derived from MP3 paths rather than listed in a separate manifest.
 
 ## Design Rules
 
-- Public host contains runtime assets only.
-- Development notes/helpers stay out of deployment.
-- Validate local references and case.
-- Treat intentionally pending music as a documented exception.
+- Public host contains intentional runtime assets and public documentation.
+- Development helpers stay out of deployment.
+- Validate exact reference case.
+- All 12 MP3s are required in the v2.80 public release.
+- All 12 matching LRC files should ship, even while metadata-only.
+- Missing-file fallback is resilience, not the desired shipped state.
 - Track provenance separately.
-- Remove genuinely dead assets before release.
-- Do not remove state-gated assets merely because they are not visible in a smoke test.
+- Remove genuinely dead assets, not state-gated assets.
 
 ## Success Criteria
 
-The deployed site contains every file the runtime can legitimately request and little else.
+The deployed site contains every file the current runtime can legitimately request, including the complete soundtrack and editable LRC layer, while development-only tooling remains outside the public host.
+
 ## Related Documentation
 
 - [QA, Runtime Operations, and Deployment Index](../README.md)

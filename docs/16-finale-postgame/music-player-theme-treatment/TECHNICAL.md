@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Player Theme Treatment > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Styles the unlocked Music Player to match the currently selected Rare, Epic, or Legendary site theme without changing music entitlement.
+**Feature summary:** Styles the unlocked 12-track Music Player, playback options, playlist rows, and lyrics viewer to match the selected Rare, Epic, or Legendary site theme without changing music entitlement.
 
 > This page is the canonical technical documentation for **Music Player Theme Treatment** within the Finale and Postgame category.
 
@@ -12,159 +12,125 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
-## Base Header-Specific Treatment
 
-The later authoritative Rare rule:
+## Base Player
+
+The existing header-specific player treatment remains authoritative.
+
+The v2.80 addition introduces shared Music variables on the header player:
 
 ```css
-.site-header >
-.music-player
+.site-header > .music-player {
+  --music-highlight:#67cfff;
+  --music-highlight-rgb:47,147,255;
+  --music-soft:#9abfdb;
+}
 ```
 
-uses:
+## Epic Variables
 
-- blue border,
-- dark blue background,
-- cyan inset accent,
-- pale blue text.
+```css
+body.theme-complete:not(.theme-legendary)
+.site-header > .music-player {
+  --music-highlight:#ff68ce;
+  --music-highlight-rgb:255,79,200;
+  --music-soft:#d9b0e7;
+}
+```
 
-Example values:
+## Legendary Variables
+
+```css
+body.theme-complete.theme-legendary
+.site-header > .music-player {
+  --music-highlight:#ffd15c;
+  --music-highlight-rgb:255,200,61;
+  --music-soft:#bbd9c6;
+}
+```
+
+## Repeat and Shuffle
+
+Playback option buttons use the shared highlight variables for:
+
+- border,
+- hover/focus,
+- active `aria-pressed=true` state,
+- inset accent.
+
+The Repeat button uses `aria-pressed` whenever the current mode is not `off`.
+
+The Shuffle button uses `aria-pressed` for its boolean state.
+
+## Track Rows
+
+Each row contains:
 
 ```text
-border:
-rgba(47,147,255,.52)
-
-background:
-rgba(8,20,34,.98)
-to
-rgba(5,12,20,.98)
-
-inset accent:
-rgba(47,147,255,.52)
+.music-track-select
+.music-track-info
 ```
 
-## Rare Internal Colors
+The selected row gains the active Music highlight.
 
-Examples:
+The lyrics info button is a 23x23 circular target and uses the same theme color for normal, hover, focus, and open state.
+
+## Lyrics Panel
+
+Theme variables apply to:
+
+- panel border,
+- header label,
+- close button,
+- lyric text,
+- timestamp text,
+- current-line border/background,
+- current timestamp emphasis.
+
+The current timed line uses:
 
 ```text
-head kicker    #67cfff
-track title    #e9f6ff
-status         #8fcfff
-count          #a9c9e3
-controls       #cae9ff
+.music-lyric-line.current
 ```
 
-Active track:
+## Mobile and Reduced Motion
+
+At 760 px or below:
 
 ```text
-blue border/background
-near-white text
+music track list -> one column
 ```
 
-## Epic
+Reduced-motion handling changes only the lyrics viewer presentation:
 
-Selector:
+- smooth lyrics scrolling disabled,
+- lyric-line transitions disabled.
 
-```text
-body.theme-complete
-:not(.theme-legendary)
-.site-header >
-.music-player
-```
-
-uses:
-
-- hot pink border,
-- plum/blue-black background,
-- cyan inset accent.
-
-Examples:
-
-```text
-border:
-rgba(255,79,200,.48)
-
-kicker:
-#67e8ff
-
-title:
-#ffdff7
-
-status:
-#d9a6ff
-
-count:
-#67e8ff
-```
-
-## Legendary
-
-Selector:
-
-```text
-body.theme-complete
-.theme-legendary
-.site-header >
-.music-player
-```
-
-uses:
-
-- gold border,
-- warm dark background,
-- teal inset accent.
-
-Examples:
-
-```text
-border:
-rgba(255,200,61,.46)
-
-kicker:
-#55ddd9
-
-title:
-#fff0b5
-
-status:
-#9fdeda
-
-count:
-#d8c789
-```
+Playback and sync timing remain unchanged.
 
 ## Dynamic Theme Response
 
-Theme changes are body-class based.
+The implementation remains CSS/body-class driven.
 
-The player does not need a JavaScript theme callback to repaint itself.
+Changing site theme does not require reinitializing:
 
-Existing CSS selectors apply immediately.
-
-## Unlock Independence
-
-`musicPlayer.hidden` depends only on:
-
-```js
-musicPlayerUnlocked
-```
-
-not on:
-
-```text
-currentThemeMode()
-```
-
-or `theme-legendary`.
+- audio,
+- Shuffle,
+- Repeat,
+- lyrics,
+- entitlement.
 
 ## QA
 
-- Unlock Music once.
-- Cycle Rare, Epic, Legendary.
-- Verify panel, controls, active track, status, and numbering recolor.
-- Verify player never hides.
-- Toggle theme while audio is playing and verify playback is uninterrupted.
+- Unlock Music.
+- Cycle Rare, Epic, Legendary while paused.
+- Repeat while playing.
+- Verify option buttons recolor without changing their state.
+- Verify active track recolors.
+- Open timed lyrics and verify current line/timestamp recolor.
+- Verify the player never hides or resets because of theme changes.
+- Check keyboard focus for Repeat, Shuffle, track title, lyrics `?`, and close button.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

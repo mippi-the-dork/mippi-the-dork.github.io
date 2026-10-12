@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Version and Cache Strategy > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Keeps package labels, runtime diagnostics, static asset query strings, and local preview URLs synchronized so testers can tell which build is actually running.
 
@@ -18,7 +18,7 @@ At top of `script.js`:
 
 ```js
 const mippiRuntimeHealth={
-  version:'2.78',
+  version:'2.80',
   ...
 };
 ```
@@ -34,7 +34,7 @@ window.__MIPPI_RUNTIME__
 should return:
 
 ```text
-2.78
+2.80
 ```
 
 ## HTML Asset Versions
@@ -42,9 +42,9 @@ should return:
 Both normal and debug HTML use:
 
 ```text
-style.css?v=2.78
-script.js?v=2.78
-perspective-demo.js?v=2.78
+style.css?v=2.80
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 ## Preview Version
@@ -52,13 +52,13 @@ perspective-demo.js?v=2.78
 `preview_server.py` opens:
 
 ```text
-?v=2.78
+?v=2.80
 ```
 
 and prints:
 
 ```text
-Mippi Portfolio v2.78 preview:
+Mippi Portfolio v2.80 preview:
 ```
 
 ## Package Comment
@@ -66,7 +66,7 @@ Mippi Portfolio v2.78 preview:
 The HTML footer contains:
 
 ```text
-MIPPI PORTFOLIO PACKAGE v2.78
+MIPPI PORTFOLIO PACKAGE v2.80
 ```
 
 ## Three.js Dependency

@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Downloads > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Enables per-track download for the currently selected soundtrack slot only when that track file has been confirmed available.
+**Feature summary:** Lets visitors download any of the 12 installed authored songs using readable title-based filenames.
 
 > This page is the canonical technical documentation for **Music Downloads** within the Finale and Postgame category.
 
@@ -12,146 +12,105 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
 ## Markup
 
+The player uses:
+
 ```html
-<a
-  id="music-download"
-  href="#"
-  download
-  aria-disabled="true">
-  DOWNLOAD
-</a>
+<a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
 ```
 
-## Update Function
+## Download Update
+
+`updateMusicDownload()` uses the selected `MUSIC_TRACKS[musicTrackIndex]`.
+
+When available:
+
+```text
+href = numbered MP3 source path
+download = sanitized human-readable song title + .mp3
+aria-disabled = false
+```
+
+When unavailable:
+
+```text
+href = #
+aria-disabled = true
+disabled class = true
+```
+
+## Filename Sanitization
+
+Current v2.80 code:
 
 ```js
-function updateMusicDownload(){
-  if(!musicDownload)
-    return;
-
-  const track=
-    MUSIC_TRACKS[
-      musicTrackIndex
-    ];
-
-  musicDownload.href=
-    musicCurrentAvailable
-      ? track.src
-      : '#';
-
-  musicDownload.setAttribute(
-    'aria-disabled',
-    musicCurrentAvailable
-      ? 'false'
-      : 'true'
-  );
-
-  musicDownload.classList.toggle(
-    'disabled',
-    !musicCurrentAvailable
-  );
-}
+track.title.replace(/[\\/:*?"<>|]/g,'-')
 ```
+
+then appends:
+
+```text
+.mp3
+```
+
+This replaces common invalid filename characters with a hyphen.
+
+## Canonical Mapping
+
+| Track | Source path |
+| --- | --- |
+| Literally Unplayable | `assets/music/song-01.mp3` |
+| Just Add Gameplay | `assets/music/song-02.mp3` |
+| Great Again | `assets/music/song-03.mp3` |
+| Inside My Head | `assets/music/song-04.mp3` |
+| I Made This | `assets/music/song-05.mp3` |
+| Come Back | `assets/music/song-06.mp3` |
+| Stat FPS | `assets/music/song-07.mp3` |
+| Every Byte | `assets/music/song-08.mp3` |
+| She Was Almost Gold | `assets/music/song-09.mp3` |
+| Everybody's Right | `assets/music/song-10.mp3` |
+| One Player Too Many | `assets/music/song-11.mp3` |
+| L-E-A-R-N | `assets/music/song-12.mp3` |
 
 ## Availability Source
 
-The same audio element used for playback verifies the track.
+`loadedmetadata` marks the current audio available and calls `updateMusicDownload()`.
 
-On:
-
-```text
-loadedmetadata
-```
-
-the runtime sets:
-
-```js
-musicCurrentAvailable=true;
-```
-
-then calls:
-
-```js
-updateMusicDownload();
-```
-
-On:
-
-```text
-error
-```
-
-it sets the value false and refreshes download state.
+The `error` event marks it unavailable and disables the link.
 
 ## Track Change
 
-Immediately after any selection:
+Every `musicSwitchTrack()` starts by marking the new track unavailable until metadata succeeds.
 
-```js
-musicCurrentAvailable=false;
+That prevents stale availability from a prior source from keeping Download active incorrectly.
+
+## Lyrics Independence
+
+`musicLyricsIndex` does not control Download.
+
+Viewing lyrics for another song does not change:
+
+```text
+musicTrackIndex
+musicDownload.href
+musicDownload.download
 ```
-
-Download is disabled before the new file is loaded.
-
-This prevents the link from temporarily pointing to the prior track's availability state.
 
 ## Disabled Click
 
-```js
-musicDownload
-  ?.addEventListener(
-    'click',
-    event => {
-      if(
-        !musicCurrentAvailable
-      ){
-        event.preventDefault();
-
-        musicTrackStatus.textContent=
-          'TRACK FILE NOT INSTALLED YET';
-      }
-    }
-  );
-```
-
-## CSS
-
-Disabled state:
-
-```css
-.music-controls
-a.disabled{
-  opacity:.42;
-  cursor:not-allowed;
-}
-```
-
-## Per-Track File Mapping
-
-```text
-Track 1 -> assets/music/song-01.mp3
-Track 2 -> assets/music/song-02.mp3
-Track 3 -> assets/music/song-03.mp3
-Track 4 -> assets/music/song-04.mp3
-Track 5 -> assets/music/song-05.mp3
-Track 6 -> assets/music/song-06.mp3
-```
-
-## Filename Behavior
-
-The anchor does not provide an explicit alternate `download="<filename>"` value.
-
-The browser therefore uses the linked resource's filename behavior.
+If the selected track is not currently available, the click is prevented and the track status reports that the file is not installed/available.
 
 ## QA
 
-- Missing file: verify href effectively disabled.
-- Available file: verify href points at correct MP3.
-- Select another missing track: verify link disables immediately.
-- Install all six and validate each mapping.
-- Test on GitHub Pages/static hosting.
+- Test all 12 source paths.
+- Verify every installed MP3 enables Download.
+- Verify the filename matches the human-readable title.
+- Verify characters requiring sanitization become `-`.
+- Open lyrics for a different song and confirm Download still targets the selected track.
+- Simulate a missing MP3 and verify Download disables without affecting the rest of the player.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

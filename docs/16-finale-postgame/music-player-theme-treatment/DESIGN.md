@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Player Theme Treatment > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Styles the unlocked Music Player to match the currently selected Rare, Epic, or Legendary site theme without changing music entitlement.
+**Feature summary:** Styles the unlocked 12-track Music Player, playback options, playlist rows, and lyrics viewer to match the selected Rare, Epic, or Legendary site theme without changing music entitlement.
 
 > This page is the canonical design documentation for **Music Player Theme Treatment** within the Finale and Postgame category.
 
@@ -12,17 +12,18 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
 ## Design Intent
 
 The Music Player is a permanent postgame utility.
 
-It should feel integrated with whichever world presentation the player chooses.
+It should feel integrated with whichever rarity presentation the visitor chooses.
 
-The same unlocked player therefore has three visual treatments.
+The same unlocked player therefore adapts to:
 
 ### Rare
 
-Blue/cyan technical panel.
+Blue/cyan.
 
 ### Epic
 
@@ -34,70 +35,68 @@ Gold/amber/teal.
 
 ## Theme Is Presentation
 
-Music entitlement is independent from active theme.
+Music entitlement remains independent from active theme.
 
 A player can:
 
 - earn 100 percent,
 - unlock Music,
-- switch back to Rare,
-- keep the Music Player.
+- switch to Rare,
+- keep the Music Player,
+- keep all 12 tracks,
+- keep Repeat and Shuffle,
+- keep the lyrics viewer.
 
-The player should not disappear because the site is no longer visually Legendary.
+## v2.80 Shared Theme Surfaces
 
-This follows the broader progression/theme separation rule.
+The v2.80 additions use the same theme-aware Music variables as the rest of the player.
 
-## Shared Structure
+Theme treatment now covers:
 
-All themes retain the same:
+- Repeat button,
+- Shuffle button,
+- active playback-option state,
+- track select rows,
+- 23x23 circled lyrics `?`,
+- lyrics panel border,
+- lyrics header,
+- lyric timestamps,
+- current-line highlight.
 
-- title,
-- controls,
-- track list,
-- status line,
-- collapse behavior,
-- download behavior.
+The feature does not create separate theme-specific functionality.
 
-Only palette changes.
+## Active Track and Active Lyric
 
-This avoids creating theme-specific functionality.
+The selected track uses stronger border/background emphasis.
 
-## Active Track
+The currently synchronized lyric line uses the active Music highlight color and stronger weight.
 
-The selected track receives a stronger local border/background treatment matching the current world rarity.
+These are two different states:
 
-Track numbering uses the cool secondary color of the theme.
+- selected track,
+- current timed lyric.
 
-## Hover and Focus
+## Accessibility
 
-Transport and download controls adapt their border and text colors by theme.
+Hover and focus states remain visible in every rarity.
 
-Focus remains obvious in every palette.
-
-## Legendary Identity
-
-Although the Music Player is a Legendary reward, its appearance is not permanently gold.
-
-This is intentional.
-
-Reward rarity explains how it was earned.
-
-Current world theme explains how the interface is being presented now.
+Repeat and Shuffle also expose state through text and ARIA, so color is not the only signal.
 
 ## Design Rules
 
 - Rare uses blue/cyan.
 - Epic uses violet/pink/cyan.
 - Legendary uses gold/teal.
-- Entitlement does not depend on theme.
-- Track list structure never changes by theme.
-- Active track remains clearly selected.
-- Focus and hover remain readable.
-- Missing-file state should remain visible in every theme.
+- Entitlement never depends on active theme.
+- Repeat, Shuffle, playlist controls, and lyrics share the current Music palette.
+- Selected track remains clearly readable.
+- Current lyric remains clearly distinguishable.
+- Focus and active state must remain understandable without relying on color alone.
 
 ## Success Criteria
 
-The Music Player looks native to every active theme while remaining the same persistent postgame reward.
+The expanded v2.80 Music Player feels native to all three rarity themes while preserving one consistent feature set and one persistent reward.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

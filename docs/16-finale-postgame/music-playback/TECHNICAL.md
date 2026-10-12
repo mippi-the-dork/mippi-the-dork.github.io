@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Playback > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Implements six selectable soundtrack slots with play/pause, previous/next navigation, automatic next-track playback, and graceful missing-file handling.
+**Feature summary:** Provides the finished 12-song soundtrack with direct selection, play/pause, previous/next, repeat, shuffle, and editable LRC lyrics.
 
 > This page is the canonical technical documentation for **Music Playback** within the Finale and Postgame category.
 
@@ -12,222 +12,247 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+- [Music Lyrics Authoring Guide](../../MUSIC_LYRICS_AUTHORING_GUIDE.md)
+
 ## Track Registry
 
+`MUSIC_TRACKS` contains 12 objects:
+
 ```js
-const MUSIC_TRACKS=[
-  {
-    title:'SONG 01',
-    src:'assets/music/song-01.mp3'
-  },
-  ...
-  {
-    title:'SONG 06',
-    src:'assets/music/song-06.mp3'
-  }
-];
+{title:'Literally Unplayable',src:'assets/music/song-01.mp3'}
+...
+{title:'L-E-A-R-N',src:'assets/music/song-12.mp3'}
 ```
+
+The array controls:
+
+- playlist order,
+- title labels,
+- current-track title,
+- current-track count,
+- MP3 path,
+- derived LRC path.
+
+## Persistent Options
+
+```text
+MUSIC_REPEAT_KEY  = mippi-music-repeat-v1
+MUSIC_SHUFFLE_KEY = mippi-music-shuffle-v1
+```
+
+Repeat modes:
+
+```js
+['off','playlist','track']
+```
+
+Invalid/missing repeat state defaults to `off`.
+
+Shuffle loads true only when the stored value is `1`.
 
 ## Runtime State
 
-```js
-let musicTrackIndex=0;
-let musicCurrentAvailable=false;
-```
-
-## Selection
-
-```js
-selectMusicTrack(
-  index,
-  {autoplay=false}
-)
-```
-
-wraps index:
-
-```js
-musicTrackIndex=
-  (
-    Number(index)+
-    MUSIC_TRACKS.length
-  )
-  %
-  MUSIC_TRACKS.length;
-```
-
-## Selection Reset
-
-On every new track:
-
-```js
-musicCurrentAvailable=false;
-```
-
-UI becomes:
+Important fields:
 
 ```text
-CHECKING TRACK FILE...
-PLAY
+musicTrackIndex
+musicCurrentAvailable
+musicPlayWhenReady
+musicShuffleBag
+musicShuffleHistory
+musicShuffleHistoryPosition
+musicLyricsIndex
+musicLyricsData
+musicLyricsRequest
+musicActiveLyricLine
 ```
 
-Download is disabled.
+## Shuffle Bag
 
-Then:
+`musicShuffleOrder(exclude)`:
 
-```js
-musicAudio.pause();
-musicAudio.src=track.src;
-musicAudio.load();
-```
+- builds all track indexes except the excluded current track,
+- applies Fisher-Yates randomization,
+- returns the randomized bag.
 
-If `autoplay` is requested:
+`resetMusicShuffleHistory()` resets history to the current track and rebuilds the bag.
 
-```js
-musicAudio.play()
-  .catch(()=>{});
-```
+## Central Track Switching
 
-## Manual List Click
+`musicSwitchTrack(index,{autoplay,shuffleHistory})` replaces the older direct switching flow.
 
-Track-list click calls:
+It:
 
-```js
-selectMusicTrack(
-  Number(
-    button.dataset.musicTrack
-  )
-);
-```
+1. updates Shuffle history when appropriate,
+2. sets `musicTrackIndex`,
+3. clears availability,
+4. stores the pending autoplay intention,
+5. updates title/count/status,
+6. updates download state,
+7. rerenders the track list,
+8. pauses old audio,
+9. changes `audio.src`,
+10. loads the new MP3,
+11. refreshes lyrics if the lyrics panel is already open.
 
-No autoplay option is passed.
+## Deferred Autoplay
 
-## Previous / Next
-
-Previous:
-
-```js
-selectMusicTrack(
-  musicTrackIndex-1,
-  {
-    autoplay:
-      !musicAudio.paused
-  }
-);
-```
-
-Next uses the same logic with `+1`.
-
-## Play
-
-When the file is unavailable:
+When `autoplay=true`:
 
 ```text
-TRACK FILE NOT INSTALLED YET
+musicPlayWhenReady = true
 ```
 
-is shown.
+Playback waits until `loadedmetadata`.
 
-When available and paused:
+On successful metadata load:
 
-```js
-musicAudio.play()
-```
+- mark current file available,
+- show READY,
+- update download,
+- if `musicPlayWhenReady`, clear it and call `play()`.
 
-is attempted.
+On audio error:
 
-On rejection:
+- clear pending autoplay,
+- mark unavailable,
+- show MUSIC FILE PENDING,
+- disable download.
+
+## Next Selection
+
+`musicChooseNext({automatic})` implements sequential and Shuffle rules.
+
+### Sequential
+
+- next in-range index -> next track,
+- end of list + manual Next -> track 0,
+- end of list + LOOP ALL automatic -> track 0,
+- end of list + LOOP OFF automatic -> `null`.
+
+### Shuffle
+
+- if user previously moved backward, Next walks forward through visited history,
+- otherwise pop the next index from the bag,
+- empty bag + LOOP ALL automatic -> build a new bag,
+- empty bag + LOOP OFF automatic -> `null`.
+
+## Previous
+
+Sequential mode wraps through normal direct selection.
+
+Shuffle mode walks backward through `musicShuffleHistory`.
+
+If there is no earlier shuffled history entry, Previous restarts the current audio at zero.
+
+## Ended Event
 
 ```text
-PLAYBACK UNAVAILABLE
+if repeat mode == track
+  currentTime = 0
+  play same MP3
+else
+  musicNextTrack({automatic:true})
 ```
 
-## Pause
+## Lyrics Parsing
 
-If currently playing:
+`parseMusicLrc(raw)` supports:
+
+- UTF-8 BOM removal,
+- blank-line removal,
+- `[offset:+/-N]` milliseconds,
+- ignored metadata tags `ti/ar/al/au/by/length/re/ve`,
+- timestamps with 1 to 3 minute digits,
+- exactly 2 second digits,
+- optional 1 to 3 fractional digits,
+- multiple timestamps per source line,
+- untimed text,
+- section labels such as `[Verse 2]`,
+- chronological sort of timed entries.
+
+Seconds above 59 are ignored.
+
+If a timestamp offset would make time negative, it clamps to zero.
+
+## Lyrics Loading
+
+`openMusicLyrics(index)` derives the LRC path by replacing `.mp3` with `.lrc`.
+
+It fetches with:
 
 ```js
-musicAudio.pause();
+{cache:'no-store'}
 ```
 
-## Availability Events
+A monotonically increasing request ID prevents stale lyric responses from winning when the visitor switches rapidly.
 
-### loadedmetadata
+## Safe Rendering
 
-```js
-musicCurrentAvailable=true;
-status='READY';
-```
+Lyric text is assigned with `textContent`.
 
-### error
+The LRC is never injected as HTML.
 
-```js
-musicCurrentAvailable=false;
-status='MUSIC FILE PENDING';
-play label='PLAY';
-```
+## Lyrics Synchronization
 
-### play
+`updateMusicLyricsSync()` runs on:
 
 ```text
-button PAUSE
-status NOW PLAYING
+timeupdate
+seeked
 ```
 
-### pause
+It synchronizes only when:
+
+- lyrics data exists,
+- lyrics track matches selected track,
+- audio exists,
+- panel is open,
+- file contains timestamps.
+
+The active line is the latest timed entry whose time has passed.
+
+The corresponding row receives `.current` and the lyrics well scrolls internally to keep it visible.
+
+## Empty and Missing Lyrics
+
+Metadata-only templates produce:
 
 ```text
-button PLAY
-status READY
+Lyrics coming soon.
 ```
 
-when the current file is available.
+Missing/unavailable LRC produces a separate unavailable-file fallback.
 
-## Ended
-
-```js
-musicAudio?.addEventListener(
-  'ended',
-  () =>
-    selectMusicTrack(
-      musicTrackIndex+1,
-      {autoplay:true}
-    )
-);
-```
-
-## Preload
-
-HTML audio element:
-
-```html
-<audio
-  id="music-audio"
-  preload="metadata">
-</audio>
-```
+Neither case interrupts audio.
 
 ## Startup
 
-If Music is already unlocked:
+When Music is unlocked:
 
-```js
-selectMusicTrack(0);
+```text
+track 01 selected
+paused
+repeat restored
+shuffle restored
+shuffle order/history rebuilt if Shuffle is enabled
 ```
-
-No autoplay.
 
 ## QA
 
-- Test missing all six files.
-- Install one MP3 and test readiness.
-- Select a track manually and verify no autoplay.
-- Play, then Next and Previous.
-- Pause, then Next.
-- Reach end of an available track.
-- Verify wrap from track six to one.
-- Collapse while playing.
-- Reload and verify track one paused.
+- Verify all 12 title/path pairs.
+- Verify metadata-delayed autoplay between tracks.
+- Test all three Repeat states.
+- Test Shuffle with LOOP OFF and LOOP ALL.
+- Verify no premature repeat in one Shuffle bag.
+- Verify Previous/Next history behavior.
+- Verify manual row selection remains separate from `?`.
+- Verify metadata-only LRC shows Lyrics coming soon.
+- Verify timed LRC highlights and seeks correctly.
+- Verify missing LRC never breaks audio.
+- Verify HTML-like lyric text renders literally.
+- Verify reload restores only entitlement/options, not playback position/history.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

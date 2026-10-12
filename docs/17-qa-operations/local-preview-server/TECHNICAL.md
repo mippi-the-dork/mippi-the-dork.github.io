@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Local Preview Server > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Uses a tiny localhost HTTP server so local QA behaves more like static hosting than opening the site through file://.
 
@@ -115,13 +115,13 @@ Current v2.78 URL:
 
 ```py
 url =
-  f"http://127.0.0.1:{port}/?v=2.78&local={int(time.time())}"
+  f"http://127.0.0.1:{port}/?v=2.80&local={int(time.time())}"
 ```
 
 ## Console Output
 
 ```text
-Mippi Portfolio v2.78 preview: <URL>
+Mippi Portfolio v2.80 preview: <URL>
 Close this window to stop the preview server.
 ```
 

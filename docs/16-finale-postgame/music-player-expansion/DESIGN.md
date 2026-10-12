@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Player Expansion > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Lets the unlocked header player collapse to a compact title bar and expand downward without stopping or resetting playback.
+**Feature summary:** Lets the unlocked header player collapse to a compact title bar and expand downward without interrupting playback, playlist options, or lyrics state.
 
 > This page is the canonical design documentation for **Music Player Expansion** within the Finale and Postgame category.
 
@@ -12,106 +12,99 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
 ## Design Intent
 
-The Music Player is persistent, but it should not permanently occupy a large piece of the viewport.
+The Music Player is persistent, but it should not permanently occupy a large part of the viewport.
 
-Collapse/expand solves that tension.
+Collapse and expansion solve that tension without changing media state.
 
-### Expanded
+## Expanded State
 
-The player shows:
+The v2.80 expanded player can show:
 
 - current track status,
-- track count,
+- current track count,
 - transport controls,
 - download,
-- six-track list.
+- Loop control,
+- Shuffle control,
+- 12-track list,
+- lyrics panel when opened.
 
-### Collapsed
+## Collapsed State
 
-The player shows only the header:
+The player keeps only its compact header identity:
 
-- 100 percent complete label,
+- 100% COMPLETE // MUSIC PLAYER,
 - current track title,
 - expand button.
 
-This preserves access while minimizing visual footprint.
+Playback continues.
 
 ## Top-Edge Stability
 
-The most important expansion rule is:
+The player remains attached beneath the sticky header.
 
-> the top edge does not move.
+Expansion grows downward from the same fixed top edge.
 
-The player is attached under the header.
+That spatial rule existed before v2.79 and remains unchanged.
 
-Collapse and expansion change what exists below the header row.
+## Lyrics Relationship
 
-This keeps the player's spatial relationship with the navigation stable.
+The lyrics panel is part of the expanded content.
+
+Collapsing hides it visually without changing the selected audio track or playback position.
+
+The currently open lyric-view state is runtime-only and does not need to become a persistence setting.
 
 ## Playback Continuity
 
-Collapsing is visual only.
-
-It must not:
+Collapsing must not:
 
 - pause audio,
-- reset selected track,
+- reset the selected track,
+- rebuild the Shuffle history,
+- change Repeat mode,
 - rewind,
-- clear availability state.
-
-A player should be able to start a song, collapse the interface, and continue browsing.
+- clear track availability.
 
 ## Button Language
 
-Expanded button:
+Expanded:
 
 ```text
 −
-```
-
-Accessible label:
-
-```text
 Collapse music player
 ```
 
-Collapsed button:
+Collapsed:
 
 ```text
 +
-```
-
-Accessible label:
-
-```text
 Expand music player
 ```
 
-The symbol changes but accessibility text remains explicit.
+## Persistence
 
-## Collapse Persistence
+Collapsed/expanded preference is still not persisted in v2.80.
 
-v2.78 does not persist collapsed/expanded preference.
-
-Reloading an unlocked player starts expanded.
-
-This is acceptable because collapse is a temporary layout preference, not progression.
+Reloading an unlocked player starts from the normal expanded initialization state.
 
 ## Design Rules
 
-- Expanded state shows all controls.
-- Collapsed state keeps track title visible.
+- Expanded state exposes all current Music Player controls.
+- Collapsed state keeps track identity visible.
 - Top edge remains fixed.
 - Playback continues while collapsed.
-- Selected track remains unchanged.
-- Do not persist collapse state in v2.78.
-- Accessible label must match current action.
+- Repeat/Shuffle preferences are not altered by collapse.
+- Lyrics content is hidden with the expanded body.
+- Collapse state itself does not persist.
 
 ## Success Criteria
 
-The player can leave music running while reducing the interface to a compact header-attached control.
+The player can keep audio running while reducing itself to a compact header-attached control, then restore the full 12-track, playback-option, and lyrics interface without loss of media state.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

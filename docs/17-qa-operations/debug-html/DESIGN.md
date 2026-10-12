@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Debug HTML > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Provides a local-only index-debug.html variant that records top-level errors and unhandled promise rejections directly into the rendered page.
 
@@ -32,7 +32,7 @@ index.html
 
 The smaller the delta, the more trustworthy the reproduction.
 
-In v2.78 the functional difference is one inline error-capture script inserted before the normal runtime scripts.
+In v2.80 the functional difference is one inline error-capture script inserted before the normal runtime scripts.
 
 That is ideal.
 

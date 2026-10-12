@@ -1,6 +1,6 @@
 # Runtime State Map
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 This document groups important portfolio state by lifetime and authority.
 
@@ -83,7 +83,11 @@ Music Player entitlement
 ```text
 Inspect Mode preference
 Design Mode preference
+Music Repeat mode
+Music Shuffle enabled
 ```
+
+Music Repeat and Shuffle are v2.80 localStorage preferences. They do not change the Music Player unlock requirement.
 
 Exact keys are in [Persistence Key Registry](PERSISTENCE_KEY_REGISTRY.md).
 
@@ -229,7 +233,7 @@ current sequence timeouts
 
 `finaleSeen` persists.
 
-### Music Transport
+### Music Transport and Lyrics
 
 ```text
 selected track index
@@ -237,9 +241,25 @@ track availability cache
 currentTime
 playing/paused
 collapsed/expanded
+pending autoplay flag
+Shuffle bag
+Shuffle navigation history
+Shuffle history position
+lyrics track index
+parsed lyrics data
+lyrics request generation
+active lyric line
 ```
 
-Only Music entitlement persists.
+v2.80 persists only the broad Music settings:
+
+```text
+Music Player entitlement
+Repeat mode
+Shuffle enabled/disabled
+```
+
+The exact listening session, random order/history, lyrics view, and current lyric highlight are rebuilt on reload.
 
 ### Three.js
 

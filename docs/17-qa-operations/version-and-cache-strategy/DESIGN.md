@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Version and Cache Strategy > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Keeps package labels, runtime diagnostics, static asset query strings, and local preview URLs synchronized so testers can tell which build is actually running.
 
@@ -36,7 +36,7 @@ The goal is simple:
 This documentation baseline is:
 
 ```text
-v2.78
+v2.80
 ```
 
 The release label appears in several places.
@@ -54,7 +54,7 @@ Important runtime-facing locations include:
 Static local files use:
 
 ```text
-?v=2.78
+?v=2.80
 ```
 
 This gives hosted browsers a new URL when release version changes.
@@ -80,7 +80,7 @@ It exists only to ensure each local preview process opens a unique top-level doc
 The runtime diagnostic object reports:
 
 ```text
-version:'2.78'
+version:'2.80'
 ```
 
 This is useful when the UI looks stale.

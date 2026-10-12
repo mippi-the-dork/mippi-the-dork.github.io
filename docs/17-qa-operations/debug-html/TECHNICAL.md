@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Debug HTML > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Provides a local-only index-debug.html variant that records top-level errors and unhandled promise rejections directly into the rendered page.
 
@@ -14,7 +14,7 @@
 - [Design Documentation](DESIGN.md)
 ## Current Diff
 
-In v2.78, `diff -u index.html index-debug.html` shows one functional addition:
+In v2.80, `diff -u index.html index-debug.html` shows one functional addition:
 
 ```html
 <script>
@@ -71,8 +71,8 @@ setTimeout(
 This appears immediately before:
 
 ```text
-script.js?v=2.78
-perspective-demo.js?v=2.78
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 ## Error Format

@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Player Persistence > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Persists Music Player entitlement across visits until the public full reset clears the portfolio save state.
+**Feature summary:** Persists Music Player entitlement plus Repeat and Shuffle preferences while leaving playback position, random order, and lyric-view state temporary.
 
 > This page is the canonical design documentation for **Music Player Persistence** within the Finale and Postgame category.
 
@@ -12,97 +12,113 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
 ## Design Intent
 
-The Music Player is the final reward.
+The final reward should remain unlocked after leaving and returning to the site.
 
-A reward that disappears on reload would feel temporary and accidental.
+Small playback preferences can also persist when they are predictable user choices.
 
-Once the player reaches 100 percent completion, Music should become part of the portfolio interface until they deliberately erase the whole experience.
+Transient listening state should not.
 
 ## What Persists
 
-The entitlement persists:
+v2.80 persists:
+
+### Music entitlement
 
 ```text
-Music Player unlocked
+mippi-music-player-unlocked-v1
 ```
 
-That means on a later load:
+### Repeat preference
 
-- player is visible,
-- six track slots exist,
-- track one is selected for availability check.
+```text
+mippi-music-repeat-v1
+```
+
+Values:
+
+```text
+off
+playlist
+track
+```
+
+### Shuffle preference
+
+```text
+mippi-music-shuffle-v1
+```
+
+Values:
+
+```text
+1
+0
+```
 
 ## What Does Not Persist
 
-v2.78 intentionally does not persist:
+The player intentionally rebuilds these on reload:
 
-- current selected track,
-- current playback position,
+- selected song,
+- playback position,
 - playing/paused state,
+- Shuffle bag,
+- Shuffle navigation history,
+- open lyrics song,
+- lyric highlight position,
 - collapsed/expanded state,
-- current availability cache.
+- track availability cache.
 
-Those are runtime/media states.
+Track 01 is selected again at fresh initialization.
 
-Reload reconstructs them.
+## Why Shuffle Order Is Temporary
+
+Shuffle preference means:
+
+> I want random playback.
+
+It does not mean:
+
+> Restore the exact random sequence I happened to receive last time.
+
+Rebuilding the bag/history keeps persistence simple and avoids stale sequence state.
 
 ## Reset Boundary
 
-The public Dev Console:
+The normal Console `reset` clears all Mippi-owned local/session storage keys.
 
-`reset`
+That includes:
 
-is the intended way to return the site to a completely fresh progression state.
+- Music entitlement,
+- Repeat preference,
+- Shuffle preference.
 
-That reset clears Mippi-owned storage.
-
-Music entitlement is part of that reset.
-
-This gives the reward a clear lifetime:
-
-```text
-100% Complete
--> persistent reward
--> full reset
-```
-
-## Independence from Postgame Screen
-
-Once unlocked, the Music Player does not need the Achievement Ledger to remain open.
-
-It is its own persistent UI surface.
-
-The player can browse normally and use Music at any time.
+Reset returns the Music Player to a completely locked first-visit state.
 
 ## Theme Independence
 
-Unlock persists regardless of current selected theme.
+Music storage is independent from Rare/Epic/Legendary theme selection.
 
-The player can return later using Rare, Epic, or Legendary visual presentation.
-
-## Browser Storage Scope
-
-The entitlement is local to the browser storage context.
-
-It is not an account-bound cloud reward.
-
-Different browsers or cleared site storage naturally have separate states.
+Changing theme never changes Music entitlement or playback preferences.
 
 ## Design Rules
 
-- Persist entitlement only.
-- Do not persist media transport state.
-- Full reset clears entitlement.
-- Theme changes never clear entitlement.
-- Player remains independent from Ledger visibility.
-- Do not require the player to replay Finale each visit.
-- Storage remains browser-local.
+- Persist entitlement.
+- Persist Repeat choice.
+- Persist Shuffle on/off choice.
+- Do not persist exact playback session.
+- Do not persist exact randomized order/history.
+- Do not persist lyrics-view state.
+- Full reset clears all Music persistence.
+- Browser storage remains local to the current origin/profile.
 
 ## Success Criteria
 
-After 100 percent completion, the player can leave and return later and still find the Music Player attached to the header until they intentionally reset the entire experience.
+Returning visitors retain the final reward and their broad playback preferences without the site pretending it can resume an old listening session exactly where they left it.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

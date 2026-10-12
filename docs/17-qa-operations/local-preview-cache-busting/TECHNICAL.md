@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Local Preview Cache Busting > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Uses no-cache headers, version query strings, a unique per-launch URL token, and localhost-specific Three.js recovery to reduce stale local-preview failures.
 
@@ -17,9 +17,9 @@
 `index.html` currently references:
 
 ```text
-style.css?v=2.78
-script.js?v=2.78
-perspective-demo.js?v=2.78
+style.css?v=2.80
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 `index-debug.html` uses the same version strings.
@@ -29,7 +29,7 @@ perspective-demo.js?v=2.78
 The Python server opens:
 
 ```text
-http://127.0.0.1:<port>/?v=2.78&local=<unix timestamp>
+http://127.0.0.1:<port>/?v=2.80&local=<unix timestamp>
 ```
 
 The `local` timestamp changes every launch.
@@ -136,7 +136,7 @@ Alternate sources remain in the race.
 
 ## Release QA
 
-When bumping from v2.78:
+When preparing the release after v2.80:
 
 - update HTML asset query strings,
 - update preview URL version,

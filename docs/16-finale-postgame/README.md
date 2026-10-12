@@ -24,9 +24,9 @@ This category groups the canonical documentation for **Finale and Postgame**. Ev
 | **Music Player Header Placement** | Anchors the Music Player beneath the left header identity block with its left edge aligned to the Mippi logo square. | [Design](music-player-header-placement/DESIGN.md) | [Technical](music-player-header-placement/TECHNICAL.md) |
 | **Music Player Expansion** | Expands downward from a fixed top edge so the control remains spatially attached to the header. | [Design](music-player-expansion/DESIGN.md) | [Technical](music-player-expansion/TECHNICAL.md) |
 | **Music Player Theme Treatment** | Adapts its presentation to the currently active Rare, Epic, or Legendary visual theme. | [Design](music-player-theme-treatment/DESIGN.md) | [Technical](music-player-theme-treatment/TECHNICAL.md) |
-| **Music Playback** | Provides play, pause, previous, next, track title, and six-track browsing behavior. | [Design](music-playback/DESIGN.md) | [Technical](music-playback/TECHNICAL.md) |
-| **Music Downloads** | Lets visitors download each authored song directly once the final audio files are supplied. | [Design](music-downloads/DESIGN.md) | [Technical](music-downloads/TECHNICAL.md) |
-| **Music Player Persistence** | Keeps the reward unlocked across reloads and visits while ensuring the full reset command removes the unlock. | [Design](music-player-persistence/DESIGN.md) | [Technical](music-player-persistence/TECHNICAL.md) |
+| **Music Playback** | Provides the 12-song soundtrack, play/pause, previous/next, repeat, shuffle, playlist navigation, and editable LRC lyrics. | [Design](music-playback/DESIGN.md) | [Technical](music-playback/TECHNICAL.md) |
+| **Music Downloads** | Lets visitors download each installed authored song with a readable title-based filename. | [Design](music-downloads/DESIGN.md) | [Technical](music-downloads/TECHNICAL.md) |
+| **Music Player Persistence** | Keeps the reward plus repeat/shuffle preferences across reloads while reset clears the entire Music Player state. | [Design](music-player-persistence/DESIGN.md) | [Technical](music-player-persistence/TECHNICAL.md) |
 
 ## Documentation rules
 

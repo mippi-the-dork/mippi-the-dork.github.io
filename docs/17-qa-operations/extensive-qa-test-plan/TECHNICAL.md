@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Extensive QA Test Plan > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Defines the comprehensive v2.78 end-to-end test matrix used to validate the full portfolio before release.
+**Feature summary:** Defines the comprehensive v2.80 end-to-end test matrix used to validate the full portfolio before release.
 
 > This page is the canonical technical documentation for **Extensive QA Test Plan** within the QA, Runtime Operations, and Deployment category.
 
@@ -14,17 +14,13 @@
 - [Design Documentation](DESIGN.md)
 ## Canonical Artifact
 
-The current comprehensive plan exists as:
-
-```text
-MIPPI_PORTFOLIO_V2.78_EXTENSIVE_QA_TEST_PLAN.md
-```
-
-The planned documentation hierarchy places the canonical copy at:
+The canonical current test plan is:
 
 ```text
 docs/QA/EXTENSIVE_QA_TEST_PLAN.md
 ```
+
+It originated from the comprehensive v2.78 release plan and has been updated in place for the current v2.80 documented state, including the finished 12-track Music Player, Repeat, Shuffle, and editable LRC lyrics.
 
 ## Coverage Groups
 

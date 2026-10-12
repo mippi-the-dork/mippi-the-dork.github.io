@@ -1,14 +1,14 @@
 # Extensive QA Test Plan
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-This is the canonical documentation copy of the v2.78 extensive release test plan.
+This is the canonical documentation copy of the v2.80 extensive release test plan.
 
-# Mippi Portfolio v2.78 - Extensive QA Test Plan
+# Mippi Portfolio v2.80 - Extensive QA Test Plan
 
 ## Purpose
 
-This document is a full regression and progression test plan for the Mippi portfolio game layer as of v2.78.
+This document is a full regression and progression test plan for the Mippi portfolio game layer as of v2.80.
 
 The goal is to verify:
 
@@ -113,7 +113,7 @@ When logging a failure, include:
 Run this after every code change before doing deeper QA.
 
 - [ ] **SMOKE-001** - Launch through `PreviewLocal.bat`. Three.js Hero appears on the first load without manually refreshing.
-- [ ] **SMOKE-002** - Open Dev Console with `~`. Run `version`. It reports v2.78.
+- [ ] **SMOKE-002** - Open Dev Console with `~`. Run `version`. It reports v2.80.
 - [ ] **SMOKE-003** - Run `help`. No DEV category or DEV commands are shown.
 - [ ] **SMOKE-004** - Run `dev help`. DEV commands appear and are clickable.
 - [ ] **SMOKE-005** - Run `dev attention rupees`. Rupees HUD pulses because an affordable Shop item exists.
@@ -193,7 +193,7 @@ Expected:
 
 ## 3.4 Version and cache sanity
 
-- [ ] **BOOT-022** - `version` returns v2.78.
+- [ ] **BOOT-022** - `version` returns v2.80.
 - [ ] **BOOT-023** - `index.html` loads current `style.css`, `script.js`, and `perspective-demo.js` cache versions.
 - [ ] **BOOT-024** - `PreviewLocal.bat` opens a current-version URL with its per-launch cache token.
 - [ ] **BOOT-025** - Reloading locally does not accidentally show an older UI state because of cached JS/CSS.
@@ -832,7 +832,7 @@ dev mode design on
 
 # 17. Dynamic Optional Objectives
 
-There are 23 objective definitions in v2.78.
+There are 23 objective definitions in v2.80.
 
 Use:
 
@@ -1307,51 +1307,141 @@ dev postgame complete
 - [ ] **MUSIC-005** - Collapsed top edge remains stable.
 - [ ] **MUSIC-006** - Expanding the player expands downward only.
 - [ ] **MUSIC-007** - Expanding does not move the top edge upward/downward.
+- [ ] **MUSIC-008** - Unlock copy communicates twelve soundtrack tracks.
+- [ ] **MUSIC-009** - Track counter initializes as `TRACK 1 / 12`.
 
-## 27.2 Theme treatment
+## 27.2 Canonical soundtrack
 
-Switch among Rare, Epic, Legendary after Music Player is unlocked.
-
-- [ ] **MUSIC-008** - Rare uses Rare blue/cyan treatment.
-- [ ] **MUSIC-009** - Epic uses Epic purple/pink/cyan treatment.
-- [ ] **MUSIC-010** - Legendary uses Legendary gold/teal treatment.
-- [ ] **MUSIC-011** - Text remains readable in every theme.
-
-## 27.3 Current missing-file behavior
-
-The current build expects:
+Verify all 12 installed MP3s and their exact order:
 
 ```text
-assets/music/song-01.mp3
-assets/music/song-02.mp3
-assets/music/song-03.mp3
-assets/music/song-04.mp3
-assets/music/song-05.mp3
-assets/music/song-06.mp3
+01 Literally Unplayable
+02 Just Add Gameplay
+03 Great Again
+04 Inside My Head
+05 I Made This
+06 Come Back
+07 Stat FPS
+08 Every Byte
+09 She Was Almost Gold
+10 Everybody's Right
+11 One Player Too Many
+12 L-E-A-R-N
 ```
 
-Until final authored tracks are installed:
+- [ ] **MUSIC-010** - All 12 rows are visible when expanded.
+- [ ] **MUSIC-011** - Every displayed title matches the canonical order.
+- [ ] **MUSIC-012** - Every MP3 reaches READY when selected.
+- [ ] **MUSIC-013** - Play starts the selected song.
+- [ ] **MUSIC-014** - Pause works.
+- [ ] **MUSIC-015** - Manual Previous works.
+- [ ] **MUSIC-016** - Manual Next works.
+- [ ] **MUSIC-017** - Switching tracks replaces prior playback cleanly.
+- [ ] **MUSIC-018** - Automatic track switching waits for metadata and does not race the new source.
 
-- [ ] **MUSIC-012** - Six song slots are visible.
-- [ ] **MUSIC-013** - Missing track reports `MUSIC FILE PENDING` or equivalent intended unavailable state.
-- [ ] **MUSIC-014** - Play is disabled for missing file.
-- [ ] **MUSIC-015** - Download is disabled for missing file.
-- [ ] **MUSIC-016** - Missing track does not throw browser console errors repeatedly.
+## 27.3 Repeat behavior
 
-## 27.4 Final audio test once songs are added
+Cycle the Repeat button through all states.
 
-For every song 01 through 06:
+- [ ] **MUSIC-R01** - Default is `LOOP OFF` when no valid preference exists.
+- [ ] **MUSIC-R02** - Click order is `LOOP OFF -> LOOP ALL -> LOOP 1 -> LOOP OFF`.
+- [ ] **MUSIC-R03** - LOOP OFF stops automatic sequential playback after track 12.
+- [ ] **MUSIC-R04** - LOOP ALL wraps sequential playback from track 12 to track 01.
+- [ ] **MUSIC-R05** - LOOP 1 restarts the same MP3 from time 0.
+- [ ] **MUSIC-R06** - Manual Next can still wrap when Repeat is Off.
+- [ ] **MUSIC-R07** - Button text, tooltip, aria-label, aria-pressed, and data-mode match the current state.
 
-- [ ] **MUSIC-A01** - Correct song title is displayed.
-- [ ] **MUSIC-A02** - Play starts that song.
-- [ ] **MUSIC-A03** - Pause works.
-- [ ] **MUSIC-A04** - Previous track works.
-- [ ] **MUSIC-A05** - Next track works.
-- [ ] **MUSIC-A06** - Switching tracks stops/replaces prior playback cleanly.
-- [ ] **MUSIC-A07** - Download downloads the correct file.
-- [ ] **MUSIC-A08** - Download filename is intentional and readable.
-- [ ] **MUSIC-A09** - Reload keeps Music Player unlocked.
-- [ ] **MUSIC-A10** - `reset` removes the Music Player unlock.
+## 27.4 Shuffle behavior
+
+- [ ] **MUSIC-S01** - Shuffle toggles independently from Repeat.
+- [ ] **MUSIC-S02** - Shuffle On builds a randomized cycle excluding the current track.
+- [ ] **MUSIC-S03** - No track is intentionally reused before the current Shuffle bag is exhausted.
+- [ ] **MUSIC-S04** - Previous moves through actual visited Shuffle history.
+- [ ] **MUSIC-S05** - After moving backward, Next walks forward through existing history before choosing another random track.
+- [ ] **MUSIC-S06** - Manually selecting a song while Shuffle is on updates history and removes that track from the pending bag.
+- [ ] **MUSIC-S07** - LOOP OFF stops after the current Shuffle cycle.
+- [ ] **MUSIC-S08** - LOOP ALL starts a new randomized cycle.
+- [ ] **MUSIC-S09** - LOOP 1 takes priority over Shuffle when a song ends.
+
+## 27.5 Playback preference persistence
+
+- [ ] **MUSIC-P01** - Repeat mode survives reload.
+- [ ] **MUSIC-P02** - Shuffle On/Off survives reload.
+- [ ] **MUSIC-P03** - Exact Shuffle bag/order does not survive reload.
+- [ ] **MUSIC-P04** - Shuffle navigation history does not survive reload.
+- [ ] **MUSIC-P05** - Selected song resets to track 01 on fresh initialization.
+- [ ] **MUSIC-P06** - Playback time does not resume.
+- [ ] **MUSIC-P07** - Player does not autoplay on reload.
+- [ ] **MUSIC-P08** - Normal full `reset` clears entitlement, Repeat, and Shuffle preferences.
+
+## 27.6 Lyrics controls
+
+For every playlist row:
+
+- [ ] **MUSIC-L01** - Song title/row and circled `?` are separate interactive targets.
+- [ ] **MUSIC-L02** - Clicking `?` opens lyrics for that row without changing selected/playing audio.
+- [ ] **MUSIC-L03** - Clicking the same row's `?` again closes the lyrics panel.
+- [ ] **MUSIC-L04** - `#music-lyrics-close` closes the panel.
+- [ ] **MUSIC-L05** - Changing selected track while lyrics are open updates the panel to the newly selected track.
+- [ ] **MUSIC-L06** - Lyrics synchronization only runs when viewed lyrics match the selected track.
+
+## 27.7 Current metadata-only LRC package
+
+The v2.80 package includes:
+
+```text
+assets/music/song-01.lrc
+...
+assets/music/song-12.lrc
+```
+
+Each shipped file currently contains metadata only.
+
+- [ ] **MUSIC-L07** - Metadata-only file shows `Lyrics coming soon`.
+- [ ] **MUSIC-L08** - Missing LRC falls back gracefully without breaking audio.
+- [ ] **MUSIC-L09** - LRC fetch uses no-store behavior so close/reopen can pick up edits.
+
+## 27.8 LRC parser and synchronization
+
+Use a temporary authored test LRC in local QA.
+
+- [ ] **MUSIC-L10** - Untimed lines render as ordinary text.
+- [ ] **MUSIC-L11** - `[mm:ss.xx]` timestamps render beside timed lines.
+- [ ] **MUSIC-L12** - One source line with multiple timestamps produces multiple timed entries.
+- [ ] **MUSIC-L13** - Metadata tags are ignored as lyric text.
+- [ ] **MUSIC-L14** - Positive and negative `[offset:]` values alter timestamps correctly.
+- [ ] **MUSIC-L15** - UTF-8 BOM does not appear as lyric content.
+- [ ] **MUSIC-L16** - Seconds above 59 are not accepted as valid timed entries.
+- [ ] **MUSIC-L17** - Timed lines sort chronologically.
+- [ ] **MUSIC-L18** - Mixed untimed lines display after timed entries.
+- [ ] **MUSIC-L19** - timeupdate advances the current-line highlight.
+- [ ] **MUSIC-L20** - seeked updates the current line immediately.
+- [ ] **MUSIC-L21** - Auto-scroll stays inside the lyrics panel rather than moving the webpage.
+- [ ] **MUSIC-L22** - HTML-like lyric text displays literally and never executes.
+
+## 27.9 Theme, collapse, and responsive behavior
+
+Switch among Rare, Epic, Legendary.
+
+- [ ] **MUSIC-T01** - Rare uses Rare blue/cyan treatment.
+- [ ] **MUSIC-T02** - Epic uses Epic purple/pink/cyan treatment.
+- [ ] **MUSIC-T03** - Legendary uses Legendary gold/teal treatment.
+- [ ] **MUSIC-T04** - Repeat/Shuffle active states remain readable in every theme.
+- [ ] **MUSIC-T05** - Lyrics current-line/timestamp emphasis remains readable in every theme.
+- [ ] **MUSIC-T06** - Collapsing hides playback options and lyrics without pausing audio.
+- [ ] **MUSIC-T07** - Expanding restores the full interface without rebuilding playback state.
+- [ ] **MUSIC-T08** - At 760 px or below, song rows use the intended narrow layout.
+- [ ] **MUSIC-T09** - Reduced-motion preference disables smooth lyric scrolling/transitions without changing sync timing.
+
+## 27.10 Downloads
+
+For all 12 songs:
+
+- [ ] **MUSIC-D01** - Download targets the selected track, not a separately viewed lyrics track.
+- [ ] **MUSIC-D02** - Download uses the correct numbered MP3 source.
+- [ ] **MUSIC-D03** - Download filename uses the human-readable song title.
+- [ ] **MUSIC-D04** - Invalid filename characters are replaced with hyphens.
+- [ ] **MUSIC-D05** - Missing/unavailable audio disables Download safely.
 
 ---
 
@@ -1388,6 +1478,8 @@ For each state below, set it, reload, and verify expected persistence.
 | Postgame tier revealed | `dev postgame reveal` | Persists. |
 | 100% Complete | `dev postgame complete` | Persists. |
 | Music Player unlock | `dev music` or true 100% | Persists until reset. |
+| Music Repeat mode | Set LOOP ALL or LOOP 1 | Persists until reset. |
+| Music Shuffle preference | Turn Shuffle On | Persists until reset; randomized bag/history rebuilds. |
 | AI Wish corruption | `dev wish ai` | Should not become permanent across a normal page reload unless explicitly designed that way. |
 | Temporary Wish overlays | `dev wish engine` etc. | Should not resurrect unexpectedly after reload. |
 
@@ -1712,7 +1804,7 @@ Copy this when filing a bug:
 ## Bug
 
 **Test ID:**
-**Build:** v2.78
+**Build:** v2.80
 **Environment:** Local Preview / GitHub Pages
 **Browser:**
 **Viewport:**

@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Extensive QA Test Plan > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Defines the comprehensive v2.78 end-to-end test matrix used to validate the full portfolio before release.
+**Feature summary:** Defines the comprehensive v2.80 end-to-end test matrix used to validate the full portfolio before release.
 
 > This page is the canonical design documentation for **Extensive QA Test Plan** within the QA, Runtime Operations, and Deployment category.
 
@@ -33,7 +33,7 @@ The plan is intentionally broader than a conventional website smoke test because
 
 ## Scope
 
-The v2.78 extensive plan covers:
+The v2.80 extensive plan covers:
 
 - clean state and startup smoke,
 - local vs hosted Three.js,

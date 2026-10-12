@@ -1,6 +1,6 @@
 # Achievement Catalog
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 The Achievement system has three rarity layers:
 

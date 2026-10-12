@@ -1,6 +1,6 @@
 # Feature Relationships
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 This document maps the major cross-system dependencies in the portfolio.
 
@@ -118,6 +118,43 @@ The result is:
 100% Complete
 -> Music Player entitlement
 ```
+
+## Music Player Relationships
+
+The v2.80 Music Player keeps the original True Completion unlock relationship and expands the reward itself.
+
+```text
+100% Complete
+  |
+  v
+Music Player entitlement
+  |
+  +-- 12 installed MP3 tracks
+  +-- Play / Pause / Previous / Next
+  +-- Repeat: Off / Playlist / Track
+  +-- Shuffle: Off / On
+  +-- Per-track lyrics viewer
+  +-- Per-track MP3 download
+```
+
+Repeat and Shuffle are playback preferences, not progression.
+
+```text
+mippi-music-repeat-v1
+mippi-music-shuffle-v1
+```
+
+Lyrics are content-adjacent rather than progression-adjacent:
+
+```text
+song-XX.mp3
+-> song-XX.lrc
+-> optional untimed/timed lyric rendering
+```
+
+The lyrics `?` control is intentionally independent from track selection. Opening lyrics for another song does not change the selected or playing track.
+
+The exact Shuffle bag/history, playback position, selected track, open lyrics view, and lyric highlight are runtime-only and rebuild on reload.
 
 ## Discovery Relationships
 

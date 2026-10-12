@@ -2,9 +2,9 @@
 
 **Hierarchy:** Documentation Home > Finale and Postgame > Music Player Expansion > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
-**Feature summary:** Lets the unlocked header player collapse to a compact title bar and expand downward without stopping or resetting playback.
+**Feature summary:** Lets the unlocked header player collapse to a compact title bar and expand downward without interrupting playback, playlist options, or lyrics state.
 
 > This page is the canonical technical documentation for **Music Player Expansion** within the Finale and Postgame category.
 
@@ -12,154 +12,85 @@
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
 ## State Representation
 
-Collapse state is represented entirely by:
-
-```text
-collapsed
-```
-
-class on:
+Collapse state remains the `collapsed` class on:
 
 ```text
 #music-player
 ```
 
-There is no dedicated runtime boolean.
+There is no dedicated persistence key.
 
 ## Toggle
 
-```js
-musicCollapse
-  ?.addEventListener(
-    'click',
-    () => {
-      musicPlayer.classList.toggle(
-        'collapsed'
-      );
-
-      ...
-    }
-  );
-```
-
-## Symbol
-
-Collapsed:
-
-```text
-+
-```
-
-Expanded:
-
-```text
-−
-```
-
-## ARIA Label
-
-Collapsed:
-
-```text
-Expand music player
-```
-
-Expanded:
-
-```text
-Collapse music player
-```
+The `#music-collapse` listener toggles `collapsed`, swaps `+` / `−`, and updates the ARIA label.
 
 ## Hidden Expanded Content
 
-CSS:
+The pre-v2.80 expanded groups remain hidden while collapsed:
+
+- `.music-now`,
+- `.music-controls`,
+- `.music-track-list`.
+
+v2.80 additionally hides:
 
 ```css
-.music-player.collapsed
-.music-now,
-
-.music-player.collapsed
-.music-controls,
-
-.music-player.collapsed
-.music-track-list{
+.music-player.collapsed .music-play-options,
+.music-player.collapsed .music-lyrics-panel {
   display:none;
 }
 ```
 
-The header remains visible.
-
-## Header Border
-
-Collapsed header removes extra bottom spacing and divider:
-
-```text
-padding-bottom 0
-border-bottom 0
-```
-
-## Width
-
-Header-specific collapsed width:
-
-```text
-min(
-  266px,
-  calc(100vw - 40px)
-)
-```
-
-Expanded:
-
-```text
-min(
-  326px,
-  calc(100vw - 40px)
-)
-```
+This keeps Repeat, Shuffle, and lyrics within the expandable player body.
 
 ## Audio Continuity
 
-The collapse click handler does not call:
+Collapse does not call:
 
 ```text
 pause()
 load()
 selectMusicTrack()
+musicSwitchTrack()
+resetMusicShuffleHistory()
 ```
 
-Therefore current playback state is untouched.
+Therefore it does not change:
 
-## Track Continuity
+- selected track,
+- audio source,
+- currentTime,
+- paused/playing state,
+- Repeat preference,
+- Shuffle preference,
+- Shuffle history.
 
-`musicTrackIndex` is unchanged.
+## Width and Header Relationship
 
-The same current title remains visible in collapsed header.
+Desktop collapsed width remains the compact header-specific width.
+
+Expanded width remains the larger header-attached player width.
+
+At 760 px or below both use the available width between 12 px side margins.
 
 ## Persistence
 
 No storage key exists for collapsed state.
 
-Startup does not reconstruct it.
-
-## Mobile
-
-At 760 px or below, expanded and collapsed variants both use the available width between 12 px side margins.
-
-The collapsed class still hides internal content.
+Repeat and Shuffle have their own independent localStorage keys and are not part of collapse behavior.
 
 ## QA
 
-- Start an available track.
-- Collapse.
-- Verify audio continues.
-- Expand.
-- Verify same track and time continue.
-- Select another track while paused.
-- Collapse/reload.
-- Verify reload returns expanded.
+- Start a track and collapse.
+- Confirm audio continues.
+- Turn Shuffle on, navigate several tracks, collapse/expand, and confirm history remains usable.
+- Set LOOP 1, collapse/expand, and confirm mode remains.
+- Open lyrics, collapse, expand, and confirm playback is unchanged.
+- Reload and verify collapse itself returns to default initialization.
+
 ## Related Documentation
 
 - [Finale and Postgame Index](../README.md)

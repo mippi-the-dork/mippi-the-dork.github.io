@@ -1,0 +1,121 @@
+# Mippi Portfolio Documentation
+
+**Implementation baseline:** Mippi Portfolio v2.78
+
+This folder is the canonical documentation set for the Mippi portfolio experience.
+
+The documentation is organized in three layers:
+
+1. **Feature documentation** inside the 17 numbered category folders.
+2. **Project-wide reference documents** at this root.
+3. **Release and QA material** inside `QA/`.
+
+Each feature folder contains:
+
+```text
+DESIGN.md
+TECHNICAL.md
+```
+
+`DESIGN.md` is the canonical player-facing/product rationale for that feature.
+
+`TECHNICAL.md` is the canonical implementation, state, dependency, and QA reference for that feature.
+
+Project-wide catalogs should not replace feature documentation. They exist to answer cross-cutting questions such as:
+
+- Which storage key owns this state?
+- Which Console command reaches this system?
+- Which systems depend on one another?
+- Which telemetry event is emitted?
+- Which UI surface owns this control?
+- Which state is persistent, session-scoped, or runtime-only?
+
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for v2.78.
+
+## Numbered Documentation Categories
+
+| Category | Features | Scope |
+| --- | ---: | --- |
+| [01. Experience Foundation](01-experience-foundation/README.md) | 13 | Core site shell, navigation, persistence, accessibility, layout, motion, and reset behavior. |
+| [02. Portfolio Content and Professional Presentation](02-portfolio-content/README.md) | 17 | Games, career, consulting, Crafting Play, Unreal tools, galleries, About, and contact presentation. |
+| [03. Three.js and Interactive 3D Presentation](03-threejs-presentation/README.md) | 7 | Three.js loading, runtime health, Hero 3D, ambient 3D, About 3D, and 3D interaction input. |
+| [04. Rarity Themes and Visual Language](04-themes-visual-language/README.md) | 9 | Rare, Epic, Legendary presentation, theme cycling, semantic exceptions, attention cues, and particles. |
+| [05. Achievements and Discovery](05-achievements-discovery/README.md) | 29 | Rare discovery Signals, Ledger, hints, Cheat, postgame Epic achievements, and Legendary 100 percent. |
+| [06. Meta Progression and Guidance](06-progression-guidance/README.md) | 8 | Progression spine, onboarding, return guidance, Finale readiness, and True Completion framing. |
+| [07. Dev Console and Command Surface](07-dev-console/README.md) | 16 | Console shell, command parsing, Help, special command styling, stats, reset, hidden commands, and QA commands. |
+| [08. Wish and Blueprint Progression](08-wish-blueprint/README.md) | 17 | Shooting Star charge, BP_WishManager repair, validated Wishes, Legendary unlock, and authored Wish branches. |
+| [09. Rupee Economy and Shop](09-economy-shop/README.md) | 19 | Rupees, Shop discovery, prices, equipment, rarity presentation, affordability cues, and all ten Shop items. |
+| [10. Collectibles and Claimable Milestones](10-collectibles-milestones/README.md) | 12 | Flying pickups, Hearts, Keys, Castles, Star Power, Mushrooms, Doug Bones, and claim-ready HUD behavior. |
+| [11. Doug and Coolness](11-doug-coolness/README.md) | 8 | Doug petting, offscreen cameo, Coolness meter, Cool Mode, command state, Rainbow Bones, and reactions. |
+| [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md) | 19 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird. |
+| [13. Interaction and Debug Modes](13-interaction-debug-modes/README.md) | 9 | Interact, Inspect, Design, Vibe AI, Lumen, Nanite, Particle Boost, stat overlay, and control strip. |
+| [14. Dynamic Runtime Systems](14-dynamic-runtime-systems/README.md) | 16 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
+| [15. Project Heavy Water Perspective Visualizer](15-heavy-water-perspective-visualizer/README.md) | 8 | The tactical/live camera demonstration for first-, second-, and third-person camera ownership. |
+| [16. Finale and Postgame](16-finale-postgame/README.md) | 15 | Normal Finale, Session Report, postgame reveal, True Completion, and the six-track Music Player. |
+| [17. QA, Runtime Operations, and Deployment](17-qa-runtime-operations/README.md) | 11 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep. |
+
+Total feature folders:
+
+```text
+233
+```
+
+Total canonical feature pages:
+
+```text
+466
+```
+
+## Project-Wide References
+
+- [Feature Relationships](FEATURE_RELATIONSHIPS.md)
+- [Persistence Key Registry](PERSISTENCE_KEY_REGISTRY.md)
+- [Console Command Catalog](CONSOLE_COMMAND_CATALOG.md)
+- [Achievement Catalog](ACHIEVEMENT_CATALOG.md)
+- [Shop Inventory Catalog](SHOP_INVENTORY_CATALOG.md)
+- [Objective Catalog](OBJECTIVE_CATALOG.md)
+- [Telemetry Event Catalog](TELEMETRY_EVENT_CATALOG.md)
+- [UI Surface Map](UI_SURFACE_MAP.md)
+- [Runtime State Map](RUNTIME_STATE_MAP.md)
+
+## QA
+
+- [Extensive QA Test Plan](QA/EXTENSIVE_QA_TEST_PLAN.md)
+- [Release Checklist](QA/RELEASE_CHECKLIST.md)
+
+## Documentation Rules
+
+- Use the exact v2.78 identifiers from the reference catalogs.
+- Do not invent alternate names for storage keys or runtime IDs.
+- Keep visual theme state separate from gameplay progression state.
+- Treat localStorage, sessionStorage, and runtime-only state as different persistence classes.
+- Treat the normal Finale and True Completion as separate gates.
+- Treat the professional portfolio as the primary product. Game systems may enrich it but must degrade safely.
+- Update cross-cutting registries whenever a release adds, removes, or renames an identifier.
+- Update both `DESIGN.md` and `TECHNICAL.md` when a feature's player-facing behavior and implementation both change.
+- Do not create a second competing canonical source for the same feature.
+
+## v2.78 Release Identity
+
+Public runtime:
+
+```text
+index.html
+style.css
+script.js
+perspective-demo.js
+assets/
+```
+
+Development and QA helpers such as:
+
+```text
+PreviewLocal.bat
+preview_server.py
+index-debug.html
+*_DEV.md
+```
+
+belong in source/QA packages, not the public runtime deployment.
+
+The full public reset is the boundary between one completed save state and a genuinely fresh experience.

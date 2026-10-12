@@ -1,0 +1,230 @@
+{
+  "main": {
+    "id": "cedde8fb572e24e3",
+    "type": "split",
+    "children": [
+      {
+        "id": "0e5b39b0f9a609bf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "81ba51b67cf62ca5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ACHIEVEMENT_CATALOG"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1a7ecdcbd5f598a1",
+    "type": "split",
+    "children": [
+      {
+        "id": "2500306f3bea25fa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "dc00c65783fa3e7c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d076f36052c5c2b6",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "dd77775091dd9ef5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "da52959bfadc6566",
+    "type": "split",
+    "children": [
+      {
+        "id": "3a86f44b6f4980cc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ad9e68e55e8fa196",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "8af58b07f4544ebf",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "ecde5b56774b1702",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "370c6965e59c93c4",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "a20f97ebc995512b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/ACHIEVEMENT_CATALOG.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 452.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "dc00c65783fa3e7c",
+  "lastOpenFiles": [
+    "docs/CONSOLE_COMMAND_CATALOG.md",
+    "docs/FEATURE_RELATIONSHIPS.md",
+    "docs/OBJECTIVE_CATALOG.md",
+    "docs/PERSISTENCE_KEY_REGISTRY.md",
+    "docs/README.md",
+    "docs/RUNTIME_STATE_MAP.md",
+    "docs/SHOP_INVENTORY_CATALOG.md",
+    "docs/TELEMETRY_EVENT_CATALOG.md",
+    "docs/UI_SURFACE_MAP.md",
+    "docs/Home.md",
+    "docs/QA/EXTENSIVE_QA_TEST_PLAN.md",
+    "docs/QA/RELEASE_CHECKLIST.md",
+    "docs/ACHIEVEMENT_CATALOG.md",
+    "docs/13-interaction-modes/README.md",
+    "docs/15-perspective-visualizer/perspective-camera-controls/TECHNICAL.md",
+    "docs/15-perspective-visualizer/perspective-camera-controls/DESIGN.md",
+    "docs/15-perspective-visualizer/first-person-view/TECHNICAL.md",
+    "docs/15-perspective-visualizer/first-person-view/DESIGN.md",
+    "docs/14-dynamic-runtime/telemetry-foundation/TECHNICAL.md",
+    "docs/14-dynamic-runtime/telemetry-foundation/DESIGN.md",
+    "docs/14-dynamic-runtime/session-statistics/TECHNICAL.md",
+    "docs/14-dynamic-runtime/session-statistics/DESIGN.md",
+    "docs/14-dynamic-runtime-systems/telemetry-foundation/TECHNICAL.md",
+    "docs/14-dynamic-runtime-systems/telemetry-foundation/DESIGN.md",
+    "docs/14-dynamic-runtime-systems/telemetry-foundation",
+    "docs/14-dynamic-runtime-systems/session-statistics/TECHNICAL.md",
+    "docs/14-dynamic-runtime-systems/session-statistics/DESIGN.md",
+    "docs/14-dynamic-runtime-systems/session-statistics",
+    "docs/14-dynamic-runtime-systems/recent-behavior-window",
+    "docs/14-dynamic-runtime-systems/player-model-confidence",
+    "docs/14-dynamic-runtime-systems/player-model",
+    "docs/14-dynamic-runtime-systems/objective-timer-and-failure",
+    "docs/14-dynamic-runtime-systems/objective-opportunity-seeding",
+    "docs/14-dynamic-runtime-systems/objective-hud",
+    "docs/14-dynamic-runtime-systems/anti-drought-system",
+    "docs/14-dynamic-runtime-systems/adaptive-game-director"
+  ]
+}

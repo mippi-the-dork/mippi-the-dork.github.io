@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Local Preview Cache Busting > Design
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Uses no-cache headers, version query strings, a unique per-launch URL token, and localhost-specific Three.js recovery to reduce stale local-preview failures.
 
@@ -44,9 +44,9 @@ The Python preview server asks the browser not to cache responses.
 HTML references:
 
 ```text
-style.css?v=2.78
-script.js?v=2.78
-perspective-demo.js?v=2.78
+style.css?v=2.80
+script.js?v=2.80
+perspective-demo.js?v=2.80
 ```
 
 ### Unique Launch Token
@@ -54,7 +54,7 @@ perspective-demo.js?v=2.78
 The browser opens:
 
 ```text
-/?v=2.78&local=<timestamp>
+/?v=2.80&local=<timestamp>
 ```
 
 so each preview launch has a unique page URL.

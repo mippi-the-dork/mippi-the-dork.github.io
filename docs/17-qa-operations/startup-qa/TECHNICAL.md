@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Startup QA > Technical
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Implementation baseline:** Mippi Portfolio v2.80
 
 **Feature summary:** Validates that the portfolio can complete early initialization without JavaScript ordering regressions, missing DOM paths, or a pre-Three.js crash.
 
@@ -18,7 +18,7 @@ The script begins with:
 
 ```js
 const mippiRuntimeHealth={
-  version:'2.78',
+  version:'2.80',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -77,7 +77,7 @@ The public QA surface returns a deep copy.
 
 ## Important Boot Stages
 
-Current v2.78 assignments include:
+Current v2.80 assignments include:
 
 ```text
 script-start

@@ -1,11 +1,52 @@
-// v2.85 // Smooth projectiles, reliable HUD icons, heart meter and music fixes
+// v2.86 // Restore Three.js rendering budget; offscreen scene suspension and redundant-work cleanup
 const mippiRuntimeHealth={
-  version:'2.85',
+  version:'2.86',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
   three:{source:null,hero:false,ambient:false,about:false,attempts:[]}
 };
+// WebGL render-budget instrumentation. Scene FPS, visibility and skipped draws are
+// included in window.__MIPPI_RUNTIME__.snapshot() for real-hardware QA.
+mippiRuntimeHealth.three.perf={
+  hero:{fps:0,visible:true,frames:0,skipped:0,dpr:0,drawCalls:0},
+  ambient:{fps:0,visible:true,frames:0,skipped:0,dpr:0,drawCalls:0},
+  about:{fps:0,visible:true,frames:0,skipped:0,dpr:0,drawCalls:0}
+};
+const threeVisibleCanvases=new WeakMap();
+const threeCanvasObserver=typeof IntersectionObserver==='function'
+  ? new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      const active=entry.isIntersecting && entry.intersectionRect.width>0 && entry.intersectionRect.height>0;
+      threeVisibleCanvases.set(entry.target,active);
+    }
+  },{rootMargin:'100px 0px 100px 0px',threshold:0})
+  : null;
+function observeThreeCanvas(canvas){
+  if(threeCanvasObserver && canvas){
+    // Treat the first callback as visible to avoid a blank first render.
+    threeVisibleCanvases.set(canvas,true);
+    threeCanvasObserver.observe(canvas);
+  }
+}
+function shouldRenderThreeCanvas(canvas,kind){
+  const active=!document.hidden && threeVisibleCanvases.get(canvas)!==false;
+  const stats=mippiRuntimeHealth.three.perf[kind];
+  if(stats){stats.visible=active;if(!active){stats.skipped++;stats.fps=0;delete threePerfWindows[kind];}}
+  return active;
+}
+const threePerfWindows={};
+function recordThreeFrame(kind){
+  const stats=mippiRuntimeHealth.three.perf[kind];
+  if(!stats)return;
+  const now=performance.now();
+  const current=threePerfWindows[kind]||(threePerfWindows[kind]={start:now,count:0});
+  current.count++;stats.frames++;
+  if(now-current.start>=1000){
+    stats.fps=Math.round(current.count*1000/(now-current.start));
+    current.count=0;current.start=now;
+  }
+}
 window.addEventListener('error',event=>{
   mippiRuntimeHealth.errors.push({type:'error',message:event.message||'Unknown runtime error',source:event.filename||'',line:event.lineno||0});
   if(mippiRuntimeHealth.errors.length>12) mippiRuntimeHealth.errors.shift();
@@ -4538,7 +4579,7 @@ function devPrintHelp(){
   consolePrintCommandGroup('DIRECTOR',['dev director quiet','dev director curious','dev director engaged','dev director struggling','dev director mastery']);
   consolePrintCommandGroup('MODES',['dev mode inspect on','dev mode inspect off','dev mode design on','dev mode design off','dev mode interact on','dev mode interact off','dev doug command','dev doug cool','dev doug review']);
   consolePrintCommandGroup('ATTN',['dev attention rupees','dev attention wish','dev attention blueprint']);
-  consolePrintCommandGroup('UTILITY',['dev snapshot','dev clean']);
+  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev clean']);
   consolePrint('OBJECTIVE // use dev objective random, dev objective complete, dev objective fail, or dev objective <objective-id>.');
 }
 
@@ -4729,6 +4770,15 @@ function devCommand(args=''){
   const input=String(args||'').trim().toLowerCase();if(!input||input==='help'){devPrintHelp();return;}
   const [root,...rest]=input.split(/\s+/);const tail=rest.join(' ');
   if(root==='snapshot'){devSnapshot();return;}
+  if(root==='perf'){
+    const rows=mippiRuntimeHealth.three.perf;
+    consolePrint('DEV PERF // Three.js render-frame samples (last 1 second)','good');
+    for(const [name,stats] of Object.entries(rows)){
+      consolePrint(`${name.toUpperCase()} // ${stats.visible?'visible':'offscreen'} // ${stats.fps} FPS // DPR ${stats.dpr} // calls ${stats.drawCalls} // skipped ${stats.skipped}`);
+    }
+    consolePrint('TIP // Run this again after scrolling to Hero or About; compare Rare, Epic and Legendary.');
+    return;
+  }
   if(root==='fresh'){clearMippiStorage(localStorage);clearMippiStorage(sessionStorage);location.reload();return;}
   if(root==='clean'){devClean();return;}
   if(root==='signals'){devSetSignals(rest[0]);return;}
@@ -4770,7 +4820,7 @@ const COMMANDS = {
   help(){ listCommands(); },
   docs(){ window.open('https://mippi-the-dork.github.io/docs/','_blank','noopener,noreferrer'); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.83 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.86 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -6381,6 +6431,7 @@ async function initScene() {
   try {
     const THREE = await loadThree();
 
+    observeThreeCanvas(canvas);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
     fallback?.classList.remove('show');
     fallback?.classList.add('scene-live');
@@ -6539,10 +6590,12 @@ async function initScene() {
     ];
 
     const clickable = [];
+    const sceneNodeGroups=new Map();
     nodes.forEach((info, i) => {
       const group = new THREE.Group();
       group.position.set(...info.pos);
       group.userData.key = info.key;
+      sceneNodeGroups.set(info.key,group);
       const mesh = new THREE.Mesh(info.geo, new THREE.MeshStandardMaterial({ color: info.color, roughness:0.28, metalness:0.6, emissive: info.color, emissiveIntensity:0.07 }));
       mesh.userData.key = info.key;
       group.add(mesh);
@@ -6582,6 +6635,7 @@ async function initScene() {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 720 ? 1.35 : 1.8);
       renderer.setPixelRatio(dpr);
+      mippiRuntimeHealth.three.perf.hero.dpr=dpr;
       renderer.setSize(rect.width, rect.height, false);
       camera.aspect = rect.width / Math.max(rect.height, 1);
       camera.updateProjectionMatrix();
@@ -6627,40 +6681,47 @@ async function initScene() {
     canvas.addEventListener('pointercancel', () => dragging = false);
 
     const clock = new THREE.Clock();
+    let lastHeroTheme=null;
     function frame() {
+      if(!shouldRenderThreeCanvas(canvas,'hero')){requestAnimationFrame(frame);return;}
       const t = clock.getElapsedTime();
       const completionMode = document.body.classList.contains('theme-complete');
       const legendaryMode = document.body.classList.contains('theme-legendary');
-      coreMat.color.setHex(legendaryMode ? 0x2f1907 : completionMode ? 0x2e123f : 0x182334);
-      coreMat.emissive.setHex(legendaryMode ? 0xff7a18 : completionMode ? 0x8d2ee8 : 0x0067c9);
-      ringMat.color.setHex(legendaryMode ? 0x137f83 : completionMode ? 0x6f39a4 : 0x283447);
-      key.color.setHex(legendaryMode ? 0xffc928 : completionMode ? 0xc267ff : 0x168cff);
-      rim.color.setHex(legendaryMode ? 0x55e0dc : completionMode ? 0x6ff5ff : 0x5daeff);
-      ambient.color.setHex(legendaryMode ? 0xffd28a : completionMode ? 0xd7b0ff : 0xa9c7ff);
-      ambient.groundColor.setHex(legendaryMode ? 0x073f41 : completionMode ? 0x180923 : 0x07101a);
-      coreWire.material.color.setHex(legendaryMode ? 0x48d9d5 : completionMode ? 0xd06dff : 0x168cff);
-      logoMaterial.uniforms.tintColor.value.setHex(legendaryMode ? 0xffc43f : completionMode ? 0xd96cff : 0x2f93ff);
-      logoMaterial.uniforms.logoOpacity.value = legendaryMode ? 0.94 : completionMode ? 0.88 : 0.82;
-      linkMat.color.setHex(legendaryMode ? 0x42d8d4 : completionMode ? 0xff4fc8 : 0x147ee0);
-      grid.material.color.setHex(legendaryMode ? 0x176f72 : completionMode ? 0x55256f : 0x14304d);
-      grid.material.opacity = legendaryMode ? 0.30 : completionMode ? 0.27 : 0.22;
-      scene.fog.color.setHex(legendaryMode ? 0x110904 : completionMode ? 0x0c0713 : 0x090b10);
-      const completionNodeColors=[0xff4fc8,0x67e8ff,0xb13cff,0xff8bd7];
-      const legendaryNodeColors=[0xff7a1a,0x35d5d1,0xffc83d,0x76ece6];
-      nodes.forEach((info,i)=>{
-        const g=root.children.find(child=>child.userData?.key===info.key);
-        const mesh=g?.children?.[0], halo=g?.children?.[1];
-        const c=legendaryMode?legendaryNodeColors[i]:completionMode?completionNodeColors[i]:info.color;
-        if(mesh?.material?.color){ mesh.material.color.setHex(c); mesh.material.emissive?.setHex(c); }
-        if(halo?.material?.color) halo.material.color.setHex(c);
-      });
-      legendaryFx.visible=legendaryMode;
-      particles.material.color.setHex(legendaryMode?0xffc85a:completionMode?0xe477ff:0x7faee8);
-      particles.material.size=legendaryMode?0.052:completionMode?0.04:0.03;
-      particles.material.opacity=legendaryMode?0.82:completionMode?0.70:0.62;
-      if (legendaryMode && sceneReadout && !hovered) sceneReadout.textContent = 'LEGENDARY SIGNAL // WISH FULFILLED';
-      else if (completionMode && sceneReadout && !hovered) sceneReadout.textContent = 'SYSTEM COMPLETE // OVERDRIVE';
-      else if (sceneReadout && !hovered) sceneReadout.textContent = 'SELECT A SIGNAL';
+      const themeKey=legendaryMode?'legendary':completionMode?'epic':'rare';
+      if(themeKey!==lastHeroTheme){
+        lastHeroTheme=themeKey;
+        coreMat.color.setHex(legendaryMode ? 0x2f1907 : completionMode ? 0x2e123f : 0x182334);
+        coreMat.emissive.setHex(legendaryMode ? 0xff7a18 : completionMode ? 0x8d2ee8 : 0x0067c9);
+        ringMat.color.setHex(legendaryMode ? 0x137f83 : completionMode ? 0x6f39a4 : 0x283447);
+        key.color.setHex(legendaryMode ? 0xffc928 : completionMode ? 0xc267ff : 0x168cff);
+        rim.color.setHex(legendaryMode ? 0x55e0dc : completionMode ? 0x6ff5ff : 0x5daeff);
+        ambient.color.setHex(legendaryMode ? 0xffd28a : completionMode ? 0xd7b0ff : 0xa9c7ff);
+        ambient.groundColor.setHex(legendaryMode ? 0x073f41 : completionMode ? 0x180923 : 0x07101a);
+        coreWire.material.color.setHex(legendaryMode ? 0x48d9d5 : completionMode ? 0xd06dff : 0x168cff);
+        logoMaterial.uniforms.tintColor.value.setHex(legendaryMode ? 0xffc43f : completionMode ? 0xd96cff : 0x2f93ff);
+        logoMaterial.uniforms.logoOpacity.value = legendaryMode ? 0.94 : completionMode ? 0.88 : 0.82;
+        linkMat.color.setHex(legendaryMode ? 0x42d8d4 : completionMode ? 0xff4fc8 : 0x147ee0);
+        grid.material.color.setHex(legendaryMode ? 0x176f72 : completionMode ? 0x55256f : 0x14304d);
+        grid.material.opacity = legendaryMode ? 0.30 : completionMode ? 0.27 : 0.22;
+        scene.fog.color.setHex(legendaryMode ? 0x110904 : completionMode ? 0x0c0713 : 0x090b10);
+        const completionNodeColors=[0xff4fc8,0x67e8ff,0xb13cff,0xff8bd7];
+        const legendaryNodeColors=[0xff7a1a,0x35d5d1,0xffc83d,0x76ece6];
+        nodes.forEach((info,i)=>{
+          const g=sceneNodeGroups.get(info.key);
+          const mesh=g?.children?.[0], halo=g?.children?.[1];
+          const c=legendaryMode?legendaryNodeColors[i]:completionMode?completionNodeColors[i]:info.color;
+          if(mesh?.material?.color){ mesh.material.color.setHex(c); mesh.material.emissive?.setHex(c); }
+          if(halo?.material?.color) halo.material.color.setHex(c);
+        });
+        legendaryFx.visible=legendaryMode;
+        particles.material.color.setHex(legendaryMode?0xffc85a:completionMode?0xe477ff:0x7faee8);
+        particles.material.size=legendaryMode?0.052:completionMode?0.04:0.03;
+        particles.material.opacity=legendaryMode?0.82:completionMode?0.70:0.62;
+      }
+      if(sceneReadout&&!hovered){
+        const message=legendaryMode?'LEGENDARY SIGNAL // WISH FULFILLED':completionMode?'SYSTEM COMPLETE // OVERDRIVE':'SELECT A SIGNAL';
+        if(sceneReadout.textContent!==message)sceneReadout.textContent=message;
+      }
       if (!reduceMotion) {
         core.rotation.y += completionMode ? 0.006 : 0.002;
         logoPlane.rotation.z = Math.sin(t * 0.32) * 0.035;
@@ -6711,6 +6772,8 @@ async function initScene() {
         if (sceneReadout) sceneReadout.textContent = hovered ? (sceneLabels[hovered.userData.key] || 'CLICK TO NAVIGATE') : 'SELECT A SIGNAL';
       }
       renderer.render(scene,camera);
+      mippiRuntimeHealth.three.perf.hero.drawCalls=renderer.info.render.calls;
+      recordThreeFrame('hero');
       requestAnimationFrame(frame);
     }
     frame();
@@ -6730,7 +6793,8 @@ async function initAmbientScene() {
   if (!ambientCanvas || reduceMotion) return;
   try {
     const THREE = await loadThree();
-    const renderer = new THREE.WebGLRenderer({ canvas:ambientCanvas, alpha:true, antialias:false, powerPreference:'low-power' });
+    observeThreeCanvas(ambientCanvas);
+    const renderer = new THREE.WebGLRenderer({ canvas:ambientCanvas, alpha:true, antialias:false, powerPreference:'high-performance' });
     mippiRuntimeHealth.three.ambient=true;
     renderer.setClearColor(0x000000,0);
     const scene = new THREE.Scene();
@@ -6787,17 +6851,24 @@ async function initAmbientScene() {
     }
     function resizeAmbient(){
       const w=window.innerWidth,h=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,1.25);
-      renderer.setPixelRatio(dpr); renderer.setSize(w,h,false); camera.aspect=w/Math.max(h,1); camera.updateProjectionMatrix();
+      renderer.setPixelRatio(dpr); mippiRuntimeHealth.three.perf.ambient.dpr=dpr; renderer.setSize(w,h,false); camera.aspect=w/Math.max(h,1); camera.updateProjectionMatrix();
     }
     resizeAmbient(); window.addEventListener('resize',resizeAmbient,{passive:true});
+    let lastAmbientTheme=null;
     function frame(){
+      if(!shouldRenderThreeCanvas(ambientCanvas,'ambient')){requestAnimationFrame(frame);return;}
       const scroll=window.scrollY/(document.documentElement.scrollHeight||1);
       const completionMode=document.body.classList.contains('theme-complete');
       const legendaryMode=document.body.classList.contains('theme-legendary');
       const boosted=document.body.classList.contains('particle-boost');
-      ambientPoints.material.color.setHex(legendaryMode?0xffa52d:0x2f93ff);
-      signalPoints.material.color.setHex(legendaryMode?0x45ddd8:completionMode?0xff63ca:0x6eb8ff);
-      overdriveMat.color.setHex(legendaryMode?0xffc548:0xd976ff);
+      const ambientTheme=legendaryMode?'legendary':completionMode?'epic':'rare';
+      if(ambientTheme!==lastAmbientTheme){
+        lastAmbientTheme=ambientTheme;
+        ambientPoints.material.color.setHex(legendaryMode?0xffa52d:0x2f93ff);
+        signalPoints.material.color.setHex(legendaryMode?0x45ddd8:completionMode?0xff63ca:0x6eb8ff);
+        overdriveMat.color.setHex(legendaryMode?0xffc548:0xd976ff);
+        root.children.forEach(o=>{if(o.userData.speed&&o.material?.color)o.material.color.setHex(legendaryMode?0x39cfcb:completionMode?0xd976ff:0x168cff);});
+      }
       mouseX += (targetMouseX-mouseX)*.035;
       mouseY += (targetMouseY-mouseY)*.035;
       root.rotation.y += completionMode ? .00055 : .00024;
@@ -6814,8 +6885,8 @@ async function initAmbientScene() {
       overdriveMat.opacity += (((completionMode ? (boosted?.48:.40) : (boosted?.10:0)))-overdriveMat.opacity)*.055;
       overdrivePoints.rotation.y -= completionMode ? .00048 : .00008;
       overdrivePoints.rotation.x += completionMode ? .00017 : .00003;
-      root.children.forEach((o,i)=>{ if(o.userData.speed){ const boost=completionMode?2.1:1; if(o.material?.color) o.material.color.setHex(legendaryMode?0x39cfcb:completionMode?0xd976ff:0x168cff); o.rotation.x+=o.userData.speed*boost; o.rotation.y-=o.userData.speed*.7*boost; }});
-      renderer.render(scene,camera); requestAnimationFrame(frame);
+      root.children.forEach((o,i)=>{ if(o.userData.speed){ const boost=completionMode?2.1:1; o.rotation.x+=o.userData.speed*boost; o.rotation.y-=o.userData.speed*.7*boost; }});
+      renderer.render(scene,camera); mippiRuntimeHealth.three.perf.ambient.drawCalls=renderer.info.render.calls; recordThreeFrame('ambient'); requestAnimationFrame(frame);
     }
     frame();
   } catch (e) { console.warn('Ambient Three.js layer unavailable.',e); }
@@ -6827,7 +6898,8 @@ async function initAboutScene() {
   if(!aboutCanvas) return;
   try {
     const THREE=await loadThree();
-    const renderer=new THREE.WebGLRenderer({canvas:aboutCanvas,alpha:true,antialias:true,powerPreference:'low-power'});
+    observeThreeCanvas(aboutCanvas);
+    const renderer=new THREE.WebGLRenderer({canvas:aboutCanvas,alpha:true,antialias:true,powerPreference:'high-performance'});
     mippiRuntimeHealth.three.about=true;
     renderer.setClearColor(0x000000,0);
     const scene=new THREE.Scene();
@@ -6848,10 +6920,13 @@ async function initAboutScene() {
     const aboutParticles=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x6cb6ff,size:.035,transparent:true,opacity:.22,depthWrite:false}));
     root.add(aboutParticles);
     registerNaniteScene(scene, THREE);
-    function resize(){ const rect=aboutCanvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,1.5); renderer.setPixelRatio(dpr);renderer.setSize(rect.width,rect.height,false);camera.aspect=rect.width/Math.max(rect.height,1);camera.updateProjectionMatrix(); }
+    function resize(){ const rect=aboutCanvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,1.5); renderer.setPixelRatio(dpr);mippiRuntimeHealth.three.perf.about.dpr=dpr;renderer.setSize(rect.width,rect.height,false);camera.aspect=rect.width/Math.max(rect.height,1);camera.updateProjectionMatrix(); }
     resize(); new ResizeObserver(resize).observe(aboutCanvas);
     const clock=new THREE.Clock();
-    function frame(){ const t=clock.getElapsedTime(); const complete=document.body.classList.contains('theme-complete'); const legendary=document.body.classList.contains('theme-legendary'); aboutLight.color.setHex(legendary?0xffc878:0x8bbcff); ringMat.color.setHex(legendary?0xff8a1d:complete?0xd85cff:0x168cff); r2.material.color.setHex(legendary?0x45ddd8:complete?0x65e9ff:0x168cff); aboutParticles.material.color.setHex(legendary?0xffc957:complete?0xff63ca:0x6cb6ff); aboutParticles.material.opacity=complete?.52:.30; aboutParticles.material.size=complete?.14:.085; mats.forEach((m,i)=>{const cs=legendary?[0xff7a1a,0xffc83d,0x42d8d4,0xfff0c2]:[0xd85cff,0xff4fc8,0x65e9ff,0xa868ff];m.color.setHex(complete?cs[i]:[0x2f93ff,0x5daeff,0x7dc2ff,0x006bd6][i]);m.emissive.copy(m.color);m.emissiveIntensity=complete?.42:.2;}); if(!reduceMotion){ const boost=complete?1.8:1;r1.rotation.z+=.0018*boost;r2.rotation.x-=.0012*boost;aboutParticles.rotation.y+=.0009*boost;aboutParticles.rotation.z=Math.sin(t*.12)*.08;nodes.forEach((m,i)=>{const a=t*.32*boost+m.userData.phase;m.position.set(Math.cos(a)*1.72,Math.sin(a*1.15)*.75,Math.sin(a)*.55);m.rotation.x+=.006*boost;m.rotation.y+=.008*boost;});} renderer.render(scene,camera);requestAnimationFrame(frame);}
+    let lastAboutTheme=null;
+    function frame(){
+      if(!shouldRenderThreeCanvas(aboutCanvas,'about')){requestAnimationFrame(frame);return;}
+      const t=clock.getElapsedTime(); const complete=document.body.classList.contains('theme-complete'); const legendary=document.body.classList.contains('theme-legendary'); const aboutTheme=legendary?'legendary':complete?'epic':'rare'; if(aboutTheme!==lastAboutTheme){lastAboutTheme=aboutTheme;aboutLight.color.setHex(legendary?0xffc878:0x8bbcff); ringMat.color.setHex(legendary?0xff8a1d:complete?0xd85cff:0x168cff); r2.material.color.setHex(legendary?0x45ddd8:complete?0x65e9ff:0x168cff); aboutParticles.material.color.setHex(legendary?0xffc957:complete?0xff63ca:0x6cb6ff); aboutParticles.material.opacity=complete?.52:.30; aboutParticles.material.size=complete?.14:.085; mats.forEach((m,i)=>{const cs=legendary?[0xff7a1a,0xffc83d,0x42d8d4,0xfff0c2]:[0xd85cff,0xff4fc8,0x65e9ff,0xa868ff];m.color.setHex(complete?cs[i]:[0x2f93ff,0x5daeff,0x7dc2ff,0x006bd6][i]);m.emissive.copy(m.color);m.emissiveIntensity=complete?.42:.2;});} if(!reduceMotion){ const boost=complete?1.8:1;r1.rotation.z+=.0018*boost;r2.rotation.x-=.0012*boost;aboutParticles.rotation.y+=.0009*boost;aboutParticles.rotation.z=Math.sin(t*.12)*.08;nodes.forEach((m,i)=>{const a=t*.32*boost+m.userData.phase;m.position.set(Math.cos(a)*1.72,Math.sin(a*1.15)*.75,Math.sin(a)*.55);m.rotation.x+=.006*boost;m.rotation.y+=.008*boost;});} renderer.render(scene,camera);mippiRuntimeHealth.three.perf.about.drawCalls=renderer.info.render.calls;recordThreeFrame('about');requestAnimationFrame(frame);}
     frame();
   } catch(e){ console.warn('About Three.js scene unavailable.',e); }
 }

@@ -7929,3 +7929,15 @@ body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.
 }
 /* Discoverable wheel/trackpad scrolling without selecting the Ledger first. */
 .achievement-ledger.open{overscroll-behavior:contain;overflow-y:auto;touch-action:pan-y;}
+
+/* v2.86 // Keep themed colors in Three.js itself, not as an additional
+   full-canvas post-process on every WebGL frame. Epic/Legendary scenes
+   already recolor their particles, meshes and lights in JavaScript. */
+body.theme-complete.theme-legendary #ambient-canvas,
+body.theme-complete.theme-legendary #about-canvas,
+body.theme-complete #ambient-canvas,
+body.theme-complete #about-canvas,
+#ambient-canvas,#about-canvas{
+  filter:none!important;
+  -webkit-filter:none!important;
+}

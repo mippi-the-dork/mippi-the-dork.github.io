@@ -203,6 +203,7 @@
   },
   "active": "a7f3dae66289030d",
   "lastOpenFiles": [
+    "assets/music.zip",
     "assets/music/song-05.mp3",
     "assets/music/I Made This.mp3",
     "assets/music/song-01.mp3",
@@ -244,7 +245,6 @@
     "docs/14-dynamic-runtime-systems/recent-behavior-window",
     "docs/14-dynamic-runtime-systems/player-model-confidence",
     "docs/14-dynamic-runtime-systems/player-model",
-    "docs/14-dynamic-runtime-systems/objective-timer-and-failure",
-    "docs/14-dynamic-runtime-systems/objective-opportunity-seeding"
+    "docs/14-dynamic-runtime-systems/objective-timer-and-failure"
   ]
 }

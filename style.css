@@ -298,7 +298,7 @@ button { font: inherit; }
   background:
     linear-gradient(180deg, rgba(7,10,14,.28), rgba(7,10,14,.82)),
     radial-gradient(circle at 70% 30%, rgba(0,112,224,.22), transparent 34%),
-    url('assets/heavy-water-wide.png') center/cover no-repeat,
+    url('assets/heavy-water-hero.png') center/cover no-repeat,
     linear-gradient(145deg,#101722,#090c11 60%);
 }
 .project-visual::before, .project-visual::after { content:""; position:absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, #000, transparent); }
@@ -1175,7 +1175,7 @@ button { font: inherit; }
   background:
     linear-gradient(180deg,rgba(5,8,12,.10),rgba(5,8,12,.58)),
     radial-gradient(circle at 70% 28%,rgba(0,112,224,.14),transparent 38%),
-    url('assets/heavy-water-wide.png') center/cover no-repeat,
+    url('assets/heavy-water-hero.png') center/cover no-repeat,
     #090d13;
 }
 .heavy-water .visual-copy { text-shadow:0 3px 24px rgba(0,0,0,.8); }
@@ -7247,3 +7247,631 @@ body.theme-complete.theme-legendary .site-header > .music-player{
 .music-lyric-line.timed{display:grid;grid-template-columns:48px minmax(0,1fr);gap:6px;align-items:baseline;}
 .music-lyric-time{color:var(--music-soft);opacity:.65;font:800 8px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;}
 .music-lyric-line.current .music-lyric-time{color:var(--music-highlight);opacity:1;}
+
+/* ===========================================================================
+   v2.81 // Four-column compact HUD; replaces independent screen-space widgets
+   =========================================================================== */
+body.hud-unified{--hud-height:54px;--hud-divider:rgba(103,207,255,.21);}
+#site-game-hud[hidden]{display:none!important;}
+body.hud-unified #site-game-hud{
+  position:fixed;inset:auto 0 0;z-index:255;display:grid;
+  grid-template-columns:minmax(205px,1.2fr) minmax(215px,1.3fr) minmax(165px,1fr) minmax(120px,.78fr);
+  min-height:var(--hud-height);padding:5px max(12px,calc((100vw - var(--max))/2));
+  border-top:1px solid var(--rarity-line,rgba(103,207,255,.34));
+  background:rgba(4,10,18,.96);box-shadow:0 -11px 38px rgba(0,0,0,.42);
+  backdrop-filter:blur(14px);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+body.hud-unified.theme-complete:not(.theme-legendary) #site-game-hud{background:rgba(20,8,29,.97);--hud-divider:rgba(255,79,200,.25);}
+body.hud-unified.theme-legendary #site-game-hud{background:rgba(22,17,7,.97);--hud-divider:rgba(255,190,61,.26);}
+#site-game-hud .hud-cell{min-width:0;display:flex;align-items:center;gap:6px;padding:0 12px;min-height:43px;}
+#site-game-hud .hud-cell:not(:last-child){border-right:1px solid var(--hud-divider);}
+#site-game-hud #hud-progress{justify-content:flex-start;}
+#site-game-hud #hud-gameplay{justify-content:center;gap:9px;}
+#site-game-hud #hud-modes{justify-content:center;}
+#site-game-hud #hud-utilities{justify-content:flex-end;}
+#site-game-hud button{cursor:pointer;}
+#site-game-hud .hud-icon-btn{
+  position:relative;flex:0 0 34px;width:34px;height:34px;min-height:34px;
+  display:inline-flex!important;align-items:center;justify-content:center;
+  border:1px solid transparent;border-radius:4px;background:transparent!important;
+  color:var(--accent-bright,#67cfff)!important;font-size:0!important;
+  letter-spacing:0!important;box-shadow:none!important;opacity:1;overflow:visible;
+}
+#site-game-hud .hud-icon-btn::before{content:'';width:19px;height:19px;display:block;
+  background:currentColor;mask-image:var(--hud-icon-markup);-webkit-mask-image:var(--hud-icon-markup);
+  mask-size:contain;-webkit-mask-size:contain;mask-position:center;-webkit-mask-position:center;
+  mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;}
+#site-game-hud .hud-icon-btn b{position:absolute;left:24px;bottom:0;font-size:8px;line-height:1;color:inherit;background:rgba(0,0,0,.8);padding:1px 2px;border-radius:2px;}
+#site-game-hud .hud-icon-btn:hover,#site-game-hud .hud-icon-btn:focus-visible,
+#site-game-hud .hud-icon-btn.active{border-color:var(--rarity-line,#67cfff);background:var(--accent-soft,rgba(67,180,255,.12))!important;outline:none;}
+#site-game-hud .hud-icon-btn[hidden]{display:none!important;}
+#site-game-hud #docs-toggle{order:1;}
+#site-game-hud #design-toggle{order:0;}
+#site-game-hud #inspect-toggle{order:2;}
+#site-game-hud #interact-toggle{order:3;}
+#site-game-hud #hint-trigger{order:0;}
+#site-game-hud #theme-cycle{order:1;}
+#site-game-hud #console-tip-button{order:2;}
+/* Existing resource controls retain their click handlers and attention cues. */
+#site-game-hud #rupee-meter,#site-game-hud #heart-meter{
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  min-height:34px;height:34px;width:auto;min-width:48px;padding:0 6px;
+  border:1px solid rgba(103,207,255,.18);border-radius:4px;
+  background:rgba(255,255,255,.018);box-shadow:none;font-size:10px;
+}
+#site-game-hud #rupee-meter:not(.visible),#site-game-hud #heart-meter:not(.visible){display:none;}
+#site-game-hud #rupee-meter span{font-size:7px;letter-spacing:.04em;}
+#site-game-hud #rupee-meter{gap:5px;}
+#site-game-hud #heart-meter{gap:1px;min-width:94px;padding:0 4px;}
+#site-game-hud #heart-meter span{display:inline-flex;width:15px;text-align:center;justify-content:center;font:900 17px/1 Georgia,serif;}
+#site-game-hud #heart-meter:disabled{cursor:default;}
+/* All three gameplay meters: identical footprint, no visible numbers. */
+#site-game-hud #hud-gameplay.progress-hud{
+  position:static!important;opacity:1!important;transform:none!important;pointer-events:auto!important;
+  width:auto!important;max-width:none!important;min-width:0!important;
+  margin:0!important;transition:none!important;
+}
+#site-game-hud #hud-gameplay .cool-meter,
+#site-game-hud #hud-gameplay .invasion-meter,
+#site-game-hud #hud-gameplay .castle-meter{
+  position:relative;display:grid!important;gap:4px!important;flex:1 1 65px;min-width:44px!important;
+  max-width:81px!important;width:auto!important;min-height:29px!important;
+  padding:4px 2px!important;margin:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;opacity:1!important;
+  text-align:left;pointer-events:auto!important;
+}
+#site-game-hud #hud-gameplay .cool-meter-top,
+#site-game-hud #hud-gameplay .system-meter-top{display:flex;gap:0;min-height:9px;font-size:7px;line-height:1;}
+#site-game-hud #hud-gameplay .cool-meter-top span,
+#site-game-hud #hud-gameplay .system-meter-top span{font:900 7px/1 ui-monospace,Consolas,monospace;letter-spacing:.045em;}
+#site-game-hud #hud-gameplay .cool-meter-top b,
+#site-game-hud #hud-gameplay .system-meter-top b{display:none!important;}
+#site-game-hud #hud-gameplay .cool-meter-track,
+#site-game-hud #hud-gameplay .system-meter-track{
+  display:block;width:100%!important;height:5px!important;min-height:5px!important;margin:0!important;border-radius:1px;
+  background:rgba(255,255,255,.07);overflow:hidden;
+}
+#site-game-hud #hud-gameplay .cool-meter-track i,
+#site-game-hud #hud-gameplay .system-meter-track i{display:block;height:100%;}
+#site-game-hud #hud-gameplay .castle-meter.reward-ready{animation:milestone-claim-ready-rare .56s infinite alternate;}
+/* Old detached widgets can no longer create a second HUD or move objective up. */
+body.hud-unified #discovery-controls,body.hud-unified #play-mode-controls{display:none!important;}
+body.hud-unified #progress-hud{display:none!important;}
+body.hud-unified .achievement-ledger{position:fixed;left:max(12px,calc((100vw - var(--max))/2));bottom:calc(var(--hud-height) - 1px);z-index:280;}
+body.hud-unified .dev-console{position:fixed;left:auto;right:max(12px,calc((100vw - var(--max))/2));bottom:calc(var(--hud-height) - 1px);
+  transform:translateY(calc(100% + var(--hud-height) + 20px));z-index:300;}
+body.hud-unified .dev-console.open{transform:none;}
+body.hud-unified .dynamic-objective{left:50%;right:auto;transform:translate(-50%,6px);}
+body.hud-unified .dynamic-objective.show{transform:translateX(-50%);}
+body.hud-unified .site-footer{padding-bottom:calc(var(--hud-height) + 32px);}
+body.hud-unified #site-game-hud [hidden]{display:none!important;}
+/* Dialogs always restore the native pointer even with purchased large cursors. */
+body.cursor-grown:has(.azure-gallery[aria-hidden="false"],.session-debrief.show,.finale-overlay.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay,.unreal-gift-popup.open,.flappy-game.open) *,
+body.cursor-grown:has(.azure-gallery[aria-hidden="false"],.session-debrief.show,.finale-overlay.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay,.unreal-gift-popup.open,.flappy-game.open){cursor:auto!important;}
+body.cursor-grown:has(.session-debrief.show,.finale-overlay.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) .power-cursor{opacity:0!important;}
+body.cursor-grown :is(.finale-controls button,.session-debrief button,.compile-popup button,.shop-popup button,.blueprint-popup button,.wish-sequence-overlay button){cursor:pointer!important;}
+.compile-popup.open{z-index:500!important;}
+.about-docs-link{display:grid!important;gap:7px;padding:20px 25px!important;border-top:1px solid var(--rarity-line);text-decoration:none;background:var(--accent-soft,rgba(47,147,255,.05));}
+.about-docs-link span{font:900 9px ui-monospace,Consolas,monospace;letter-spacing:.10em;color:var(--accent-bright);}
+.about-docs-link strong{font-size:12px;color:var(--text,#f5faff);}
+.about-docs-link b{font:900 9px ui-monospace,Consolas,monospace;letter-spacing:.12em;color:var(--accent-bright);}
+@media(max-width:1050px){
+  #site-game-hud{grid-template-columns:minmax(165px,1.2fr) minmax(170px,1fr) auto auto!important;padding-inline:10px!important;}
+  #site-game-hud .hud-cell{padding-inline:6px;gap:3px;}
+  #site-game-hud #heart-meter{min-width:75px;}
+  #site-game-hud #heart-meter span{width:12px;font-size:15px;}
+  #site-game-hud .hud-icon-btn{flex-basis:31px;width:31px;}
+}
+@media(max-width:680px){
+  body.hud-unified{--hud-height:93px;}
+  #site-game-hud{grid-template-columns:1fr 1fr!important;grid-template-rows:42px 42px;padding:4px 7px!important;}
+  #site-game-hud .hud-cell{min-height:42px!important;justify-content:center!important;border-right:0!important;}
+  #site-game-hud #hud-gameplay{order:2;}
+  #site-game-hud #hud-modes{order:3;}
+  #site-game-hud #hud-utilities{order:4;}
+  #site-game-hud #hud-progress{order:1;}
+  #site-game-hud .hud-cell:nth-child(odd){border-right:1px solid var(--hud-divider)!important;}
+  #site-game-hud .hud-cell:nth-child(-n+2){border-bottom:1px solid var(--hud-divider);}
+  #site-game-hud #heart-meter{min-width:66px;}
+  #site-game-hud #heart-meter span{width:10px;font-size:14px;}
+  #site-game-hud #rupee-meter span{display:none;}
+  body.hud-unified .dev-console{right:8px;max-width:calc(100vw - 16px);}
+  body.hud-unified .achievement-ledger{left:8px;max-width:calc(100vw - 16px);}
+}
+
+/* ===========================================================================
+   v2.81 // Music player, icons, enhanced lyrics, progress bar and split panel
+   =========================================================================== */
+.site-header > .music-player{overflow:visible!important;}
+.site-header > .music-player .music-controls{display:flex!important;justify-content:space-between;gap:4px;margin-top:7px;}
+.site-header > .music-player .music-controls > *{padding:0!important;flex:1;min-width:0;min-height:31px;}
+.site-header > .music-player .music-controls svg{width:17px;height:17px;flex:none;}
+.site-header > .music-player .music-controls [aria-pressed="true"],
+.site-header > .music-player .music-controls .active{color:var(--music-highlight)!important;border-color:var(--music-highlight)!important;background:rgba(var(--music-highlight-rgb),.11)!important;}
+.site-header > .music-player .music-controls #music-play{flex:1.25;}
+.music-progress-row{display:flex;align-items:center;gap:6px;margin-top:9px;font:800 8px ui-monospace,Consolas,monospace;color:var(--music-soft);}
+.music-progress-row span{flex:0 0 27px;white-space:nowrap;}
+.music-progress-row input[type=range]{flex:1;min-width:0;width:100%;height:6px;accent-color:var(--music-highlight);cursor:pointer;}
+.music-progress-row input:disabled{opacity:.38;cursor:default;}
+.site-header > .music-player.collapsed{width:min(282px,calc(100vw - 36px))!important;}
+.site-header > .music-player.collapsed .music-progress-row{margin-top:5px;}
+.site-header > .music-player.collapsed .music-now,
+.site-header > .music-player.collapsed .music-track-list{display:none!important;}
+.site-header > .music-player.collapsed .music-controls{display:flex!important;position:absolute;top:7px;right:40px;margin:0;gap:3px;}
+.site-header > .music-player.collapsed .music-controls > *{display:none!important;}
+.site-header > .music-player.collapsed .music-controls #music-play,
+.site-header > .music-player.collapsed .music-controls #music-next{display:flex!important;width:28px;min-height:27px;flex:0 0 28px;}
+.site-header > .music-player.collapsed #music-track-title{max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Old question-mark buttons and timestamp badges are intentionally removed. */
+.music-track-info,.music-lyric-time{display:none!important;}
+.site-header > .music-lyrics-panel{
+  position:absolute;top:calc(100% + 1px);
+  left:calc(max(20px, (100vw - var(--max)) / 2) + min(326px, 100vw - 40px) + 8px);
+  z-index:27;margin:0;width:min(340px,calc(100vw - 380px));max-width:340px;
+  min-height:80px;max-height:min(440px,calc(100vh - var(--header) - 25px));
+  padding:12px;border:1px solid rgba(var(--music-highlight-rgb),.5);
+  background:rgba(4,10,20,.97);color:var(--music-highlight,#67cfff);
+  box-shadow:0 18px 44px rgba(0,0,0,.56);
+  font-family:ui-monospace,Consolas,monospace;
+}
+.site-header > .music-lyrics-panel[hidden]{display:none!important;}
+.music-lyrics-actions{display:flex;align-items:center;gap:6px;}
+.site-header > .music-lyrics-panel .music-lyrics-head button{border:1px solid rgba(var(--music-highlight-rgb),.35);padding:4px 7px;background:transparent;color:var(--music-highlight);font:800 9px Consolas,monospace;cursor:pointer;}
+.site-header > .music-lyrics-panel .music-lyrics-content{max-height:330px;min-height:40px;overflow:auto;padding:10px 0;}
+.site-header > .music-lyrics-panel .music-lyric-line{display:block!important;font:600 14px/1.6 system-ui,sans-serif;margin:0 0 8px;padding:5px 8px;}
+.site-header > .music-lyrics-panel .music-lyric-line.current{font-weight:750;}
+.site-header > .music-lyrics-panel .music-lyric-word.spoken{color:var(--music-highlight);font-weight:900;text-shadow:0 0 7px rgba(var(--music-highlight-rgb),.20);}
+.site-header > .music-lyrics-panel .music-lyric-line.current .music-lyric-word:not(.spoken){color:var(--music-soft);}
+.site-header > .music-lyrics-panel.single .music-lyric-line{display:none!important;}
+.site-header > .music-lyrics-panel.single .music-lyric-line.current{display:block!important;text-align:center;border:0;background:transparent;}
+.site-header > .music-lyrics-panel.single .music-lyric-line.current{font-size:16px!important;line-height:1.5;}
+.site-header > .music-lyrics-panel.single .music-lyrics-content{min-height:44px;max-height:80px;overflow:hidden;}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel{
+  left:calc(max(20px, (100vw - var(--max)) / 2) + min(282px, 100vw - 36px) + 8px);
+  width:min(345px,calc(100vw - 330px));min-height:44px;padding:9px;
+}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyrics-head{display:none;}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyric-line.current{font-size:13px!important;}
+@media(max-width:790px){
+  .site-header > .music-lyrics-panel,body.music-minimized-lyrics .site-header > .music-lyrics-panel{
+    left:12px;top:calc(100% + 230px);width:min(340px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:180px;
+  }
+  .site-header > .music-player.collapsed ~ .music-lyrics-panel,
+  body.music-minimized-lyrics .site-header > .music-lyrics-panel{top:calc(100% + 85px);}
+}
+#site-game-hud .hud-icon-btn{inset:auto!important;transform:none!important;}
+#site-game-hud .hud-icon-btn::before{pointer-events:none;}
+#site-game-hud .hud-icon-btn:focus-visible{outline:2px solid var(--music-highlight,#67cfff);outline-offset:2px;}
+/* Lyrics are a sibling of the player, so give the companion its own theme vars. */
+.site-header > .music-lyrics-panel{--music-highlight:#67cfff;--music-highlight-rgb:47,147,255;--music-soft:#9abfdb;}
+body.theme-complete:not(.theme-legendary) .site-header > .music-lyrics-panel{--music-highlight:#ff68ce;--music-highlight-rgb:255,79,200;--music-soft:#d9b0e7;background:rgba(24,10,34,.98);}
+body.theme-legendary .site-header > .music-lyrics-panel{--music-highlight:#ffd15c;--music-highlight-rgb:255,200,61;--music-soft:#bbd9c6;background:rgba(26,18,8,.98);}
+/* Preserve attention communication even when buttons move into the compact HUD. */
+#site-game-hud .hud-icon-btn.attention-ready,
+#site-game-hud #rupee-meter.shop-ready,
+#site-game-hud #heart-meter.reward-ready,
+#site-game-hud #hud-gameplay .castle-meter.reward-ready,
+#site-game-hud #hud-gameplay .cool-meter.limit-ready,
+#site-game-hud #hud-gameplay .invasion-meter.contact{
+  animation:hud-urgent-pulse .68s ease-in-out infinite alternate!important;
+}
+@keyframes hud-urgent-pulse{
+  from{filter:brightness(1) drop-shadow(0 0 0 transparent);}
+  to{filter:brightness(1.35) drop-shadow(0 0 8px var(--accent-bright,#67cfff));}
+}
+
+/* ======================================================================
+   v2.82 | Performance, compact HUD, full-rarity Ledger and notification stack
+   ====================================================================== */
+/* HUD is deliberately quiet when idle. Four groups are separated by space,
+   not lines; every icon has a consistent 19px mark and 34px hit area. */
+#site-game-hud .hud-cell,
+#site-game-hud .hud-cell:not(:last-child){border-right:0!important;border-bottom:0!important;}
+#site-game-hud .hud-icon-btn{width:34px!important;min-width:34px;flex:0 0 34px!important;height:34px!important;min-height:34px!important;padding:0!important;}
+#site-game-hud .hud-icon-btn::before{width:19px!important;height:19px!important;flex:0 0 19px;}
+#site-game-hud #ledger-trigger{display:inline-flex!important;}
+#site-game-hud #ledger-trigger b{display:none!important;}
+#site-game-hud #rupee-meter span{display:none!important;}
+#site-game-hud #rupee-meter::before,
+#site-game-hud #hud-gameplay .cool-meter-top::before,
+#site-game-hud #hud-gameplay .system-meter-top::before{
+  content:'';display:block;width:19px;height:19px;flex:0 0 19px;
+  background:currentColor;
+  -webkit-mask:var(--meter-icon) center/contain no-repeat;
+  mask:var(--meter-icon) center/contain no-repeat;
+}
+#site-game-hud #rupee-meter{min-width:54px;gap:5px;}
+#site-game-hud #hud-gameplay .cool-meter-top span,
+#site-game-hud #hud-gameplay .system-meter-top span{display:none!important;}
+#site-game-hud #hud-gameplay .cool-meter,
+#site-game-hud #hud-gameplay .invasion-meter,
+#site-game-hud #hud-gameplay .castle-meter{
+  border:1px solid transparent!important;
+  border-radius:4px!important;
+  min-height:34px!important;
+  padding:4px 7px!important;
+  max-width:78px!important;
+  justify-content:center;
+}
+#site-game-hud #hud-gameplay .cool-meter-top,
+#site-game-hud #hud-gameplay .system-meter-top{height:19px;min-height:19px!important;align-items:center;color:var(--accent-bright);}
+#site-game-hud #rupee-meter,#site-game-hud #heart-meter{
+  transition:background .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+#site-game-hud #rupee-meter:hover,#site-game-hud #rupee-meter:focus-visible,
+#site-game-hud #heart-meter:not(:disabled):hover,#site-game-hud #heart-meter:not(:disabled):focus-visible,
+#site-game-hud #hud-gameplay .castle-meter.reward-ready:hover,
+#site-game-hud #hud-gameplay .castle-meter.reward-ready:focus-visible{
+  border:1px solid var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(47,147,255,.14))!important;
+  box-shadow:0 0 12px rgba(103,207,255,.20)!important;
+  outline:none!important;
+  cursor:pointer!important;
+}
+#site-game-hud #heart-meter:not(:disabled){cursor:pointer!important;}
+#site-game-hud #hud-gameplay .castle-meter.reward-ready{
+  border:1px solid var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(47,147,255,.14))!important;
+  box-shadow:0 0 12px rgba(103,207,255,.17)!important;
+  cursor:pointer!important;
+}
+#site-game-hud .hud-icon-btn.attention-new,
+#site-game-hud .hud-icon-btn.attention-ready{
+  border:1px solid var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(47,147,255,.12))!important;
+  animation:hud-urgent-pulse .9s ease-in-out infinite alternate!important;
+}
+#site-game-hud #hud-gameplay .cool-meter,
+#site-game-hud #hud-gameplay .invasion-meter,
+#site-game-hud #hud-gameplay .castle-meter{gap:2px!important;}
+@media(max-width:680px){
+  #site-game-hud .hud-cell:nth-child(odd),
+  #site-game-hud .hud-cell:nth-child(-n+2){border:0!important;}
+}
+
+/* The shell may be gold in Legendary, but an individual item owns its rarity. */
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-rare,
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-rare.unlocked{
+  border-color:rgba(74,169,255,.43)!important;
+  background:linear-gradient(100deg,rgba(9,55,96,.34),rgba(5,12,18,.28))!important;
+  box-shadow:inset 2px 0 0 #2f93ff!important;
+}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-rare :is(.num,.ledger-rarity){color:#67cfff!important;}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-rare strong{color:#e8f6ff!important;background:none!important;-webkit-text-fill-color:#e8f6ff!important;}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-rare small{color:#a1bfdb!important;}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-epic,
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-epic.unlocked{
+  border-color:rgba(224,91,255,.45)!important;
+  background:linear-gradient(100deg,rgba(100,29,132,.34),rgba(18,18,31,.30))!important;
+  box-shadow:inset 2px 0 0 #ff4fc8!important;
+}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-epic :is(.num,.ledger-rarity){color:#ff68ce!important;}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-epic strong{color:#ffe3f8!important;background:none!important;-webkit-text-fill-color:#ffe3f8!important;}
+body.theme-complete.theme-legendary .achievement-ledger .ledger-entry.rarity-epic small{color:#d5a9d0!important;}
+
+/* Notification queue is always above the optional objective. The visual order
+   is oldest at top, newest at bottom, max three. */
+.system-toast-stack{
+  position:fixed;right:18px;bottom:calc(var(--hud-height,54px) + 12px);
+  z-index:252;width:min(330px,calc(100vw - 36px));
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;
+}
+.system-toast{
+  position:relative;padding:11px 13px;border:1px solid var(--line-blue);
+  border-radius:3px;background:rgba(9,17,28,.97);
+  box-shadow:0 12px 34px rgba(0,0,0,.4);pointer-events:auto;
+  color:#e9f6ff;font-family:ui-monospace,Consolas,monospace;
+}
+.system-toast-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.system-toast-heading span{font-size:8px;font-weight:900;letter-spacing:.12em;color:var(--accent-bright);}
+.system-toast-heading button{appearance:none;border:0;background:transparent;color:var(--accent-bright);font-size:16px;cursor:pointer;line-height:1;}
+.system-toast strong{display:block;margin-top:5px;font-size:13px;line-height:1.25;}
+.system-toast small{display:block;font-size:10px;line-height:1.35;margin-top:4px;color:#a7b9ca;}
+.system-toast>b{display:block;margin-top:6px;font-size:8px;letter-spacing:.08em;color:var(--accent-bright);}
+body.theme-complete:not(.theme-legendary) .system-toast{background:rgba(27,11,37,.97);border-color:rgba(255,79,200,.40);}
+body.theme-legendary .system-toast{background:rgba(32,23,7,.97);border-color:rgba(255,195,55,.44);}
+body.hud-unified .dynamic-objective,body.hud-unified .dynamic-objective.show{
+  position:fixed!important;right:18px!important;left:auto!important;
+  bottom:calc(var(--hud-height,54px) + 12px)!important;
+  transform:none!important;width:min(330px,calc(100vw - 36px))!important;
+  max-width:330px!important;
+}
+/* Objective is the lowest slot and toasts move above it. */
+body.hud-unified .achievement:not(.show){pointer-events:none;}
+@media(max-width:680px){
+  .system-toast-stack{right:8px;width:min(300px,calc(100vw - 16px));}
+  body.hud-unified .dynamic-objective,body.hud-unified .dynamic-objective.show{right:8px!important;width:min(300px,calc(100vw - 16px))!important;}
+}
+
+/* Fireworks now travel farther and linger, without making every small
+   explosion heavier. Lifetime/radius are set per burst in JS. */
+.arcade-pixel{will-change:transform,opacity;}
+
+/* Header player stays identical width in either state. Icon rows align in
+   the same track with the collapse control, never at a separate baseline. */
+.site-header > .music-player.collapsed{
+  width:min(326px,calc(100vw - 40px))!important;
+  min-width:0!important;
+  min-height:72px!important;
+}
+.site-header > .music-player.collapsed .music-controls{
+  top:10px!important;right:42px!important;align-items:center!important;
+}
+.site-header > .music-player.collapsed .music-controls #music-play,
+.site-header > .music-player.collapsed .music-controls #music-next{
+  height:28px!important;min-height:28px!important;align-self:center!important;
+}
+.site-header > .music-player.collapsed .music-player-head button{height:28px!important;}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel{
+  left:calc(max(20px,(100vw - var(--max))/2) + min(326px,100vw - 40px) + 8px)!important;
+  min-height:72px!important;height:72px!important;
+  padding:8px 12px!important;
+  display:flex;align-items:center;justify-content:center;
+}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyrics-content{
+  width:100%;min-height:0!important;max-height:none!important;padding:0!important;
+  text-align:center;
+}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyric-line.current{
+  font-size:15px!important;line-height:1.4!important;margin:0!important;
+}
+.site-header > .music-lyrics-panel .music-lyrics-empty{
+  font-size:14px!important;line-height:1.4!important;text-align:center;
+}
+@media(max-width:790px){
+  body.music-minimized-lyrics .site-header > .music-lyrics-panel{
+    left:12px!important;right:12px!important;width:calc(100vw - 24px)!important;
+    top:calc(100% + 85px)!important;
+  }
+}
+
+/* The dock is composited above moving WebGL content; avoid an expensive
+   full-width backdrop blur on every pointer projectile frame. */
+#site-game-hud{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+
+/* ======================================================================
+   v2.83 | HUD uniform surfaces, Wish guidance and music layout refinements
+   ====================================================================== */
+/* Shared visibly-button-like appearance even before hover. Every item now
+   occupies a framed surface rather than invisible hitbox/empty space. */
+#site-game-hud :is(.hud-icon-btn, #rupee-meter, #heart-meter,
+  #hud-gameplay .cool-meter, #hud-gameplay .invasion-meter,
+  #hud-gameplay .castle-meter){
+  border:1px solid rgba(103,207,255,.22)!important;
+  border-radius:4px!important;
+  background:rgba(103,207,255,.035)!important;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.10)!important;
+  transition:background-color .16s,border-color .16s,box-shadow .16s!important;
+}
+body.theme-complete:not(.theme-legendary) #site-game-hud :is(.hud-icon-btn, #rupee-meter, #heart-meter,
+  #hud-gameplay .cool-meter, #hud-gameplay .invasion-meter,
+  #hud-gameplay .castle-meter){
+  border-color:rgba(255,95,210,.25)!important;
+  background:rgba(255,95,210,.045)!important;
+}
+body.theme-legendary #site-game-hud :is(.hud-icon-btn, #rupee-meter, #heart-meter,
+  #hud-gameplay .cool-meter, #hud-gameplay .invasion-meter,
+  #hud-gameplay .castle-meter){
+  border-color:rgba(255,200,61,.29)!important;
+  background:rgba(255,200,61,.048)!important;
+}
+#site-game-hud :is(.hud-icon-btn, #rupee-meter, #heart-meter:not(:disabled), #hud-gameplay .castle-meter:not(:disabled)):is(:hover,:focus-visible){
+  border-color:var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(103,207,255,.17))!important;
+  box-shadow:0 0 0 1px rgba(103,207,255,.16),0 0 12px rgba(103,207,255,.18)!important;
+  outline:none!important;
+}
+#site-game-hud :is(.hud-icon-btn.attention-ready,.hud-icon-btn.attention-new,
+  #rupee-meter.shop-ready,#heart-meter.reward-ready,
+  #hud-gameplay .castle-meter.reward-ready){
+  border-color:var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(103,207,255,.14))!important;
+  animation:hud-urgent-pulse .85s ease-in-out infinite alternate!important;
+}
+#site-game-hud #ledger-trigger::before{
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  margin:0!important;
+  transform:translate(-50%,-50%)!important;
+}
+/* Documentation is a normal utility unless the player deliberately activates
+   Design Mode. The stored "new" marker alone must not animate it. */
+body:not(.design-mode) #site-game-hud #docs-toggle{
+  animation:none!important;filter:none!important;
+}
+body:not(.design-mode) #site-game-hud #docs-toggle.attention-new{
+  border-color:rgba(103,207,255,.22)!important;
+  background:rgba(103,207,255,.035)!important;
+  box-shadow:none!important;
+}
+/* No ghost button with invisible hit feedback on progress/resources. */
+#site-game-hud #hud-gameplay .cool-meter,
+#site-game-hud #hud-gameplay .invasion-meter,
+#site-game-hud #hud-gameplay .castle-meter{min-width:65px!important;max-width:78px!important;}
+#site-game-hud #hud-gameplay{gap:5px!important;}
+
+/* The Console and bottom-right feedback column have a slightly smaller width. */
+.dev-console{width:min(800px,calc(100vw - 36px))!important;}
+.system-toast-stack{width:min(310px,calc(100vw - 36px))!important;}
+body.hud-unified .dynamic-objective,
+body.hud-unified .dynamic-objective.show{width:min(310px,calc(100vw - 36px))!important;max-width:310px!important;}
+@media(max-width:680px){
+  .system-toast-stack{width:min(280px,calc(100vw - 16px))!important;}
+  body.hud-unified .dynamic-objective,
+  body.hud-unified .dynamic-objective.show{width:min(280px,calc(100vw - 16px))!important;max-width:280px!important;}
+}
+
+/* A discoverable Wish cue at the Console entry point, intentionally lighter
+   than a full toast so it does not obscure the page while playing. */
+#site-game-hud #console-tip-button:is(.attention-wish,.attention-blueprint)::after{
+  content:attr(data-wish-cue);
+  position:absolute;
+  bottom:calc(100% + 6px);
+  right:0;
+  white-space:nowrap;
+  padding:5px 7px;
+  border:1px solid var(--accent-bright,#67cfff);
+  border-radius:2px;
+  background:rgba(5,14,26,.98);
+  color:var(--accent-bright,#67cfff);
+  box-shadow:0 8px 26px rgba(0,0,0,.40);
+  font:900 8px/1.1 ui-monospace,Consolas,monospace;
+  letter-spacing:.1em;
+  pointer-events:none;
+}
+#site-game-hud #console-tip-button.attention-blueprint::after{color:#ff838d;border-color:#ff838d;}
+.console-wish-guide[hidden]{display:none!important;}
+.console-wish-guide{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:9px 12px;
+  border-bottom:1px solid rgba(103,207,255,.28);
+  color:#93eddf;background:rgba(18,100,114,.13);
+  font:800 10px/1.35 ui-monospace,Consolas,monospace;
+}
+.console-wish-guide.repair-needed{
+  color:#ffb3a7;border-bottom-color:rgba(255,90,95,.35);
+  background:rgba(107,26,40,.14);
+}
+.console-wish-guide button{
+  flex:none;padding:6px 8px;
+  border:1px solid currentColor;background:rgba(0,0,0,.12);
+  color:inherit;cursor:pointer;
+  font:900 9px/1 ui-monospace,Consolas,monospace;
+}
+.console-wish-guide button:hover,.console-wish-guide button:focus-visible{
+  background:rgba(255,255,255,.1);outline:1px solid currentColor;
+}
+
+/* Collapsed player controls share a single flex row with the expand button.
+   Avoid absolute offsets between unrelated containers. */
+.site-header > .music-player .music-player-head{
+  display:flex!important;align-items:center!important;gap:8px!important;
+  min-height:28px!important;
+}
+.site-header > .music-player .music-player-identity{min-width:0;flex:1 1 auto;}
+.site-header > .music-player .music-player-identity strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.site-header > .music-player .music-mini-controls{display:none;gap:5px;align-items:center;flex:none;}
+.site-header > .music-player.collapsed .music-mini-controls{display:flex!important;}
+.site-header > .music-player .music-mini-controls[hidden]{display:none!important;}
+.site-header > .music-player.collapsed .music-mini-controls :is(#music-play,#music-next),
+.site-header > .music-player.collapsed #music-collapse{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 28px!important;width:28px!important;height:28px!important;
+  min-width:28px!important;min-height:28px!important;
+  margin:0!important;padding:0!important;
+  border:1px solid rgba(var(--music-highlight-rgb),.34)!important;
+  color:var(--music-highlight)!important;
+  background:rgba(var(--music-highlight-rgb),.055)!important;
+  border-radius:1px;
+  vertical-align:middle!important;
+}
+.site-header > .music-player.collapsed .music-mini-controls svg{width:17px;height:17px;}
+.site-header > .music-player.collapsed .music-controls{
+  position:static!important;display:none!important;
+  margin:0!important;height:0!important;
+}
+.site-header > .music-player.collapsed{width:min(326px,calc(100vw - 40px))!important;}
+
+/* Companion panel height is driven by music-player ResizeObserver; it will
+   match the full player or the collapsed 72px shell at any text content. */
+.site-header > .music-lyrics-panel,
+body.music-minimized-lyrics .site-header > .music-lyrics-panel{
+  box-sizing:border-box!important;
+  height:var(--music-companion-height,72px)!important;
+  min-height:0!important;
+  max-height:min(540px,calc(100vh - var(--header) - 20px))!important;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.site-header > .music-lyrics-panel .music-lyrics-head{flex:none;}
+.site-header > .music-lyrics-panel .music-lyrics-content{
+  flex:1 1 auto;min-height:0!important;max-height:none!important;
+  overflow-y:auto;padding:8px 0!important;
+}
+/* Match the 12px song name, not the previous 14-16px lyric typography. */
+.site-header > .music-lyrics-panel .music-lyric-line,
+.site-header > .music-lyrics-panel.single .music-lyric-line.current,
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyric-line.current,
+.site-header > .music-lyrics-panel .music-lyrics-empty{
+  font-size:12px!important;line-height:1.45!important;
+}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyrics-content{
+  flex:1 1 auto;display:flex;align-items:center;justify-content:center;
+  min-height:0!important;max-height:none!important;
+}
+body.music-minimized-lyrics .site-header > .music-lyrics-panel .music-lyrics-empty{
+  margin:auto!important;padding:0!important;font-size:12px!important;
+}
+
+/* v2.84 | Unlock-safe HUD, full-surface attention, performant cursor & shots */
+/* No unlock: no hotbar footprint, no placeholder icon, no accidental hit target. */
+#site-game-hud #ledger-trigger:not(.visible),
+#site-game-hud #docs-toggle[hidden],
+#site-game-hud #design-toggle[hidden]{display:none!important;}
+
+/* Use an actual inline SVG instead of a mask-only pseudo icon. A previous
+   pseudo mask could render as an empty achievement button on some browsers. */
+#site-game-hud .hud-icon-btn::before{display:none!important;content:none!important;}
+#site-game-hud .hud-svg-icon{
+  display:flex;align-items:center;justify-content:center;
+  width:19px;height:19px;flex:0 0 19px;
+  color:var(--accent-bright,#67cfff);
+  pointer-events:none;
+}
+#site-game-hud .hud-svg-icon svg{display:block;width:19px;height:19px;stroke:currentColor;fill:none;}
+
+/* Both the BOX and ICON animate when attention is required. This ring is a
+   child rather than ::after because the Console uses ::after for Wish cues. */
+#site-game-hud .hud-attention-ring{
+  display:none;position:absolute;inset:-2px;border:2px solid currentColor;
+  border-radius:5px;pointer-events:none;
+}
+#site-game-hud :is(.attention-ready,.attention-new,.shop-ready,.reward-ready) > .hud-attention-ring{
+  display:block;animation:hud-box-ring 1s ease-in-out infinite alternate;
+}
+#site-game-hud :is(.attention-ready,.attention-new,.shop-ready,.reward-ready){
+  border-color:var(--accent-bright,#67cfff)!important;
+  background:var(--accent-soft,rgba(103,207,255,.17))!important;
+  animation:hud-control-glow 1s ease-in-out infinite alternate!important;
+}
+#site-game-hud :is(.attention-ready,.attention-new,.shop-ready,.reward-ready) > .hud-svg-icon,
+#site-game-hud :is(.attention-ready,.attention-new,.shop-ready,.reward-ready) > .hud-svg-icon svg{
+  animation:hud-icon-bright 1s ease-in-out infinite alternate;
+}
+@keyframes hud-box-ring{
+  from{opacity:.30;box-shadow:0 0 1px currentColor;}
+  to{opacity:1;box-shadow:0 0 10px currentColor,0 0 19px currentColor;}
+}
+@keyframes hud-control-glow{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.4)}
+}
+@keyframes hud-icon-bright{
+  from{opacity:.75;filter:brightness(1)}
+  to{opacity:1;filter:brightness(1.7) drop-shadow(0 0 4px currentColor)}
+}
+/* Docs stays quiet unless Design Mode is ON and documentation not visited. */
+body:not(.design-mode) #site-game-hud #docs-toggle{animation:none!important;filter:none!important;}
+body:not(.design-mode) #site-game-hud #docs-toggle > .hud-attention-ring{display:none!important;}
+
+/* Repaint-only glows on many independent bullets were the expensive part of
+   the shooting path. The bright single-color core keeps shots legible. */
+.legendary-player-projectile{
+  background:#ffcf56!important;
+  box-shadow:none!important;
+  border:1px solid rgba(255,247,202,.9);
+  will-change:transform;
+  contain:layout paint style;
+  backface-visibility:hidden;
+}
+
+/* Cursor is now an actual browser/native cursor when enlarged. The old CSS
+   set cursor:none across the whole page and relied on a DOM imitation; losing
+   pointer focus could make the Windows cursor appear missing altogether. */
+body.cursor-grown.cursor-power-1,body.cursor-grown.cursor-power-1 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2242%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%2362bfff%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
+body.cursor-grown.cursor-power-2,body.cursor-grown.cursor-power-2 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2246%22%20height%3D%2260%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23fff6cc%22%20stroke%3D%22%2343e0dc%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
+body.cursor-grown .power-cursor{display:none!important;}
+body.cursor-window-inactive,body.cursor-window-inactive *{cursor:auto!important;}
+body:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) .power-cursor{display:none!important;}
+body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay),
+body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) *{cursor:auto!important;}
+@media(prefers-reduced-motion:reduce){#site-game-hud .hud-attention-ring{animation:none!important;}}

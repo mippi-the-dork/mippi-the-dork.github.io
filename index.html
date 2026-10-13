@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.80" />
+  <link rel="stylesheet" href="style.css?v=2.84" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -58,29 +58,31 @@
     <!-- TRUE COMPLETION REWARD: twelve user-authored soundtrack tracks. Files can be dropped into assets/music without changing the player. -->
     <section class="music-player" id="music-player" aria-label="Unlocked music player" hidden>
       <div class="music-player-head">
-        <div><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
+        <div class="music-player-identity"><span>100% COMPLETE // MUSIC PLAYER</span><strong id="music-track-title">SONG 01</strong></div>
+        <div class="music-mini-controls" id="music-mini-controls"></div>
         <button id="music-collapse" type="button" aria-label="Collapse music player">−</button>
       </div>
       <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 12</b></div>
+      <div class="music-progress-row"><span id="music-current-time">0:00</span><input id="music-seek" type="range" min="0" max="1000" value="0" aria-label="Seek through song"><span id="music-duration">0:00</span></div>
       <div class="music-controls">
-        <button id="music-prev" type="button" aria-label="Previous song">PREV</button>
-        <button id="music-play" type="button">PLAY</button>
-        <button id="music-next" type="button" aria-label="Next song">NEXT</button>
-        <a id="music-download" href="#" download aria-disabled="true">DOWNLOAD</a>
-      </div>
-      <div class="music-play-options" aria-label="Music playback options">
-        <button id="music-repeat" type="button" aria-label="Repeat off" title="Cycle repeat mode: Off, Playlist, Track">LOOP OFF</button>
-        <button id="music-shuffle" type="button" aria-pressed="false" aria-label="Shuffle off" title="Play tracks in random order">SHUFFLE OFF</button>
+        <button id="music-prev" type="button" aria-label="Previous song" title="Previous song"></button>
+        <button id="music-play" type="button" aria-label="Play" title="Play / Pause"></button>
+        <button id="music-next" type="button" aria-label="Next song" title="Next song"></button>
+        <a id="music-download" href="#" download aria-disabled="true" aria-label="Download current song" title="Download song"></a>
+        <button id="music-repeat" type="button" aria-label="Repeat off" title="Cycle repeat mode: Off, Playlist, Track"></button>
+        <button id="music-shuffle" type="button" aria-pressed="false" aria-label="Shuffle off" title="Shuffle On / Off"></button>
+        <button id="music-lyrics-toggle" type="button" aria-pressed="false" aria-label="Toggle lyrics" title="Show / Hide lyrics"></button>
       </div>
       <div class="music-track-list" id="music-track-list" aria-label="Song list"></div>
-      <section class="music-lyrics-panel" id="music-lyrics-panel" aria-label="Song lyrics" hidden>
-        <div class="music-lyrics-head">
-          <div><span>LYRICS //</span><strong id="music-lyrics-title">SONG</strong></div>
-          <button type="button" id="music-lyrics-close" aria-label="Close lyrics">×</button>
-        </div>
-        <div class="music-lyrics-content" id="music-lyrics-content" aria-live="off"></div>
-      </section>
+
       <audio id="music-audio" preload="metadata"></audio>
+    </section>
+    <section class="music-lyrics-panel" id="music-lyrics-panel" aria-label="Song lyrics" hidden>
+      <div class="music-lyrics-head"><div><span>LYRICS //</span><strong id="music-lyrics-title">SONG</strong></div>
+        <div class="music-lyrics-actions"><button id="music-lyrics-mode" type="button" title="Switch between single and full lyrics" aria-label="Switch lyrics mode">FULL</button>
+        <button type="button" id="music-lyrics-close" aria-label="Close lyrics">×</button></div>
+      </div>
+      <div class="music-lyrics-content" id="music-lyrics-content" aria-live="off"></div>
     </section>
   </header>
 
@@ -607,6 +609,7 @@
           <a href="https://www.fab.com/sellers/Mippithedork" target="_blank" rel="noreferrer">FAB <span>↗</span></a>
           <a href="https://discord.gg/unrealsource" target="_blank" rel="noreferrer">Unreal Source <span>↗</span></a>
           <a href="https://steamcommunity.com/id/mippithedork/" target="_blank" rel="noreferrer">Steam <span>↗</span></a>
+          <a class="about-docs-link" href="https://mippi-the-dork.github.io/docs/" target="_blank" rel="noopener noreferrer"><span>BUILT TO BE TAKEN APART.</span><strong>Explore the design and technical documentation behind this website.</strong><b>VIEW DOCUMENTATION ↗</b></a>
         </div>
       </div>
 
@@ -702,6 +705,15 @@
     <button class="interact-mode-toggle" id="interact-toggle" type="button" hidden title="Purchase Interact Toggle in the Shop.">INTERACT // ON</button>
   </div>
 
+  <!-- v2.82 // Unified player HUD. Original interactive elements are rehomed here at runtime, preserving all listeners/state. -->
+  <div class="site-game-hud" id="site-game-hud" aria-label="Portfolio player HUD" hidden>
+    <section class="hud-cell hud-progress" id="hud-progress" aria-label="Progress"></section>
+    <section class="hud-cell hud-gameplay progress-hud" id="hud-gameplay" aria-label="Gameplay progress"></section>
+    <section class="hud-cell hud-modes" id="hud-modes" aria-label="Modes">
+      <button id="docs-toggle" type="button" hidden title="Design and technical documentation" aria-label="Open documentation"></button>
+    </section>
+    <section class="hud-cell hud-utilities" id="hud-utilities" aria-label="Utilities"></section>
+  </div>
   <aside class="achievement-ledger" id="achievement-ledger" aria-hidden="true" aria-label="Achievement ledger">
     <div class="ledger-head"><div><span>DISCOVERY SYSTEM</span><h3>Achievement Ledger</h3></div><button type="button" id="ledger-close" aria-label="Close achievement ledger">×</button></div>
     <p class="ledger-copy">Some things on this page reward curiosity. Undiscovered entries carry a trace, not an answer.</p>
@@ -851,6 +863,7 @@
   <!-- CSS specificity is just aggro management for selectors. -->
   <div class="dev-console" id="dev-console" aria-hidden="true">
     <div class="console-head"><span>MIPPI // DEV CONSOLE</span><small>use the command &quot;help&quot; to see a list of commands</small><button type="button" id="console-close" aria-label="Close console">×</button></div>
+    <div class="console-wish-guide" id="console-wish-guide" role="status" aria-live="polite" hidden><span id="console-wish-guide-text"></span><button type="button" id="console-wish-guide-action"></button></div>
     <div class="console-output" id="console-output" aria-live="polite"><div>Type <b>help</b> for commands.</div></div>
     <form class="console-input-row" id="console-form"><span>&gt;</span><input id="console-input" autocomplete="off" spellcheck="false" aria-label="Developer console command" /></form>
   </div>
@@ -874,9 +887,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.80"></script>
-  <script defer src="perspective-demo.js?v=2.80"></script>
+  <script defer src="script.js?v=2.84"></script>
+  <script defer src="perspective-demo.js?v=2.84"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.80 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.84 -->

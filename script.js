@@ -1,6 +1,6 @@
-// v2.80 // Header music player + console help polish + local preview hardening
+// v2.84 // Shooting performance, collectible pacing, cursor and HUD unlock corrections
 const mippiRuntimeHealth={
-  version:'2.80',
+  version:'2.84',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -745,6 +745,66 @@ const musicLyricsTitle=document.querySelector('#music-lyrics-title');
 const musicLyricsContent=document.querySelector('#music-lyrics-content');
 const musicLyricsClose=document.querySelector('#music-lyrics-close');
 const musicAudio=document.querySelector('#music-audio');
+const musicSeek=document.querySelector('#music-seek');
+const musicCurrentTime=document.querySelector('#music-current-time');
+const musicDuration=document.querySelector('#music-duration');
+const musicLyricsToggle=document.querySelector('#music-lyrics-toggle');
+const musicLyricsModeButton=document.querySelector('#music-lyrics-mode');
+const musicMiniControls=document.querySelector('#music-mini-controls');
+const musicStandardControls=document.querySelector('.music-player .music-controls');
+const MUSIC_LYRICS_MODE_KEY='mippi-music-lyrics-mode-v1';
+function syncMusicMinimizedControls(){
+  if(!musicMiniControls||!musicStandardControls||!musicPlay||!musicNext)return;
+  const minimized=!!musicPlayer?.classList.contains('collapsed');
+  const target=minimized?musicMiniControls:musicStandardControls;
+  if(minimized){target.append(musicPlay,musicNext);}
+  else{
+    // Preserve the original Previous, Play, Next order in the expanded row.
+    const prev=document.getElementById('music-prev');
+    if(prev){prev.after(musicPlay);musicPlay.after(musicNext);}
+  }
+  musicMiniControls.hidden=!minimized;
+}
+function syncMusicLyricsPanelHeight(){
+  if(!musicPlayer||!musicLyricsPanel||musicLyricsPanel.hidden)return;
+  musicLyricsPanel.style.setProperty('--music-companion-height',`${Math.round(musicPlayer.getBoundingClientRect().height)}px`);
+}
+if(typeof ResizeObserver==='function'&&musicPlayer){
+  new ResizeObserver(()=>syncMusicLyricsPanelHeight()).observe(musicPlayer);
+}
+
+let musicPreferredLyricsMode='full';
+try{musicPreferredLyricsMode=localStorage.getItem(MUSIC_LYRICS_MODE_KEY)==='single'?'single':'full';}catch(_){}
+const musicIconShapes={
+  previous:'<path d="M5 5v14M19 5 8 12l11 7V5Z"/>',
+  next:'<path d="M19 5v14M5 5l11 7-11 7V5Z"/>',
+  play:'<path d="m8 5 11 7-11 7V5Z"/>',
+  pause:'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+  download:'<path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/>',
+  repeat:'<path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/>',
+  repeat1:'<path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/><text x="12" y="15.5" text-anchor="middle" font-size="9" stroke="none" fill="currentColor">1</text>',
+  shuffle:'<path d="M3 17h2c6 0 7-10 14-10h2m-4-4 4 4-4 4M3 7h2c2 0 3 1 4 3m4 4c2 3 4 3 6 3h2m-4-4 4 4-4 4"/>',
+  lyrics:'<path d="M6 4h12M6 9h12M6 14h8M6 19h10"/>'
+};
+function musicSetIcon(el,name){if(!el)return;el.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${musicIconShapes[name]}</svg>`;}
+function musicSyncPlayIcon(){musicSetIcon(musicPlay,musicAudio&&!musicAudio.paused?'pause':'play');musicPlay?.setAttribute('aria-label',musicAudio&&!musicAudio.paused?'Pause song':'Play song');}
+function musicTimeLabel(time){const t=Number.isFinite(time)?Math.max(0,Math.floor(time)):0;return `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;}
+function musicSyncProgress(){
+  if(!musicAudio)return;
+  const duration=Number.isFinite(musicAudio.duration)?musicAudio.duration:0;
+  if(musicCurrentTime)musicCurrentTime.textContent=musicTimeLabel(musicAudio.currentTime);
+  if(musicDuration)musicDuration.textContent=musicTimeLabel(duration);
+  if(musicSeek){musicSeek.disabled=!duration; if(document.activeElement!==musicSeek)musicSeek.value=duration?String(Math.round(musicAudio.currentTime/duration*1000)):'0';}
+}
+function musicSyncLyricsMode(){
+  const single=musicPreferredLyricsMode==='single'||!!musicPlayer?.classList.contains('collapsed');
+  musicLyricsPanel?.classList.toggle('single',single);
+  if(musicLyricsModeButton){musicLyricsModeButton.textContent=single?'SINGLE':'FULL';musicLyricsModeButton.disabled=!!musicPlayer?.classList.contains('collapsed');}
+  document.body.classList.toggle('music-minimized-lyrics',!!musicPlayer?.classList.contains('collapsed')&&!musicLyricsPanel?.hidden);
+  updateMusicLyricsSync();
+  syncMusicLyricsPanelHeight();
+}
+
 const shopClose = document.querySelector('#shop-close');
 const shopItemsEl = document.querySelector('#shop-items');
 const shopWalletCount = document.querySelector('#shop-wallet-count');
@@ -806,7 +866,11 @@ let castleRunProgress=0;
 // Keep them here, before updateHeartMeter() can transitively reach
 // updateInvasionMeter() / updateCastleMeter().
 let ufoKills=0;
-let nextBossKillThreshold=10;
+let nextBossKillThreshold=10; // legacy DEV compatibility only
+let invasionWaveKills=0;
+let invasionEncounterPending=false;
+let invasionSpawnQueued=false;
+let invasionBossRetryKills=0;
 let ufoBossActive=false;
 let superBossActive=false;
 let superBossRuntime=null;
@@ -984,21 +1048,23 @@ function updateCoolMeter(){
   if(coolMeterValue) coolMeterValue.textContent=dougCoolActive?'COOL!':`${value}%`;
   if(coolMeterFill) coolMeterFill.style.width=`${value}%`;
   coolMeter.setAttribute('aria-label',dougCoolActive?'Doug coolness full. Cool mode active.':`Doug coolness: ${value} percent`);
+  coolMeter.title=dougCoolActive?'COOLNESS FULL // Doug Cool Mode active.':`COOLNESS // ${value}% filled. Collect Doug Bones to raise Coolness.`;
 }
 function updateInvasionMeter(){
-  if(!invasionMeter) return;
+  if(!invasionMeter)return;
   const epic=epicGameplayUnlocked();
   invasionMeter.classList.toggle('visible',epic);
-  if(!epic) return;
-  const victories=totalBossVictories();
-  const bossStage=victories%3;
-  const currentContact=ufoBossActive?10:Math.max(0,Math.min(10,ufoCycleProgress()));
-  const points=Math.max(0,Math.min(30,bossStage*10+currentContact));
-  const pct=Math.round(points/30*100);
-  if(invasionMeterValue) invasionMeterValue.textContent=superBossActive?'CONTACT':`${pct}%`;
-  if(invasionMeterFill) invasionMeterFill.style.width=`${superBossActive?100:pct}%`;
+  if(!epic)return;
+  const stage=totalBossVictories()%3;
+  const progress=invasionEncounterPending?10:invasionWaveKills;
+  const pct=Math.min(100,Math.round((stage*10+progress)/30*100));
+  if(invasionMeterValue)invasionMeterValue.textContent=`${pct}%`;
+  if(invasionMeterFill)invasionMeterFill.style.width=`${superBossActive?100:pct}%`;
   invasionMeter.classList.toggle('contact',superBossActive);
-  invasionMeter.setAttribute('aria-label',superBossActive?'Invasion progress full. Super Boss contact active.':`Invasion progress: ${pct} percent`);
+  invasionMeter.title=superBossActive?'SUPER BOSS // Fight in progress.':
+    invasionEncounterPending?`Boss contact ready. ${invasionBossRetryKills} UFOs until reacquisition. Wave progress preserved.`:
+    `INVASION // ${progress}/10 UFOs in current wave. ${stage}/3 boss victories toward escalation.`;
+  invasionMeter.setAttribute('aria-label',invasionMeter.title);
 }
 function updateCastleMeter(){
   if(!castleMeter) return;
@@ -1065,14 +1131,7 @@ function unlockPostgameAchievement(key,{announce=true}={}){
   telemetryCount('achievements','postgameUnlocks');
   telemetryMeaningful('postgame_achievement_unlocked',{key,rarity:data.rarity});
   if(postgameRevealed&&announce){
-    hideAchievementToast();void achievement?.offsetWidth;
-    if(achievementLabel)achievementLabel.textContent=`${data.rarity.toUpperCase()} ACHIEVEMENT UNLOCKED`;
-    if(achievementTitle)achievementTitle.textContent=data.title;
-    if(achievementDetail)achievementDetail.textContent=data.detail;
-    if(achievementProgress)achievementProgress.textContent=`${unlockedAchievements.size+postgameUnlockedCount()} / 20 FOUND`;
-    achievement?.classList.remove('rarity-rare','rarity-epic','rarity-legendary');
-    achievement?.classList.add(`rarity-${data.rarity}`,'show');
-    achievementTimer=window.setTimeout(hideAchievementToast,5200);
+    showTransientToast(data.title,data.detail,`${unlockedAchievements.size+postgameUnlockedCount()} / 20 FOUND`,`${data.rarity.toUpperCase()} ACHIEVEMENT UNLOCKED`);
   }
   return true;
 }
@@ -1094,8 +1153,10 @@ function updateLedgerTrigger(){
   const total=postgameRevealed?20:ACHIEVEMENT_KEYS.length;
   const found=postgameRevealed?unlockedAchievements.size+postCount:unlockedAchievements.size;
   if(ledgerCount)ledgerCount.textContent=`${found}/${total}`;
+  if(ledgerTrigger)ledgerTrigger.title=`ACHIEVEMENTS // ${found} / ${total} unlocked. Open Ledger.`;
   const first=ledgerTrigger.firstChild;if(first&&first.nodeType===Node.TEXT_NODE)first.nodeValue=postgameRevealed?'ACHIEVEMENTS ':'SIGNALS ';
   ledgerTrigger.classList.toggle('visible',unlockedAchievements.size>0||postgameRevealed);
+  ledgerTrigger.classList.toggle('attention-new',postgameRevealed&&!ledger?.classList.contains('open'));
 }
 function updateAchievementProgress(extraCount = null) {
   const count = unlockedAchievements.size;
@@ -1190,14 +1251,15 @@ function updateMusicPlaybackOptions(){
   if(musicRepeat){
     const modeLabel={off:'LOOP OFF',playlist:'LOOP ALL',track:'LOOP 1'}[musicRepeatMode];
     const description={off:'Repeat off. Stop at the end of the playlist.',playlist:'Repeat playlist. Continue from the beginning after the last song.',track:'Repeat track. Replay the current song.'}[musicRepeatMode];
-    musicRepeat.textContent=modeLabel;
+    musicSetIcon(musicRepeat,musicRepeatMode==='track'?'repeat1':'repeat');
+    musicRepeat.classList.toggle('active',musicRepeatMode!=='off');
     musicRepeat.title=`${description} Click to change repeat mode.`;
     musicRepeat.setAttribute('aria-label',description);
     musicRepeat.setAttribute('aria-pressed',String(musicRepeatMode!=='off'));
     musicRepeat.dataset.mode=musicRepeatMode;
   }
   if(musicShuffle){
-    musicShuffle.textContent=musicShuffleEnabled?'SHUFFLE ON':'SHUFFLE OFF';
+    musicSetIcon(musicShuffle,'shuffle');
     musicShuffle.title=musicShuffleEnabled?'Shuffle enabled. Tracks play without repeats within a cycle.':'Shuffle disabled. Tracks play in playlist order.';
     musicShuffle.setAttribute('aria-label',musicShuffle.title);
     musicShuffle.setAttribute('aria-pressed',String(musicShuffleEnabled));
@@ -1206,10 +1268,8 @@ function updateMusicPlaybackOptions(){
 }
 function renderMusicTrackList(){
   if(!musicTrackList)return;
-  // Two separate controls per row: selecting a track never accidentally opens lyrics.
   musicTrackList.innerHTML=MUSIC_TRACKS.map((track,index)=>`<div class="music-track-row ${index===musicTrackIndex?'active':''}">
     <button type="button" class="music-track-select" data-music-track="${index}" ${index===musicTrackIndex?'aria-current="true"':''}><span>${String(index+1).padStart(2,'0')}</span><b>${track.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}</b></button>
-    <button type="button" class="music-track-info ${index===musicLyricsIndex&&!musicLyricsPanel?.hidden?'open':''}" data-music-lyrics="${index}" aria-label="View lyrics for ${track.title.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" title="View lyrics">?</button>
   </div>`).join('');
 }
 function updateMusicDownload(){
@@ -1235,8 +1295,8 @@ function musicSwitchTrack(index,{autoplay=false,shuffleHistory=true}={}){
   if(musicTrackTitle)musicTrackTitle.textContent=track.title;
   if(musicTrackCount)musicTrackCount.textContent=`TRACK ${musicTrackIndex+1} / ${MUSIC_TRACKS.length}`;
   if(musicTrackStatus)musicTrackStatus.textContent='CHECKING TRACK FILE...';
-  if(musicPlay)musicPlay.textContent='PLAY';
-  updateMusicDownload();renderMusicTrackList();
+  musicSyncPlayIcon();
+  updateMusicDownload();renderMusicTrackList();musicSyncProgress();
   musicAudio.pause();musicAudio.src=track.src;musicAudio.load();
   // The lyrics window follows playback only when already open. Opening a lyrics
   // window for a different song does not itself change the playing track.
@@ -1269,7 +1329,7 @@ function musicNextTrack({automatic=false}={}){
   const next=musicChooseNext({automatic});
   if(next===null){
     if(musicTrackStatus)musicTrackStatus.textContent='PLAYLIST FINISHED';
-    if(musicPlay)musicPlay.textContent='PLAY';
+    musicSyncPlayIcon();
     return;
   }
   musicSwitchTrack(next,{autoplay:automatic||!musicAudio.paused,shuffleHistory:!musicShuffleEnabled});
@@ -1304,86 +1364,79 @@ function unlockMusicPlayer({announce=true}={}){
    Timestamps are seconds since the very start of the song. Plain un-timed
    lyric lines work now too. Never inject text from the file as HTML. */
 function parseMusicLrc(raw){
-  const lines=String(raw||'').replace(/^\uFEFF/,'').split(/\r?\n/);
-  const entries=[];
-  let offsetMs=0;
-  let hasTimestamps=false;
-  for(const sourceLine of lines){
-    const line=sourceLine.trim();
-    if(!line)continue;
+  const entries=[];let offsetMs=0,hasTimestamps=false;
+  for(const sourceLine of String(raw||'').replace(/^\uFEFF/,'').split(/\r?\n/)){
+    const line=sourceLine.trim();if(!line)continue;
     const offset=line.match(/^\[offset\s*:\s*([+-]?\d+)\s*\]$/i);
     if(offset){offsetMs=Number(offset[1]);continue;}
-    // LRC metadata, e.g. [ti:Song], [ar:Artist], [al:Album], [by:Editor].
     if(/^\[(?:ti|ar|al|au|by|length|re|ve)\s*:/i.test(line))continue;
-    const matches=[...line.matchAll(/\[(\d{1,3}):(\d{2})(?:\.(\d{1,3}))?\]/g)];
-    if(matches.length){
-      const text=line.replace(/\[\d{1,3}:\d{2}(?:\.\d{1,3})?\]/g,'').trim();
-      if(!text)continue;
-      matches.forEach(match=>{
-        const minutes=Number(match[1]), seconds=Number(match[2]);
-        if(seconds>59)return;
-        const fraction=match[3] ? Number(match[3].padEnd(3,'0'))/1000 : 0;
-        entries.push({time:Math.max(0,minutes*60+seconds+fraction+offsetMs/1000),text});
-        hasTimestamps=true;
-      });
-    }else{
-      // Keep human-readable section labels such as [Chorus] or [Verse 2].
-      entries.push({time:null,text:line});
+    const tags=[...line.matchAll(/\[(\d{1,3}):(\d{2})(?:\.(\d{1,3}))?\]/g)];
+    const payload=line.replace(/\[\d{1,3}:\d{2}(?:\.\d{1,3})?\]/g,'').trim();
+    if(!payload)continue;
+    // Enhanced LRC inline timing: <mm:ss.xx>word ... <mm:ss.xx>next word.
+    const parts=[];const wordStamp=/<(\d{1,3}):(\d{2})(?:\.(\d{1,3}))?>/g;
+    let pos=0,activeWordTime=null,match;
+    while((match=wordStamp.exec(payload))){
+      const segment=payload.slice(pos,match.index);
+      if(segment)parts.push({text:segment,time:activeWordTime});
+      const frac=match[3]?Number(match[3].padEnd(3,'0'))/1000:0;
+      activeWordTime=Math.max(0,Number(match[1])*60+Number(match[2])+frac+offsetMs/1000);
+      pos=wordStamp.lastIndex;
     }
+    const tail=payload.slice(pos);if(tail)parts.push({text:tail,time:activeWordTime});
+    const displayText=parts.map(x=>x.text).join('');
+    if(tags.length){
+      hasTimestamps=true;
+      for(const tag of tags){
+        const frac=tag[3]?Number(tag[3].padEnd(3,'0'))/1000:0;
+        const t=Math.max(0,Number(tag[1])*60+Number(tag[2])+frac+offsetMs/1000);
+        entries.push({time:t,text:displayText,words:parts.map(part=>({...part,time:part.time??t}))});
+      }
+    }else entries.push({time:null,text:displayText,words:parts});
   }
-  if(hasTimestamps){
-    // A plain lyric line in an otherwise-timed file is displayed but cannot
-    // reliably sync; place them after timestamped lines instead of guessing.
-    entries.sort((a,b)=>(a.time??Infinity)-(b.time??Infinity));
-  }
+  if(hasTimestamps)entries.sort((a,b)=>(a.time??Infinity)-(b.time??Infinity));
   return {entries,hasTimestamps};
 }
 function closeMusicLyrics(){
   if(!musicLyricsPanel)return;
   musicLyricsPanel.hidden=true;
+  musicLyricsToggle?.setAttribute('aria-pressed','false');
+  document.body.classList.remove('music-minimized-lyrics');
   musicLyricsIndex=null;
   musicLyricsData=null;
-  musicActiveLyricLine=-1;
+  musicActiveLyricLine=-1;musicLastSpokenKey='';
   musicLyricsRequest++;
+  musicSyncLyricsMode();
   renderMusicTrackList();
 }
 function renderMusicLyrics(data){
   if(!musicLyricsContent)return;
   musicLyricsContent.replaceChildren();
   if(!data.entries.length){
-    const p=document.createElement('p');
-    p.className='music-lyrics-empty';
+    const p=document.createElement('p');p.className='music-lyrics-empty';
     p.textContent='Lyrics coming soon. Edit the matching song-XX.lrc file in assets/music.';
-    musicLyricsContent.appendChild(p);
-    return;
+    musicLyricsContent.appendChild(p);return;
   }
-  for(const [index,line] of data.entries.entries()){
-    const item=document.createElement('p');
-    item.className='music-lyric-line';
-    item.dataset.lyricIndex=String(index);
-    if(data.hasTimestamps && line.time!==null){
-      item.dataset.time=String(line.time);
-      item.classList.add('timed');
-      const timestamp=document.createElement('span');
-      timestamp.className='music-lyric-time';
-      timestamp.textContent=`${String(Math.floor(line.time/60)).padStart(2,'0')}:${String(Math.floor(line.time%60)).padStart(2,'0')}.${String(Math.floor((line.time%1)*100+0.0001)).padStart(2,'0')}`;
-      item.appendChild(timestamp);
-    }
-    const words=document.createElement('span');
-    words.className='music-lyric-text';
-    words.textContent=line.text;
-    item.appendChild(words);
-    musicLyricsContent.appendChild(item);
+  for(const [i,line] of data.entries.entries()){
+    const item=document.createElement('p');item.className='music-lyric-line';item.dataset.lyricIndex=String(i);
+    const text=document.createElement('span');text.className='music-lyric-text';
+    if(line.words?.length){line.words.forEach((part,j)=>{
+      const segment=document.createElement('span');segment.className='music-lyric-word';
+      segment.dataset.wordIndex=String(j);segment.textContent=part.text;
+      text.appendChild(segment);
+    });}else text.textContent=line.text;
+    item.appendChild(text);musicLyricsContent.appendChild(item);
   }
-  updateMusicLyricsSync();
+  musicSyncLyricsMode();updateMusicLyricsSync();
 }
 async function openMusicLyrics(index){
   if(!musicLyricsPanel||!musicLyricsContent||index<0||index>=MUSIC_TRACKS.length)return;
   const track=MUSIC_TRACKS[index];
   musicLyricsIndex=index;
   musicLyricsPanel.hidden=false;
+  musicLyricsToggle?.setAttribute('aria-pressed','true');
   musicLyricsData=null;
-  musicActiveLyricLine=-1;
+  musicActiveLyricLine=-1;musicLastSpokenKey='';
   const request=++musicLyricsRequest;
   if(musicLyricsTitle)musicLyricsTitle.textContent=track.title;
   musicLyricsContent.textContent='LOADING LYRICS...';
@@ -1407,27 +1460,38 @@ async function openMusicLyrics(index){
     musicLyricsContent.appendChild(note);
   }
   // Reveal the lyrics section inside the player without scrolling the page.
-  if(musicPlayer){musicPlayer.scrollTop=musicPlayer.scrollHeight;}
+  musicSyncLyricsMode();
 }
+let musicLastSpokenKey='';
 function updateMusicLyricsSync(){
-  if(!musicLyricsData||musicLyricsIndex!==musicTrackIndex||!musicAudio||musicLyricsPanel?.hidden||!musicLyricsData.hasTimestamps)return;
-  let active=-1;
+  if(!musicLyricsData||musicLyricsIndex!==musicTrackIndex||!musicAudio||musicLyricsPanel?.hidden)return;
+  const entries=musicLyricsData.entries;
   const time=musicAudio.currentTime||0;
-  musicLyricsData.entries.forEach((line,i)=>{if(line.time!==null&&line.time<=time+0.03)active=i;});
-  if(active===musicActiveLyricLine)return;
-  musicActiveLyricLine=active;
-  const nodes=musicLyricsContent?.querySelectorAll('.music-lyric-line')||[];
-  nodes.forEach((node,i)=>node.classList.toggle('current',i===active));
-  if(active>=0&&nodes[active]){
-    const target=nodes[active];
-    // Scroll only the lyrics well, not the page or the parent header.
-    musicLyricsContent.scrollTop=target.offsetTop-musicLyricsContent.clientHeight/2+target.offsetHeight/2;
+  let active=musicLyricsData.hasTimestamps?-1:(entries.length?0:-1);
+  if(musicLyricsData.hasTimestamps){for(let i=0;i<entries.length;i++){if(entries[i].time!==null&&entries[i].time<=time+.03)active=i;}}
+  const line=entries[active];
+  let spoken=-1;
+  if(line?.words){for(let i=0;i<line.words.length;i++){if(line.words[i].time!==null&&line.words[i].time<=time+.03)spoken=i;}}
+  const key=`${musicTrackIndex}:${active}:${spoken}`;
+  if(key===musicLastSpokenKey)return;
+  musicLastSpokenKey=key;
+  const nodes=musicLyricsContent.querySelectorAll('.music-lyric-line');
+  for(let i=0;i<nodes.length;i++){
+    const node=nodes[i];node.classList.toggle('current',i===active);
+    const words=node.querySelectorAll('.music-lyric-word');
+    for(let j=0;j<words.length;j++)words[j].classList.toggle('spoken',i===active&&j<=spoken&&entries[i].words[j].time!==null);
+  }
+  const changed=active!==musicActiveLyricLine;musicActiveLyricLine=active;
+  if(changed&&active>=0&&nodes[active]&&!musicLyricsPanel.classList.contains('single')){
+    musicLyricsContent.scrollTop=nodes[active].offsetTop-musicLyricsContent.clientHeight/2+nodes[active].offsetHeight/2;
   }
 }
+
 function initMusicPlayer(){
   if(!musicPlayer)return;
   musicPlayer.hidden=!musicPlayerUnlocked;
   renderMusicTrackList();
+  syncMusicMinimizedControls();
   updateMusicPlaybackOptions();
   if(musicShuffleEnabled)resetMusicShuffleHistory();
   if(musicPlayerUnlocked)selectMusicTrack(0);
@@ -1435,18 +1499,24 @@ function initMusicPlayer(){
     musicPlayer.classList.toggle('collapsed');
     musicCollapse.textContent=musicPlayer.classList.contains('collapsed')?'+':'−';
     musicCollapse.setAttribute('aria-label',musicPlayer.classList.contains('collapsed')?'Expand music player':'Collapse music player');
+    syncMusicMinimizedControls();
+    musicSyncLyricsMode();
+    syncMusicLyricsPanelHeight();
   });
   musicTrackList?.addEventListener('click',event=>{
-    const info=event.target.closest('[data-music-lyrics]');
-    if(info){
-      const index=Number(info.dataset.musicLyrics);
-      if(musicLyricsIndex===index&&!musicLyricsPanel.hidden)closeMusicLyrics();else openMusicLyrics(index);
-      return;
-    }
     const selection=event.target.closest('[data-music-track]');
     if(selection)selectMusicTrack(Number(selection.dataset.musicTrack));
   });
-  musicLyricsClose?.addEventListener('click',closeMusicLyrics);
+  musicLyricsToggle?.addEventListener('click',()=>{
+    if(musicLyricsPanel?.hidden)openMusicLyrics(musicTrackIndex);else closeMusicLyrics();
+    musicLyricsToggle?.setAttribute('aria-pressed',String(!musicLyricsPanel?.hidden));
+  });
+  musicLyricsModeButton?.addEventListener('click',()=>{
+    musicPreferredLyricsMode=musicPreferredLyricsMode==='single'?'full':'single';
+    try{localStorage.setItem(MUSIC_LYRICS_MODE_KEY,musicPreferredLyricsMode);}catch(_){}
+    musicSyncLyricsMode();
+  });
+  musicLyricsClose?.addEventListener('click',()=>{closeMusicLyrics();musicLyricsToggle?.setAttribute('aria-pressed','false');});
   musicRepeat?.addEventListener('click',()=>{
     musicRepeatMode=MUSIC_REPEAT_MODES[(MUSIC_REPEAT_MODES.indexOf(musicRepeatMode)+1)%MUSIC_REPEAT_MODES.length];
     try{localStorage.setItem(MUSIC_REPEAT_KEY,musicRepeatMode);}catch(_){}
@@ -1457,6 +1527,12 @@ function initMusicPlayer(){
     try{localStorage.setItem(MUSIC_SHUFFLE_KEY,musicShuffleEnabled?'1':'0');}catch(_){}
     resetMusicShuffleHistory();
     updateMusicPlaybackOptions();
+  });
+  musicSetIcon(musicPrev,'previous');musicSetIcon(musicNext,'next');musicSetIcon(musicDownload,'download');musicSetIcon(musicLyricsToggle,'lyrics');musicSyncPlayIcon();
+  musicSeek?.addEventListener('input',()=>{
+    if(!musicAudio||!Number.isFinite(musicAudio.duration))return;
+    musicAudio.currentTime=Number(musicSeek.value)/1000*musicAudio.duration;
+    musicSyncProgress();updateMusicLyricsSync();
   });
   musicPrev?.addEventListener('click',musicPreviousTrack);
   musicNext?.addEventListener('click',()=>musicNextTrack({automatic:false}));
@@ -1477,12 +1553,13 @@ function initMusicPlayer(){
   musicAudio?.addEventListener('error',()=>{
     musicPlayWhenReady=false;musicCurrentAvailable=false;
     if(musicTrackStatus)musicTrackStatus.textContent='MUSIC FILE PENDING';
-    updateMusicDownload();if(musicPlay)musicPlay.textContent='PLAY';
+    updateMusicDownload();musicSyncPlayIcon();
   });
-  musicAudio?.addEventListener('play',()=>{if(musicPlay)musicPlay.textContent='PAUSE';if(musicTrackStatus)musicTrackStatus.textContent='NOW PLAYING';});
-  musicAudio?.addEventListener('pause',()=>{if(musicPlay)musicPlay.textContent='PLAY';if(musicCurrentAvailable&&musicTrackStatus)musicTrackStatus.textContent='READY';});
-  musicAudio?.addEventListener('timeupdate',updateMusicLyricsSync);
-  musicAudio?.addEventListener('seeked',updateMusicLyricsSync);
+  musicAudio?.addEventListener('play',()=>{musicSyncPlayIcon();if(musicTrackStatus)musicTrackStatus.textContent='NOW PLAYING';});
+  musicAudio?.addEventListener('pause',()=>{musicSyncPlayIcon();if(musicCurrentAvailable&&musicTrackStatus)musicTrackStatus.textContent='READY';});
+  musicAudio?.addEventListener('timeupdate',()=>{updateMusicLyricsSync();musicSyncProgress();});
+  musicAudio?.addEventListener('durationchange',musicSyncProgress);
+  musicAudio?.addEventListener('seeked',()=>{updateMusicLyricsSync();musicSyncProgress();});
   musicAudio?.addEventListener('ended',()=>{
     if(musicRepeatMode==='track'){
       musicAudio.currentTime=0;
@@ -1704,10 +1781,10 @@ function updateHeartMeter(){
   hearts.forEach((heart,index)=>{ heart.textContent=index<heartCount?'♥':'♡'; heart.classList.toggle('filled',index<heartCount); });
   const rewardReady=heartCount>=5&&!heartRewardShown;
   heartMeter.classList.toggle('reward-ready',rewardReady);
-  heartMeter.disabled=!rewardReady;
-  heartMeter.setAttribute('aria-disabled',rewardReady?'false':'true');
-  heartMeter.setAttribute('aria-label',rewardReady?'Heart pickups: 5 of 5. Reward ready. Click to claim.':`Heart pickups: ${heartCount} of 5${heartRewardShown?'. Reward claimed.':''}`);
-  heartMeter.title=rewardReady?'FULL HEARTS // Click to claim the Unreal Source reward.':heartRewardShown?'Full Hearts reward claimed.':'Collect Heart pickups hidden around the site.';
+  heartMeter.disabled=false;
+  heartMeter.setAttribute('aria-disabled','false');
+  heartMeter.setAttribute('aria-label',rewardReady?'Heart pickups: 5 of 5. Reward ready. Click to claim.':heartCount>=5?'Hearts full. Rare bonus Hearts grant Mippi Bird extra lives.':`Heart pickups: ${heartCount} of 5`);
+  heartMeter.title=rewardReady?'FULL HEARTS // Click to claim the Unreal Source reward.':heartCount>=5?`HEARTS FULL // Click to revisit Unreal Source. Bonus Heart lives banked for Mippi Bird: ${mushroomBankLives}.`:'Collect Heart pickups hidden around the site.';
   updateProgressHudVisibility();
   syncProgressHudPosition();
 }
@@ -1738,7 +1815,7 @@ function openUnrealGift(){
 function closeUnrealGift(){ unrealGiftPopup?.classList.remove('open'); unrealGiftPopup?.setAttribute('aria-hidden','true'); }
 unrealGiftDecline?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_declined'); closeUnrealGift(); });
 unrealGiftAccept?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_accepted'); window.setTimeout(closeUnrealGift,100); });
-heartMeter?.addEventListener('click',()=>{if(heartCount>=5&&!heartRewardShown)claimHeartReward();});
+heartMeter?.addEventListener('click',()=>{if(heartCount>=5){if(!heartRewardShown)claimHeartReward();else openUnrealGift();}else showTransientToast('HEARTS','Collect five Hearts to unlock the Unreal Source reward.',`HEARTS // ${heartCount}/5`,'PROGRESS');});
 function collectHeart(){
   telemetryCount('economy','heartsCollected');
   telemetryMeaningful('heart_collected',{count:heartCount+1});
@@ -1748,7 +1825,10 @@ function collectHeart(){
     updateHeartMeter();
     consolePrint(`HEART ACQUIRED // ${heartCount}/5 // morale capacity increased.`,'good');
   } else {
-    consolePrint('HEART ACQUIRED // already at full hearts. Please stop hoarding health.','good');
+    mushroomBankLives++;persistMushroomLives();
+    telemetryCount('economy','heartBirdLivesEarned');
+    consolePrint(`BONUS HEART // +1 MIPPI BIRD EXTRA LIFE // BANK ${mushroomBankLives}`,'good');
+    showTransientToast('BONUS HEART','Full hearts! This heart adds one extra Mippi Bird life.',`BIRD LIVES // ${mushroomBankLives}`,'HEARTS');
   }
   if(heartCount>=5 && !heartRewardShown){
     showTransientToast('FULL HEARTS','The HEARTS panel is ready. Click it to claim the reward.','5 / 5 // CLAIM READY','HEART CONTAINER');
@@ -1766,28 +1846,42 @@ function hideAchievementToast() {
 
 function showSystemToast(title, detail, progressText = null) {
   if (!achievement) return;
-  hideAchievementToast();
-  void achievement.offsetWidth;
-  if (achievementLabel) achievementLabel.textContent = 'SYSTEM';
-  if (achievementTitle) achievementTitle.textContent = title;
-  if (achievementDetail) achievementDetail.textContent = detail;
-  if (achievementProgress) achievementProgress.textContent = progressText || `${unlockedAchievements.size} / ${ACHIEVEMENT_KEYS.length} FOUND`;
-  achievement.classList.add('show');
-  achievementTimer = window.setTimeout(hideAchievementToast, 4600);
+  showTransientToast(title,detail,progressText||`${unlockedAchievements.size} / ${ACHIEVEMENT_KEYS.length} FOUND`,'SYSTEM');
 }
 
-function showTransientToast(title, detail, progressLabel='SYSTEM', topLabel='SYSTEM', { persistent=false } = {}) {
-  if (!achievement) return;
-  hideAchievementToast();
-  void achievement.offsetWidth;
-  if (achievementLabel) achievementLabel.textContent = topLabel;
-  if (achievementTitle) achievementTitle.textContent = title;
-  if (achievementDetail) achievementDetail.textContent = detail;
-  if (achievementProgress) achievementProgress.textContent = progressLabel;
-  achievement.classList.remove('rarity-rare','rarity-epic','rarity-legendary');
-  achievement.classList.toggle('hint-toast', persistent);
-  achievement.classList.add('show');
-  if (!persistent) achievementTimer = window.setTimeout(hideAchievementToast, 4600);
+const toastStack=document.createElement('div');
+toastStack.className='system-toast-stack';toastStack.id='system-toast-stack';
+document.body.appendChild(toastStack);
+const activeSystemToasts=[];
+function repositionSystemToasts(){
+  // Active objective claims the lowest slot. Toasts flow above it.
+  const objectiveVisible=!!objectiveHud?.classList.contains('show');
+  toastStack.style.bottom=`calc(var(--hud-height,54px) + ${objectiveVisible?Math.ceil(objectiveHud.offsetHeight||112)+17:12}px)`;
+}
+function removeSystemToast(entry){
+  if(!entry)return;
+  window.clearTimeout(entry.timer);
+  const i=activeSystemToasts.indexOf(entry);
+  if(i>=0)activeSystemToasts.splice(i,1);
+  entry.el.remove();
+  repositionSystemToasts();
+}
+function showTransientToast(title,detail,progressLabel='SYSTEM',topLabel='SYSTEM',{persistent=false}={}){
+  const el=document.createElement('article');el.className='system-toast';el.setAttribute('role','status');
+  const heading=document.createElement('div');heading.className='system-toast-heading';
+  const type=document.createElement('span');type.textContent=topLabel;
+  const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Dismiss notification');
+  heading.append(type,close);
+  const name=document.createElement('strong');name.textContent=title;
+  const description=document.createElement('small');description.textContent=detail;
+  const progress=document.createElement('b');progress.textContent=progressLabel;
+  el.append(heading,name,description,progress);
+  const entry={el,timer:null};
+  close.addEventListener('click',()=>removeSystemToast(entry));
+  activeSystemToasts.push(entry);toastStack.appendChild(el);
+  while(activeSystemToasts.length>3)removeSystemToast(activeSystemToasts[0]);
+  if(!persistent)entry.timer=window.setTimeout(()=>removeSystemToast(entry),4600);
+  repositionSystemToasts();
 }
 
 function getNextUnachievedKey() {
@@ -1900,7 +1994,98 @@ function showNextAchievementHint({ intro=false } = {}) {
 achievementClose?.addEventListener('click', hideAchievementToast);
 hintTrigger?.addEventListener('click', () => showNextAchievementHint());
 
+function initializeUnifiedHud(){
+  const dock=document.querySelector('#site-game-hud');if(!dock)return;
+  const progress=document.querySelector('#hud-progress');
+  const gameplay=document.querySelector('#hud-gameplay');
+  const modes=document.querySelector('#hud-modes');
+  const utilities=document.querySelector('#hud-utilities');
+  const $=id=>document.getElementById(id);
+  const attach=(parent,id)=>{const el=$(id);if(el){parent.appendChild(el);el.classList.add('hud-integrated');}return el;};
+  attach(progress,'ledger-trigger');
+  attach(progress,'rupee-meter');
+  attach(progress,'heart-meter');
+  attach(gameplay,'cool-meter');
+  attach(gameplay,'invasion-meter');
+  attach(gameplay,'castle-meter');
+  attach(modes,'design-toggle');
+  // Docs button already exists in the modes column as a semantic control.
+  attach(modes,'inspect-toggle');
+  attach(modes,'interact-toggle');
+  attach(utilities,'hint-trigger');
+  attach(utilities,'theme-cycle');
+  attach(utilities,'console-tip-button');
+  const icons={
+    trophy:'<path d="M8 4h8v7a4 4 0 0 1-8 0V4Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v4m-5 2h10"/>',
+    palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="9" r="1"/><path d="M12 21c-3-2-1-6 2-6h3a4 4 0 0 0 4-4"/>',
+    book:'<path d="M12 5v15M12 6c-4-3-8-3-10-2v15c4-1 7-1 10 2m0-15c4-3 8-3 10-2v15c-4-1-7-1-10 2"/>',
+    eye:'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/>',
+    pointer:'<path d="M5 3 20 12l-7 1-3 7-5-17Z"/>',
+    hint:'<path d="M9 18h6m-5 3h4m-2-19a7 7 0 0 0-4 13c1 1 1 2 1 3h6c0-1 0-2 1-3a7 7 0 0 0-4-13Z"/>',
+    theme:'<path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/><circle cx="12" cy="12" r="4"/>',
+    terminal:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 3 3-3 3m6 0h5"/>',
+    cool:'<path d="M12 22c5-2 7-6 5-10-1 3-4 4-4 4 2-6-1-11-4-14 0 5-3 8-4 12-1 4 2 7 7 8Z"/>',
+    invasion:'<path d="M2 13c1-5 5-9 10-9s9 4 10 9M3 14c2 3 16 3 18 0M9 8h6m-3-6v3m-7 14 2-2m12 2-2-2"/>',
+    castle:'<path d="M3 21V6h4v3h3V6h4v3h3V6h4v15H3Zm7 0v-7h4v7M3 12h18"/>',
+    gem:'<path d="m7 3 10 0 5 7-10 12L2 10l5-7Zm-5 7h20M7 3l5 7 5-7m-5 7v12"/>'
+  };
+  for(const [id,icon,short] of [
+    ['ledger-trigger','trophy','ACHIEVEMENTS'],['design-toggle','palette','DESIGN MODE'],['docs-toggle','book','DOCUMENTATION'],
+    ['inspect-toggle','eye','INSPECT MODE'],['interact-toggle','pointer','INTERACT MODE'],
+    ['hint-trigger','hint','HINT'],['theme-cycle','theme','THEME'],['console-tip-button','terminal','DEV CONSOLE']]){
+      const btn=$(id);if(!btn)continue;
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[icon]}</svg>`;
+      btn.style.setProperty('--hud-icon-markup',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+      btn.classList.add('hud-icon-btn');
+      // Real SVG avoids pseudo-element/mask visibility conflicts in the Ledger.
+      let mark=btn.querySelector(':scope > .hud-svg-icon');
+      if(!mark){
+        mark=document.createElement('span');mark.className='hud-svg-icon';
+        mark.setAttribute('aria-hidden','true');mark.innerHTML=svg;
+        btn.insertBefore(mark,btn.firstChild);
+      }
+      btn.dataset.hudLabel=short;
+      btn.title=btn.title?`${short} // ${btn.title}`:short;
+      btn.setAttribute('aria-label',short);
+  }
+  // Resource icon treatment uses the same 19px mask and color system as modes.
+  for(const [id,icon] of [['cool-meter','cool'],['invasion-meter','invasion'],['castle-meter','castle'],['rupee-meter','gem']]){
+    const el=$(id);if(!el)continue;
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[icon]}</svg>`;
+    el.style.setProperty('--meter-icon',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+  }
+  // Dedicated ring avoids collision with Wish tooltip pseudo-elements.
+  for(const el of dock.querySelectorAll('button')){
+    if(el.querySelector(':scope > .hud-attention-ring'))continue;
+    const ring=document.createElement('span');ring.className='hud-attention-ring';
+    ring.setAttribute('aria-hidden','true');el.appendChild(ring);
+  }
+  // The Ledger button must never expose the raw '20/20' in an orphaned badge.
+  ledgerTrigger?.setAttribute('title','Open the Achievement Ledger');
+  // The Docs affordance is genuinely new, so draw attention until discovered.
+  const docs=$('docs-toggle');
+  if(docs){
+    docs.hidden=!designModeUnlocked;
+    let seen=false;try{seen=localStorage.getItem('mippi-docs-discovered-v1')==='1';}catch(_){}
+    docs.classList.toggle('attention-new',!seen && document.body.classList.contains('design-mode'));
+    docs.addEventListener('click',()=>{docs.classList.remove('attention-new');try{localStorage.setItem('mippi-docs-discovered-v1','1');}catch(_){} });
+  }
+  // Keep dynamic text/counts in the elements for telemetry and accessible name,
+  // but the compact control shows an SVG icon via a stable CSS mask.
+  $('docs-toggle')?.addEventListener('click',()=>window.open('https://mippi-the-dork.github.io/docs/','_blank','noopener,noreferrer'));
+  const oldDiscovery=$('discovery-controls');
+  if(oldDiscovery)oldDiscovery.hidden=true;
+  const oldModes=$('play-mode-controls');if(oldModes)oldModes.hidden=true;
+  // meta trace remains an independent transient notification, not a fifth HUD column
+  dock.hidden=false;document.body.classList.add('hud-unified');
+  updateLedgerTrigger();
+  syncObjectiveHudPosition();
+}
 function syncProgressHudPosition(){
+  if(document.body.classList.contains('hud-unified')){
+    progressHud?.classList.toggle('ledger-open',!!ledger?.classList.contains('open'));
+    syncObjectiveHudPosition();return;
+  }
   if(!progressHud){ syncObjectiveHudPosition(); return; }
   const isOpen=!!ledger?.classList.contains('open');
   progressHud.classList.toggle('ledger-open',isOpen);
@@ -1924,6 +2109,7 @@ function syncProgressHudPosition(){
 function openLedger() {
   if (!ledger) return;
   ledger.classList.add('open');
+  ledgerTrigger?.classList.remove('attention-new');
   ledger.setAttribute('aria-hidden','false');
   ledgerTrigger?.setAttribute('aria-expanded','true');
   requestAnimationFrame(syncProgressHudPosition);
@@ -1978,15 +2164,8 @@ function showAchievement(key, { force = false, demoIndex = null } = {}) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...unlockedAchievements])); } catch (_) {}
   }
   if (firstDiscovery) window.clearTimeout(introHintTimer);
-  hideAchievementToast();
-  void achievement.offsetWidth;
-  if (achievementLabel) achievementLabel.textContent = 'RARE ACHIEVEMENT UNLOCKED';
-  if (achievementTitle) achievementTitle.textContent = data.title;
-  if (achievementDetail) achievementDetail.textContent = data.detail;
   updateAchievementProgress(demoIndex ?? null);
-  achievement.classList.remove('rarity-epic','rarity-legendary');
-  achievement.classList.add('rarity-rare','show');
-  achievementTimer = window.setTimeout(hideAchievementToast, 4600);
+  showTransientToast(data.title,data.detail,`RARE // ${unlockedAchievements.size} / ${ACHIEVEMENT_KEYS.length}`,'RARE ACHIEVEMENT UNLOCKED');
   if (firstDiscovery) window.setTimeout(openLedger, 1100);
 }
 
@@ -2021,12 +2200,16 @@ function setDesignMode(active, {telemetry=true,skipInspect=false} = {}) {
     telemetryCount('modes','designToggles');
     telemetryMeaningful('design_mode',{active});
   }
+  const docsButton=document.getElementById('docs-toggle');
+  if(docsButton){docsButton.hidden=!designModeUnlocked;let seen=false;try{seen=localStorage.getItem('mippi-docs-discovered-v1')==='1';}catch(_){}docsButton.classList.toggle('attention-new',active&&!seen);}
   designToggle?.classList.toggle('active',active);
   if(designToggle) designToggle.textContent=active?'Design Mode: On':'Design Mode';
   try{localStorage.setItem(DESIGN_KEY,active?'1':'0');}catch(_){}
   return true;
 }
 function updateDesignModeAvailability(){
+  const docs=document.getElementById('docs-toggle');
+  if(docs){docs.hidden=!designModeUnlocked;docs.disabled=!designModeUnlocked;docs.classList.toggle('attention-new',designModeUnlocked&&document.body.classList.contains('design-mode')&&localStorage.getItem('mippi-docs-discovered-v1')!=='1');}
   if(!designToggle) return;
   designToggle.hidden=!designModeUnlocked;
   designToggle.disabled=!designModeUnlocked;
@@ -2287,7 +2470,8 @@ function openConsole(open = true) {
     if(open) telemetryMeaningful('console_opened');
   }
   updateConsoleAttention();
-  if (open) window.setTimeout(() => consoleInput?.focus(), 60);
+  if(open) window.setTimeout(() => consoleInput?.focus(), 60);
+  else if(document.activeElement===consoleInput)consoleInput?.blur();
 }
 function consolePrint(text, cls = '') {
   if (!consoleOutput) return;
@@ -2298,6 +2482,12 @@ function consolePrint(text, cls = '') {
   consoleOutput.scrollTop = consoleOutput.scrollHeight;
 }
 consoleTipButton?.addEventListener('click', () => openConsole(true));
+document.getElementById('console-wish-guide-action')?.addEventListener('click',event=>{
+  const command=event.currentTarget.dataset.command;
+  if(command!=='wish'&&command!=='blueprint')return;
+  executeConsoleCommand(command);
+  consoleInput?.focus();
+});
 let consolePending = null;
 let statOverlay = null;
 let statTimer = null;
@@ -2322,7 +2512,7 @@ let lightingWarningTimer=null;
 // progress, and Easy Mode always overrides it. The Director only changes the
 // frequency/generosity of ambient game systems and hostile arcade pressure.
 const DIRECTOR_PROFILES={
-  quiet:{pickupDelay:1.14,secretDelay:1.16,ufoDelay:1.24,boneDelay:1.12,flight:1.05,hostileCadence:1.08,projectileDuration:1.04,targetBonus:0},
+  quiet:{pickupDelay:1.05,secretDelay:1.16,ufoDelay:1.24,boneDelay:1.12,flight:1.05,hostileCadence:1.08,projectileDuration:1.04,targetBonus:0},
   curious:{pickupDelay:1,secretDelay:1,ufoDelay:1,boneDelay:1,flight:1,hostileCadence:1,projectileDuration:1,targetBonus:0},
   engaged:{pickupDelay:.84,secretDelay:.94,ufoDelay:.86,boneDelay:.90,flight:1.02,hostileCadence:.94,projectileDuration:1,targetBonus:10},
   struggling:{pickupDelay:.70,secretDelay:.86,ufoDelay:1.08,boneDelay:.78,flight:1.32,hostileCadence:1.28,projectileDuration:1.18,targetBonus:42},
@@ -2433,6 +2623,7 @@ function directorQueueAmbient(kind){
 function directorAmbientVisible(){
   return !!document.querySelector('.shooting-star,.galaga-secret,.game-pickup,.doug-bone');
 }
+function directorAnyFriendlyVisible(){return !!document.querySelector('.shooting-star,.game-pickup,.doug-bone');}
 function directorSpawnOpportunityByPriority(preferred=null,{force=false}={}){
   const attempts=[];
   const add=fn=>{ if(typeof fn==='function') attempts.push(fn); };
@@ -2466,13 +2657,10 @@ function directorFlushBlockedAmbient(){
 }
 function directorLegendaryGuarantee(){
   if(!legendaryGameplayUnlocked() || reduceMotion || directorAttentionBlocked()) return;
-  if(directorAmbientVisible()){
-    directorRuntime.lastFriendlyAmbientAt=Date.now();
-    return;
-  }
+  if(directorAnyFriendlyVisible())return;
   const now=Date.now();
   const idleFor=now-Math.max(directorRuntime.lastFriendlyAmbientAt||0,directorRuntime.lastOpportunityAt||0,directorRuntime.lastLegendaryGuaranteeAt||0);
-  if(idleFor<2600) return;
+  if(idleFor<2200) return;
   if(directorSpawnOpportunityByPriority(null,{force:true})){
     directorRuntime.lastLegendaryGuaranteeAt=now;
     sessionTelemetry.director.legendaryGuarantees=(Number(sessionTelemetry.director.legendaryGuarantees)||0)+1;
@@ -2482,9 +2670,13 @@ function directorLegendaryGuarantee(){
 function directorAttentionBlocked(){
   if(superBossActive) return true;
   if(document.visibilityState!=='visible') return true;
-  if(document.activeElement?.matches?.('input,textarea,select')) return true;
-  if(achievement?.classList.contains('show') || ledger?.classList.contains('open')) return true;
-  return !!document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game,.finale-overlay.show,.session-debrief.show');
+  const focus=document.activeElement;
+  // A closed Dev Console can retain keyboard focus even while off-screen.
+  // Never let that stale focus permanently suppress natural flying pickups.
+  if(focus?.matches?.('input,textarea,select') && (!focus.closest('.dev-console')||focus.closest('.dev-console.open')) && focus.getClientRects().length>0)return true;
+  // Small toasts and an open achievement ledger must not starve the ambient economy.
+  // Only modal input/overlay states can pause natural spawning.
+  return !!document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game.open,.finale-overlay.show,.session-debrief.show');
 }
 function directorAllowsAmbient(kind,{force=false}={}){
   if(force||easyModeEnabled) return true;
@@ -2498,17 +2690,18 @@ function directorAllowsAmbient(kind,{force=false}={}){
 }
 function directorRecordOpportunity(){ directorRuntime.lastOpportunityAt=Date.now(); }
 function directorMaybeBreakDrought(metrics=directorMetrics()){
-  if(easyModeEnabled || !epicGameplayUnlocked()) return;
+  if(easyModeEnabled || reduceMotion) return;
   if(directorAttentionBlocked()) return;
-  if(directorAmbientVisible()) return;
-  const threshold=legendaryGameplayUnlocked()?24000:directorRuntime.state==='struggling'?45000:directorRuntime.state==='engaged'?60000:directorRuntime.state==='mastery'?66000:directorRuntime.state==='quiet'?72000:68000;
+  if(directorAnyFriendlyVisible()) return;
+  const threshold=legendaryGameplayUnlocked()?8500:!epicGameplayUnlocked()?17000:directorRuntime.state==='struggling'?11000:directorRuntime.state==='engaged'?13500:15500;
   const now=Date.now();
   if(now-directorRuntime.lastOpportunityAt<threshold) return;
-  if(metrics.lastMeaningfulAgo<threshold*.55 && directorRuntime.state!=='struggling' && !legendaryGameplayUnlocked()) return;
-  directorRuntime.lastOpportunityAt=now;
-  sessionTelemetry.director.droughtAssists=(Number(sessionTelemetry.director.droughtAssists)||0)+1;
-  telemetryScheduleSave();
-  directorSpawnOpportunityByPriority(null,{force:false});
+  // A recently collected reward never delays the next actual spawning opportunity.
+
+  if(directorSpawnOpportunityByPriority('pickup',{force:false})){
+    sessionTelemetry.director.droughtAssists=(Number(sessionTelemetry.director.droughtAssists)||0)+1;
+    telemetryScheduleSave();
+  }
 }
 function startAdaptiveDirector(){
   document.body.dataset.directorState=directorRuntime.state;
@@ -2679,7 +2872,16 @@ function objectiveRender(){
   syncObjectiveHudPosition();
 }
 function syncObjectiveHudPosition(){
+  if(typeof repositionSystemToasts==='function')requestAnimationFrame(repositionSystemToasts);
   if(!objectiveHud) return;
+  if(document.body.classList.contains('hud-unified')){
+    const dock=document.querySelector('#site-game-hud');
+    const rect=dock?.getBoundingClientRect();
+    let aboveDock=rect?Math.ceil(window.innerHeight-rect.top+10):62;
+    // Objective placement is independent of Ledger height and stays docked bottom-right.
+    objectiveHud.style.bottom=`${Math.max(62,aboveDock)}px`;
+    return;
+  }
   let bottom=window.innerWidth<=620?58:60;
   const hudVisible=progressHud?.classList.contains('visible');
   if(hudVisible){
@@ -2997,6 +3199,24 @@ function updateConsoleHelpCommandVisuals(){
     el.title=(wishBlueprintErrorActive&&!wishHasIsValid)?'REPAIR REQUIRED // open BP_WishManager':'Run: blueprint';
   });
 }
+function updateConsoleWishGuide(){
+  const guide=document.getElementById('console-wish-guide');
+  const copy=document.getElementById('console-wish-guide-text');
+  const action=document.getElementById('console-wish-guide-action');
+  if(!guide||!copy||!action)return;
+  const repair=wishBlueprintErrorActive&&!wishHasIsValid;
+  const charged=hasWishCharge();
+  guide.hidden=!(repair||charged)||consolePending==='wish';
+  if(guide.hidden)return;
+  guide.classList.toggle('repair-needed',repair);
+  copy.textContent=repair
+    ?'WISH RUNTIME ERROR // BP_WishManager needs a repair before the wish can be granted.'
+    :'CELESTIAL CHARGE 1/1 // The console recognizes a new command. Try your wish.';
+  const command=repair?'blueprint':'wish';
+  action.textContent=repair?'OPEN BLUEPRINT ↗':'TRY WISH →';
+  action.dataset.command=command;
+  action.title=repair?'Open BP_WishManager to inspect the error':'Run the wish command';
+}
 function updateConsoleAttention(){
   const state=consoleAttentionState();
   if(consoleTipButton){
@@ -3006,8 +3226,10 @@ function updateConsoleAttention(){
     consoleTipButton.textContent=state?.label||'TIP // ~ DEV CONSOLE';
     consoleTipButton.title=state?.title||'Press ~ to open the Dev Console.';
     consoleTipButton.setAttribute('aria-label',state?.title||'Open developer console');
+    consoleTipButton.dataset.wishCue=state?.kind==='wish'?'WISH READY':state?.kind==='blueprint'?'BLUEPRINT ERROR':'';
   }
   updateConsoleHelpCommandVisuals();
+  updateConsoleWishGuide();
 }
 function scheduleWishShootingStar(){
   window.setTimeout(()=>{
@@ -3270,6 +3492,11 @@ blueprintAddValid?.addEventListener('click',()=>{
 });
 window.addEventListener('resize',()=>{ if(blueprintPopup?.classList.contains('open')) updateBlueprintWires(); });
 
+// Compile command runtime state. Previously missing entirely, so executing
+// `compile` threw a ReferenceError before the popup could become visible.
+let compileTimer=null,compileErrorTimer=null,compileCloseTimer=null;
+let compileRapidTimers=[];
+let compileCount=639427,compilePercent=0;
 function renderCompileState(){
   if(compileTitle) compileTitle.textContent=`Compiling Shaders (${Math.max(0,Math.round(compileCount)).toLocaleString('en-US')})`;
   if(compileBar) compileBar.style.width=`${compilePercent}%`;
@@ -4240,7 +4467,7 @@ function consolePrintFunCommands(){
   consolePrintCommandGroup('FUN',['doug','shipit','joke','ufo','twinkle','shroom','rupee','shop','hey listen','stars','wish','vibe','play']);
 }
 function listCommands(){
-  consolePrintCommandGroup('CORE',['help','clear','version','about','home','top','inspect',...(designModeUnlocked?['design']:[]),'theme','debug']);
+  consolePrintCommandGroup('CORE',['help','docs','clear','version','about','home','top','inspect',...(designModeUnlocked?['design']:[]),'theme','debug']);
   consolePrintCommandGroup('NAV',['games','career','consulting','crafting','tools','resumes','projects','hero']);
   consolePrintCommandGroup('LINKS',['github','fab','steam','unreal source','learning']);
   consolePrintCommandGroup('PROJECT',['heavywater','azure','unmark','nda']);
@@ -4355,10 +4582,10 @@ function devSetCastle(value){
 function devSetInvasion(value){
   const v=String(value||'0').toLowerCase();
   const arcade=telemetryPath('arcade');
-  if(v==='0'){arcade.bossDefeated=0;arcade.superBossDefeated=0;ufoKills=0;nextBossKillThreshold=10;}
-  else if(v==='33'){arcade.bossDefeated=1;arcade.superBossDefeated=0;ufoKills=0;nextBossKillThreshold=10;}
-  else if(v==='66'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=0;nextBossKillThreshold=10;}
-  else if(v==='near'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=9;nextBossKillThreshold=10;}
+  if(v==='0'){arcade.bossDefeated=0;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
+  else if(v==='33'){arcade.bossDefeated=1;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
+  else if(v==='66'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
+  else if(v==='near'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=9;invasionWaveKills=9;nextBossKillThreshold=10;}
   else {consolePrint('DEV // invasion expects 0, 33, 66, or near.','warn');return;}
   updateInvasionMeter();updateProgressHudVisibility();
   consolePrint(`DEV // Invasion meter forced to ${v==='near'?'one UFO before Super Boss':v+'%'}.`,'good');
@@ -4518,8 +4745,9 @@ function devCommand(args=''){
 const COMMANDS = {
   dev(args=''){ devCommand(args); },
   help(){ listCommands(); },
+  docs(){ window.open('https://mippi-the-dork.github.io/docs/','_blank','noopener,noreferrer'); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.80 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.83 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -4548,7 +4776,7 @@ const COMMANDS = {
   nda(){ jumpTo('career'); consolePrint('ACCESS DENIED: NDA still stronger than console privileges.','warn'); },
   particles(){ const active=!document.body.classList.contains('particle-boost'); setParticleBoost(active); consolePrint(`PARTICLES ${active?'ON // screen-space particle field and scene boost enabled':'OFF'}.`,'good'); },
   hero(){ window.scrollTo({top:0,behavior:'smooth'}); consolePrint('Hero scene reacquired. Drag to rotate. Click a signal to navigate.'); },
-  compile(){ openCompile(); consolePrint('Shader compilation started. This may take a while. Possibly geological.','warn'); },
+  compile(){ openConsole(false); openCompile(); consolePrint('Shader compilation started. This may take a while. Possibly geological.','warn'); },
   shipit(){ consolePrint(randomLine(['SHIP IT. What could possibly go wrong?','Packaging... 99%... still 99%...','Release candidate renamed FINAL_final_v7_REAL.'])); },
   joke(){ consolePrint(randomLine(['Why did the Blueprint cross the road? It had a hard reference to the other side.','The build is stable until someone says the build is stable.','A designer walks into a bar. The navmesh says unreachable.'])); },
   ufo(){ spawnGalaga(true); consolePrint('UFO // forced arcade contact spawned. It may shoot back.','good'); },
@@ -4566,7 +4794,7 @@ const COMMANDS = {
       scheduleWishShootingStar();
       return;
     }
-    consolePending='wish'; consolePrint('What is your wish? // CELESTIAL CHARGE 1/1','good');
+    consolePending='wish'; consolePrint('What is your wish? // CELESTIAL CHARGE 1/1','good'); updateConsoleWishGuide();
   },
   'stat fps'(){ const next=statMode==='fps'?null:'fps'; setStatMode(next); consolePrint(`STAT FPS ${next?'ON':'OFF'}.`,'good'); },
   'stat unit'(){ const next=statMode==='unit'?null:'unit'; setStatMode(next); consolePrint(`STAT UNIT ${next?'ON':'OFF'}.`,'good'); },
@@ -4816,14 +5044,24 @@ function activateStarPower(){
 }
 let lastSpark=0;
 const latestPointer={x:window.innerWidth/2,y:window.innerHeight/2};
+window.addEventListener('blur',()=>document.body.classList.add('cursor-window-inactive'));
+window.addEventListener('focus',()=>document.body.classList.remove('cursor-window-inactive'));
+document.addEventListener('pointerleave',()=>document.body.classList.add('cursor-window-inactive'));
+document.addEventListener('pointerenter',()=>document.body.classList.remove('cursor-window-inactive'));
 window.addEventListener('pointermove',event=>{
   latestPointer.x=event.clientX; latestPointer.y=event.clientY;
   powerCursor.style.left=`${event.clientX}px`; powerCursor.style.top=`${event.clientY}px`;
   cursorAura.style.left=`${event.clientX}px`; cursorAura.style.top=`${event.clientY}px`;
   if(!document.body.classList.contains('theme-complete') || reduceMotion) return;
   const legendary=document.body.classList.contains('theme-legendary');
-  const now=performance.now(); if(now-lastSpark<(legendary?18:34)) return; lastSpark=now;
-  const count=legendary?3:1;
+  // Legendary previously emitted as many as three costly glowing DOM particles
+  // per mousemove, up to ~166/s. While shooting, keep the visual feedback but
+  // throttle those sparks so they cannot compound the projectile workload.
+  const shooting=legendary && legendaryActiveShots.length>0;
+  const now=performance.now();
+  if(now-lastSpark<(shooting?110:legendary?34:45))return;
+  lastSpark=now;
+  const count=shooting?1:legendary?2:1;
   for(let i=0;i<count;i++){
     const spark=document.createElement('i'); spark.className='cursor-spark';
     spark.style.left=`${event.clientX+(legendary?(Math.random()-.5)*8:0)}px`;
@@ -4847,9 +5085,9 @@ window.addEventListener('pointermove',event=>{
   }
 },{passive:true});
 
-function explodeAt(x,y,count=18,size=5){
+function explodeAt(x,y,count=18,size=5,{radiusX=150,radiusY=120,lifetime=850}={}){
   const colors=document.body.classList.contains('theme-legendary')?['#fff0b5','#ffc83d','#ff7a1a','#43e0dc','#ffffff']:['#67e8ff','#ff4fc8','#b13cff','#ffffff'];
-  for(let i=0;i<count;i++){ const p=document.createElement('i');p.className='arcade-pixel';p.style.left=`${x}px`;p.style.top=`${y}px`;p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.background=colors[i%colors.length];p.style.setProperty('--dx',`${(Math.random()-.5)*150}px`);p.style.setProperty('--dy',`${(Math.random()-.5)*120}px`);document.body.appendChild(p);setTimeout(()=>p.remove(),850); }
+  for(let i=0;i<count;i++){ const p=document.createElement('i');p.className='arcade-pixel';p.style.left=`${x}px`;p.style.top=`${y}px`;p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.background=colors[i%colors.length];p.style.setProperty('--dx',`${(Math.random()-.5)*radiusX}px`);p.style.setProperty('--dy',`${(Math.random()-.5)*radiusY}px`);p.style.animationDuration=`${lifetime}ms`;document.body.appendChild(p);setTimeout(()=>p.remove(),lifetime+90); }
 }
 
 function showArcadeCursorHit(x,y){
@@ -4937,33 +5175,65 @@ function nearestFlyingTarget(x,y,maxDistance=null){
   return best;
 }
 
-function fireLegendaryPlayerShot(x,y,target){
-  if(!target?.isConnected) return;
-  telemetryCount('arcade','playerShots');
-  const shot=document.createElement('i');
-  shot.className='legendary-player-projectile';
-  shot.style.left=`${x}px`; shot.style.top=`${y}px`;
-  document.body.appendChild(shot);
-  let px=x, py=y, last=performance.now(), raf=0;
-  const step=now=>{
-    if(!shot.isConnected || !target?.isConnected){ shot.remove(); cancelAnimationFrame(raf); return; }
+// One simulation loop. Crucially, sampling the CSS-animated target position
+// every animation frame forces layout synchronizations while firing. Cache each
+// target for 75 ms and let the projectile home toward that cached position.
+const legendaryActiveShots=[];
+let legendaryShotRaf=0;
+const MAX_LEGENDARY_SHOTS=14;
+const SHOT_TARGET_SAMPLE_MS=75;
+const legendaryTargetPositions=new Map();
+function releaseLegendaryShot(shot){
+  shot.el.remove();
+  const index=legendaryActiveShots.indexOf(shot);
+  if(index>=0)legendaryActiveShots.splice(index,1);
+  if(!legendaryActiveShots.some(other=>other.target===shot.target)) legendaryTargetPositions.delete(shot.target);
+}
+function sampleLegendaryTargets(now){
+  // Group all geometry reads before ANY projectile transform writes.
+  for(const shot of legendaryActiveShots){
+    const target=shot.target;
+    if(!target?.isConnected)continue;
+    const cached=legendaryTargetPositions.get(target);
+    if(cached&&now-cached.time<SHOT_TARGET_SAMPLE_MS)continue;
     const r=target.getBoundingClientRect();
-    const tx=r.left+r.width/2, ty=r.top+r.height/2;
-    const dx=tx-px, dy=ty-py, dist=Math.hypot(dx,dy);
-    if(dist<18){
-      shot.remove();
+    legendaryTargetPositions.set(target,{x:r.left+r.width*.5,y:r.top+r.height*.5,time:now});
+  }
+}
+function tickLegendaryShots(now){
+  legendaryShotRaf=0;
+  if(!legendaryActiveShots.length)return;
+  // A cached center costs no layout work on most frames even with many shots.
+  sampleLegendaryTargets(now);
+  for(let i=legendaryActiveShots.length-1;i>=0;i--){
+    const shot=legendaryActiveShots[i];
+    if(!shot.el.isConnected||!shot.target?.isConnected||now-shot.born>1800){releaseLegendaryShot(shot);continue;}
+    const pos=legendaryTargetPositions.get(shot.target);
+    if(!pos)continue;
+    const dx=pos.x-shot.px,dy=pos.y-shot.py,dist=Math.hypot(dx,dy);
+    if(dist<23){
+      releaseLegendaryShot(shot);
       telemetryCount('arcade','playerHits');
-      target.dataset.telemetryCollectMethod='legendary';
-      target.click();
-      return;
+      if(shot.target.isConnected){shot.target.dataset.telemetryCollectMethod='legendary';shot.target.click();}
+      continue;
     }
-    const dt=Math.min(.035,(now-last)/1000); last=now;
+    const dt=Math.min(.035,Math.max(0,(now-shot.last)/1000));shot.last=now;
     const travel=Math.min(dist,(shopHasEquipped('golden-trigger')?1380:1050)*dt);
-    px+=dx/dist*travel; py+=dy/dist*travel;
-    shot.style.transform=`translate3d(${px-x}px,${py-y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
-    raf=requestAnimationFrame(step);
-  };
-  raf=requestAnimationFrame(step);
+    if(dist>0){shot.px+=dx/dist*travel;shot.py+=dy/dist*travel;}
+    shot.el.style.transform=`translate3d(${shot.px-shot.x}px,${shot.py-shot.y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
+  }
+  if(legendaryActiveShots.length)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
+}
+function fireLegendaryPlayerShot(x,y,target){
+  if(!target?.isConnected)return;
+  if(legendaryActiveShots.length>=MAX_LEGENDARY_SHOTS)releaseLegendaryShot(legendaryActiveShots[0]);
+  telemetryCount('arcade','playerShots');
+  const el=document.createElement('i');el.className='legendary-player-projectile';
+  el.style.left=`${x}px`;el.style.top=`${y}px`;
+  document.body.appendChild(el);
+  const now=performance.now();
+  legendaryActiveShots.push({el,target,x,y,px:x,py:y,born:now,last:now});
+  if(!legendaryShotRaf)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
 }
 
 document.addEventListener('pointerdown',event=>{
@@ -5004,40 +5274,42 @@ function spawnShootingStar(force=false){
   document.body.appendChild(star); directorNoteFriendlyAmbient(); removeWhenFlightEnds(star);
   return true;
 }
-function ufoCycleProgress(){
-  const cycleStart=nextBossKillThreshold-10;
-  return Math.max(0,Math.min(10,ufoKills-cycleStart));
-}
-function ufoThreatTier(){
-  const progress=ufoCycleProgress();
-  if(progress>=7) return 3;
-  if(progress>=4) return 2;
-  return 1;
-}
-function queueDirectorBossSpawn(delay=900,superFight=false){
-  window.setTimeout(()=>{
-    if(!easyModeEnabled && directorAttentionBlocked()){ queueDirectorBossSpawn(900,superFight); return; }
-    if(superFight) spawnSuperBoss(true); else spawnBossUfo(true);
-  },delay);
-}
+function ufoCycleProgress(){return Math.min(10,invasionWaveKills);}
+function ufoThreatTier(){return invasionWaveKills>=7?3:invasionWaveKills>=4?2:1;}
 function totalBossVictories(){
   return (Number(sessionTelemetry.arcade?.bossDefeated)||0)+(Number(sessionTelemetry.arcade?.superBossDefeated)||0);
 }
+// A single, explicit wave counter. No modulo-based kill threshold or
+// recursive queue may reset the HUD while a fight is unresolved.
 function maybeSpawnUfoBoss(){
-  if(ufoBossActive || superBossActive || ufoKills<nextBossKillThreshold) return;
-  nextBossKillThreshold+=10;
+  if(ufoBossActive||superBossActive||invasionSpawnQueued)return;
+  if(!invasionEncounterPending && invasionWaveKills<10)return;
+  if(invasionEncounterPending && invasionBossRetryKills>0)return;
+  invasionEncounterPending=true;
   const superFight=(totalBossVictories()+1)%3===0;
-  if(superFight){
-    consolePrint('ARCADE WARNING // SUPER CONTACT INBOUND. Three boss wins apparently triggered an escalation review.','warn');
-    showTransientToast('SUPER BOSS INBOUND','Airspace lockdown imminent. Adds, rockets, and a mega laser detected.','EVERY THIRD BOSS // ESCALATION','ARCADE');
-  }else{
-    consolePrint('ARCADE WARNING // LARGE CONTACT INBOUND. Apparently ten UFOs was the aggro threshold.','warn');
-    showTransientToast('ARCADE WARNING','Large contact inbound.','10 UFOs DESTROYED','BOSS SIGNAL');
-  }
-  queueDirectorBossSpawn(900,superFight);
+  invasionSpawnQueued=true;
+  showTransientToast(superFight?'SUPER BOSS INBOUND':'BOSS INBOUND',superFight?'Super contact in the next encounter.':'Ten UFO contacts acquired.','INVASION // CONTACT','ARCADE');
+  const attempt=()=>{
+    if(ufoBossActive||superBossActive){invasionSpawnQueued=false;return;}
+    if(!easyModeEnabled&&directorAttentionBlocked()){window.setTimeout(attempt,900);return;}
+    invasionSpawnQueued=false;
+    if(superFight)spawnSuperBoss(true);else spawnBossUfo(true);
+  };
+  window.setTimeout(attempt,900);
+}
+function resolveInvasionBossVictory(){
+  invasionEncounterPending=false;invasionSpawnQueued=false;invasionBossRetryKills=0;invasionWaveKills=0;
+  updateInvasionMeter();
+}
+function resolveInvasionBossEscape(){
+  invasionEncounterPending=true;invasionBossRetryKills=4;
+  updateInvasionMeter();
 }
 function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
   ufoKills++;
+  if(invasionEncounterPending){
+    if(invasionBossRetryKills>0)invasionBossRetryKills--;
+  }else invasionWaveKills=Math.min(10,invasionWaveKills+1);
   telemetryCount('arcade','ufoDestroyed');
   telemetryFlyingCollect('ufo',method);
   if(method==='star_power'){
@@ -5049,7 +5321,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
     awardArcadeRupees(1,x,y,'ufo');
     telemetryCount('economy','ufoRupeeDrops');
   }
-  const toward=ufoKills%10===0?10:ufoKills%10;
+  const toward=invasionWaveKills;
   consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/10`,'good');
   if(toward===5){
     consolePrint('ARCADE NETWORK // hostile response increasing. Apparently they have analytics too.','warn');
@@ -5061,7 +5333,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
   maybeSpawnUfoBoss();
 }
 function spawnBossUfo(force=false){
-  if(ufoBossActive) return;
+  if(ufoBossActive || superBossActive) return;
   if((!epicGameplayUnlocked()||reduceMotion) && !force) return;
   ufoBossActive=true;
   updateInvasionMeter();
@@ -5126,6 +5398,7 @@ function spawnBossUfo(force=false){
       awardArcadeRupees(3,cx,cy,'boss_ufo');
       consolePrint('ARCADE BOSS DESTROYED // +5000 definitely-real points // +3 RUPEES // airspace temporarily clear.','good');
       showTransientToast('BOSS DEFEATED','The large arcade contact has been removed from production. Three rupees recovered.','+3 RUPEES // +5000 DEFINITELY-REAL POINTS','ARCADE');
+      resolveInvasionBossVictory();
       stopBoss();
       window.setTimeout(updateInvasionMeter,0);
     }else{
@@ -5137,9 +5410,9 @@ function spawnBossUfo(force=false){
   ship.addEventListener('animationend',()=>{
     if(defeated) return;
     telemetryCount('arcade','bossEscaped'); telemetryFlyingMiss('boss_ufo'); telemetryMeaningful('boss_escaped');
-    nextBossKillThreshold=Math.min(nextBossKillThreshold,ufoKills+4);
+    resolveInvasionBossEscape();
     ufoCalmUntil=Date.now()+3000;
-    consolePrint(`ARCADE BOSS ESCAPED // reacquisition expected after ${Math.max(1,nextBossKillThreshold-ufoKills)} more UFO contacts.`,'warn');
+    consolePrint(`ARCADE BOSS ESCAPED // reacquisition in ${invasionBossRetryKills} more UFO contacts. Progress retained.`,'warn');
     showTransientToast('BOSS ESCAPED','The contact got away, but the next boss opportunity is closer.','REACQUIRE // SHORTENED','ARCADE');
     stopBoss();
     window.setTimeout(updateInvasionMeter,0);
@@ -5178,10 +5451,11 @@ function endSuperBoss(reason='exit'){
   }
 
   if(reason==='defeated'){
+    resolveInvasionBossVictory();
     ufoCalmUntil=Date.now()+12000;
   }else{
     telemetryCount('arcade','superBossEscaped'); telemetryMeaningful('super_boss_exit',{reason});
-    nextBossKillThreshold=Math.min(nextBossKillThreshold,ufoKills+4);
+    resolveInvasionBossEscape();
     ufoCalmUntil=Date.now()+3500;
     showTransientToast('SUPER BOSS DISENGAGED','Interact state restored. The super contact will remain in the rotation.','EXIT FIGHT // NO PENALTY','ARCADE');
     consolePrint('SUPER BOSS // encounter exited. No penalty. Reacquisition shortened.','warn');
@@ -5494,13 +5768,22 @@ let castleSpawnTimer=null;
 const castleBoundaries=['games','career','consulting','crafting','tools','about'];
 function persistCastleRun(){try{localStorage.setItem(CASTLE_PROGRESS_KEY,String(castleRunProgress));}catch(_){} updateCastleMeter();updateProgressHudVisibility();}
 function castleRunFireworks(){
-  const points=[
-    [window.innerWidth*.18,window.innerHeight*.34],[window.innerWidth*.36,window.innerHeight*.22],
-    [window.innerWidth*.54,window.innerHeight*.30],[window.innerWidth*.72,window.innerHeight*.20],
-    [window.innerWidth*.84,window.innerHeight*.36]
-  ];
-  // Same particle count, substantially larger pixels so the reward reads across the viewport.
-  points.forEach(([x,y],i)=>window.setTimeout(()=>explodeAt(x,y,34,11),i*180));
+  const bursts=[[.13,.25],[.29,.42],[.46,.18],[.64,.32],[.82,.20],[.9,.52],[.18,.66],[.52,.60],[.74,.72]];
+  bursts.forEach(([px,py],i)=>window.setTimeout(()=>explodeAt(innerWidth*px,innerHeight*py,34,33,{radiusX:560,radiusY:450,lifetime:2150}),i*115));
+}
+function castleAutoCollectWindow(){
+  // Snapshot the already-spawned FRIENDLY flyers only. New objects arriving
+  // during the one-second reward window aren't silently consumed.
+  const friendly=[...document.querySelectorAll('.game-pickup,.doug-bone,.galaga-secret:not(.boss-ufo),.shooting-star')]
+    .filter(el=>el.isConnected && !el.classList.contains('boss-ufo'));
+  // UFOs are hostile, not collectibles. Avoid automatically killing them.
+  const pickupItems=friendly.filter(el=>el.matches('.game-pickup,.doug-bone,.shooting-star'));
+  const seen=new Set();
+  pickupItems.forEach((el,index)=>{
+    if(seen.has(el))return;seen.add(el);
+    window.setTimeout(()=>{if(el.isConnected)el.click();},Math.round(index/Math.max(1,pickupItems.length-1)*920));
+  });
+  if(pickupItems.length)consolePrint(`CASTLE MAGNET // ${pickupItems.length} airborne rewards collected over one second.`,'good');
 }
 function completeCastleRun(){
   castleRunProgress=4;persistCastleRun();
@@ -5514,6 +5797,7 @@ function claimCastleReward(){
   if(castleRunProgress<4)return false;
   telemetryMeaningful('castle_reward_claimed');
   castleRunFireworks();
+  castleAutoCollectWindow();
   awardRupees(3,{source:'castle_run',announce:'silent'});
   showTransientToast('CASTLE RUN COMPLETE','Four Castles checked. The princess remains unavailable, but production approved fireworks and hazard pay.','+3 RUPEES // FIREWORKS','KEY ITEM');
   consolePrint('CASTLE RUN // reward claimed // +3 RUPEES // fireworks budget approved.','good');
@@ -5728,9 +6012,9 @@ function choosePickupDefinition(){
   const nonKeys=pickupKinds.filter(entry=>entry.kind!=='key');
   const lucky=shopHasEquipped('lucky-charm');
   const chooseNonKey=()=>{
-    if(!lucky) return nonKeys[Math.floor(Math.random()*nonKeys.length)];
+    if(!lucky){ const pool=heartCount>=5 ? [...nonKeys.filter(e=>e.kind!=='heart'),...(Math.random()<.20?nonKeys.filter(e=>e.kind==='heart'):[])] : nonKeys; return pool[Math.floor(Math.random()*pool.length)]; }
     const weighted=[];
-    nonKeys.forEach(entry=>{ const copies=(entry.kind==='heart'||entry.kind==='star')?3:2; for(let i=0;i<copies;i++) weighted.push(entry); });
+    nonKeys.forEach(entry=>{ const copies=entry.kind==='heart'&&heartCount>=5?1:(entry.kind==='heart'||entry.kind==='star')?3:2; for(let i=0;i<copies;i++) weighted.push(entry); });
     return weighted[Math.floor(Math.random()*weighted.length)];
   };
   if(castleQuestActive || activeCastle) return chooseNonKey();
@@ -5793,12 +6077,15 @@ function handleGamePickup(def,item){
   item.remove();
 }
 function spawnGamePickup(forcedKind=null,force=false){
-  if((!epicGameplayUnlocked()||reduceMotion) && !force) return false;
+  if(reduceMotion&&!force) return false;
   if(!directorAllowsAmbient('pickup',{force})) return false;
   const f=randomEdgeFlight(100);
   // Do not naturally spawn another key while a castle is waiting. Forced test pickups
   // are allowed because console commands are allowed to be irresponsible.
-  const def=forcedKind ? pickupKinds.find(entry=>entry.kind===forcedKind) : choosePickupDefinition();
+  // Before Epic, expose gentle starter collectibles rather than a dead screen.
+  // Keys, stars and mushrooms remain in the Epic game-layer pool.
+  const def=forcedKind ? pickupKinds.find(entry=>entry.kind===forcedKind) :
+    (epicGameplayUnlocked()?choosePickupDefinition():pickupKinds.find(entry=>entry.kind===(Math.random()<.65?'rupee':'heart')));
   if(!def) return false;
   const item=document.createElement('button'); item.type='button'; item.className='game-pickup'; item.dataset.kind=def.kind; item.dataset.telemetryKind=def.kind; item.innerHTML=getPickupMarkup(def.kind);
   telemetryFlyingSpawn(def.kind,{forced:force}); item.setAttribute('aria-label',`A hidden ${def.kind} pickup`);
@@ -5808,13 +6095,13 @@ function spawnGamePickup(forcedKind=null,force=false){
   return true;
 }
 let naturalPickupTimer=null;
-function nextNaturalPickupDelay(){ return easyModeEnabled ? 2600+Math.random()*3200 : directorDelay('pickup',13000,26000); }
+function nextNaturalPickupDelay(){ return easyModeEnabled ? 2600+Math.random()*3200 : epicGameplayUnlocked()?directorDelay('pickup',4600,8600):directorDelay('pickup',11000,16000); }
 function scheduleNaturalPickup(delay=nextNaturalPickupDelay()){
   window.clearTimeout(naturalPickupTimer);
   naturalPickupTimer=window.setTimeout(()=>{
     const spawned=spawnGamePickup(null,false);
     if(spawned){ scheduleNaturalPickup(); return; }
-    const retry=!epicGameplayUnlocked()?4500:reduceMotion?15000:directorAttentionBlocked()?1200:3200;
+    const retry=reduceMotion?15000:directorAttentionBlocked()?900:2000;
     scheduleNaturalPickup(retry);
   },delay);
 }
@@ -5845,6 +6132,7 @@ function scheduleNaturalDougBone(delay=nextNaturalDougBoneDelay()){
 }
 scheduleNaturalDougBone();
 
+initializeUnifiedHud();
 applyShopEquipmentState();
 syncShopTelemetrySnapshot();
 updateHeartMeter();
@@ -5866,7 +6154,7 @@ updateLedgerTrigger();
 function finaleVisitedSections(){return ['games','career','consulting','crafting','tools','about'].filter(id=>(Number(sessionTelemetry.sections?.[id]?.visits)||0)>0).length;}
 function finaleEligibility(){return {signals:unlockedAchievements.size===ACHIEVEMENT_KEYS.length,legendary:legendaryUnlocked,wish:finaleWishSatisfied,boss:finaleBossSatisfied,hearts:heartCount>=5,shop:shopOwned.size>0,sections:finaleVisitedSections()>=5};}
 function finaleEligible(){return Object.values(finaleEligibility()).every(Boolean);}
-function finaleAttentionClear(){if(superBossActive||ufoBossActive||document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game,.session-debrief.show'))return false;return !achievement?.classList.contains('show')&&!ledger?.classList.contains('open');}
+function finaleAttentionClear(){if(superBossActive||ufoBossActive||document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game.open,.session-debrief.show'))return false;return !achievement?.classList.contains('show')&&!ledger?.classList.contains('open');}
 function updateFinaleReady(){if(!finaleEligible()||finaleReady||!finaleAttentionClear())return;finaleReady=true;document.body.classList.add('finale-ready');const brand=document.querySelector('.brand');if(brand){brand.setAttribute('aria-label','Mippi The Dork home. Something has changed.');brand.title='Something has changed.';}if(!finaleSeen)showTransientToast('SYSTEM STATUS','You have seen basically everything.','...BASICALLY','FINAL TRACE');telemetryMeaningful('finale_ready',finaleEligibility());}
 function finaleSet(line='',subline='',profile=''){if(finaleLine)finaleLine.textContent=line;if(finaleSubline)finaleSubline.textContent=subline;if(finaleProfile)finaleProfile.textContent=profile;}
 let postgameRevealTimer=null;

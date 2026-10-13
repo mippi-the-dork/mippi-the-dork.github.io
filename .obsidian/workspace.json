@@ -203,6 +203,10 @@
   },
   "active": "a7f3dae66289030d",
   "lastOpenFiles": [
+    "state/inuse.39136.lock",
+    "assets/heavy-water-hero.png",
+    "state/inuse.25608.lock",
+    "state",
     "assets/music.zip",
     "assets/music/song-05.mp3",
     "assets/music/I Made This.mp3",
@@ -242,9 +246,6 @@
     "docs/14-dynamic-runtime-systems/telemetry-foundation/TECHNICAL.md",
     "docs/14-dynamic-runtime-systems/telemetry-foundation",
     "docs/14-dynamic-runtime-systems/session-statistics",
-    "docs/14-dynamic-runtime-systems/recent-behavior-window",
-    "docs/14-dynamic-runtime-systems/player-model-confidence",
-    "docs/14-dynamic-runtime-systems/player-model",
-    "docs/14-dynamic-runtime-systems/objective-timer-and-failure"
+    "docs/14-dynamic-runtime-systems/recent-behavior-window"
   ]
 }

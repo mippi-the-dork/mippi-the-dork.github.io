@@ -7941,3 +7941,47 @@ body.theme-complete #about-canvas,
   filter:none!important;
   -webkit-filter:none!important;
 }
+
+
+/* v2.87 // Intentional paired HUD groups and opt-in performance isolation.
+   Progress+Gameplay / Modes+Utilities have fixed 20px internal gaps. Only the
+   space BETWEEN the two pairs expands as the viewport becomes wider. */
+@media(min-width:1000px){
+  body.hud-unified #site-game-hud{
+    display:flex!important;align-items:center!important;
+    justify-content:flex-start!important;gap:0!important;
+  }
+  body.hud-unified #site-game-hud > .hud-cell{
+    flex:0 0 auto!important;width:auto!important;
+    padding-inline:0!important;
+  }
+  body.hud-unified #site-game-hud > #hud-gameplay{margin-left:20px!important;}
+  body.hud-unified #site-game-hud > #hud-modes{margin-left:auto!important;}
+  body.hud-unified #site-game-hud > #hud-utilities{margin-left:20px!important;}
+}
+
+/* All switches are temporary diagnostics, inactive unless explicitly enabled.
+   Disabling the dock hides its paint/compositing, NOT its JS state updates. */
+html.profile-hide-hud body.hud-unified #site-game-hud{
+  visibility:hidden!important;pointer-events:none!important;
+}
+html.profile-no-hudfx body.hud-unified #site-game-hud,
+html.profile-no-hudfx body.hud-unified #site-game-hud *,
+html.profile-no-hudfx body.hud-unified #site-game-hud *::before,
+html.profile-no-hudfx body.hud-unified #site-game-hud *::after{
+  animation:none!important;transition:none!important;
+  filter:none!important;backdrop-filter:none!important;
+  box-shadow:none!important;text-shadow:none!important;
+}
+/* Deliberately broad treatment for isolating CSS paint/glow cost. No WebGL
+   geometry or Three.js material is modified. QA only, use `dev profile reset`. */
+html.profile-no-themefx body.theme-complete *:not(canvas),
+html.profile-no-themefx body.theme-complete *:not(canvas)::before,
+html.profile-no-themefx body.theme-complete *:not(canvas)::after{
+  filter:none!important;backdrop-filter:none!important;
+  box-shadow:none!important;text-shadow:none!important;
+  animation:none!important;
+}
+html.profile-hide-ambient #ambient-canvas{display:none!important;}
+
+html.profile-no-cursorfx :is(.cursor-spark,.rainbow-cursor-spark,.completion-cursor-aura,.power-cursor){display:none!important;}

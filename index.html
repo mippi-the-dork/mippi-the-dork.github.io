@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="hud-pending">
 <!-- MOBILE WARNING: This site is not ready for mobile viewing. Good luck to anyone who uses it on mobile. -->
 <!-- Yes, I know responsive design exists. I also know scope exists. One of those won today. -->
 <head>
@@ -11,7 +11,14 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.86" />
+  <style>/* Hide legacy controls before first paint; show them if HUD initialization fails. */
+    html.hud-pending #discovery-controls,
+    html.hud-pending #progress-hud,
+    html.hud-pending #play-mode-controls,
+    html.hud-pending #hint-trigger {visibility:hidden!important}
+  </style>
+  <link rel="stylesheet" href="style.css?v=2.87" />
+  <script defer src="perf-lab.js?v=2.87"></script>
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -887,9 +894,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.86"></script>
-  <script defer src="perspective-demo.js?v=2.86"></script>
+  <script defer src="script.js?v=2.87"></script>
+  <script defer src="perspective-demo.js?v=2.87"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.86 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.87 -->

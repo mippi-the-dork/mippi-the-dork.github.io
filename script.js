@@ -1,6 +1,6 @@
-// v2.86 // Restore Three.js rendering budget; offscreen scene suspension and redundant-work cleanup
+// v2.87 // Performance lab, boot profiling and paired HUD layout
 const mippiRuntimeHealth={
-  version:'2.86',
+  version:'2.87',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -2047,6 +2047,7 @@ achievementClose?.addEventListener('click', hideAchievementToast);
 hintTrigger?.addEventListener('click', () => showNextAchievementHint());
 
 function initializeUnifiedHud(){
+  const hudStartMs=performance.now();
   const dock=document.querySelector('#site-game-hud');if(!dock)return;
   const progress=document.querySelector('#hud-progress');
   const gameplay=document.querySelector('#hud-gameplay');
@@ -2137,6 +2138,10 @@ function initializeUnifiedHud(){
   dock.hidden=false;document.body.classList.add('hud-unified');
   updateLedgerTrigger();
   syncObjectiveHudPosition();
+  // The original controls are reparented, not duplicated. Release the early
+  // paint guard only AFTER the unified dock owns them to prevent first-frame flash.
+  window.MippiPerfLab?.markHudMounted({movedControls:dock.querySelectorAll('.hud-integrated').length,durationMs:performance.now()-hudStartMs});
+  document.documentElement.classList.remove('hud-pending');
 }
 function syncProgressHudPosition(){
   if(document.body.classList.contains('hud-unified')){
@@ -4579,7 +4584,7 @@ function devPrintHelp(){
   consolePrintCommandGroup('DIRECTOR',['dev director quiet','dev director curious','dev director engaged','dev director struggling','dev director mastery']);
   consolePrintCommandGroup('MODES',['dev mode inspect on','dev mode inspect off','dev mode design on','dev mode design off','dev mode interact on','dev mode interact off','dev doug command','dev doug cool','dev doug review']);
   consolePrintCommandGroup('ATTN',['dev attention rupees','dev attention wish','dev attention blueprint']);
-  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev clean']);
+  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev profile','dev clean']);
   consolePrint('OBJECTIVE // use dev objective random, dev objective complete, dev objective fail, or dev objective <objective-id>.');
 }
 
@@ -4770,6 +4775,32 @@ function devCommand(args=''){
   const input=String(args||'').trim().toLowerCase();if(!input||input==='help'){devPrintHelp();return;}
   const [root,...rest]=input.split(/\s+/);const tail=rest.join(' ');
   if(root==='snapshot'){devSnapshot();return;}
+  if(root==='profile'){
+    const lab=window.MippiPerfLab;
+    if(!lab){consolePrint('DEV PROFILE // performance lab unavailable.','warn');return;}
+    const [verb,arg]=rest;
+    if(verb==='sample'){
+      const seconds=Math.max(5,Math.min(40,Math.round(Number(arg)||15)));
+      consolePrint(`DEV PROFILE // Starting ${seconds}s capture after Console closes. Repeat the same interaction; use dev profile report afterward.`,'good');
+      openConsole(false);
+      window.setTimeout(()=>{
+        lab.start();
+        window.setTimeout(()=>lab.stop(),seconds*1000);
+      },400);
+      return;
+    }
+    const lines=!verb||verb==='help'?lab.help()
+      :verb==='start'?[lab.start()]
+      :verb==='stop'?[lab.stop()]
+      :verb==='report'?lab.report()
+      :verb==='boot'?lab.startup()
+      :verb==='export'?[lab.exportData()]
+      :verb==='reset'?[lab.resetModes()]
+      :['hud','hudfx','themefx','cursorfx','ambient'].includes(verb)?[lab.configure(verb,arg)]
+      :['Unknown profile command. Use dev profile help.'];
+    lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
+    return;
+  }
   if(root==='perf'){
     const rows=mippiRuntimeHealth.three.perf;
     consolePrint('DEV PERF // Three.js render-frame samples (last 1 second)','good');
@@ -4820,7 +4851,7 @@ const COMMANDS = {
   help(){ listCommands(); },
   docs(){ window.open('https://mippi-the-dork.github.io/docs/','_blank','noopener,noreferrer'); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.86 · static GitHub Pages build'); },
+  version(){ consolePrint('Mippi Portfolio v2.87 · static GitHub Pages build'); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -5090,6 +5121,7 @@ function advanceCursorPower(){
   }
 }
 function emitRainbowCursorSpark(){
+  if(document.documentElement.classList.contains('profile-no-cursorfx'))return;
   const colors=['#ff3b30','#ff9500','#ffcc00','#34c759','#00c7be','#0a84ff','#bf5af2','#ff2d55'];
   for(let i=0;i<3;i++){
     const p=document.createElement('i'); p.className='rainbow-cursor-spark';
@@ -5133,6 +5165,8 @@ window.addEventListener('pointermove',event=>{
   latestPointer.x=event.clientX; latestPointer.y=event.clientY;
   powerCursor.style.left=`${event.clientX}px`; powerCursor.style.top=`${event.clientY}px`;
   cursorAura.style.left=`${event.clientX}px`; cursorAura.style.top=`${event.clientY}px`;
+  // Performance lab isolates cosmetic cursor sparks from normal pointer/UI work.
+  if(document.documentElement.classList.contains('profile-no-cursorfx'))return;
   if(!document.body.classList.contains('theme-complete') || reduceMotion) return;
   const legendary=document.body.classList.contains('theme-legendary');
   // Legendary previously emitted as many as three costly glowing DOM particles

@@ -7875,3 +7875,57 @@ body:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-po
 body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay),
 body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) *{cursor:auto!important;}
 @media(prefers-reduced-motion:reduce){#site-game-hud .hud-attention-ring{animation:none!important;}}
+
+/* ===========================================================================
+   v2.85 | Unified HUD icon integrity, even grouping, themed mouse, shot polish
+   =========================================================================== */
+/* The five Heart glyphs are the ONLY visible children of this control. The
+   generic attention ring must never masquerade as a sixth Heart. */
+#site-game-hud #heart-meter > .hud-attention-ring{display:none!important;}
+#site-game-hud #heart-meter > span:not(.hud-attention-ring){
+  flex:0 0 15px;width:15px;height:20px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font:900 17px/1 Georgia,serif;
+}
+/* The icon remains centered even when the hidden accessible label changes. */
+#site-game-hud .hud-icon-btn{position:relative!important;}
+#site-game-hud .hud-icon-btn > .hud-svg-icon{
+  position:absolute!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important; flex:0 0 19px;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+#site-game-hud .hud-icon-btn > .hud-svg-icon svg{display:block!important;width:19px!important;height:19px!important;stroke:currentColor!important;}
+#site-game-hud .hud-icon-btn > .hud-control-text{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+#site-game-hud .hud-icon-btn:focus-visible{outline:1px solid var(--accent-bright,#67cfff)!important;outline-offset:2px;}
+/* Use equal *between-group* spacing instead of 4 unequal fractional tracks. */
+@media(min-width:1000px){
+  body.hud-unified #site-game-hud{
+    grid-template-columns:max-content max-content max-content max-content!important;
+    justify-content:space-between!important;
+    column-gap:16px!important;
+  }
+  #site-game-hud .hud-cell{padding-inline:0!important;}
+}
+/* Theme-specific native mushroom cursor: same size and fallback as v2.84,
+   but the actual SVG palette updates when the theme changes. */
+body.cursor-grown.cursor-power-1,body.cursor-grown.cursor-power-1 *,
+body.cursor-grown.cursor-power-2,body.cursor-grown.cursor-power-2 *{
+  cursor:var(--mippi-grown-cursor,auto)!important;
+}
+/* These retain precedence over cursor upgrades for safety and usability. */
+body.cursor-window-inactive,body.cursor-window-inactive *,
+body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay),
+body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) *{cursor:auto!important;}
+/* A short compositor-friendly transform tween bridges uneven main-thread
+   frame delivery. JS collision logic remains authoritative. */
+.legendary-player-projectile{
+  transition:transform 46ms linear!important;
+  animation:none!important;filter:none!important;
+  transform-origin:center center;
+}
+/* Discoverable wheel/trackpad scrolling without selecting the Ledger first. */
+.achievement-ledger.open{overscroll-behavior:contain;overflow-y:auto;touch-action:pan-y;}

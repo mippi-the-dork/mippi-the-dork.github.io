@@ -203,6 +203,7 @@
   },
   "active": "a7f3dae66289030d",
   "lastOpenFiles": [
+    "state/inuse.56700.lock",
     "state/inuse.39136.lock",
     "assets/heavy-water-hero.png",
     "state/inuse.25608.lock",
@@ -245,7 +246,6 @@
     "docs/14-dynamic-runtime/session-statistics/DESIGN.md",
     "docs/14-dynamic-runtime-systems/telemetry-foundation/TECHNICAL.md",
     "docs/14-dynamic-runtime-systems/telemetry-foundation",
-    "docs/14-dynamic-runtime-systems/session-statistics",
-    "docs/14-dynamic-runtime-systems/recent-behavior-window"
+    "docs/14-dynamic-runtime-systems/session-statistics"
   ]
 }

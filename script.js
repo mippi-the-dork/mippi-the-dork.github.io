@@ -1,6 +1,6 @@
-// v2.84 // Shooting performance, collectible pacing, cursor and HUD unlock corrections
+// v2.85 // Smooth projectiles, reliable HUD icons, heart meter and music fixes
 const mippiRuntimeHealth={
-  version:'2.84',
+  version:'2.85',
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -759,7 +759,7 @@ function syncMusicMinimizedControls(){
   const target=minimized?musicMiniControls:musicStandardControls;
   if(minimized){target.append(musicPlay,musicNext);}
   else{
-    // Preserve the original Previous, Play, Next order in the expanded row.
+    // Expanded order: Download, Previous, Play, Next, Loop, Shuffle, Lyrics.
     const prev=document.getElementById('music-prev');
     if(prev){prev.after(musicPlay);musicPlay.after(musicNext);}
   }
@@ -782,6 +782,7 @@ const musicIconShapes={
   pause:'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
   download:'<path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/>',
   repeat:'<path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/>',
+  repeatOff:'<path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/><path d="M3 3 21 21"/>',
   repeat1:'<path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/><text x="12" y="15.5" text-anchor="middle" font-size="9" stroke="none" fill="currentColor">1</text>',
   shuffle:'<path d="M3 17h2c6 0 7-10 14-10h2m-4-4 4 4-4 4M3 7h2c2 0 3 1 4 3m4 4c2 3 4 3 6 3h2m-4-4 4 4-4 4"/>',
   lyrics:'<path d="M6 4h12M6 9h12M6 14h8M6 19h10"/>'
@@ -932,7 +933,7 @@ function syncInteractToggle(){
   const contentInteractionOff=contentInteractionSuppressed();
   interactToggle.hidden=!unlocked;
   interactToggle.classList.toggle('active',contentInteractionOff);
-  interactToggle.textContent=`INTERACT // ${contentInteractionOff?'OFF':'ON'}`;
+  setHudControlText(interactToggle,`INTERACT // ${contentInteractionOff?'OFF':'ON'}`);
   interactToggle.title=unlocked?(contentInteractionOff?'Normal portfolio interaction is OFF. Click to restore it when the current encounter allows.':'Normal portfolio interaction is ON. Click to suppress it while hunting game-layer interactions.'):'Purchase Interact Toggle in the Shop.';
   interactToggle.setAttribute('aria-pressed',String(contentInteractionOff));
   document.body.classList.toggle('interaction-hunt',contentInteractionOff);
@@ -1215,7 +1216,7 @@ const MUSIC_TRACKS=[
 ];
 const MUSIC_REPEAT_KEY='mippi-music-repeat-v1';
 const MUSIC_SHUFFLE_KEY='mippi-music-shuffle-v1';
-const MUSIC_REPEAT_MODES=['off','playlist','track'];
+const MUSIC_REPEAT_MODES=['off','track','playlist'];
 let musicRepeatMode='off';
 let musicShuffleEnabled=false;
 try{
@@ -1251,7 +1252,7 @@ function updateMusicPlaybackOptions(){
   if(musicRepeat){
     const modeLabel={off:'LOOP OFF',playlist:'LOOP ALL',track:'LOOP 1'}[musicRepeatMode];
     const description={off:'Repeat off. Stop at the end of the playlist.',playlist:'Repeat playlist. Continue from the beginning after the last song.',track:'Repeat track. Replay the current song.'}[musicRepeatMode];
-    musicSetIcon(musicRepeat,musicRepeatMode==='track'?'repeat1':'repeat');
+    musicSetIcon(musicRepeat,musicRepeatMode==='track'?'repeat1':musicRepeatMode==='playlist'?'repeat':'repeatOff');
     musicRepeat.classList.toggle('active',musicRepeatMode!=='off');
     musicRepeat.title=`${description} Click to change repeat mode.`;
     musicRepeat.setAttribute('aria-label',description);
@@ -1518,7 +1519,8 @@ function initMusicPlayer(){
   });
   musicLyricsClose?.addEventListener('click',()=>{closeMusicLyrics();musicLyricsToggle?.setAttribute('aria-pressed','false');});
   musicRepeat?.addEventListener('click',()=>{
-    musicRepeatMode=MUSIC_REPEAT_MODES[(MUSIC_REPEAT_MODES.indexOf(musicRepeatMode)+1)%MUSIC_REPEAT_MODES.length];
+    const oldIndex=MUSIC_REPEAT_MODES.indexOf(musicRepeatMode);
+    musicRepeatMode=MUSIC_REPEAT_MODES[(oldIndex+1)%MUSIC_REPEAT_MODES.length];
     try{localStorage.setItem(MUSIC_REPEAT_KEY,musicRepeatMode);}catch(_){}
     updateMusicPlaybackOptions();
   });
@@ -1630,10 +1632,18 @@ function availableThemeModes(){
   return modes;
 }
 
+function setHudControlText(el,value){
+  if(!el)return;
+  const label=String(value);
+  if(!el.classList.contains('hud-icon-btn')){el.textContent=label;return;}
+  let text=el.querySelector(':scope > .hud-control-text');
+  if(!text){text=document.createElement('span');text.className='hud-control-text';el.appendChild(text);}
+  text.textContent=label;
+}
 function updateThemeCycleControl(){
   if(!themeCycle) return;
   const mode=currentThemeMode();
-  themeCycle.textContent=`Theme: ${mode.charAt(0).toUpperCase()+mode.slice(1)}`;
+  setHudControlText(themeCycle,`Theme: ${mode.charAt(0).toUpperCase()+mode.slice(1)}`);
   themeCycle.dataset.theme=mode;
   const modes=availableThemeModes();
   themeCycle.setAttribute('aria-label',`Current theme: ${mode}. Click to cycle unlocked themes.`);
@@ -1649,6 +1659,7 @@ function applyThemeMode(requestedMode, { persist=true } = {}){
   let mode=modes.includes(requestedMode)?requestedMode:'rare';
   document.body.classList.toggle('theme-complete', mode==='epic' || mode==='legendary');
   document.body.classList.toggle('theme-legendary', mode==='legendary');
+  syncNativeMushroomCursor();
 
   syncDougThemeVisuals();
 
@@ -1777,7 +1788,7 @@ function updateCompletionState(){
 
 function updateHeartMeter(){
   if(!heartMeter) return;
-  const hearts=[...heartMeter.querySelectorAll('span')];
+  const hearts=[...heartMeter.querySelectorAll(':scope > span:not(.hud-attention-ring)')];
   hearts.forEach((heart,index)=>{ heart.textContent=index<heartCount?'♥':'♡'; heart.classList.toggle('filled',index<heartCount); });
   const rewardReady=heartCount>=5&&!heartRewardShown;
   heartMeter.classList.toggle('reward-ready',rewardReady);
@@ -2044,6 +2055,10 @@ function initializeUnifiedHud(){
         mark.setAttribute('aria-hidden','true');mark.innerHTML=svg;
         btn.insertBefore(mark,btn.firstChild);
       }
+      // Move the changing label into its own node; future updates preserve the SVG.
+      const oldText=[...btn.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join(' ').trim();
+      [...btn.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).forEach(n=>n.remove());
+      if(oldText)setHudControlText(btn,oldText);
       btn.dataset.hudLabel=short;
       btn.title=btn.title?`${short} // ${btn.title}`:short;
       btn.setAttribute('aria-label',short);
@@ -2056,6 +2071,7 @@ function initializeUnifiedHud(){
   }
   // Dedicated ring avoids collision with Wish tooltip pseudo-elements.
   for(const el of dock.querySelectorAll('button')){
+    if(el.id==='heart-meter')continue;
     if(el.querySelector(':scope > .hud-attention-ring'))continue;
     const ring=document.createElement('span');ring.className='hud-attention-ring';
     ring.setAttribute('aria-hidden','true');el.appendChild(ring);
@@ -2175,6 +2191,13 @@ ledgerTrigger?.addEventListener('click', () => {
   else openLedger();
 });
 ledgerClose?.addEventListener('click', closeLedger);
+ledger?.addEventListener('wheel',event=>{
+  if(!ledger.classList.contains('open'))return;
+  const room=ledger.scrollHeight-ledger.clientHeight;
+  if(room<1)return;
+  const next=Math.max(0,Math.min(room,ledger.scrollTop+event.deltaY));
+  if(Math.abs(next-ledger.scrollTop)>.1){event.preventDefault();ledger.scrollTop=next;}
+},{passive:false});
 
 function setInspectMode(active, {telemetry=true,skipDesign=false} = {}) {
   if(active && !skipDesign && document.body.classList.contains('design-mode')) setDesignMode(false,{telemetry:false,skipInspect:true});
@@ -2185,7 +2208,7 @@ function setInspectMode(active, {telemetry=true,skipDesign=false} = {}) {
     telemetryMeaningful('inspect_mode',{active});
   }
   inspectToggle?.classList.toggle('active', active);
-  if (inspectToggle) inspectToggle.textContent = active ? 'Inspect Mode: On' : 'Inspect Mode';
+  setHudControlText(inspectToggle,active?'Inspect Mode: On':'Inspect Mode');
   try { localStorage.setItem(INSPECT_KEY, active ? '1' : '0'); } catch (_) {}
 }
 function setDesignMode(active, {telemetry=true,skipInspect=false} = {}) {
@@ -2203,7 +2226,7 @@ function setDesignMode(active, {telemetry=true,skipInspect=false} = {}) {
   const docsButton=document.getElementById('docs-toggle');
   if(docsButton){docsButton.hidden=!designModeUnlocked;let seen=false;try{seen=localStorage.getItem('mippi-docs-discovered-v1')==='1';}catch(_){}docsButton.classList.toggle('attention-new',active&&!seen);}
   designToggle?.classList.toggle('active',active);
-  if(designToggle) designToggle.textContent=active?'Design Mode: On':'Design Mode';
+  setHudControlText(designToggle,active?'Design Mode: On':'Design Mode');
   try{localStorage.setItem(DESIGN_KEY,active?'1':'0');}catch(_){}
   return true;
 }
@@ -3223,7 +3246,7 @@ function updateConsoleAttention(){
     consoleTipButton.classList.toggle('attention-ready',!!state);
     consoleTipButton.classList.toggle('attention-wish',state?.kind==='wish');
     consoleTipButton.classList.toggle('attention-blueprint',state?.kind==='blueprint');
-    consoleTipButton.textContent=state?.label||'TIP // ~ DEV CONSOLE';
+    setHudControlText(consoleTipButton,state?.label||'TIP // ~ DEV CONSOLE');
     consoleTipButton.title=state?.title||'Press ~ to open the Dev Console.';
     consoleTipButton.setAttribute('aria-label',state?.title||'Open developer console');
     consoleTipButton.dataset.wishCue=state?.kind==='wish'?'WISH READY':state?.kind==='blueprint'?'BLUEPRINT ERROR':'';
@@ -4471,7 +4494,7 @@ function listCommands(){
   consolePrintCommandGroup('NAV',['games','career','consulting','crafting','tools','resumes','projects','hero']);
   consolePrintCommandGroup('LINKS',['github','fab','steam','unreal source','learning']);
   consolePrintCommandGroup('PROJECT',['heavywater','azure','unmark','nda']);
-  consolePrintCommandGroup('SYSTEM',['achievements','reset','cheat','stats','particles']);
+  consolePrintCommandGroup('SYSTEM',['achievements','reset','cheat','stats']);
   consolePrintFunCommands();
   consolePrintUnrealCommands();
 }
@@ -4774,7 +4797,6 @@ const COMMANDS = {
   azure(){ document.querySelector('.azure-altar')?.scrollIntoView({behavior:'smooth'}); },
   unmark(){ document.querySelector('.unmark-feature')?.scrollIntoView({behavior:'smooth'}); },
   nda(){ jumpTo('career'); consolePrint('ACCESS DENIED: NDA still stronger than console privileges.','warn'); },
-  particles(){ const active=!document.body.classList.contains('particle-boost'); setParticleBoost(active); consolePrint(`PARTICLES ${active?'ON // screen-space particle field and scene boost enabled':'OFF'}.`,'good'); },
   hero(){ window.scrollTo({top:0,behavior:'smooth'}); consolePrint('Hero scene reacquired. Drag to rotate. Click a signal to navigate.'); },
   compile(){ openConsole(false); openCompile(); consolePrint('Shader compilation started. This may take a while. Possibly geological.','warn'); },
   shipit(){ consolePrint(randomLine(['SHIP IT. What could possibly go wrong?','Packaging... 99%... still 99%...','Release candidate renamed FINAL_final_v7_REAL.'])); },
@@ -4988,11 +5010,20 @@ function announceSystemCombo(id,title,detail){
   consolePrint(`SYSTEM COMBO // ${title.toUpperCase()} // ${detail}`,'good');
   showTransientToast('SYSTEM COMBO',detail,title.toUpperCase(),'INTERACTION');
 }
+function syncNativeMushroomCursor(){
+  if(!cursorPowerLevel){document.body.style.removeProperty('--mippi-grown-cursor');return;}
+  const mode=document.body.classList.contains('theme-legendary')?'legendary':document.body.classList.contains('theme-complete')?'epic':'rare';
+  const colors={rare:['#ffffff','#62bfff'],epic:['#ffe0fb','#ff55c8'],legendary:['#fff6cc','#43e0dc']}[mode];
+  const size=cursorPowerLevel===2?48:34;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 28 36"><path d="M2 2 L2 31 L8 25 L12 34 L17 32 L12 23 L23 24 Z" fill="${colors[0]}" stroke="${colors[1]}" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  document.body.style.setProperty('--mippi-grown-cursor',`url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 3, auto`);
+}
 function updatePowerCursor(){
   document.body.classList.toggle('cursor-grown',cursorPowerLevel>0);
   document.body.classList.toggle('cursor-power-1',cursorPowerLevel===1);
   document.body.classList.toggle('cursor-power-2',cursorPowerLevel===2);
   powerCursor.dataset.level=String(cursorPowerLevel);
+  syncNativeMushroomCursor();
 }
 function advanceCursorPower(){
   cursorPowerLevel=(cursorPowerLevel+1)%3;
@@ -5181,7 +5212,7 @@ function nearestFlyingTarget(x,y,maxDistance=null){
 const legendaryActiveShots=[];
 let legendaryShotRaf=0;
 const MAX_LEGENDARY_SHOTS=14;
-const SHOT_TARGET_SAMPLE_MS=75;
+const SHOT_TARGET_SAMPLE_MS=50;
 const legendaryTargetPositions=new Map();
 function releaseLegendaryShot(shot){
   shot.el.remove();
@@ -5197,7 +5228,11 @@ function sampleLegendaryTargets(now){
     const cached=legendaryTargetPositions.get(target);
     if(cached&&now-cached.time<SHOT_TARGET_SAMPLE_MS)continue;
     const r=target.getBoundingClientRect();
-    legendaryTargetPositions.set(target,{x:r.left+r.width*.5,y:r.top+r.height*.5,time:now});
+    const tx=r.left+r.width*.5,ty=r.top+r.height*.5;
+    const elapsed=cached?Math.max(1,now-cached.time):1;
+    const velocityX=cached?Math.max(-1.8,Math.min(1.8,(tx-cached.x)/elapsed)):0;
+    const velocityY=cached?Math.max(-1.8,Math.min(1.8,(ty-cached.y)/elapsed)):0;
+    legendaryTargetPositions.set(target,{x:tx,y:ty,vx:velocityX,vy:velocityY,time:now});
   }
 }
 function tickLegendaryShots(now){
@@ -5210,15 +5245,21 @@ function tickLegendaryShots(now){
     if(!shot.el.isConnected||!shot.target?.isConnected||now-shot.born>1800){releaseLegendaryShot(shot);continue;}
     const pos=legendaryTargetPositions.get(shot.target);
     if(!pos)continue;
-    const dx=pos.x-shot.px,dy=pos.y-shot.py,dist=Math.hypot(dx,dy);
+    // Predict the moving target between layout samples to avoid visible
+    // 50-75ms direction snaps. The projectile itself still moves every rAF.
+    const lead=Math.min(70,Math.max(0,now-pos.time));
+    const tx=pos.x+pos.vx*lead,ty=pos.y+pos.vy*lead;
+    const dx=tx-shot.px,dy=ty-shot.py,dist=Math.hypot(dx,dy);
     if(dist<23){
       releaseLegendaryShot(shot);
       telemetryCount('arcade','playerHits');
       if(shot.target.isConnected){shot.target.dataset.telemetryCollectMethod='legendary';shot.target.click();}
       continue;
     }
-    const dt=Math.min(.035,Math.max(0,(now-shot.last)/1000));shot.last=now;
-    const travel=Math.min(dist,(shopHasEquipped('golden-trigger')?1380:1050)*dt);
+    // Keep world-space speed consistent if an animation frame is delayed.
+    // v2.84's 35ms cap caused shots to crawl/step on slower rAF frames.
+    const dt=Math.min(.12,Math.max(0,(now-shot.last)/1000));shot.last=now;
+    const travel=Math.min(dist,shot.speed*dt);
     if(dist>0){shot.px+=dx/dist*travel;shot.py+=dy/dist*travel;}
     shot.el.style.transform=`translate3d(${shot.px-shot.x}px,${shot.py-shot.y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
   }
@@ -5232,7 +5273,7 @@ function fireLegendaryPlayerShot(x,y,target){
   el.style.left=`${x}px`;el.style.top=`${y}px`;
   document.body.appendChild(el);
   const now=performance.now();
-  legendaryActiveShots.push({el,target,x,y,px:x,py:y,born:now,last:now});
+  legendaryActiveShots.push({el,target,x,y,px:x,py:y,born:now,last:now,speed:shopHasEquipped('golden-trigger')?1380:1050});
   if(!legendaryShotRaf)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
 }
 

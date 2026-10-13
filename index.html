@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" crossorigin>
-  <link rel="stylesheet" href="style.css?v=2.84" />
+  <link rel="stylesheet" href="style.css?v=2.85" />
 </head>
 <body>
   <!-- SOURCE MAP: index.html owns semantic content, style.css owns the visual system, script.js owns nearly every questionable decision. -->
@@ -65,10 +65,10 @@
       <div class="music-now"><span id="music-track-status">MUSIC FILE PENDING</span><b id="music-track-count">TRACK 1 / 12</b></div>
       <div class="music-progress-row"><span id="music-current-time">0:00</span><input id="music-seek" type="range" min="0" max="1000" value="0" aria-label="Seek through song"><span id="music-duration">0:00</span></div>
       <div class="music-controls">
+        <a id="music-download" href="#" download aria-disabled="true" aria-label="Download current song" title="Download song"></a>
         <button id="music-prev" type="button" aria-label="Previous song" title="Previous song"></button>
         <button id="music-play" type="button" aria-label="Play" title="Play / Pause"></button>
         <button id="music-next" type="button" aria-label="Next song" title="Next song"></button>
-        <a id="music-download" href="#" download aria-disabled="true" aria-label="Download current song" title="Download song"></a>
         <button id="music-repeat" type="button" aria-label="Repeat off" title="Cycle repeat mode: Off, Playlist, Track"></button>
         <button id="music-shuffle" type="button" aria-pressed="false" aria-label="Shuffle off" title="Shuffle On / Off"></button>
         <button id="music-lyrics-toggle" type="button" aria-pressed="false" aria-label="Toggle lyrics" title="Show / Hide lyrics"></button>
@@ -887,9 +887,9 @@
   <!-- GIPITI: This conversation is itself now a comment. -->
   <!-- MIPPI: Perfect, ship it. -->
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
-  <script defer src="script.js?v=2.84"></script>
-  <script defer src="perspective-demo.js?v=2.84"></script>
+  <script defer src="script.js?v=2.85"></script>
+  <script defer src="perspective-demo.js?v=2.85"></script>
 </body>
 </html>
 
-<!-- MIPPI PORTFOLIO PACKAGE v2.84 -->
+<!-- MIPPI PORTFOLIO PACKAGE v2.85 -->

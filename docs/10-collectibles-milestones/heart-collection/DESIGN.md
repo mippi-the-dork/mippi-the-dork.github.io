@@ -108,3 +108,8 @@ The player initially reads Hearts as familiar game language, then discovers that
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+As of v2.81 the first five Hearts are milestone progress; collecting Hearts beyond 5/5 awards one banked Mippi Bird life per pickup, without adding a sixth Heart or repeating the Unreal Source reward. Post-five Hearts are weighted more rarely in natural pickup selection, not subject to an invented guaranteed interval. v2.85 ensures exactly five HUD heart glyphs.

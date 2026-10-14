@@ -1,6 +1,6 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v2.89
+**Latest handoff target:** Mippi Portfolio v2.92 (live source verification pending)
 
 This is the authoritative v2.89 command catalog for the in-site Dev Console.
 
@@ -426,3 +426,8 @@ When changing the Console:
 4. update this catalog,
 5. update `07-dev-console/`,
 6. update the extensive QA plan.
+
+
+## v2.90–v2.92 Hidden Combat Commands
+
+`dev combat`, `dev combat run idle|player|ufo|combined|explosions [10–45 seconds]`, `dev combat stop`, `dev combat report`, `dev combat export`. v2.91 adds `dev combat geometry on/off` (cannot switch while a run is active, default on per load). In v2.92 optimized on mode prefers authored flying-object geometry, with cache fallback; off mode uses legacy v2.90 DOM reads. Report data is local and opt-in. See [Combat Performance Lab](17-qa-operations/combat-performance-lab/TECHNICAL.md).

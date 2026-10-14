@@ -1878,3 +1878,8 @@ When this checklist is fully green, the remaining work should be content/audio f
 ## v2.89 Required Addendum
 
 The original checklist is preserved as historical baseline. The current release must additionally execute [v2.81–v2.89 Regression Matrix](V2_81_TO_V2_89_REGRESSION_MATRIX.md) and [v2.89 Performance Profiling Procedure](PERFORMANCE_PROFILING_V2.89.md). Validate the unified HUD and all unlock states, bonus Heart lives, Castle friendly auto-collection, bounded Invasion, Early Rare pickups, closed Mippi Bird attention, inline SVG/Native cursor focus, Docs access, Wish guidance, 12-song icon transport and Enhanced LRC, repeat Off/One/All, removed public `particles`, and `perf-lab.js` export/isolate recovery. **v2.86–v2.89 do not establish a verified FPS fix.**
+
+
+## v2.92 Combat Lab QA Addendum
+
+Run [Combat Benchmark QA](COMBAT_BENCHMARK_V2_92.md) and review [Performance Investigation Findings](PERFORMANCE_INVESTIGATION_FINDINGS.md) before treating the lab as validated. The five benchmark scenarios and two geometry modes must exercise production projectile paths without crediting player progression. Verify cleanup and accurate movement under real browser conditions. The handoff does not confirm a solved Windows FPS regression.

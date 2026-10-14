@@ -31,6 +31,8 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 | **Mippi Bird Rupee Rewards** | Awards limited session Rupees for reaching selected Mippi Bird score milestones without allowing unlimited farming. | [Design](mippi-bird-rupee-rewards/DESIGN.md) | [Technical](mippi-bird-rupee-rewards/TECHNICAL.md) |
 | **Mippi Bird Damage Feedback** | Communicates shield loss, invulnerability, crashes, and recovery clearly during the minigame. | [Design](mippi-bird-damage-feedback/DESIGN.md) | [Technical](mippi-bird-damage-feedback/TECHNICAL.md) |
 | **Mippi Bird Sharing** | Provides the optional sharing behavior associated with the Mippi Bird experience. | [Design](mippi-bird-sharing/DESIGN.md) | [Technical](mippi-bird-sharing/TECHNICAL.md) |
+| **Combat Geometry Caching** | Shared cached target/emitter reads and diagnostic comparison switch, introduced v2.91. | [Design](combat-geometry-caching/DESIGN.md) | [Technical](combat-geometry-caching/TECHNICAL.md) |
+| **Authored Flight Motion Geometry** | v2.92 modeled CSS flight trajectories synchronized with the animation clock. | [Design](authored-flight-motion-geometry/DESIGN.md) | [Technical](authored-flight-motion-geometry/TECHNICAL.md) |
 
 ## Documentation rules
 

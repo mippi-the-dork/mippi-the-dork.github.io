@@ -34,3 +34,8 @@ v2.87 profiler was mostly idle outside recording; v2.89 timer wrappers are insta
 
 At Epic Hero with matched resolution, mouse and game state, run repeated:
 A baseline; B timed objective; C objective present but `objectiveclock off`; D restored baseline. `dev profile sample 15`, then `report` and `export` per run. Check `isolationSkipped.objectiveclock`; if zero, the isolate wasn't exercised. Repeat suspicious comparisons and, if inconclusive, record a real browser Performance trace. Restore `dev profile reset`.
+
+
+## v2.90–v2.92 Combat Lab and Geometry
+
+Permanent opt-in `combat-lab.js` now adds five stress scenarios and a diagnostic adapter to production combat. v2.91 adds geometry cache A/B; v2.92 uses animation-clock authored motion positions in optimized mode, with legacy and cache fallback retained. Five-scenario performance results and limitations are documented in [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md). Handoff source target is v2.92, but connected GitHub main code still identifies v2.87, so deployment must be verified separately.

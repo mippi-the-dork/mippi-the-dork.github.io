@@ -34,6 +34,8 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 | **Combat Geometry Caching** | Shared cached target/emitter reads and diagnostic comparison switch, introduced v2.91. | [Design](combat-geometry-caching/DESIGN.md) | [Technical](combat-geometry-caching/TECHNICAL.md) |
 | **Authored Flight Motion Geometry** | v2.92 modeled CSS flight trajectories synchronized with the animation clock. | [Design](authored-flight-motion-geometry/DESIGN.md) | [Technical](authored-flight-motion-geometry/TECHNICAL.md) |
 
+| **Shared Canvas Particle Renderer** | Canvas2D default for shared explosion particles, with original DOM renderer retained for A/B comparison. | [Design](shared-canvas-particle-renderer/DESIGN.md) | [Technical](shared-canvas-particle-renderer/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

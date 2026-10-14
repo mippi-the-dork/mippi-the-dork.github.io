@@ -91,3 +91,10 @@ At narrower widths:
 
 - [Experience Foundation Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Behavior Update (v2.81–v2.89)
+
+v2.81 moved fixed controls into a responsive four-column bottom HUD; at narrower widths it reflows two-by-two. v2.87 desktop >=1000px uses paired group spacing. v2.83 narrowed desktop Console to ~800px, toasts/objectives to ~310px, narrow widths to ~280px. The music lyrics companion panel sits right of header player on desktop and below at narrow widths.
+
+**Source:** v2.81–v2.89 release handoff documents, reconciled chronologically. For the latest authoritative feature summary see [Release History](../../RELEASE_HISTORY.md).

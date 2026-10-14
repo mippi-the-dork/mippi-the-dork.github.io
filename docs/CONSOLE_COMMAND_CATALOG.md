@@ -1,6 +1,6 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v2.92
+**Current documented version:** Mippi Portfolio v2.94
 
 This is the authoritative v2.89 command catalog for the in-site Dev Console.
 
@@ -431,3 +431,21 @@ When changing the Console:
 ## v2.90–v2.92 Hidden Combat Commands
 
 `dev combat`, `dev combat run idle|player|ufo|combined|explosions [10–45 seconds]`, `dev combat stop`, `dev combat report`, `dev combat export`. v2.91 adds `dev combat geometry on/off` (cannot switch while a run is active, default on per load). In v2.92 optimized on mode prefers authored flying-object geometry, with cache fallback; off mode uses legacy v2.90 DOM reads. Report data is local and opt-in. See [Combat Performance Lab](17-qa-operations/combat-performance-lab/TECHNICAL.md).
+
+
+## v2.93–v2.94 Combat Visual and Renderer Commands
+
+```text
+dev combat visual status
+dev combat visual player off/on
+dev combat visual ufo off/on
+dev combat visual explosions off/on
+dev combat visual explosionpaint off/on
+dev combat visual glow off/on
+dev combat visual all on
+dev combat renderer status
+dev combat renderer dom
+dev combat renderer canvas
+```
+
+Visual controls are diagnostic and session-only; the first two suppress projectile paint but **not** simulation/hits; `explosions off` skips cosmetic emissions; `explosionpaint off` retains emission and particle lifecycles but hides output; `glow off` removes selected combat shadows/filters. `dev profile reset` restores all visual modes, but does **not** change geometry or renderer. v2.94 defaults to Canvas; DOM remains an opt-in parity/benchmark backend or unavailable-Canvas fallback. Changes cannot be made during a benchmark. See [Combat Visual Isolation](17-qa-operations/combat-visual-isolation/TECHNICAL.md) and [Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).

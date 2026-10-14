@@ -145,3 +145,8 @@ A player can understand the bottom fixed UI at a glance: explanation modes first
 
 - [Interaction and Debug Modes Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+**Current v2.89 arrangement supersedes the historic Design / Inspect / Interact / Hint strip.** The v2.81 unified HUD places **Design, Documentation, Inspect, Interact** under Modes, while **Hint, Theme, Dev Console** sit under Utilities. Docs button appears only after Design Mode purchase (v2.84), with attention only while Design Mode is active and docs unvisited (v2.83). The entire dock is now the primary bottom navigation.

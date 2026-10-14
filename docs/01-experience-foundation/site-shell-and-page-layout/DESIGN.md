@@ -107,3 +107,10 @@ The shell is successful when the site still feels readable after the game layer 
 
 - [Experience Foundation Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Behavior Update (v2.81–v2.89)
+
+v2.81 replaced separate bottom-left and bottom-right floating controls with `#site-game-hud`, a four-column bottom dock (Progress, Gameplay, Modes, Utilities). v2.87 groups Progress+Gameplay and Modes+Utilities at desktop widths >=1000px with 20px intra-pair spacing and flexible middle gap. At smaller sizes it reflows. Music stays attached to the header. See [Unified Bottom HUD](../unified-bottom-hud/DESIGN.md).
+
+**Source:** v2.81–v2.89 release handoff documents, reconciled chronologically. For the latest authoritative feature summary see [Release History](../../RELEASE_HISTORY.md).

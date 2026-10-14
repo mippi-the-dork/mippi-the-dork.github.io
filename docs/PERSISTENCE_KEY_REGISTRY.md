@@ -1,8 +1,8 @@
 # Persistence Key Registry
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
-This is the authoritative v2.80 registry for Mippi-owned browser persistence identifiers.
+This is the authoritative v2.89 registry for Mippi-owned browser persistence identifiers.
 
 Use exact spelling and case.
 
@@ -262,3 +262,14 @@ When adding a persistent state in a future release:
 4. document reset behavior,
 5. document migration if replacing an older key,
 6. update the owning feature `TECHNICAL.md`.
+
+
+## Added in v2.81–v2.89
+
+| Key | Store | Meaning | Notes |
+| --- | --- | --- | --- |
+| `mippi-docs-discovered-v1` | localStorage | Visitor has followed Documentation HUD shortcut | Introduced v2.81; HUD attention depends on this plus active Design Mode; Docs icon visibility requires Design Mode entitlement from v2.84. |
+
+No new browser-storage key is introduced for bonus Heart lives: they are credited into the existing Mippi Bird Mushroom-life bank. Invasion wave/encounter state remains session-runtime rather than long-term persistent. The performance profile isolates and JSON capture buffers are developer runtime state, not persistent progression.
+
+**Current command-removal warning:** `particles` is no longer public as of v2.85, but its internal particle effect still exists. See [Console Command Catalog](CONSOLE_COMMAND_CATALOG.md).

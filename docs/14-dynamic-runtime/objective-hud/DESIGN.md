@@ -140,3 +140,8 @@ The player can understand the current challenge and time pressure at a glance wi
 
 - [Dynamic Runtime Systems Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+v2.82 positions each timed optional objective just above the bottom-right HUD, with up to three independent toast notifications above it. v2.83 narrows desktop cards to ~310px. v2.89's Objective-clock isolate exists only for QA; a frozen displayed countdown is not paused gameplay and should be restored before playtesting.

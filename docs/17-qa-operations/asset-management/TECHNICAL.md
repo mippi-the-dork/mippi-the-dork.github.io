@@ -188,3 +188,8 @@ remove them before packaging.
 From v2.87 a new required **runtime file** `perf-lab.js` is loaded deferred before `script.js`. Keep it in the published portfolio runtime, not in docs handoff ZIP. All twelve MP3 and user-authored LRC files must remain untouched by documentation and code-only update work. v2.82 changes `assets/heavy-water-hero.png`; documentation references it but must not modify it.
 
 For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
+
+
+## v2.90–v2.92 Combat Lab Runtime Files
+
+The handoff target requires `perf-lab.js` followed by `combat-lab.js`, then `script.js`. `combat-lab.js` is a **permanent, opt-in runtime file**, not an expendable development-only archive. The source currently verifiable on GitHub main still reports v2.87 and lacks `combat-lab.js`; verify deployment before asserting current live implementation. Documentation work must not modify production JS/assets.

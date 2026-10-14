@@ -109,3 +109,8 @@ The player can keep audio running while reducing itself to a compact header-atta
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+v2.81 expanded/collapsed state gained a seek progress bar and retained Play/Pause + Next alongside title when collapsed, not only a +/- header. Lyrics is now a sibling Full/Single companion panel. v2.82 equalized collapsed and expanded desktop width (~326px). v2.83 aligns Play/Next/Expand in one 28px-tall flex row rather than independent offsets, and synchronizes companion panel height with the player's actual height. Collapse temporarily forces Single lyrics, then restores user's Full/Single preference on re-expansion.

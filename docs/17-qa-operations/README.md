@@ -24,6 +24,7 @@ This category groups the canonical documentation for **QA, Runtime Operations, a
 | **Extensive QA Test Plan** | Provides the full manual release checklist and DEV-assisted state matrix for validating the complete portfolio. | [Design](extensive-qa-test-plan/DESIGN.md) | [Technical](extensive-qa-test-plan/TECHNICAL.md) |
 | **Release Candidate Sweep** | Provides a fast DEV-command-driven sanity pass for checking critical states before publishing a build. | [Design](release-candidate-sweep/DESIGN.md) | [Technical](release-candidate-sweep/TECHNICAL.md) |
 | **Performance Diagnostics** | Hidden performance sampling, isolation switches, exports and careful FPS interpretation. | [Design](performance-diagnostics/DESIGN.md) | [Technical](performance-diagnostics/TECHNICAL.md) |
+| **Combat Performance Lab** | Permanent opt-in five-scenario combat benchmark with JSON export and A/B geometry mode. | [Design](combat-performance-lab/DESIGN.md) | [Technical](combat-performance-lab/TECHNICAL.md) |
 
 ## Documentation rules
 

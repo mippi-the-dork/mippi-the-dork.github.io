@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.92 (handoff-specified; live main code verification pending)
+**Current documented state:** Mippi Portfolio v2.92
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -269,7 +269,7 @@ This version is a **diagnostic release, not a performance fix**. The profiler it
 
 ## Current Documentation Authority
 
-The end state is **v2.89**. Keep version attribution and supersession explicit: current loop order comes from v2.85, current HUD grouping from v2.87, current profiler from v2.89. Older descriptions may remain as versioned history but must not be treated as current implementation instructions.
+For the v2.81–v2.89 release sequence, the end state was **v2.89**. Keep version attribution and supersession explicit: current loop order comes from v2.85, current HUD grouping from v2.87, current profiler from v2.89. Older descriptions may remain as versioned history but must not be treated as current implementation instructions.
 
 Refer to [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md), [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md), and [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/TECHNICAL.md).
 
@@ -291,7 +291,3 @@ A 30-second Legendary combined comparison produced 313 frames (~10.4 rAF FPS) wi
 Optimized geometry now uses authored flight trajectory models for registered CSS-animated UFOs, boss, pickups, shooting stars, Doug bones and lab objects. `motionCenter()` reads the browser's active CSS animation clock (`Animation.currentTime`) and computes object centers without layout rectangle measurement in those modeled cases. Effects also seek the modeled center. Unregistered entities fall back to the v2.91 cache; `dev combat geometry off` retains the original v2.90 direct-read path for A/B comparisons. Added named `modelHit` and `animation.lookup` profiler scopes.
 
 The handoff reports successful JavaScript syntax checks and headless 10-second combined workload counts of **105 player shots and 164 hostile shots in both modes**, and limited position-parity observations. **The real Windows/Edge 30-second A/B comparison was still pending.** No reduction in normal projectile counts, hit behavior, audio, particles or achievements was intended.
-
-## Repository Verification Caveat
-
-These three versions are documented from their uploaded handoff packages. At the time this update was prepared, the connected GitHub repository `main` still exposed v2.87 `script.js`/`index.html` and did **not** include `combat-lab.js`. This means v2.92 is the **handoff-described target**, not independently verified deployed code. See [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md) for the distinction.

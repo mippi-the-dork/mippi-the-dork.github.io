@@ -101,3 +101,8 @@ The expanded v2.80 Music Player feels native to all three rarity themes while pr
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+v2.81 introduced accessible icon-only transport and a separate Lyrics companion with independent Rare/Epic/Legendary theme styling. v2.83 harmonized lyric typography to 12px for regular, active and placeholder lines. The reward entitlement remains independent of the selected world theme.

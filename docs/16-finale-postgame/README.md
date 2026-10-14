@@ -27,6 +27,7 @@ This category groups the canonical documentation for **Finale and Postgame**. Ev
 | **Music Playback** | Provides the 12-song soundtrack, play/pause, previous/next, repeat, shuffle, playlist navigation, and editable LRC lyrics. | [Design](music-playback/DESIGN.md) | [Technical](music-playback/TECHNICAL.md) |
 | **Music Downloads** | Lets visitors download each installed authored song with a readable title-based filename. | [Design](music-downloads/DESIGN.md) | [Technical](music-downloads/TECHNICAL.md) |
 | **Music Player Persistence** | Keeps the reward plus repeat/shuffle preferences across reloads while reset clears the entire Music Player state. | [Design](music-player-persistence/DESIGN.md) | [Technical](music-player-persistence/TECHNICAL.md) |
+| **Synchronized Lyrics Viewer** | Companion Full/Single panel, seeking and Enhanced LRC word highlights. | [Design](synchronized-lyrics-viewer/DESIGN.md) | [Technical](synchronized-lyrics-viewer/TECHNICAL.md) |
 
 ## Documentation rules
 

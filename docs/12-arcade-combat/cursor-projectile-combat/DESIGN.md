@@ -109,3 +109,8 @@ The player can understand the Super Boss weapon within one click and can deliber
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+v2.82 through v2.85 reworked Legendary mouse shots to share one updater, cap 14 active projectiles and retain homing/reward behavior. Latest v2.85 uses predictive target interpolation for smoother motion under delayed frames. Real Windows/browser FPS was not confirmed fixed; don't confuse the feel goal with the measured diagnostic result.

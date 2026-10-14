@@ -41,6 +41,7 @@ This category groups the canonical documentation for **Achievements and Discover
 | **Grand Tour** | Rewards visiting all six major professional sections of the portfolio. | [Design](grand-tour/DESIGN.md) | [Technical](grand-tour/TECHNICAL.md) |
 | **Air Superiority** | Rewards defeating the Super UFO Boss. | [Design](air-superiority/DESIGN.md) | [Technical](air-superiority/TECHNICAL.md) |
 | **100 Percent Complete** | The Legendary capstone requires all nine Epic postgame achievements plus viewing the Finale and permanently unlocks the Music Player until reset. | [Design](100-percent-complete/DESIGN.md) | [Technical](100-percent-complete/TECHNICAL.md) |
+| **System Toast Stack** | Three-notice bottom-right queue coordinated with timed optional objectives. | [Design](system-toast-stack/DESIGN.md) | [Technical](system-toast-stack/TECHNICAL.md) |
 
 ## Documentation rules
 

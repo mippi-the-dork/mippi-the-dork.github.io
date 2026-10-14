@@ -1,6 +1,6 @@
 # Runtime State Map
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
 This document groups important portfolio state by lifetime and authority.
 
@@ -477,3 +477,15 @@ allow transient state to end/reset
 reveal postgame later
 verify historical recognition
 ```
+
+
+## v2.81–v2.89 State Updates
+
+- **Invasion:** live per-session `invasionWaveKills` bounded 0–10, `invasionEncounterPending`, `invasionSpawnQueued`, `invasionBossRetryKills` (normally 4). Retained Boss victories are telemetry/progression history; do not incorrectly persist the current wave across reloads.
+- **Hearts:** first five Hearts are progression, extras feed the **existing** `mushroomBankLives` Mippi Bird life bank. No new bank storage key or sixth Heart.
+- **Documentation:** persistent `mippi-docs-discovered-v1` records visited docs shortcut. Access via HUD additionally requires Design Mode unlocked; attention additionally requires active Design Mode and unvisited state.
+- **Music:** Repeat and Shuffle settings remain persisted from v2.80, but current click order becomes `off → track → playlist → off` in v2.85. Seek time, Full/Single view preference, lyric render state and shuffle bag/history are runtime state unless separately documented as persisted.
+- **Performance laboratory:** `window.MippiPerfLab`, per-capture measurements and isolate toggles are developer runtime state. `dev profile reset` resets these toggles **without clearing gameplay**. JSON export writes a downloaded file, not analytics. v2.89 timer wrappers register at startup, even when capture isn't running.
+- **Early rewards:** pre-Epic Rare naturally schedules low-impact Rupee/Heart pickups; progression flags are unchanged. The descriptive PROFESSIONAL Player Model is **not** spawn or Director authority.
+
+See [Persistence Key Registry](PERSISTENCE_KEY_REGISTRY.md) and [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md).

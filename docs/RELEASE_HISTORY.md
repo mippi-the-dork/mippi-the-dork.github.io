@@ -1,10 +1,10 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
-The v2.79 and v2.80 releases changed the postgame Music Player. They did not redesign the broader portfolio progression, Three.js scenes, arcade systems, Unreal Tools presentation, or Project Heavy Water Perspective Visualizer.
+v2.79 and v2.80 established the twelve-track Music Player, Repeat, Shuffle, and basic editable lyrics. The nine subsequent releases below changed the HUD, ambient rewards, progression feedback, lyrics presentation, cursor/projectile performance and diagnostic capabilities. Historical sections describe the behavior **at that time**; for current rules read the newest applicable release.
 
 ## v2.79 - Complete 12-Song Soundtrack
 
@@ -185,7 +185,7 @@ Still not persisted:
 - open lyric panel,
 - active lyric line.
 
-## Scope of These Releases
+## Scope of v2.79–v2.80
 
 No v2.79 or v2.80 changes were made to the underlying:
 
@@ -196,3 +196,79 @@ No v2.79 or v2.80 changes were made to the underlying:
 - Perspective Visualizer.
 
 Documentation outside the affected Music Player, persistence, UI, and QA areas should not attribute older behavior to these releases.
+
+## v2.81 - Unified HUD, Invasion and Enhanced Lyrics
+
+Introduced a single four-column dock: **Progress** (Ledger, Rupees, Hearts), **Gameplay** (Coolness, Invasion, Castles), **Modes** (Design, Documentation, Inspect, Interact), **Utilities** (Hint, Theme, Console). Original DOM controls moved instead of being duplicated. All gameplay meters use the same compact visual bar.
+
+After five Hearts, collecting another Heart awards **one banked Mippi Bird life**, not a sixth Heart. The Castle 4/4 claim now has nine 33px fireworks bursts and automatically clicks already-airborne **friendly** rewards from a snapshot during approximately one second; it still awards three Rupees.
+
+UFO Invasion gained an explicit bounded 0–10 kill wave, one pending Boss encounter, an escape/reacquisition state (normally four new kills), and retained every-third-boss escalation to Super Boss. The `compile` command's modal path was repaired; modal controls restore a visible native pointer.
+
+The separate public docs site became accessible by `docs` Console command, a Modes HUD shortcut, and an About CTA. Music gained icon-based transport, seek bar, compact collapsed Play/Next, a right-hand companion lyrics viewer, **Full/Single** modes, and **Enhanced LRC word timing** (`<mm:ss.xx>`). Per-song ? lyric controls were removed.
+
+## v2.82 - Notifications, Rewards and Shared Projectile Updates
+
+Legendary cursor bullets switched from one `requestAnimationFrame` per projectile to one shared update loop and a **14-shot cap**, reclaiming shots after 1.8 seconds and measuring target geometry once per unique target. This is algorithmic optimization, not proof of a real-device FPS fix.
+
+The Director retries missed natural opportunities faster (~2 seconds), no longer treats ordinary toasts/Ledger as permanent attention blockers, and recognizes only friendly pickups as evidence of reward opportunity. At this stage natural pickups remained Epic-gated (changed in v2.84).
+
+The timed Objective moves immediately above the bottom-right HUD, with a separate **max-three** `#system-toast-stack` above it. Ledger entries retain their **own rarity styling** under Legendary theme. Castle fireworks gain broader displacement (about +/-280px horizontal, +/-225px vertical) and 2150ms lifetime; one-second friendly auto-collection remains. Music collapse width settles at ~326px, lyric sync avoids redundant DOM writes, and Project Heavy Water gets the supplied hero image.
+
+## v2.83 - Wish Guidance and UI Presentation
+
+HUD buttons gain visible low-contrast resting frames. Console desktop width becomes approximately **800px**, toast and objective cards approximately **310px** desktop / **280px** narrow.
+
+Docs icon attention is contextual: only when Design Mode is **active** and the docs link has not been visited. Wish availability produces `WISH READY`; Blueprint failure produces `BLUEPRINT ERROR`. Contextual `TRY WISH` / `OPEN BLUEPRINT` controls dispatch the ordinary Console commands and hide during free-text Wish input.
+
+Collapsed Music uses `#music-mini-controls` with equal-height Play, Next, Expand; lyrics companion follows Music Player's actual height via ResizeObserver. The later **12px lyrics typography** supersedes v2.82's intermediate 15/14px presentation. User-authored LRC files must be preserved when updating website code.
+
+## v2.84 - Unlock Gates, Early Pickups and Native Cursor
+
+Ledger button is gated until at least one original Signal or postgame reveal and uses a centered inline SVG. Docs HUD shortcut is gated until **Design Mode has been purchased**; public Console/About docs links remain available.
+
+Legendary shooting adopts ~75ms geometry cache, reduced paint/shadow, and cursor spark throttling. Mushroom growth uses a **browser-native SVG cursor**, with focus/enter/leave handling instead of a DOM imitation.
+
+Rare players now receive low-impact natural pickups: **65% Rupee / 35% Heart**, baseline ~11–16 seconds plus Director modifiers, with ~17-second anti-drought fallback. Epic remains ~4.6–8.6s before modifiers. A closed Mippi Bird panel no longer blocks Director spawns or Finale: only `.flappy-game.open` counts as open.
+
+**PROFESSIONAL is a Player Model label, not a Director state or spawn-blocker.** Director Quiet has its own modest pacing profile.
+
+## v2.85 - HUD and Projectile Polish
+
+Fixed a decorative HUD ring appearing as a sixth Heart. `setHudControlText` preserves injected SVG icons while updating hidden accessible text. Desktop HUD spacing used distributed max-content tracks (later superseded by v2.87 paired grouping). Mushroom SVG cursor palettes now match Rare/Epic/Legendary.
+
+Shared Legendary shots now use ~50ms target sampling, bounded velocity prediction, **120ms dt cap**, 46ms linear transform smoothing, 14-shot cap, and unchanged speeds of 1050px/s (normal) / 1380px/s (Golden Trigger). Player-side FPS remains unverified.
+
+Music Repeat selection order becomes **Off → Loop 1 → Loop All → Off** (superseding v2.80). Expanded order becomes **Download, Previous, Play/Pause, Next, Loop, Shuffle, Lyrics**. The Ledger supports hover wheel/trackpad scrolling. The public `particles` Console command is **removed**, while Particle Boost remains an internal effect.
+
+## v2.86 - Three.js Rendering-Budget Pass
+
+Rendering is skipped for offscreen Hero, Ambient and About canvases or hidden tabs, using a 100px `IntersectionObserver` margin. RAF scheduling remains available for resume. Static palette/material updates only run when rarity changes. Ambient/About redundant full-canvas CSS color filters were removed; all three renderers request high-performance adapter preference (advisory).
+
+Hidden `dev perf` exposes Three scene render-loop FPS, visibility, DPR, draw calls and skipped offscreen frames. It does **not** measure GPU presentation FPS. The reported real Windows performance regression was **not declared fixed**.
+
+## v2.87 - Opt-In Performance Laboratory
+
+Added required runtime file `perf-lab.js`, loaded before `script.js`, and hidden `dev profile` commands: boot, sample (5–40s), start/stop, report/export, reset, and `hud` / `hudfx` / `themefx` / `cursorfx` / `ambient` isolation toggles. Capture includes RAF frame intervals, long tasks/frames, startup paint and HUD relocation costs, CSS animation counts, HUD mutations and local JSON export.
+
+The new `html.hud-pending` guard prevents the old floating UI flashing during startup; the dock relocates twelve existing controls. At >=1000px, desktop layout becomes **Progress + Gameplay** and **Modes + Utilities** close pairs, about 20px inside each pair, with flexible middle separation. Normal Help remains unchanged.
+
+## v2.88 - Named Subsystem Attribution
+
+The profiler gained named Hero/Ambient/About update vs render-call durations, cursor/projectile, Director, Objective and HUD timings; more reliable RAF callback source labels; recorded >=33.3ms spikes and per-spike subsystem activity; and diagnostic logic isolate verbs `hero`, `about`, `ambientlogic`, `projectiles`, `hudlogic` (`off/on`). `ambient off` still means hiding its canvas, distinct from `ambientlogic off`.
+
+No geometry, progression, audio or themes were changed. Calling `renderer.render()` measures CPU submission duration, **not GPU presentation**. The instrumentation is for investigation only.
+
+## v2.89 - Timer, Objective and DOM Correlation
+
+Added source-labeled `setInterval`/`setTimeout` callback timings, named ~200ms objective clock measurements, versioned `script.js?v=2.89:line:column` source recognition, DOM mutation history for objective/toast/HUD, one-second UI snapshots, optional Chromium Long Animation Frame script attribution, and spike correlations with nearby timer/DOM events.
+
+New hidden `dev profile objectiveclock off/on` freezes **only the visible countdown text**; deadline/failure/rewards stay live. Exports add `timerEvents`, `domEvents`, `uiSnapshots`, `spikes[].nearbyTimers`, `spikes[].nearbyDomChanges`, `longFrames[].scripts` and `isolationSkipped.objectiveclock`.
+
+This version is a **diagnostic release, not a performance fix**. The profiler itself incurs some overhead, and spike correlation shows proximity rather than proof of causation.
+
+## Current Documentation Authority
+
+The end state is **v2.89**. Keep version attribution and supersession explicit: current loop order comes from v2.85, current HUD grouping from v2.87, current profiler from v2.89. Older descriptions may remain as versioned history but must not be treated as current implementation instructions.
+
+Refer to [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md), [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md), and [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/TECHNICAL.md).

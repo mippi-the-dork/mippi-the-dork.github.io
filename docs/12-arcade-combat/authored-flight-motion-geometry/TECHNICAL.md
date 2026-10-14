@@ -1,6 +1,6 @@
 # Authored Flight Motion Geometry - Technical Documentation
 
-**Introduced:** v2.92. **Documentation source:** engineering handoff.
+**Introduced:** v2.92. **Current documented specification:** v2.92.
 
 ## State and ownership
 

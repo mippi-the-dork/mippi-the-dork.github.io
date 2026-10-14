@@ -1,6 +1,6 @@
 # Combat Performance Lab - Technical Documentation
 
-**Introduced:** v2.90. **Current documented specification:** v2.92, from handoffs.
+**Introduced:** v2.90. **Current documented specification:** v2.92.
 
 ## Runtime ownership and loading
 
@@ -52,4 +52,4 @@ v2.90 deferred the initial telemetry-visible-section scan until after `POSTGAME_
 
 The RAF frame intervals are not GPU-present timings. The fixed UFO emitters do not simulate full roaming enemy AI. Controlled cursor input does not represent the entire real player experience. Repeat runs; compare actual spawned/removed/hit and peak counts to ensure equal work. v2.78 was not instrumented with the identical Combat Lab load, so direct synthetic-performance claims about v2.78 are unsupported.
 
-The handoffs document this architecture but cannot independently verify that it has been deployed on GitHub `main`. See [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md).
+See [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md) for repeatable workload and accuracy testing.

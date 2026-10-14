@@ -28,4 +28,4 @@ The optimized combined run achieved ~18.8 rAF FPS vs ~10.4 legacy with equal **5
 
 ## Current Research Status
 
-v2.92 implements intended authored motion geometry with cache fallback and legacy switch. Headless parity samples were reported, but Windows/Edge repeatable A/B and actual compositor trace have not yet been submitted in the handoff. Preserve permanent instrumentation; verify deployed build metadata and code version separately. Cross-check [Combat Benchmark QA](COMBAT_BENCHMARK_V2_92.md) before declaring a performance outcome.
+v2.92 implements intended authored motion geometry with cache fallback and legacy switch. Headless parity samples were reported, but Windows/Edge repeatable A/B and actual compositor trace have not yet been submitted in the handoff. Preserve permanent instrumentation and ensure version metadata remains internally consistent across the build. Cross-check [Combat Benchmark QA](COMBAT_BENCHMARK_V2_92.md) before declaring a performance outcome.

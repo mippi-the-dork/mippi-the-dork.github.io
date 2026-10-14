@@ -2,7 +2,7 @@
 
 **Hierarchy:** Documentation Home > QA, Runtime Operations, and Deployment > Combat Performance Lab > Design
 
-**Introduced:** v2.90. **Current documented specification:** v2.92, based on release handoffs.
+**Introduced:** v2.90. **Current documented specification:** v2.92.
 
 ## Intent and product status
 

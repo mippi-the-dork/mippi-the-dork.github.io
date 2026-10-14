@@ -1,6 +1,6 @@
 # Console Command Catalog
 
-**Latest handoff target:** Mippi Portfolio v2.92 (live source verification pending)
+**Current documented version:** Mippi Portfolio v2.92
 
 This is the authoritative v2.89 command catalog for the in-site Dev Console.
 

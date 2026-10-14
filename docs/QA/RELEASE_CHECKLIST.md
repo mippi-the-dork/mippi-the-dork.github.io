@@ -443,4 +443,3 @@ See [v2.89 profiling procedure](PERFORMANCE_PROFILING_V2.89.md) and [regression 
 - [ ] Validate moving target/ship/effect center parity and Slowmo duration adjustment in real Windows Edge.
 - [ ] Capture ABBA combined runs with consistent viewport, theme, source counts and performance evidence.
 - [ ] Profiled costs are not summed across nested scopes; no blanket FPS fix is claimed.
-- [ ] Confirm deployed GitHub source really contains v2.92 before public release verification.

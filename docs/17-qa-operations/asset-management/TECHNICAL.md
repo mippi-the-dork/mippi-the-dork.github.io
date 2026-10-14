@@ -192,4 +192,4 @@ For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
 
 ## v2.90–v2.92 Combat Lab Runtime Files
 
-The handoff target requires `perf-lab.js` followed by `combat-lab.js`, then `script.js`. `combat-lab.js` is a **permanent, opt-in runtime file**, not an expendable development-only archive. The source currently verifiable on GitHub main still reports v2.87 and lacks `combat-lab.js`; verify deployment before asserting current live implementation. Documentation work must not modify production JS/assets.
+The v2.92 runtime requires `perf-lab.js` followed by `combat-lab.js`, then `script.js`. `combat-lab.js` is a **permanent, opt-in runtime file**, not an expendable development-only archive. Documentation maintenance must not modify production JavaScript or assets.

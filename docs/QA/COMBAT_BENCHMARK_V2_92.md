@@ -1,6 +1,6 @@
 # Combat Benchmark QA - v2.90 to v2.92
 
-**Basis:** v2.90/2.91/2.92 handoffs plus separately uploaded user profiler analyses. **Status:** Real Windows v2.92 confirmation pending.
+**Documented version:** v2.92. **Performance validation status:** Real Windows v2.92 A/B confirmation pending.
 
 ## Preconditions
 

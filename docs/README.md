@@ -1,6 +1,6 @@
 # Mippi Portfolio Documentation
 
-**Current documented state:** Mippi Portfolio v2.92 (handoff target; deployed source verification pending)
+**Current documented state:** Mippi Portfolio v2.92
 
 **Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.92 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
 
@@ -32,7 +32,7 @@ Project-wide catalogs should not replace feature documentation. They exist to an
 - Which UI surface owns this control?
 - Which state is persistent, session-scoped, or runtime-only?
 
-For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.92 handoff-documented state.
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.92 documented state.
 
 ## Numbered Documentation Categories
 

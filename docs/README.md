@@ -1,8 +1,8 @@
 # Mippi Portfolio Documentation
 
-**Current documented state:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
-**Comprehensive baseline:** v2.78, with v2.79 and v2.80 deltas integrated where behavior changed.
+**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.89 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
 
 This folder is the canonical documentation set for the Mippi portfolio experience.
 
@@ -32,7 +32,7 @@ Project-wide catalogs should not replace feature documentation. They exist to an
 - Which UI surface owns this control?
 - Which state is persistent, session-scoped, or runtime-only?
 
-For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.80 documented state.
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.89 documented state.
 
 ## Numbered Documentation Categories
 
@@ -59,16 +59,20 @@ For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objectiv
 Total feature folders:
 
 ```text
-233
+239
 ```
 
 Total canonical feature pages:
 
 ```text
-466
+478
 ```
 
 ## Project-Wide References
+
+- [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md)
+- [Performance Diagnostics](17-qa-operations/performance-diagnostics/DESIGN.md)
+- [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/DESIGN.md)
 
 - [Release History](RELEASE_HISTORY.md)
 - [Music Lyrics Authoring Guide](MUSIC_LYRICS_AUTHORING_GUIDE.md)

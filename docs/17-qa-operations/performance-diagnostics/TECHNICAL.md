@@ -39,3 +39,8 @@ A baseline; B timed objective; C objective present but `objectiveclock off`; D r
 ## v2.90–v2.92 Combat Lab and Geometry
 
 Permanent opt-in `combat-lab.js` now adds five stress scenarios and a diagnostic adapter to production combat. v2.91 adds geometry cache A/B; v2.92 uses animation-clock authored motion positions in optimized mode, with legacy and cache fallback retained. Five-scenario performance results and limitations are documented in [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md). The current documented Combat Lab specification is v2.92.
+
+
+## v2.93–v2.94 Current Update
+
+v2.93 profiler snapshots record pinned visual and geometry modes, production `explodeAt()` effect calls/particle request/emission/suppression, active/peak DOM node counts and `testLabel`. v2.94 adds `combat.particles.canvasSpawn` and `combat.particles.canvasFrame`, backend-specific physical counts, `rendererMode`, Canvas snapshot totals and `sessionAgeMs`. Rendering callback cost is CPU JS time, not browser paint/compositor/GPU presentation. Renderer and geometry choices remain independent of `dev profile reset`.

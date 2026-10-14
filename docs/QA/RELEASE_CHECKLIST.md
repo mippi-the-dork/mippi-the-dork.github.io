@@ -432,3 +432,15 @@ A bug does not become acceptable merely because a manual refresh makes it disapp
 - [ ] Author's twelve MP3s and editable LRC sources are preserved, not replaced by old archive templates.
 
 See [v2.89 profiling procedure](PERFORMANCE_PROFILING_V2.89.md) and [regression matrix](V2_81_TO_V2_89_REGRESSION_MATRIX.md).
+
+
+## v2.92 Handoff Release Verification
+
+- [ ] Verify version command, `script.js`, profiler JSON, downloaded filename, cache query and preview launch metadata agree on v2.92.
+- [ ] Verify `perf-lab.js`, `combat-lab.js`, `script.js` load in documented order.
+- [ ] All five `dev combat` scenarios run and cleanup diagnostic objects without progression.
+- [ ] `dev combat geometry off/on` cannot change during a run; on prefers authored motion, falls back to cache; off uses legacy DOM reads.
+- [ ] Validate moving target/ship/effect center parity and Slowmo duration adjustment in real Windows Edge.
+- [ ] Capture ABBA combined runs with consistent viewport, theme, source counts and performance evidence.
+- [ ] Profiled costs are not summed across nested scopes; no blanket FPS fix is claimed.
+- [ ] Confirm deployed GitHub source really contains v2.92 before public release verification.

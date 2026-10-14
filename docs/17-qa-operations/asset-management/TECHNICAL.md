@@ -193,3 +193,8 @@ For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
 ## v2.90–v2.92 Combat Lab Runtime Files
 
 The v2.92 runtime requires `perf-lab.js` followed by `combat-lab.js`, then `script.js`. `combat-lab.js` is a **permanent, opt-in runtime file**, not an expendable development-only archive. Documentation maintenance must not modify production JavaScript or assets.
+
+
+## v2.93–v2.94 Current Update
+
+v2.94 runtime requires `particle-renderer.js` loaded before gameplay `script.js`, alongside existing `perf-lab.js` and `combat-lab.js`. All are intentional runtime assets, not disposable debug archives. Original `.arcade-pixel` CSS animation remains as DOM fallback. Documentation-only edits must never modify JS/CSS/assets or music/LRC files.

@@ -115,3 +115,10 @@ The Ledger should refresh when:
 
 - [Achievements and Discovery Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.82 Rare blue/Epic purple/Legendary gold remains rarity-owned under Legendary world theme. v2.84 Ledger trigger only visible after first Rare Signal/postgame reveal and now uses centered inline SVG trophy. v2.85 hover wheel scrolling works without prior focus, with page scrolling allowed when the Ledger reaches its limit.
+
+See [Release History](../../RELEASE_HISTORY.md).

@@ -1,8 +1,8 @@
 # Console Command Catalog
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented version:** Mippi Portfolio v2.89
 
-This is the authoritative v2.80 command catalog for the in-site Dev Console.
+This is the authoritative v2.89 command catalog for the in-site Dev Console.
 
 Normal player commands are case-insensitive after normalization.
 
@@ -18,7 +18,7 @@ The backtick or tilde key toggles the Console when the command input is not alre
 | --- | --- | --- |
 | `help` | Print clickable Help command groups. | `dev` is intentionally omitted from normal Help. |
 | `clear` | Clear Console output. | `cls` exists as an unlisted alias. |
-| `version` | Print portfolio build identity. | Reports v2.80 static GitHub Pages build. |
+| `version` | Print portfolio build identity. | Reports v2.89 static GitHub Pages build. |
 | `about` | Navigate to About. | |
 | `home` | Smooth-scroll to top. | |
 | `top` | Smooth-scroll to top. | Alias-like navigation command. |
@@ -73,7 +73,7 @@ nda
 | `reset` | Arm the two-step full reset confirmation. |
 | `cheat` | Reveal the next Rare or Epic postgame achievement solution. |
 | `stats` | Print local current-session statistics and Player Model. |
-| `particles` | Toggle Particle Boost. |
+| `docs` | Open public website documentation in a new tab. |
 
 ### FUN
 
@@ -119,6 +119,18 @@ easy mode
 lumen
 nanite
 ```
+
+## Removed Public Command
+
+`particles` was removed from both public Help and dispatch in **v2.85**. Particle Boost remains an internal effect and is not directly triggered by this command.
+
+## Hidden QA Performance Commands (v2.86–v2.89)
+
+`dev perf` prints Three.js sampled render-call activity and visibility.
+
+`dev profile help`, `boot`, `sample 15`, `start`, `stop`, `report`, `export`, `reset` are hidden and intended for performance diagnostics. Available isolate names include `hud`, `hudfx`, `themefx`, `cursorfx`, `ambient`, `hero`, `about`, `ambientlogic`, `projectiles`, `hudlogic`, and `objectiveclock`, each with `off/on`. `dev profile reset` restores only diagnostic isolates; the public `reset` clears progression.
+
+See [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md).
 
 ## Hidden Player Commands
 

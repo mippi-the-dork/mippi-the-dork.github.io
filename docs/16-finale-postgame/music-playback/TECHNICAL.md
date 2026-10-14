@@ -257,3 +257,8 @@ shuffle order/history rebuilt if Shuffle is enabled
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+v2.81's `musicSetIcon`, `musicSyncPlayIcon`, `musicSyncProgress`, `musicSyncLyricsMode`, `#music-seek`, `#music-current-time`, `#music-duration` and `#music-lyrics-toggle` now own accessible toolbar and seek. Enhanced LRC inline `<mm:ss.xx>` segments become `entries[].words` with `{text,time}`, safely rendered by `textContent`, not HTML; timestamps never appear in UI. Separate companion lives beside player, with Full/Single modes and forced Single while collapsed. v2.83 `ResizeObserver` tracks player height. v2.85 authoritative repeat modes are `['off','track','playlist']`; expanded buttons order Download, Previous, Play/Pause, Next, Loop, Shuffle, Lyrics. The public MP3/LRC registry is unchanged.

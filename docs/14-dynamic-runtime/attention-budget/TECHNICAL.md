@@ -181,3 +181,10 @@ Objective opportunity seeding also retries when blocked.
 
 - [Dynamic Runtime Systems Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.82 routine toasts and Achievement Ledger no longer starve ambient spawns; closed Console input is blurred/ignored. v2.84 fixes Bird blocker: `.flappy-game.open` only. Continue honoring real open modal/focused text input, active Boss, hidden tab and reduced-motion restrictions. The new `#system-toast-stack` coordinates with the objective above `#site-game-hud`, not the old floating center HUD.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

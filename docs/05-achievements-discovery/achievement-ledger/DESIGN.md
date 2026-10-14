@@ -110,3 +110,8 @@ The Ledger gives enough information to continue progression without turning the 
 
 - [Achievements and Discovery Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+v2.82 preserves Rare/Epic/Legendary colors on achievement items independently of world theme. v2.84 keeps Ledger button hidden until first Signal or postgame reveal. v2.85 enables wheel scrolling while hovering the Ledger, without requiring a click first.

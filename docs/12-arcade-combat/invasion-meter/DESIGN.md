@@ -106,3 +106,8 @@ The player always understands whether they are early, mid, or late in the curren
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+v2.81's current bounded wave counts ten regular UFO kills and queues only one Boss. An escaped Boss leaves wave progress ready for short reacquisition (~4 additional kills). Victory resolves current wave while every third Boss victory escalates the Super Boss. The compact Gameplay HUD meter communicates wave/contact/retry in tooltip, without visually regressing during rapid kills.

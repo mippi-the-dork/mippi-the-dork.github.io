@@ -181,3 +181,10 @@ remove them before packaging.
 
 - [QA, Runtime Operations, and Deployment Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+From v2.87 a new required **runtime file** `perf-lab.js` is loaded deferred before `script.js`. Keep it in the published portfolio runtime, not in docs handoff ZIP. All twelve MP3 and user-authored LRC files must remain untouched by documentation and code-only update work. v2.82 changes `assets/heavy-water-hero.png`; documentation references it but must not modify it.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

@@ -1,6 +1,6 @@
 # UI Surface Map
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
 This document maps the major user-facing and runtime UI surfaces, their location, owner, and interaction priority.
 
@@ -37,14 +37,7 @@ The Dev Console tip deliberately remains outside the Achievement Ledger so Conso
 
 ## Bottom-Right Mode / Assistance Controls
 
-Visual order:
-
-```text
-Design
-Inspect
-Interact
-Hint
-```
+The current Modes group order is **Design, Documentation, Inspect, Interact**, and Hint is in the separate **Utilities** group.
 
 | Surface | ID | Visibility |
 | --- | --- | --- |
@@ -576,3 +569,16 @@ Ledger + bottom-left controls
 Super Boss + Exit control
 Finale + cursor
 ```
+
+
+## Current v2.89 Screen Layout (Supersedes Legacy Fixed Positions)
+
+At the bottom, `#site-game-hud` owns Progress (Ledger/Rupees/Hearts), Gameplay (Coolness/Invasion/Castles), Modes (Design/Documentation/Inspect/Interact) and Utilities (Hint/Theme/Dev Console). At desktop >=1000px, v2.87 arranges close Progress+Gameplay and Modes+Utilities pairs. Header Music is not moved into the dock.
+
+`#docs-toggle` is hidden until Design Mode is unlocked; it pulses only if Design Mode is enabled and docs unvisited (`mippi-docs-discovered-v1`).
+
+`#system-toast-stack` at bottom-right holds up to three notices above `#dynamic-objective` and the dock. This stack replaces the earlier overwrite-prone single notification scheme.
+
+The Music Player now exposes seek, current/duration time, icon-only transport, `#music-lyrics-toggle`, and `#music-lyrics-mode`. The right-hand **sibling** lyrics panel provides Full/Single display, with temporary Single during collapse. v2.83 measures its rendered height with ResizeObserver. The playlist no longer displays separate per-track ? buttons.
+
+See [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/DESIGN.md), [System Toast Stack](05-achievements-discovery/system-toast-stack/DESIGN.md) and [Synchronized Lyrics Viewer](16-finale-postgame/synchronized-lyrics-viewer/DESIGN.md).

@@ -76,3 +76,8 @@ The Castle claim feels like a real celebration and is visible even on a large mo
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+Castle still requires the 4/4 meter claim. v2.81 adds nine bursts of 33px particles and ~1 second collection of existing airborne friendly rewards; v2.82 widens the fireworks with ~2150ms lifetime. No UFOs/Bosses/newly spawning items are auto-collected. Three Rupees still award separately.

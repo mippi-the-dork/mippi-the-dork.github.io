@@ -78,3 +78,8 @@ A visitor can type a few plausible development commands and repeatedly get delig
 
 - [Dev Console and Command Surface Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+**Removal in v2.85:** The `particles` command no longer exists in public Help or dispatch. Particle Boost is still an internal gameplay/Wish visual effect; do not promise a player-facing command. `compile` was repaired in v2.81 to open its modal without a JavaScript ReferenceError. `docs` is a separate public command linking to the public documentation site.

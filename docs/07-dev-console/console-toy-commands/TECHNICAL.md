@@ -118,3 +118,10 @@ For spawn commands:
 
 - [Dev Console and Command Surface Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.81 fixed `compile` modal ReferenceError. v2.85 removed public `particles` command from Help and dispatch; `setParticleBoost()` survives as an internal gameplay/Wish effect. `docs` is available as separate public Console command.
+
+See [Release History](../../RELEASE_HISTORY.md).

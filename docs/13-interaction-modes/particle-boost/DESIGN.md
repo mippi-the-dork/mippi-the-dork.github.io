@@ -126,3 +126,8 @@ The mode creates an obvious "more juice" transformation without leaving permanen
 
 - [Interaction and Debug Modes Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current Release Note (v2.89)
+
+After v2.85 Particle Boost survives internally for effect sequences, but there is no longer a public `particles` Console command. This feature page describes an implementation-driven visual modifier rather than a discoverable command.

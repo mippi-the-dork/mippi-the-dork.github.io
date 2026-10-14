@@ -25,6 +25,7 @@ This category groups the canonical documentation for **Experience Foundation**. 
 | **Motion Policy** | Defines which motion is decorative, meaningful, suppressible, or replaced when reduced-motion preferences are active. | [Design](motion-policy/DESIGN.md) | [Technical](motion-policy/TECHNICAL.md) |
 | **Persistent Save State** | Stores long-term progression and feature unlocks locally while separating them from temporary per-session state. | [Design](persistent-save-state/DESIGN.md) | [Technical](persistent-save-state/TECHNICAL.md) |
 | **Full Reset** | Clears all persistent and session progression and reloads the site into a true first-visit state. | [Design](full-reset/DESIGN.md) | [Technical](full-reset/TECHNICAL.md) |
+| **Unified Bottom HUD** | Four-column responsive HUD for progress, gameplay, modes and utilities. | [Design](unified-bottom-hud/DESIGN.md) | [Technical](unified-bottom-hud/TECHNICAL.md) |
 
 ## Documentation rules
 

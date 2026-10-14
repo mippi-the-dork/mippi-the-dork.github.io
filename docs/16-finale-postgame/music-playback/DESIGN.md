@@ -68,8 +68,8 @@ The Repeat control cycles:
 
 ```text
 LOOP OFF
-LOOP ALL
 LOOP 1
+LOOP ALL
 ```
 
 ### LOOP OFF
@@ -111,13 +111,7 @@ The randomly generated order/history does not persist after reload.
 
 Every track has a matching `.lrc` path.
 
-The viewer can display:
-
-- untimed lyric lines,
-- timed lines,
-- timestamps,
-- current-line highlight,
-- panel-local auto-scroll.
+The separate companion viewer supports untimed lines, line-level timestamps, **Enhanced LRC word-level timing**, Full and Single modes, highlight and panel-local scrolling. Raw timestamps are hidden in the UI.
 
 The v2.80 shipped LRC files are metadata-only templates, so the normal current state is **Lyrics coming soon** until lyric text is authored.
 
@@ -169,3 +163,8 @@ The player feels like a compact but complete postgame soundtrack surface with pr
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+v2.81 moved lyrics to a sibling panel under the sticky header, right of the Music Player on desktop and below on narrow screens, and added seek bar, time labels, icon transport, Full/Single choice. Collapsing forces Single temporarily. v2.83 lyrics height tracks Music Player's actual rendered height; text is 12px. v2.85 changed Repeat cycle to Off -> Loop 1 -> Loop All -> Off, with expanded control order Download, Previous, Play/Pause, Next, Loop, Shuffle, Lyrics. All twelve MP3 and editable LRC paths persist. Later performance profiling does not change playback behavior.

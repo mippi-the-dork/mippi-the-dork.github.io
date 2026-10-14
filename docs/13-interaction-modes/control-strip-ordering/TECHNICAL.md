@@ -261,3 +261,10 @@ Also test:
 
 - [Interaction and Debug Modes Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.81 places Design, Documentation, Inspect, Interact in HUD Modes; Hint, Theme and Console move into HUD Utilities. v2.84 Docs control is hidden until Design Mode capstone unlocked; v2.83 `attention-new` only when Design Mode active and `mippi-docs-discovered-v1` absent. v2.87 desktop close-pairs Progress+Gameplay / Modes+Utilities.
+
+See [Release History](../../RELEASE_HISTORY.md).

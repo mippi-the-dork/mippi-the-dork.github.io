@@ -206,3 +206,10 @@ renderLedger()
 
 - [Dev Console and Command Surface Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+Current hidden DEV additions: v2.86 `dev perf` prints Hero/Ambient/About render-loop diagnostics and runtime snapshot; v2.87 `dev profile help`, `boot`, `sample 15`, `start`, `stop`, `report`, `export`, `reset`, isolate off/on; v2.88 logic isolates (`hero`, `about`, `ambientlogic`, `projectiles`, `hudlogic`); v2.89 `objectiveclock off/on`. `dev profile reset` restores diagnostic switches, **not** public full reset. All commands stay out of normal Help.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

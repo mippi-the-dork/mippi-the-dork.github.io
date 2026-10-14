@@ -184,3 +184,10 @@ A reload can therefore preserve the broad one-third or two-thirds Boss stage whi
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.81 authoritative live wave uses `invasionWaveKills` bounded 0–10, `invasionEncounterPending`, `invasionSpawnQueued`, `invasionBossRetryKills` typically four. After 10 regular kills, queue one Boss; more kills cannot overflow wave. Escape retains wave, requiring reacquisition; victory resets only current wave. Every third Boss victory still escalates Super Boss. `nextBossKillThreshold` remains only for legacy DEV compatibility, not real meter progress.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

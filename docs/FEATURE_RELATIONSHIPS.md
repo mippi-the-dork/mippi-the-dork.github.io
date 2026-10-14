@@ -1,6 +1,6 @@
 # Feature Relationships
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
 This document maps the major cross-system dependencies in the portfolio.
 
@@ -621,3 +621,18 @@ When resolving a conflict:
 3. Implementation details: feature `TECHNICAL.md`.
 4. Release behavior: `17-qa-runtime-operations`.
 5. QA execution: `QA/EXTENSIVE_QA_TEST_PLAN.md`.
+
+
+## Updated System Relationships (v2.81–v2.89)
+
+**HUD:** Existing controls relocate into `#site-game-hud`. Progress/Games/Modes/Utilities group ownership is independent of each feature's original handlers. Timed objectives and up to three toast messages coordinate above the dock. Music remains attached to header with a sibling lyrics viewer.
+
+**Hearts / Bird:** First five Hearts advance the meter; extra Hearts award one banked Bird life each (Shop shield still consumed before bank). Castle completion automatically collects only already-airborne friendly items, alongside its 3-Rupee and fireworks reward.
+
+**Invasion:** Regular UFO kills fill a bounded ten-kill wave. A single queued Boss contact resolves by victory or escape/reacquisition. Every third confirmed Boss victory still leads toward Super Boss.
+
+**Early discovery / Director:** Rare users now see Rupee and Heart pickups; the Player Model PROFESSIONAL is descriptive only. Only an **open** Mippi Bird panel blocks the Director, not its persistent closed DOM container. Genuine modal focus and hidden tabs remain relevant.
+
+**Docs:** Public `docs` Console, About CTA and unlock-gated Modes button point to the separate public documentation experience. Icon attention exists only while Design Mode is active and the docs link remains undiscovered.
+
+**Diagnostics:** `dev perf` and hidden `dev profile` run alongside production features but provide measurements and temporary test isolates, not new player-facing objectives. None of the v2.86–v2.89 diagnostic instrumentation is proof that the reported Windows FPS issue is fixed.

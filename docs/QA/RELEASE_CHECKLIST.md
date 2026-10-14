@@ -1,6 +1,6 @@
 # Release Checklist
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented target:** Mippi Portfolio v2.89
 
 Use this as the final release-candidate signoff after feature QA is already complete.
 
@@ -413,3 +413,22 @@ Do not ship with any known:
 - unexplained uncaught runtime error.
 
 A bug does not become acceptable merely because a manual refresh makes it disappear.
+
+
+## Current Release v2.89 Checklist (Supersedes Historical Build Labels Above)
+
+- [ ] All production asset query versions report v2.89 and `perf-lab.js` loads before `script.js`.
+- [ ] Documentation site uses v2.89 documented label; all new Design/Technical links load.
+- [ ] Four-column dock remains usable, with v2.87 paired desktop groups and no old first-paint HUD flash.
+- [ ] Exactly five Hearts displayed; after 5/5, bonus Hearts award one banked Bird life each.
+- [ ] 4/4 Castle explicit claim fires large fireworks and consumes only already-airborne friendly rewards.
+- [ ] Invasion wave bounded 0–10; escaped Boss reacquisition and every-third-win Super Boss work.
+- [ ] Rare Rupees and Hearts spawn without Epic; closed Bird doesn't block opportunities/Finale.
+- [ ] Docs HUD shortcut unlock-gated, Design Mode-only attention; public `docs` and About links work.
+- [ ] Music seek, icon transport, Full/Single ELRC word timing, current 12px lyric presentation, Repeat Off/One/All, Shuffle and human-readable downloads work.
+- [ ] `particles` not in public Help or dispatch; internal particle effects still run.
+- [ ] `dev perf` and `dev profile` operate as documented; `dev profile reset` restores isolates and does not wipe progression.
+- [ ] Latest performance exports capture timer, objective clock, DOM and spike data; **do not claim FPS resolved** without Windows/browser measurement.
+- [ ] Author's twelve MP3s and editable LRC sources are preserved, not replaced by old archive templates.
+
+See [v2.89 profiling procedure](PERFORMANCE_PROFILING_V2.89.md) and [regression matrix](V2_81_TO_V2_89_REGRESSION_MATRIX.md).

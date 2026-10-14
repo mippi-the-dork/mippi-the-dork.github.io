@@ -19,6 +19,7 @@ This category groups the canonical documentation for **Three.js and Interactive 
 | **Ambient 3D Layer** | Adds supporting ambient 3D motion and depth outside the primary hero interaction. | [Design](ambient-3d-layer/DESIGN.md) | [Technical](ambient-3d-layer/TECHNICAL.md) |
 | **About 3D Scene** | Provides the dedicated interactive 3D presentation used in the About section. | [Design](about-3d-scene/DESIGN.md) | [Technical](about-3d-scene/TECHNICAL.md) |
 | **3D Interaction Input** | Defines drag, hover, click, pointer, and viewport behavior shared by the site's interactive 3D scenes. | [Design](3d-interaction-input/DESIGN.md) | [Technical](3d-interaction-input/TECHNICAL.md) |
+| **Three.js Rendering Budget** | Offscreen WebGL culling, static theme caching and GPU adapter preference. | [Design](rendering-budget/DESIGN.md) | [Technical](rendering-budget/TECHNICAL.md) |
 
 ## Documentation rules
 

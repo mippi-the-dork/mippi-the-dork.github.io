@@ -95,3 +95,8 @@ Repeat and Shuffle have their own independent localStorage keys and are not part
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+`#music-mini-controls` was added in v2.83 to `.music-player-head`. Collapse **moves existing** Play/Pause and Next buttons into the flex host alongside Expand; expansion returns the original nodes to `.music-controls` after Previous. No duplicate handlers. `ResizeObserver` updates `--music-companion-height` from actual player dimensions. Collapsed player and lyrics companion target ~72px height; desktop width is equal (~326px max) collapsed or expanded. `#music-seek` continues updating playback position.

@@ -200,3 +200,10 @@ The surrounding Epic brand styling still affects the visual context.
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.84 `finaleAttentionClear()` checks `.flappy-game.open`, not mere `.flappy-game` element presence, so a previously used but closed Mippi Bird panel doesn't indefinitely suppress Finale readiness.
+
+See [Release History](../../RELEASE_HISTORY.md).

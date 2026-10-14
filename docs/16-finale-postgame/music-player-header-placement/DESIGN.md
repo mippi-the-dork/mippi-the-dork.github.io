@@ -115,3 +115,8 @@ The Music Player feels attached to the site identity/navigation layer and never 
 
 - [Finale and Postgame Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Superseding Implementation Notes (v2.81–v2.89)
+
+Since v2.81 the Lyrics viewer is a **sibling** header companion on the player's right, moving below on narrow screens. The Music Player remains aligned to the header's Mippi-logo left edge. Expanded/collapsed desktop width is now the same (~326px) after v2.82, and v2.83 matches the companion's actual rendered height. Do not restore the old lower-right music control or per-track ? buttons.

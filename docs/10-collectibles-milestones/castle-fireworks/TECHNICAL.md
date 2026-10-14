@@ -104,3 +104,10 @@ The Castle system does not create a persistent fireworks container.
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.81 Castle claim has nine burst locations with 34 particles each, 33px particles and 115ms stagger. `castleAutoCollectWindow()` snapshots existing `.game-pickup`, `.doug-bone`, `.shooting-star` and triggers their normal click callbacks progressively in ~0–920ms; no later arrivals/hostiles. v2.82 optional `explodeAt(...,{radiusX:560,radiusY:450,lifetime:2150})` widens Castle fireworks while ordinary projectile effects retain defaults. Claim still awards 3 Rupees and requires meter click.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

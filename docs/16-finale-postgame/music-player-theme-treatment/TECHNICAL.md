@@ -135,3 +135,10 @@ Changing site theme does not require reinitializing:
 
 - [Finale and Postgame Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.81 icon controls and companion lyrics adopt the active rarity CSS theme while entitlement is independent. v2.83 lyrics viewer matches Music Player height using `ResizeObserver` / `--music-companion-height`; final lyric text and placeholder styles use ~12px even when current line highlighted. The old in-player lyrics panel/per-track `?` selector descriptions are historical.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

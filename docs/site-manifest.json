@@ -76,6 +76,16 @@
       "title": "Release Checklist",
       "path": "QA/RELEASE_CHECKLIST.md",
       "summary": "Final release-candidate packaging and smoke checklist."
+    },
+    {
+      "title": "v2.81–v2.89 Regression Matrix",
+      "path": "QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md",
+      "summary": "Cross-release gameplay, UX, and diagnostic regression tests."
+    },
+    {
+      "title": "v2.89 Performance Profiling",
+      "path": "QA/PERFORMANCE_PROFILING_V2.89.md",
+      "summary": "Controlled DEV profiling and A/B captures for the open FPS investigation."
     }
   ]
 }

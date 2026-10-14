@@ -39,3 +39,7 @@ Organic non-forced Director spawns are deferred during a benchmark, then restore
 An idle run makes no benchmark shots; every other mode creates the stated load; reports show counts and frame statistics; temporary objects are gone after stop; ambient spawning returns; ordinary progression does not change; and test results are never presented as guaranteed Windows FPS improvements.
 
 See [Technical Documentation](TECHNICAL.md), [Performance Diagnostics](../performance-diagnostics/TECHNICAL.md), and [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md).
+
+## v2.93–v2.94 Current Update
+
+v2.93 extends permanent diagnostic A/B testing with five `dev combat visual` switches: player and UFO paint, particle emission, particle paint, and glow. v2.94 adds `dev combat renderer dom/canvas/status`, defaulting to a shared Canvas2D particle renderer with original DOM path kept for comparisons. The five benchmark scenarios and 10–45s durations remain unchanged. The `explosions` scenario now exercises the selected renderer, not necessarily CSS particle elements.

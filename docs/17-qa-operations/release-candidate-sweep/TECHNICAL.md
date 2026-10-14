@@ -205,3 +205,10 @@ Release approved:
 
 - [QA, Runtime Operations, and Deployment Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.89 release smoke includes published `perf-lab.js` before script, `dev perf`, profiler boot and sample/export, v2.89 timer/UI correlation, and restore `dev profile reset` before full progression QA. Recheck HUD moved controls, 5 Hearts exactly, bonus Mippi Bird life, Castle auto-collection, bounded Invasion, Rare pickups, closed Bird not blocking, docs unlock/attention, Loop order, and removed public `particles` command. Performance regression remains unverified on Windows.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

@@ -1,8 +1,8 @@
 # Mippi Portfolio Documentation
 
-**Current documented state:** Mippi Portfolio v2.89
+**Current documented state:** Mippi Portfolio v2.92 (handoff target; deployed source verification pending)
 
-**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.89 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
+**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.92 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
 
 This folder is the canonical documentation set for the Mippi portfolio experience.
 
@@ -32,7 +32,7 @@ Project-wide catalogs should not replace feature documentation. They exist to an
 - Which UI surface owns this control?
 - Which state is persistent, session-scoped, or runtime-only?
 
-For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.89 documented state.
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.92 handoff-documented state.
 
 ## Numbered Documentation Categories
 
@@ -49,28 +49,31 @@ For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objectiv
 | [09. Rupee Economy and Shop](09-economy-shop/README.md)                               |       19 | Rupees, Shop discovery, prices, equipment, rarity presentation, affordability cues, and all ten Shop items.    |
 | [10. Collectibles and Claimable Milestones](10-collectibles-milestones/README.md)     |       12 | Flying pickups, Hearts, Keys, Castles, Star Power, Mushrooms, Doug Bones, and claim-ready HUD behavior.        |
 | [11. Doug and Coolness](11-doug-coolness/README.md)                                   |        8 | Doug petting, offscreen cameo, Coolness meter, Cool Mode, command state, Rainbow Bones, and reactions.         |
-| [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md)                   |       19 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird.           |
+| [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md)                   |       21 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird.           |
 | [13. Interaction and Debug Modes](13-interaction-modes/README.md)                     |       10 | Interact, Inspect, Design, Vibe AI, Lumen, Nanite, Particle Boost, stat overlay, and control strip.            |
 | [14. Dynamic Runtime Systems](14-dynamic-runtime/README.md)                           |       16 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
 | [15. Project Heavy Water Perspective Visualizer](15-perspective-visualizer/README.md) |        8 | The tactical/live camera demonstration for first-, second-, and third-person camera ownership.                 |
 | [16. Finale and Postgame](16-finale-postgame/README.md)                               |       16 | Normal Finale, Session Report, postgame reveal, True Completion, and the 12-track Music Player, repeat/shuffle options, and editable LRC lyrics.               |
-| [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       12 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep.     |
+| [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       13 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep.     |
 
 Total feature folders:
 
 ```text
-239
+242
 ```
 
 Total canonical feature pages:
 
 ```text
-478
+484
 ```
 
 ## Project-Wide References
 
 - [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md)
+- [Combat Performance Lab](17-qa-operations/combat-performance-lab/DESIGN.md)
+- [Combat Benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md)
+- [Performance Investigation Findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md)
 - [Performance Diagnostics](17-qa-operations/performance-diagnostics/DESIGN.md)
 - [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/DESIGN.md)
 

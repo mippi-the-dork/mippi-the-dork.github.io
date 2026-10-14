@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v2.89",
+  "baseline": "Mippi Portfolio v2.92 (handoff-documented)",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -64,6 +64,11 @@
       "title": "Runtime State Map",
       "path": "RUNTIME_STATE_MAP.md",
       "summary": "Persistent, session, runtime-only, derived, and historical state."
+    },
+    {
+      "title": "Performance Investigation Findings",
+      "path": "QA/PERFORMANCE_INVESTIGATION_FINDINGS.md",
+      "summary": "Cross-release evidence, controlled comparisons and unresolved causal questions."
     }
   ],
   "qa": [
@@ -86,6 +91,11 @@
       "title": "v2.89 Performance Profiling",
       "path": "QA/PERFORMANCE_PROFILING_V2.89.md",
       "summary": "Controlled DEV profiling and A/B captures for the open FPS investigation."
+    },
+    {
+      "title": "Combat Benchmark QA v2.92",
+      "path": "QA/COMBAT_BENCHMARK_V2_92.md",
+      "summary": "Five-scenario Combat Lab and geometry A/B acceptance procedure."
     }
   ]
 }

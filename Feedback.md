@@ -16,4 +16,21 @@ So someone said that the UI screen space elements are starting to feel a bit geo
 
 
 
+change all clickable art
+star - bounces along bottom of screen, above hotbar, from one side of screen to the other
+rupee - switch to diamonds, spawn out of clicking on things, links that open up other pages spawn more than 1 diamond
+mushroom - travel around the outside of a random panel on the web page
+heart - can spawn rarely from ufos that die, guarantee from bosses
+bone - randomly spawns as usual, except it falls from top of screen, and spins as it falls down to bottom of screen.
+key - hidden somewhere on page, in bottom right of a panel
+ufo - have swooping arch path, or vertical sine wave on left or right side of page
+boss - comes from top middle of screen, and travels in a diamond pattern across screen
+super boss - pans left and right at top of screen
+adds - circles super boss
+shooting star - remain the same
+
+shooting should only work against enemies, not clickables, they also shouldn't track, instead they behave like they do on the super boss, but shooting upwards only, during cool mode they do a 3 bullet spray, with star power the bullets gain piercing and the mouse gets the aoe thing it currently has. 
+
+
+
 

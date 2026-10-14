@@ -7960,7 +7960,7 @@ body.theme-complete #about-canvas,
   body.hud-unified #site-game-hud > #hud-utilities{margin-left:20px!important;}
 }
 
-/* All switches are temporary diagnostics, inactive unless explicitly enabled.
+/* Permanent, opt-in diagnostic switches; inactive unless explicitly enabled.
    Disabling the dock hides its paint/compositing, NOT its JS state updates. */
 html.profile-hide-hud body.hud-unified #site-game-hud{
   visibility:hidden!important;pointer-events:none!important;
@@ -7985,3 +7985,39 @@ html.profile-no-themefx body.theme-complete *:not(canvas)::after{
 html.profile-hide-ambient #ambient-canvas{display:none!important;}
 
 html.profile-no-cursorfx :is(.cursor-spark,.rainbow-cursor-spark,.completion-cursor-aura,.power-cursor){display:none!important;}
+
+/* v2.90 // Permanent diagnostic combat lab; visible only during opt-in tests. */
+@keyframes combat-lab-drift{
+  from{translate:-14px -7px;}
+  to{translate:14px 9px;}
+}
+.combat-lab-target,.combat-lab-ship{contain:layout style paint;}
+
+
+/* v2.93 | Permanent, opt-in Combat Visual Isolation
+   Player/UFO OFF stops PAINT only. Simulation, hit tests, DOM lifetimes,
+   animation timers and cleanup still execute. These diagnostic rules have no
+   effect without an explicit dev combat visual command. */
+html.profile-hide-combat-player .legendary-player-projectile,
+html.profile-hide-combat-ufo .ufo-projectile,
+html.profile-hide-combat-explosionpaint .arcade-pixel{
+  visibility:hidden!important;
+}
+/* Explosion emission OFF is handled by explodeAt() before DOM creation.
+   Existing particles are hidden immediately while they finish their lifecycle. */
+html.profile-no-combat-explosions .arcade-pixel{visibility:hidden!important;}
+/* Keep silhouette, movement and normal colors. Remove only expensive visual
+   treatments. Includes the disposable lab ships, so tests can isolate glow. */
+html.profile-no-combat-glow :is(.ufo-projectile,.legendary-player-projectile,.arcade-pixel,.arcade-hit-flash,.combat-lab-ship,.combat-lab-target),
+html.profile-no-combat-glow :is(.ufo-projectile,.legendary-player-projectile,.arcade-pixel,.arcade-hit-flash,.combat-lab-ship,.combat-lab-target)::before,
+html.profile-no-combat-glow :is(.ufo-projectile,.legendary-player-projectile,.arcade-pixel,.arcade-hit-flash,.combat-lab-ship,.combat-lab-target)::after{
+  box-shadow:none!important;text-shadow:none!important;
+  filter:none!important;backdrop-filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+/* v2.94 Canvas2D burst layer. Created only while particles are alive.
+   It matches original arcade-pixel z-order, and never accepts pointer input. */
+.mippi-particle-canvas { position:fixed;inset:0;z-index:70;pointer-events:none;display:block; }
+html.profile-hide-combat-explosionpaint .mippi-particle-canvas,
+html.profile-no-combat-explosions .mippi-particle-canvas { visibility:hidden!important; }

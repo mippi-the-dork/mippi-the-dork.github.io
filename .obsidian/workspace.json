@@ -11,18 +11,6 @@
             "id": "81ba51b67cf62ca5",
             "type": "leaf",
             "state": {
-              "type": "audio",
-              "state": {
-                "file": "assets/music/song-01.mp3"
-              },
-              "icon": "lucide-file-audio",
-              "title": "song-01"
-            }
-          },
-          {
-            "id": "a7f3dae66289030d",
-            "type": "leaf",
-            "state": {
               "type": "markdown",
               "state": {
                 "file": "Feedback.md",
@@ -33,8 +21,7 @@
               "title": "Feedback"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -188,7 +175,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 452.5
+    "width": 235.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -201,51 +188,51 @@
       "bases:Create new base": false
     }
   },
-  "active": "a7f3dae66289030d",
+  "active": "81ba51b67cf62ca5",
   "lastOpenFiles": [
-    "state/inuse.46020.lock",
-    "perf-lab.js",
-    "state/inuse.14672.lock",
-    "state/inuse.56700.lock",
-    "state/inuse.39136.lock",
+    "state/inuse.55020.lock",
+    "docs/QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md",
+    "docs/QA/PERFORMANCE_PROFILING_V2.89.md",
+    "docs/QA/PERFORMANCE_INVESTIGATION_FINDINGS.md",
+    "docs/QA/COMBAT_VISUAL_RENDERING_V2_94.md",
+    "docs/QA/COMBAT_BENCHMARK_V2_92.md",
+    "docs/DOCUMENTATION_COVERAGE_REPORT.md",
+    "docs/17-qa-operations/performance-diagnostics/TECHNICAL.md",
+    "docs/17-qa-operations/performance-diagnostics/DESIGN.md",
+    "docs/17-qa-operations/performance-diagnostics",
+    "docs/17-qa-operations/combat-visual-isolation/TECHNICAL.md",
+    "docs/17-qa-operations/combat-visual-isolation/DESIGN.md",
+    "docs/17-qa-operations/combat-visual-isolation",
+    "docs/17-qa-operations/combat-performance-lab/TECHNICAL.md",
+    "docs/17-qa-operations/combat-performance-lab/DESIGN.md",
+    "docs/17-qa-operations/combat-performance-lab",
+    "docs/16-finale-postgame/synchronized-lyrics-viewer/TECHNICAL.md",
+    "docs/16-finale-postgame/synchronized-lyrics-viewer/DESIGN.md",
+    "docs/16-finale-postgame/synchronized-lyrics-viewer",
+    "docs/13-interaction-modes/documentation-access/TECHNICAL.md",
+    "docs/13-interaction-modes/documentation-access/DESIGN.md",
+    "docs/13-interaction-modes/documentation-access",
+    "docs/12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md",
+    "docs/12-arcade-combat/shared-canvas-particle-renderer/DESIGN.md",
+    "docs/12-arcade-combat/shared-canvas-particle-renderer",
+    "docs/12-arcade-combat/combat-geometry-caching/TECHNICAL.md",
+    "docs/12-arcade-combat/combat-geometry-caching/DESIGN.md",
+    "docs/12-arcade-combat/combat-geometry-caching",
+    "docs/12-arcade-combat/authored-flight-motion-geometry/TECHNICAL.md",
+    "docs/12-arcade-combat/authored-flight-motion-geometry/DESIGN.md",
+    "docs/12-arcade-combat/authored-flight-motion-geometry",
+    "docs/05-achievements-discovery/system-toast-stack/TECHNICAL.md",
+    "docs/05-achievements-discovery/system-toast-stack/DESIGN.md",
+    "docs/05-achievements-discovery/system-toast-stack",
+    "docs/03-threejs-presentation/rendering-budget/TECHNICAL.md",
+    "docs/03-threejs-presentation/rendering-budget",
     "assets/heavy-water-hero.png",
-    "state/inuse.25608.lock",
-    "state",
-    "assets/music.zip",
-    "assets/music/song-05.mp3",
-    "assets/music/I Made This.mp3",
-    "assets/music/song-01.mp3",
-    "Feedback.md",
     "assets/doug-complete.webp",
     "assets/doug-cool-rare.jpg",
     "assets/mob-pixel-logo.png",
     "assets/mippi-logo-blue-large.png",
     "assets/doug-legendary.jpg",
     "assets/doug.jpg",
-    "assets/azure-altar.webp",
-    "docs/FEATURE_RELATIONSHIPS.md",
-    "docs/CONSOLE_COMMAND_CATALOG.md",
-    "docs/ACHIEVEMENT_CATALOG.md",
-    "docs/SHOP_INVENTORY_CATALOG.md",
-    "docs/RUNTIME_STATE_MAP.md",
-    "docs/PERSISTENCE_KEY_REGISTRY.md",
-    "docs/OBJECTIVE_CATALOG.md",
-    "docs/MUSIC_LYRICS_AUTHORING_GUIDE.md",
-    "docs/README.md",
-    "docs/TELEMETRY_EVENT_CATALOG.md",
-    "docs/UI_SURFACE_MAP.md",
-    "docs/Home.md",
-    "docs/QA/EXTENSIVE_QA_TEST_PLAN.md",
-    "docs/QA/RELEASE_CHECKLIST.md",
-    "docs/13-interaction-modes/README.md",
-    "docs/15-perspective-visualizer/perspective-camera-controls/TECHNICAL.md",
-    "docs/15-perspective-visualizer/perspective-camera-controls/DESIGN.md",
-    "docs/15-perspective-visualizer/first-person-view/TECHNICAL.md",
-    "docs/15-perspective-visualizer/first-person-view/DESIGN.md",
-    "docs/14-dynamic-runtime/telemetry-foundation/TECHNICAL.md",
-    "docs/14-dynamic-runtime/telemetry-foundation/DESIGN.md",
-    "docs/14-dynamic-runtime/session-statistics/TECHNICAL.md",
-    "docs/14-dynamic-runtime/session-statistics/DESIGN.md",
-    "docs/14-dynamic-runtime-systems/telemetry-foundation/TECHNICAL.md"
+    "assets/azure-altar.webp"
   ]
 }

@@ -1,6 +1,8 @@
-// v2.87 // Performance lab, boot profiling and paired HUD layout
+// v2.94 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='2.94';
+window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
-  version:'2.87',
+  version:MIPPI_BUILD_VERSION,
   bootStartedAt:Date.now(),
   bootStage:'script-start',
   errors:[],
@@ -344,7 +346,9 @@ function initTelemetryFoundation(){
     if(document.visibilityState==='visible') telemetryCommitActive();
     try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
   },10000);
-  telemetryResumeVisibleSections();
+  // Postgame achievement tables are declared later in this script. Defer the
+  // first visibility scan until module initialization has completed.
+  queueMicrotask(telemetryResumeVisibleSections);
   telemetryScheduleSave();
 }
 initTelemetryFoundation();
@@ -1082,6 +1086,8 @@ function updateMetaTrace(){
   }
 }
 function updateCoolMeter(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateCoolMeter',()=>{
   if(!coolMeter) return;
   const visible=dougCoolProgress>0 || dougCoolActive || dougBoneCount>0;
   coolMeter.classList.toggle('visible',visible);
@@ -1091,8 +1097,12 @@ function updateCoolMeter(){
   if(coolMeterFill) coolMeterFill.style.width=`${value}%`;
   coolMeter.setAttribute('aria-label',dougCoolActive?'Doug coolness full. Cool mode active.':`Doug coolness: ${value} percent`);
   coolMeter.title=dougCoolActive?'COOLNESS FULL // Doug Cool Mode active.':`COOLNESS // ${value}% filled. Collect Doug Bones to raise Coolness.`;
+
+  });
 }
 function updateInvasionMeter(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateInvasionMeter',()=>{
   if(!invasionMeter)return;
   const epic=epicGameplayUnlocked();
   invasionMeter.classList.toggle('visible',epic);
@@ -1107,8 +1117,12 @@ function updateInvasionMeter(){
     invasionEncounterPending?`Boss contact ready. ${invasionBossRetryKills} UFOs until reacquisition. Wave progress preserved.`:
     `INVASION // ${progress}/10 UFOs in current wave. ${stage}/3 boss victories toward escalation.`;
   invasionMeter.setAttribute('aria-label',invasionMeter.title);
+
+  });
 }
 function updateCastleMeter(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateCastleMeter',()=>{
   if(!castleMeter) return;
   const visible=castleRunProgress>0 || castleQuestActive || !!activeCastle;
   castleMeter.classList.toggle('visible',visible);
@@ -1121,8 +1135,12 @@ function updateCastleMeter(){
   if(castleMeterFill) castleMeterFill.style.width=`${display/4*100}%`;
   castleMeter.setAttribute('aria-label',rewardReady?'Castle run complete. Reward ready. Click to claim.':`Castle run progress: ${display} of 4`);
   castleMeter.title=rewardReady?'CASTLES 4/4 // Click to claim fireworks and 3 Rupees.':'Check four Castles to complete a Castle Run.';
+
+  });
 }
 function updateProgressHudVisibility(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateProgressHudVisibility',()=>{
   heartMeter?.classList.toggle('visible',heartCount>0);
   rupeeMeter?.classList.toggle('visible',rupeeDiscovered);
   updateRupeeAttention();
@@ -1139,6 +1157,8 @@ function updateProgressHudVisibility(){
   // The objective sits above the persistent HUD. Several HUD tracks can appear
   // after an objective is already on screen, so remeasure after this frame.
   requestAnimationFrame(syncObjectiveHudPosition);
+
+  });
 }
 function syncShopTelemetrySnapshot(){
   const economy=telemetryPath('economy');
@@ -1217,6 +1237,8 @@ function ledgerEntryMarkup({num,data,found,rarity='rare'}){
   return `<div class="ledger-entry rarity-${rarity} ${found?'unlocked':''}"><span class="num">${num}</span><div><span class="ledger-rarity">${rarity.toUpperCase()}</span><strong>${found?data.title:'???'}</strong><small>${detail}</small></div></div>`;
 }
 function renderLedger() {
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.renderLedger',()=>{
   if (!ledgerList) return;
   let markup='';
   if(postgameRevealed){
@@ -1238,6 +1260,8 @@ function renderLedger() {
     }
   }
   ledgerList.innerHTML=markup;
+
+  });
 }
 
 
@@ -1828,6 +1852,8 @@ function updateCompletionState(){
 }
 
 function updateHeartMeter(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateHeartMeter',()=>{
   if(!heartMeter) return;
   const hearts=[...heartMeter.querySelectorAll(':scope > span:not(.hud-attention-ring)')];
   hearts.forEach((heart,index)=>{ heart.textContent=index<heartCount?'♥':'♡'; heart.classList.toggle('filled',index<heartCount); });
@@ -1839,6 +1865,8 @@ function updateHeartMeter(){
   heartMeter.title=rewardReady?'FULL HEARTS // Click to claim the Unreal Source reward.':heartCount>=5?`HEARTS FULL // Click to revisit Unreal Source. Bonus Heart lives banked for Mippi Bird: ${mushroomBankLives}.`:'Collect Heart pickups hidden around the site.';
   updateProgressHudVisibility();
   syncProgressHudPosition();
+
+  });
 }
 function claimHeartReward(){
   if(heartCount<5||heartRewardShown)return false;
@@ -1853,12 +1881,16 @@ function claimHeartReward(){
 }
 
 function updateRupeeMeter(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.updateRupeeMeter',()=>{
   if(rupeeCount) rupeeCount.textContent=String(rupeeWallet);
   if(shopWalletCount) shopWalletCount.textContent=String(rupeeWallet);
   updateProgressHudVisibility();
   if(shopPopup?.classList.contains('open')) renderShop();
   updateRupeeAttention();
   syncProgressHudPosition();
+
+  });
 }
 function openUnrealGift(){
   if(!unrealGiftPopup) return;
@@ -2144,6 +2176,8 @@ function initializeUnifiedHud(){
   document.documentElement.classList.remove('hud-pending');
 }
 function syncProgressHudPosition(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.syncProgressHudPosition',()=>{
   if(document.body.classList.contains('hud-unified')){
     progressHud?.classList.toggle('ledger-open',!!ledger?.classList.contains('open'));
     syncObjectiveHudPosition();return;
@@ -2167,6 +2201,8 @@ function syncProgressHudPosition(){
     progressHud.style.bottom=`${Math.round(collapsedBottom)}px`;
   }
   syncObjectiveHudPosition();
+
+  });
 }
 function openLedger() {
   if (!ledger) return;
@@ -2660,6 +2696,7 @@ function directorSetState(next,reason){
   telemetryScheduleSave();
 }
 function directorEvaluate(){
+  return window.MippiPerfLab.run('director.evaluate',()=>{
   directorAccountStateTime();
   sessionTelemetry.director.evaluations=(Number(sessionTelemetry.director.evaluations)||0)+1;
   const metrics=directorMetrics();
@@ -2671,6 +2708,8 @@ function directorEvaluate(){
   directorRuntime.lastEvaluation=now;
   directorMaybeBreakDrought(metrics);
   telemetryScheduleSave();
+
+  });
 }
 function directorProfile(){ return DIRECTOR_PROFILES[directorRuntime.state]||DIRECTOR_PROFILES.curious; }
 function directorDelay(kind,min,max){
@@ -2748,6 +2787,7 @@ function directorAttentionBlocked(){
   return !!document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game.open,.finale-overlay.show,.session-debrief.show');
 }
 function directorAllowsAmbient(kind,{force=false}={}){
+  if(!force && window.MippiCombatLab?.active)return false;
   if(force||easyModeEnabled) return true;
   if(directorAttentionBlocked()){
     sessionTelemetry.director.attentionBlocks=(Number(sessionTelemetry.director.attentionBlocks)||0)+1;
@@ -2891,9 +2931,15 @@ function objectiveProgressLabel(active=objectiveRuntime.active){
   return `${Math.min(active.progress,active.goal)} / ${active.goal}`;
 }
 function objectiveUpdateClockText(){
-  const active=objectiveRuntime.active;
-  if(!active || active.complete || active.failed) return;
-  if(objectiveProgressText) objectiveProgressText.textContent=`${objectiveProgressLabel(active)} // ${objectiveTimeLabel(active)}`;
+  // Diagnostic timing only; preserve the original 200ms update cadence and DOM writes.
+  if(window.MippiPerfLab&&!window.MippiPerfLab.enabled('objectiveclock')){
+    window.MippiPerfLab.skip('objectiveclock');return;
+  }
+  return window.MippiPerfLab?.run('objectives.clockUpdate',()=>{
+    const active=objectiveRuntime.active;
+    if(!active || active.complete || active.failed) return;
+    if(objectiveProgressText) objectiveProgressText.textContent=`${objectiveProgressLabel(active)} // ${objectiveTimeLabel(active)}`;
+  });
 }
 function objectiveClearTimers(){
   if(objectiveRuntime.clockTimer){window.clearInterval(objectiveRuntime.clockTimer);objectiveRuntime.clockTimer=null;}
@@ -2941,6 +2987,8 @@ function objectiveRender(){
   syncObjectiveHudPosition();
 }
 function syncObjectiveHudPosition(){
+  if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
+  return window.MippiPerfLab.run('hud.syncObjectiveHudPosition',()=>{
   if(typeof repositionSystemToasts==='function')requestAnimationFrame(repositionSystemToasts);
   if(!objectiveHud) return;
   if(document.body.classList.contains('hud-unified')){
@@ -2963,6 +3011,8 @@ function syncObjectiveHudPosition(){
     if(ledgerHeight>0) bottom=Math.max(bottom,ledgerBottom+ledgerHeight+8);
   }
   objectiveHud.style.bottom=`${Math.round(bottom)}px`;
+
+  });
 }
 function objectiveMarkUnique(field,id){ telemetryUnique('objectives',field,id); }
 function objectiveStart(def,{contextual=false}={}){
@@ -3142,9 +3192,12 @@ function objectiveHandleEvent(type,detail={}){
   }
 }
 function objectiveTick(){
+  return window.MippiPerfLab.run('objectives.tick',()=>{
   const active=objectiveRuntime.active;
   if(active && !active.complete && !active.failed && objectiveRemainingMs(active)<=0) objectiveFail('time_expired');
   objectiveMaybeOffer();
+
+  });
 }
 function startDynamicObjectives(){
   if(objectiveRuntime.started) return;
@@ -3396,6 +3449,7 @@ function setSlowmo(active){
   document.querySelectorAll('.shooting-star,.galaga-secret,.game-pickup,.doug-bone').forEach(el=>{
     const base=Number(el.dataset.baseDuration||0);
     if(base>0) el.style.setProperty('--dur',`${base*directorFlightMultiplier()*(shopHasEquipped('slowpoke')?1.35:1)*(active?2:1)}s`);
+    if(base>0 && typeof combatGeometry!=='undefined') combatGeometry.retime(el,base*directorFlightMultiplier()*(shopHasEquipped('slowpoke')?1.35:1)*(active?2:1));
   });
 }
 function setFlightDuration(el, seconds){
@@ -4403,12 +4457,15 @@ function drawFlappyFrame(dt){
 
 let particleFieldTimer=null;
 function emitCommandParticle(){
+  if(!window.MippiPerfLab?.enabled('cursorfx')){window.MippiPerfLab?.skip('cursorfx');return;}
+  return window.MippiPerfLab.run('cursor.commandParticle',()=>{
   const p=document.createElement('i'); p.className='command-particle';
   const palette=document.body.classList.contains('theme-legendary')?['#ffc43f','#ff7a1a','#43e0dc','#fff0b5']:document.body.classList.contains('theme-complete')?['#d96cff','#ff4fc8','#67e8ff','#ffffff']:['#2f93ff','#67e8ff','#d8f3ff','#ffffff'];
   p.style.left=`${Math.random()*100}vw`; p.style.top=`${60+Math.random()*42}vh`; p.style.background=palette[Math.floor(Math.random()*palette.length)];
   p.style.setProperty('--px',`${(Math.random()-.5)*120}px`); p.style.setProperty('--py',`${-(80+Math.random()*220)}px`);
   const size=2+Math.random()*5; p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.boxShadow=`0 0 12px ${p.style.background}`;
   document.body.appendChild(p); setTimeout(()=>p.remove(),2600);
+  });
 }
 function setParticleBoost(active){
   telemetryCount('modes','particleToggles');
@@ -4572,10 +4629,11 @@ function performFullReset(){
 
 
 // Temporary developer state forcing -------------------------------------------------
-// These commands intentionally do not count toward player telemetry. They are a QA
-// shortcut layer and should be removed or hidden before the final public build.
+// These commands intentionally do not count toward player telemetry.
+// Profiling and combat tools remain available as documented technical content.
+// State-forcing QA shortcuts stay in the hidden DEV category.
 function devPrintHelp(){
-  consolePrint('DEV // TEMPORARY QA STATE COMMANDS','good');
+  consolePrint('DEV // DIAGNOSTICS & QA STATE COMMANDS','good');
   consolePrintCommandGroup('PROGRESS',['dev fresh','dev signals 0','dev signals 5','dev signals 10','dev rare','dev epic','dev legendary','dev finale ready','dev finale play','dev postgame reveal','dev postgame complete','dev music']);
   consolePrintCommandGroup('ECONOMY',['dev rupees 0','dev rupees 2','dev rupees 10','dev shop empty','dev shop affordable','dev shop epic','dev shop legendary','dev shop master','dev shop complete','dev hearts 0','dev hearts 5']);
   consolePrintCommandGroup('METERS',['dev cool 0','dev cool 50','dev cool max','dev castle 0','dev castle 3','dev castle 4','dev castle key','dev invasion 0','dev invasion 33','dev invasion 66','dev invasion near']);
@@ -4584,7 +4642,7 @@ function devPrintHelp(){
   consolePrintCommandGroup('DIRECTOR',['dev director quiet','dev director curious','dev director engaged','dev director struggling','dev director mastery']);
   consolePrintCommandGroup('MODES',['dev mode inspect on','dev mode inspect off','dev mode design on','dev mode design off','dev mode interact on','dev mode interact off','dev doug command','dev doug cool','dev doug review']);
   consolePrintCommandGroup('ATTN',['dev attention rupees','dev attention wish','dev attention blueprint']);
-  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev profile','dev clean']);
+  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev profile','dev combat','dev clean']);
   consolePrint('OBJECTIVE // use dev objective random, dev objective complete, dev objective fail, or dev objective <objective-id>.');
 }
 
@@ -4796,8 +4854,23 @@ function devCommand(args=''){
       :verb==='boot'?lab.startup()
       :verb==='export'?[lab.exportData()]
       :verb==='reset'?[lab.resetModes()]
-      :['hud','hudfx','themefx','cursorfx','ambient'].includes(verb)?[lab.configure(verb,arg)]
+      :['hud','hudfx','themefx','cursorfx','ambient','hero','about','ambientlogic','projectiles','hudlogic','objectiveclock'].includes(verb)?[lab.configure(verb,arg)]
       :['Unknown profile command. Use dev profile help.'];
+    lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
+    return;
+  }
+  if(root==='combat'){
+    const combat=window.MippiCombatLab;
+    if(!combat){consolePrint('DEV COMBAT // Combat benchmark unavailable.','warn');return;}
+    const [verb,mode,time]=rest;
+    const lines=verb==='run'?[combat.run(mode,Number(time)||30,{closeConsole:()=>openConsole(false)})]
+      :verb==='geometry'?[combat.geometry(mode)]
+      :verb==='renderer'?[combat.renderer(mode)]
+      :verb==='visual'?[combat.visual(mode,time)]
+      :verb==='stop'?[combat.stop()]
+      :verb==='report'?combat.report()
+      :verb==='export'?[window.MippiPerfLab?.exportData()||'Profile export unavailable.']
+      :combat.help();
     lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
     return;
   }
@@ -4851,7 +4924,7 @@ const COMMANDS = {
   help(){ listCommands(); },
   docs(){ window.open('https://mippi-the-dork.github.io/docs/','_blank','noopener,noreferrer'); },
   clear(){ if(consoleOutput) consoleOutput.innerHTML=''; }, cls(){ if(consoleOutput) consoleOutput.innerHTML=''; },
-  version(){ consolePrint('Mippi Portfolio v2.87 · static GitHub Pages build'); },
+  version(){ consolePrint(`Mippi Portfolio v${MIPPI_BUILD_VERSION} · static GitHub Pages build`); },
   about(){ jumpTo('about'); }, home(){ window.scrollTo({top:0,behavior:'smooth'}); }, top(){ window.scrollTo({top:0,behavior:'smooth'}); },
   games(){ jumpTo('games'); }, career(){ jumpTo('career'); }, consulting(){ jumpTo('consulting'); }, crafting(){ jumpTo('crafting'); },
   tools(){ consolePrint('Opening Unreal Tools.'); jumpTo('tools'); }, projects(){ consolePrint('Project Heavy Water · Azure Altar · consulting work · unannounced NDA title'); jumpTo('games'); },
@@ -5122,6 +5195,7 @@ function advanceCursorPower(){
 }
 function emitRainbowCursorSpark(){
   if(document.documentElement.classList.contains('profile-no-cursorfx'))return;
+  return window.MippiPerfLab.run('cursor.rainbowSparks',()=>{
   const colors=['#ff3b30','#ff9500','#ffcc00','#34c759','#00c7be','#0a84ff','#bf5af2','#ff2d55'];
   for(let i=0;i<3;i++){
     const p=document.createElement('i'); p.className='rainbow-cursor-spark';
@@ -5131,6 +5205,7 @@ function emitRainbowCursorSpark(){
     p.style.setProperty('--rx',`${Math.cos(a)*(36+Math.random()*42)}px`); p.style.setProperty('--ry',`${Math.sin(a)*(36+Math.random()*42)}px`);
     document.body.appendChild(p); setTimeout(()=>p.remove(),620);
   }
+  });
 }
 function collectStarPowerHoverTarget(){
   if(!document.body.classList.contains('star-power')) return;
@@ -5201,8 +5276,30 @@ window.addEventListener('pointermove',event=>{
 },{passive:true});
 
 function explodeAt(x,y,count=18,size=5,{radiusX=150,radiusY=120,lifetime=850}={}){
+  const __labPerfStart=performance.now();
+  // This is a cosmetic-only isolate. The call, projectile hit, and cleanup
+  // still occur. The rendering experiment skips only pixel DOM emission.
+  window.MippiCombatLab?.note('effectCalls');
+  window.MippiCombatLab?.note('effectElementsRequested',count);
+  if(window.MippiCombatVisuals?.enabled('explosions')===false){
+    window.MippiCombatLab?.note('effectElementsSuppressed',count);
+    window.MippiPerfLab?.measure('combat.explosion.visualSuppressed',0);
+    return;
+  }
   const colors=document.body.classList.contains('theme-legendary')?['#fff0b5','#ffc83d','#ff7a1a','#43e0dc','#ffffff']:['#67e8ff','#ff4fc8','#b13cff','#ffffff'];
+  // Canvas mode is the production default. DOM mode remains available for
+  // repeatable A/B benchmarks. Both receive identical authored parameters.
+  const renderer=window.MippiCombatLab?.rendererMode?.()||'canvas';
+  if(renderer==='canvas' && window.MippiParticleRenderer?.burst(x,y,count,size,{radiusX,radiusY,lifetime},colors)){
+    window.MippiCombatLab?.note('effectElementsEmitted',count); // logical particles
+    window.MippiCombatLab?.note('effectCanvasParticles',count);
+    window.MippiPerfLab?.measure('combat.explosion.spawn',performance.now()-__labPerfStart);
+    return;
+  }
+  window.MippiCombatLab?.note('effectElementsEmitted',count);
+  window.MippiCombatLab?.note('effectDomParticles',count);
   for(let i=0;i<count;i++){ const p=document.createElement('i');p.className='arcade-pixel';p.style.left=`${x}px`;p.style.top=`${y}px`;p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.background=colors[i%colors.length];p.style.setProperty('--dx',`${(Math.random()-.5)*radiusX}px`);p.style.setProperty('--dy',`${(Math.random()-.5)*radiusY}px`);p.style.animationDuration=`${lifetime}ms`;document.body.appendChild(p);setTimeout(()=>p.remove(),lifetime+90); }
+  window.MippiPerfLab?.measure('combat.explosion.spawn',performance.now()-__labPerfStart);
 }
 
 function showArcadeCursorHit(x,y){
@@ -5218,32 +5315,178 @@ function showArcadeCursorHit(x,y){
   explodeAt(x,y,7);
   if(arcadeCursorHits===1) consolePrint('ARCADE HIT // cosmetic damage only. Your resume remains unharmed.','warn');
 }
+/* v2.91 // Combat geometry coordinator. Reading animated element bounds after
+   writing projectile transforms/DOM can synchronously force a full style/layout
+   pass. Reuse short-lived measurements for both projectile families, and prewarm
+   all emitters in a volley before inserting any projectile nodes. No persistence. */
+const COMBAT_TARGET_SELECTOR='.shooting-star,.galaga-secret,.game-pickup,.doug-bone';
+const combatGeometry=(()=>{
+  let optimized=true,epoch=0;
+  let emitterBounds=new WeakMap(),targetBounds=new Map(),targets=[],targetListAt=-Infinity;
+  const TARGET_MAX_AGE_MS=115,EMITTER_MAX_AGE_MS=115,LIST_MAX_AGE_MS=125;
+  // Source-of-truth motion records: these are owned by gameplay, not sampled
+  // from the DOM. The production flight animations already know their path.
+  // CSS layout reads are only a fallback for unregistered elements.
+  const trajectories=new WeakMap();
+  function registerFlight(el,flight,kind='target'){
+    if(!el || !flight)return;
+    const rawDuration=parseFloat(el.style.getPropertyValue('--dur'))||Number(el.dataset.baseDuration)||7;
+    const w=el.classList.contains('shooting-star')?170:el.classList.contains('boss-ufo')?104:el.classList.contains('galaga-secret')?44:64;
+    const h=el.classList.contains('shooting-star')?32:el.classList.contains('boss-ufo')?72:el.classList.contains('galaga-secret')?32:el.classList.contains('doug-bone')?38:64;
+    trajectories.set(el,{type:'flight',kind,sx:flight.sx,sy:flight.sy,dx:flight.dx,dy:flight.dy,w,h,
+      duration:Math.max(.05,rawDuration)*1000,start:performance.now(),angle:flight.angle||0,animation:null,
+      curve:el.classList.contains('galaga-secret')?'ufo':el.classList.contains('shooting-star')?'star':'pickup'});
+  }
+  function registerLabTarget(el,x,y,period){
+    trajectories.set(el,{type:'lab-target',kind:'target',sx:x,sy:y,period:period*1000,start:performance.now(),animation:null});
+  }
+  function registerStatic(el,x,y,kind='emitter'){
+    trajectories.set(el,{type:'static',kind,sx:x,sy:y,start:performance.now()});
+  }
+  function retime(el,durationSeconds){
+    const t=trajectories.get(el);if(!t||t.type!=='flight')return;
+    const now=performance.now(),fraction=Math.max(0,Math.min(1,(now-t.start)/t.duration));
+    t.duration=Math.max(.05,durationSeconds)*1000;t.start=now-fraction*t.duration;
+  }
+  function motionCenter(el,now=performance.now()){
+    const t=trajectories.get(el);if(!t)return null;
+    if(t.type==='static')return {x:t.sx,y:t.sy,time:now,vx:0,vy:0};
+    if(t.type==='lab-target'){
+      // Mirrors combat-lab-drift's ease-in-out alternate CSS animation and
+      // its -50% base translate without consulting the browser layout.
+      if(!t.animation)t.animation=el.getAnimations().find(a=>a.effect)||null;
+      const elapsed=typeof t.animation?.currentTime==='number'?t.animation.currentTime:now-t.start;
+      const cycle=Math.max(1,t.period),phase=((elapsed)%(2*cycle)+2*cycle)%(2*cycle);
+      const u=phase<=cycle?phase/cycle:2-phase/cycle;
+      const ease=(1-Math.cos(Math.PI*u))*.5;
+      return {x:t.sx-14+28*ease,y:t.sy-7+16*ease,time:now,vx:0,vy:0};
+    }
+    // Follow the compositor's animation clock rather than wall time. A busy
+    // main thread can delay animation startup substantially, so a synthetic
+    // performance.now() clock makes projectiles lead where the sprite *will*
+    // be instead of where it is on screen.
+    if(!t.animation){
+      const start=performance.now();
+      t.animation=el.getAnimations().find(a=>a.effect)||null;
+      perf()?.measure('combat.geometry.animation.lookup',performance.now()-start);
+    }
+    const elapsed=typeof t.animation?.currentTime==='number'?t.animation.currentTime:now-t.start;
+    const p=Math.max(0,Math.min(1,elapsed/t.duration));
+    let x=t.dx*p,y=t.dy*p;
+    // The path's keys match the site's final CSS definitions. Rotation and
+    // scale do not change the centre enough to justify per-shot style reads.
+    if(t.curve==='ufo'){
+      const keys=[[0,0,0],[.34,.34,-28],[.67,.67,20],[1,1,0]];
+      for(let i=1;i<keys.length;i++)if(p<=keys[i][0]){
+        const a=keys[i-1],b=keys[i],u=(p-a[0])/(b[0]-a[0]);
+        x=t.dx*(a[1]+(b[1]-a[1])*u);
+        y=t.dy*p+a[2]+(b[2]-a[2])*u;break;
+      }
+    } else if(t.curve==='pickup'){
+      y-=p<.46?18*p/.46:18*(1-p)/.54;
+    }
+    // Shooting stars rotate around the trail's right edge. Adjust the center
+    // by that pivot so hit positions track the visible rotated bounds.
+    if(t.curve==='star'){
+      const a=t.angle*Math.PI/180;
+      return {x:t.sx+x+t.w-t.w*.5*Math.cos(a),
+        y:t.sy+y+t.h*.5-t.w*.5*Math.sin(a),time:now,vx:0,vy:0};
+    }
+    return {x:t.sx+x+t.w*.5,y:t.sy+y+t.h*.5,time:now,vx:0,vy:0};
+  }
+  const perf=()=>window.MippiPerfLab;
+  const measure=(name,start)=>perf()?.measure(name,performance.now()-start);
+  function rect(el,name){const start=performance.now();const r=el.getBoundingClientRect();measure(name,start);
+    return {x:r.left+r.width*.5,y:r.top+r.height*.5};}
+  function center(el,kind,now=performance.now()){
+    if(!el?.isConnected)return null;
+    if(!optimized)return rect(el,`combat.geometry.legacy.${kind}`);
+    const modeled=motionCenter(el,now);
+    if(modeled){perf()?.measure(`combat.geometry.${kind}.modelHit`,0);return modeled;}
+    const store=kind==='emitter'?emitterBounds:targetBounds;
+    const old=store.get(el),age=kind==='emitter'?EMITTER_MAX_AGE_MS:TARGET_MAX_AGE_MS;
+    if(old&&old.epoch===epoch&&now-old.time<age){
+      perf()?.measure(`combat.geometry.${kind}.cacheHit`,0);return old;
+    }
+    const next=rect(el,`combat.geometry.${kind}.read`);
+    const elapsed=old?.epoch===epoch?Math.max(1,now-old.time):1;
+    const vx=old?.epoch===epoch?Math.max(-1.8,Math.min(1.8,(next.x-old.x)/elapsed)):0;
+    const vy=old?.epoch===epoch?Math.max(-1.8,Math.min(1.8,(next.y-old.y)/elapsed)):0;
+    const result={...next,time:now,epoch,vx,vy};store.set(el,result);return result;
+  }
+  function targetCenter(el,now){return center(el,'target',now);}
+  function emitterCenter(el,now=performance.now()){
+    const pos=center(el,'emitter',now);if(!pos)return null;
+    // A flying UFO keeps moving during the short reuse window. Predict its
+    // current center from the last two actual measurements without a style read.
+    if(!optimized)return pos;
+    const lead=Math.min(110,Math.max(0,now-pos.time));
+    return {...pos,x:pos.x+pos.vx*lead,y:pos.y+pos.vy*lead};
+  }
+  function prepareEmitters(elements){if(!optimized)return;
+    // The entire volley must read its ship coordinates before the first shot
+    // is appended. This avoids read/write/read/write layout thrashing.
+    const now=performance.now();for(const el of new Set(elements))emitterCenter(el,now);
+  }
+  function targetCandidates(now){
+    if(!optimized)return document.querySelectorAll(COMBAT_TARGET_SELECTOR);
+    if(now-targetListAt>=LIST_MAX_AGE_MS || !targets.length){
+      const start=performance.now();
+      targets=Array.from(document.querySelectorAll(COMBAT_TARGET_SELECTOR));targetListAt=now;
+      measure('combat.geometry.targets.query',start);
+      for(const el of [...targetBounds.keys()])if(!el.isConnected)targetBounds.delete(el);
+    }
+    return targets;
+  }
+  function effectCenter(el){
+    const fast=optimized?motionCenter(el):null;
+    if(fast){perf()?.measure('combat.geometry.effect.modelHit',0);return fast;}
+    return rect(el,'combat.geometry.effect.layoutRead');
+  }
+  function invalidate(){epoch++;targetListAt=-Infinity;targetBounds.clear();emitterBounds=new WeakMap();}
+  window.addEventListener('resize',invalidate,{passive:true});
+  window.addEventListener('scroll',invalidate,{passive:true,capture:true});
+  function mode(value){if(value!==undefined){optimized=value==='on';invalidate();}
+    return optimized?'on':'off';}
+  return Object.freeze({targetCenter,emitterCenter,prepareEmitters,targetCandidates,invalidate,mode,
+    registerFlight,registerLabTarget,registerStatic,retime,motionCenter,effectCenter});
+})();
 function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
+  const __combatSpawnAt=performance.now();
   if(!ship?.isConnected || reduceMotion) return;
-  telemetryCount('arcade','hostileShots');
-  const r=ship.getBoundingClientRect();
-  const sx=r.left+r.width/2, sy=r.top+r.height/2;
+  const isLabShot=ship.dataset.combatLab==='1';
+  if(!isLabShot) telemetryCount('arcade','hostileShots');
+  const __geometryStart=performance.now();
+  const source=combatGeometry.emitterCenter(ship);
+  if(!source)return;
+  const sx=source.x,sy=source.y;
+  window.MippiPerfLab?.measure('combat.ufoProjectile.geometry',performance.now()-__geometryStart);
   const tx=latestPointer.x+offsetX, ty=latestPointer.y+offsetY;
   const dx=tx-sx, dy=ty-sy;
   const distance=Math.hypot(dx,dy);
   if(distance<24) return;
 
+  const __createStart=performance.now();
   const shot=document.createElement('i');
   shot.className='ufo-projectile';
+  if(isLabShot){shot.dataset.combatLab='1'; window.MippiCombatLab?.note('ufoSpawn');}
   shot.style.left='0px'; shot.style.top='0px';
+  window.MippiPerfLab?.measure('combat.ufoProjectile.create',performance.now()-__createStart);
+  const __appendStart=performance.now();
   document.body.appendChild(shot);
+  window.MippiPerfLab?.measure('combat.ufoProjectile.append',performance.now()-__appendStart);
 
   const duration=Math.max(.24,Math.min(.95,distance/820))*directorProjectileDurationMultiplier()*(slowmoEnabled?2:1);
   const speed=distance/Math.max(.08,duration);
   let px=sx,py=sy,last=performance.now(),born=last,raf=0,settled=false;
 
-  if(slowmoEnabled){
+  if(slowmoEnabled && !isLabShot){
     telemetryCount('combos','slowmoHostileShots');
     announceSystemCombo('slowmo-hostile-fire','Slowmo + UFO','Hostile projectiles are slowed too. Fair is fair.');
   }
 
-  const cleanup=()=>{ if(settled)return; settled=true; cancelAnimationFrame(raf); shot.remove(); };
-  const step=now=>{
+  const cleanup=()=>{ if(settled)return;const at=performance.now(); settled=true; cancelAnimationFrame(raf); shot.remove(); if(isLabShot)window.MippiCombatLab?.note('ufoCleanup'); window.MippiPerfLab?.measure('combat.ufoProjectile.cleanup',performance.now()-at); };
+  const tick=now=>{
     if(settled || !shot.isConnected){ cleanup(); return; }
     if(!ship.isConnected && now-born>duration*1000+220){ cleanup(); return; }
     const dt=Math.min(.04,(now-last)/1000); last=now;
@@ -5254,7 +5497,7 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
     shot.style.transform=`translate3d(${px}px,${py}px,0) rotate(${angle}deg)`;
 
     // Live collision against the current cursor, not the cursor position from fire time.
-    if(Math.hypot(px-latestPointer.x,py-latestPointer.y)<=18){
+    if(!isLabShot && Math.hypot(px-latestPointer.x,py-latestPointer.y)<=18){
       showArcadeCursorHit(px,py);
       cleanup();
       return;
@@ -5267,7 +5510,9 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
     }
     raf=requestAnimationFrame(step);
   };
+  const step=now=>window.MippiPerfLab ? window.MippiPerfLab.run('combat.ufoProjectile.step',()=>tick(now)) : tick(now);
   raf=requestAnimationFrame(step);
+  window.MippiPerfLab?.measure('combat.ufoProjectile.spawn',performance.now()-__combatSpawnAt);
 
   // Absolute cleanup guard. No hostile projectile is allowed to live forever.
   window.setTimeout(()=>{
@@ -5279,14 +5524,18 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
 function nearestFlyingTarget(x,y,maxDistance=null){
   const cursorRangeBonus=cursorPowerLevel*55;
   const acquisition=maxDistance??((shopHasEquipped('golden-trigger')?485:365)+cursorRangeBonus+directorTargetBonus());
-  let best=null, bestDistance=acquisition;
-  document.querySelectorAll('.shooting-star,.galaga-secret,.game-pickup,.doug-bone').forEach(el=>{
-    if(!el.isConnected) return;
-    const r=el.getBoundingClientRect();
-    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let best=null,bestDistance=acquisition;
+  const now=performance.now();
+  // Shared with homing: multiple shots no longer cause repeated full-page
+  // layout reads simply to select or follow the same moving target.
+  for(const el of combatGeometry.targetCandidates(now)){
+    if(!el.isConnected)continue;
+    const pos=combatGeometry.targetCenter(el,now);if(!pos)continue;
+    const lead=Math.min(110,Math.max(0,now-(pos.time||now)));
+    const cx=pos.x+(pos.vx||0)*lead,cy=pos.y+(pos.vy||0)*lead;
     const d=Math.hypot(cx-x,cy-y);
     if(d<bestDistance){bestDistance=d;best=el;}
-  });
+  }
   return best;
 }
 
@@ -5299,29 +5548,47 @@ const MAX_LEGENDARY_SHOTS=14;
 const SHOT_TARGET_SAMPLE_MS=50;
 const legendaryTargetPositions=new Map();
 function releaseLegendaryShot(shot){
+  const __cleanupAt=performance.now();
+  if(shot.el.dataset.combatLab==='1')window.MippiCombatLab?.note('playerCleanup');
   shot.el.remove();
   const index=legendaryActiveShots.indexOf(shot);
   if(index>=0)legendaryActiveShots.splice(index,1);
   if(!legendaryActiveShots.some(other=>other.target===shot.target)) legendaryTargetPositions.delete(shot.target);
+  window.MippiPerfLab?.measure('combat.playerProjectile.cleanup',performance.now()-__cleanupAt);
 }
 function sampleLegendaryTargets(now){
-  // Group all geometry reads before ANY projectile transform writes.
-  for(const shot of legendaryActiveShots){
-    const target=shot.target;
+  const __sampleStart=performance.now();
+  // A unique set avoids repeated sampling for multiple projectiles sharing
+  // one target, while target and emitter layouts are read before shot writes.
+  const uniqueTargets=new Set(legendaryActiveShots.map(shot=>shot.target));
+  for(const target of uniqueTargets){
     if(!target?.isConnected)continue;
-    const cached=legendaryTargetPositions.get(target);
-    if(cached&&now-cached.time<SHOT_TARGET_SAMPLE_MS)continue;
-    const r=target.getBoundingClientRect();
-    const tx=r.left+r.width*.5,ty=r.top+r.height*.5;
-    const elapsed=cached?Math.max(1,now-cached.time):1;
-    const velocityX=cached?Math.max(-1.8,Math.min(1.8,(tx-cached.x)/elapsed)):0;
-    const velocityY=cached?Math.max(-1.8,Math.min(1.8,(ty-cached.y)/elapsed)):0;
-    legendaryTargetPositions.set(target,{x:tx,y:ty,vx:velocityX,vy:velocityY,time:now});
+    if(combatGeometry.mode()==='off'){
+      const cached=legendaryTargetPositions.get(target);
+      if(cached&&now-cached.time<SHOT_TARGET_SAMPLE_MS)continue;
+      const r=target.getBoundingClientRect();const tx=r.left+r.width*.5,ty=r.top+r.height*.5;
+      const elapsed=cached?Math.max(1,now-cached.time):1;
+      legendaryTargetPositions.set(target,{x:tx,y:ty,
+        vx:cached?Math.max(-1.8,Math.min(1.8,(tx-cached.x)/elapsed)):0,
+        vy:cached?Math.max(-1.8,Math.min(1.8,(ty-cached.y)/elapsed)):0,time:now});
+    }else{
+      const pos=combatGeometry.targetCenter(target,now);
+      if(pos)legendaryTargetPositions.set(target,pos);
+    }
   }
+  window.MippiPerfLab?.measure('combat.playerProjectile.sampleTargets',performance.now()-__sampleStart);
 }
 function tickLegendaryShots(now){
   legendaryShotRaf=0;
   if(!legendaryActiveShots.length)return;
+  if(!window.MippiPerfLab?.enabled('projectiles')){
+    window.MippiPerfLab?.skip('projectiles');
+    for(const shot of legendaryActiveShots){shot.last=now;shot.born+=Math.min(100,Math.max(0,now-(shot.pauseLast||now)));shot.pauseLast=now;}
+    legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
+    return;
+  }
+  for(const shot of legendaryActiveShots){if(shot.pauseLast){shot.born+=Math.max(0,now-shot.pauseLast);shot.pauseLast=0;}}
+  const perfShotStart=performance.now();
   // A cached center costs no layout work on most frames even with many shots.
   sampleLegendaryTargets(now);
   for(let i=legendaryActiveShots.length-1;i>=0;i--){
@@ -5331,13 +5598,14 @@ function tickLegendaryShots(now){
     if(!pos)continue;
     // Predict the moving target between layout samples to avoid visible
     // 50-75ms direction snaps. The projectile itself still moves every rAF.
-    const lead=Math.min(70,Math.max(0,now-pos.time));
+    const lead=Math.min(combatGeometry.mode()==='on'?110:70,Math.max(0,now-pos.time));
     const tx=pos.x+pos.vx*lead,ty=pos.y+pos.vy*lead;
     const dx=tx-shot.px,dy=ty-shot.py,dist=Math.hypot(dx,dy);
     if(dist<23){
       releaseLegendaryShot(shot);
-      telemetryCount('arcade','playerHits');
-      if(shot.target.isConnected){shot.target.dataset.telemetryCollectMethod='legendary';shot.target.click();}
+      if(shot.target.dataset.combatLab==='1')window.MippiCombatLab?.note('playerHit');
+      else telemetryCount('arcade','playerHits');
+      if(shot.target.isConnected){if(shot.target.dataset.combatLab!=='1')shot.target.dataset.telemetryCollectMethod='legendary';shot.target.click();}
       continue;
     }
     // Keep world-space speed consistent if an animation frame is delayed.
@@ -5347,19 +5615,45 @@ function tickLegendaryShots(now){
     if(dist>0){shot.px+=dx/dist*travel;shot.py+=dy/dist*travel;}
     shot.el.style.transform=`translate3d(${shot.px-shot.x}px,${shot.py-shot.y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
   }
+  const elapsed=performance.now()-perfShotStart;
+  window.MippiPerfLab?.measure('projectiles.update',elapsed);
+  window.MippiPerfLab?.measure('combat.playerProjectile.tick',elapsed);
   if(legendaryActiveShots.length)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
 }
 function fireLegendaryPlayerShot(x,y,target){
+  const __spawnAt=performance.now();
   if(!target?.isConnected)return;
   if(legendaryActiveShots.length>=MAX_LEGENDARY_SHOTS)releaseLegendaryShot(legendaryActiveShots[0]);
-  telemetryCount('arcade','playerShots');
+  const isLabShot=target.dataset.combatLab==='1';
+  if(!isLabShot)telemetryCount('arcade','playerShots');
+  else window.MippiCombatLab?.note('playerSpawn');
   const el=document.createElement('i');el.className='legendary-player-projectile';
+  if(isLabShot)el.dataset.combatLab='1';
   el.style.left=`${x}px`;el.style.top=`${y}px`;
   document.body.appendChild(el);
   const now=performance.now();
   legendaryActiveShots.push({el,target,x,y,px:x,py:y,born:now,last:now,speed:shopHasEquipped('golden-trigger')?1380:1050});
   if(!legendaryShotRaf)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
+  window.MippiPerfLab?.measure('combat.playerProjectile.spawn',performance.now()-__spawnAt);
 }
+
+// The permanent diagnostic lab calls the real projectile functions with
+// throwaway targets. It cannot trigger ordinary progress/kill accounting.
+window.MippiCombatHooks=Object.freeze({
+  playerFire:(x,y,target)=>fireLegendaryPlayerShot(x,y,target),
+  playerAcquire:(x,y,range)=>nearestFlyingTarget(x,y,range),
+  hostileFire:(ship,offset)=>fireUfoProjectile(ship,offset),
+  prepareVolley:ships=>combatGeometry.prepareEmitters(ships),
+  geometryMode:value=>combatGeometry.mode(value),
+  registerLabTarget:(el,x,y,period)=>combatGeometry.registerLabTarget(el,x,y,period),
+  registerLabEmitter:(el,x,y)=>combatGeometry.registerStatic(el,x,y,'emitter'),
+  effectCenter:el=>combatGeometry.effectCenter(el),
+  explosion:(x,y,count=18,size=5,options)=>explodeAt(x,y,count,size,options),
+  cleanup:()=>{
+    [...legendaryActiveShots].filter(shot=>shot.el.dataset.combatLab==='1').forEach(releaseLegendaryShot);
+    document.querySelectorAll('.ufo-projectile[data-combat-lab="1"]').forEach(el=>el.remove());
+  }
+});
 
 document.addEventListener('pointerdown',event=>{
   if(event.button!==0 || !legendaryGameplayUnlocked()) return;
@@ -5390,13 +5684,13 @@ function spawnShootingStar(force=false){
   star.style.left=`${f.sx}px`; star.style.top=`${f.sy}px`; star.style.setProperty('--dx',`${f.dx}px`); star.style.setProperty('--dy',`${f.dy}px`); star.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(star,(shopOwns('celestial-beacon')?3.4:2.05)+Math.random()*(shopOwns('celestial-beacon')?1.55:1.15));
   star.addEventListener('click',()=>{ 
     const method=telemetryCollectionMethod(star); telemetryFlyingCollect('shooting_star',method); telemetryCount('wish','shootingStarsCollected');
-    const r=star.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,24);
+    const p=combatGeometry.effectCenter(star); explodeAt(p.x,p.y,24);
     const first=!hasWish();
     grantWishCharge('CELESTIAL SIGNAL');
     if(!first) consolePrint('SHOOTING STAR COLLECTED // WISH CHARGE 1/1.','good');
     star.remove();
   });
-  document.body.appendChild(star); directorNoteFriendlyAmbient(); removeWhenFlightEnds(star);
+  document.body.appendChild(star); combatGeometry.registerFlight(star,f); directorNoteFriendlyAmbient(); removeWhenFlightEnds(star);
   return true;
 }
 function ufoCycleProgress(){return Math.min(10,invasionWaveKills);}
@@ -5513,7 +5807,7 @@ function spawnBossUfo(force=false){
       announceSystemCombo('star-power-boss','Star Power + Boss','Cursor contact damages the Boss, but only once per brief contact window.');
     }
     hp--;
-    const r=ship.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const p=combatGeometry.effectCenter(ship); const cx=p.x,cy=p.y;
     explodeAt(cx,cy,hp<=0?58:10);
     if(hp<=0){
       defeated=true;
@@ -5542,7 +5836,7 @@ function spawnBossUfo(force=false){
     stopBoss();
     window.setTimeout(updateInvasionMeter,0);
   },{once:true});
-  document.body.appendChild(ship);
+  document.body.appendChild(ship); combatGeometry.registerFlight(ship,f,'emitter');
   ufoFireTimer=window.setInterval(bossVolley,(610+Math.floor(Math.random()*170))*directorHostileCadenceMultiplier());
   window.setTimeout(bossVolley,320);
 }
@@ -5845,9 +6139,9 @@ function spawnGalaga(force=false){
       if(Math.random()<.58) window.setTimeout(()=>fireUfoProjectile(ship),120);
     }
   };
-  ship.addEventListener('click',()=>{ const method=telemetryCollectionMethod(ship); const r=ship.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; explodeAt(cx,cy,30);registerUfoKill(method,cx,cy);stopUfoFire();ship.remove(); });
+  ship.addEventListener('click',()=>{ const method=telemetryCollectionMethod(ship); const p=combatGeometry.effectCenter(ship); const cx=p.x,cy=p.y; explodeAt(cx,cy,30);registerUfoKill(method,cx,cy);stopUfoFire();ship.remove(); });
   ship.addEventListener('animationend',()=>{ telemetryCount('arcade','ufoEscaped'); stopUfoFire(); },{once:true});
-  document.body.appendChild(ship);
+  document.body.appendChild(ship); combatGeometry.registerFlight(ship,f,'emitter');
   const cadence=threat===1?900+Math.floor(Math.random()*360):threat===2?700+Math.floor(Math.random()*280):560+Math.floor(Math.random()*230);
   ufoFireTimer=window.setInterval(firePattern,cadence*directorHostileCadenceMultiplier());
   window.setTimeout(firePattern,threat===1?440:threat===2?360:280);
@@ -6190,7 +6484,7 @@ function handleGamePickup(def,item){
   if(def.kind==='key') telemetryCount('economy','keysCollected');
   else if(def.kind==='1up'){ telemetryCount('economy','mushroomsCollected'); recordMushroomCollection(); }
   else if(def.kind==='star') telemetryCount('economy','starsCollected');
-  const r=item.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,18);
+  const p=combatGeometry.effectCenter(item); explodeAt(p.x,p.y,18);
   if(def.kind==='heart') collectHeart();
   else if(def.kind==='1up') advanceCursorPower();
   else if(def.kind==='star') activateStarPower();
@@ -6216,7 +6510,7 @@ function spawnGamePickup(forcedKind=null,force=false){
   telemetryFlyingSpawn(def.kind,{forced:force}); item.setAttribute('aria-label',`A hidden ${def.kind} pickup`);
   item.style.left=`${f.sx}px`; item.style.top=`${f.sy}px`; item.style.setProperty('--dx',`${f.dx}px`); item.style.setProperty('--dy',`${f.dy}px`); item.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(item,5.2+Math.random()*4.6);
   item.addEventListener('click',()=>handleGamePickup(def,item));
-  document.body.appendChild(item); directorNoteFriendlyAmbient(); removeWhenFlightEnds(item);
+  document.body.appendChild(item); combatGeometry.registerFlight(item,f); directorNoteFriendlyAmbient(); removeWhenFlightEnds(item);
   return true;
 }
 let naturalPickupTimer=null;
@@ -6240,8 +6534,8 @@ function spawnDougBone(force=false){
   bone.innerHTML=`<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
   bone.style.left=`${f.sx}px`; bone.style.top=`${f.sy}px`; bone.style.setProperty('--dx',`${f.dx}px`); bone.style.setProperty('--dy',`${f.dy}px`); bone.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(bone,5.4+Math.random()*3.8);
   bone.dataset.telemetryKind='bone'; telemetryFlyingSpawn('bone',{forced:force});
-  bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const r=bone.getBoundingClientRect(); explodeAt(r.left+r.width/2,r.top+r.height/2,14); collectDougBone(method); setDougBoneCoolVisual(bone,false); bone.remove(); });
-  document.body.appendChild(bone); directorNoteFriendlyAmbient(); setDougBoneCoolVisual(bone,dougCard?.classList.contains('doug-star-cool')); removeWhenFlightEnds(bone);
+  bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const p=combatGeometry.effectCenter(bone); explodeAt(p.x,p.y,14); collectDougBone(method); setDougBoneCoolVisual(bone,false); bone.remove(); });
+  document.body.appendChild(bone); combatGeometry.registerFlight(bone,f); directorNoteFriendlyAmbient(); setDougBoneCoolVisual(bone,dougCard?.classList.contains('doug-star-cool')); removeWhenFlightEnds(bone);
   return true;
 }
 let naturalDougBoneTimer=null;
@@ -6717,7 +7011,9 @@ async function initScene() {
     const clock = new THREE.Clock();
     let lastHeroTheme=null;
     function frame() {
+      if(!window.MippiPerfLab?.enabled('hero')){window.MippiPerfLab?.skip('hero');requestAnimationFrame(frame);return;}
       if(!shouldRenderThreeCanvas(canvas,'hero')){requestAnimationFrame(frame);return;}
+      const perfHeroStart=performance.now();
       const t = clock.getElapsedTime();
       const completionMode = document.body.classList.contains('theme-complete');
       const legendaryMode = document.body.classList.contains('theme-legendary');
@@ -6805,7 +7101,10 @@ async function initScene() {
         canvas.style.cursor = hovered ? 'pointer' : 'grab';
         if (sceneReadout) sceneReadout.textContent = hovered ? (sceneLabels[hovered.userData.key] || 'CLICK TO NAVIGATE') : 'SELECT A SIGNAL';
       }
+      window.MippiPerfLab?.measure('hero.update',performance.now()-perfHeroStart);
+      const perfHeroRenderStart=performance.now();
       renderer.render(scene,camera);
+      window.MippiPerfLab?.measure('hero.renderCall',performance.now()-perfHeroRenderStart);
       mippiRuntimeHealth.three.perf.hero.drawCalls=renderer.info.render.calls;
       recordThreeFrame('hero');
       requestAnimationFrame(frame);
@@ -6890,7 +7189,9 @@ async function initAmbientScene() {
     resizeAmbient(); window.addEventListener('resize',resizeAmbient,{passive:true});
     let lastAmbientTheme=null;
     function frame(){
+      if(!window.MippiPerfLab?.enabled('ambientlogic')){window.MippiPerfLab?.skip('ambientlogic');requestAnimationFrame(frame);return;}
       if(!shouldRenderThreeCanvas(ambientCanvas,'ambient')){requestAnimationFrame(frame);return;}
+      const perfAmbientStart=performance.now();
       const scroll=window.scrollY/(document.documentElement.scrollHeight||1);
       const completionMode=document.body.classList.contains('theme-complete');
       const legendaryMode=document.body.classList.contains('theme-legendary');
@@ -6920,7 +7221,11 @@ async function initAmbientScene() {
       overdrivePoints.rotation.y -= completionMode ? .00048 : .00008;
       overdrivePoints.rotation.x += completionMode ? .00017 : .00003;
       root.children.forEach((o,i)=>{ if(o.userData.speed){ const boost=completionMode?2.1:1; o.rotation.x+=o.userData.speed*boost; o.rotation.y-=o.userData.speed*.7*boost; }});
-      renderer.render(scene,camera); mippiRuntimeHealth.three.perf.ambient.drawCalls=renderer.info.render.calls; recordThreeFrame('ambient'); requestAnimationFrame(frame);
+      window.MippiPerfLab?.measure('ambient.update',performance.now()-perfAmbientStart);
+      const perfAmbientRenderStart=performance.now();
+      renderer.render(scene,camera);
+      window.MippiPerfLab?.measure('ambient.renderCall',performance.now()-perfAmbientRenderStart);
+      mippiRuntimeHealth.three.perf.ambient.drawCalls=renderer.info.render.calls; recordThreeFrame('ambient'); requestAnimationFrame(frame);
     }
     frame();
   } catch (e) { console.warn('Ambient Three.js layer unavailable.',e); }
@@ -6959,8 +7264,10 @@ async function initAboutScene() {
     const clock=new THREE.Clock();
     let lastAboutTheme=null;
     function frame(){
+      if(!window.MippiPerfLab?.enabled('about')){window.MippiPerfLab?.skip('about');requestAnimationFrame(frame);return;}
       if(!shouldRenderThreeCanvas(aboutCanvas,'about')){requestAnimationFrame(frame);return;}
-      const t=clock.getElapsedTime(); const complete=document.body.classList.contains('theme-complete'); const legendary=document.body.classList.contains('theme-legendary'); const aboutTheme=legendary?'legendary':complete?'epic':'rare'; if(aboutTheme!==lastAboutTheme){lastAboutTheme=aboutTheme;aboutLight.color.setHex(legendary?0xffc878:0x8bbcff); ringMat.color.setHex(legendary?0xff8a1d:complete?0xd85cff:0x168cff); r2.material.color.setHex(legendary?0x45ddd8:complete?0x65e9ff:0x168cff); aboutParticles.material.color.setHex(legendary?0xffc957:complete?0xff63ca:0x6cb6ff); aboutParticles.material.opacity=complete?.52:.30; aboutParticles.material.size=complete?.14:.085; mats.forEach((m,i)=>{const cs=legendary?[0xff7a1a,0xffc83d,0x42d8d4,0xfff0c2]:[0xd85cff,0xff4fc8,0x65e9ff,0xa868ff];m.color.setHex(complete?cs[i]:[0x2f93ff,0x5daeff,0x7dc2ff,0x006bd6][i]);m.emissive.copy(m.color);m.emissiveIntensity=complete?.42:.2;});} if(!reduceMotion){ const boost=complete?1.8:1;r1.rotation.z+=.0018*boost;r2.rotation.x-=.0012*boost;aboutParticles.rotation.y+=.0009*boost;aboutParticles.rotation.z=Math.sin(t*.12)*.08;nodes.forEach((m,i)=>{const a=t*.32*boost+m.userData.phase;m.position.set(Math.cos(a)*1.72,Math.sin(a*1.15)*.75,Math.sin(a)*.55);m.rotation.x+=.006*boost;m.rotation.y+=.008*boost;});} renderer.render(scene,camera);mippiRuntimeHealth.three.perf.about.drawCalls=renderer.info.render.calls;recordThreeFrame('about');requestAnimationFrame(frame);}
+      const perfAboutStart=performance.now();
+      const t=clock.getElapsedTime(); const complete=document.body.classList.contains('theme-complete'); const legendary=document.body.classList.contains('theme-legendary'); const aboutTheme=legendary?'legendary':complete?'epic':'rare'; if(aboutTheme!==lastAboutTheme){lastAboutTheme=aboutTheme;aboutLight.color.setHex(legendary?0xffc878:0x8bbcff); ringMat.color.setHex(legendary?0xff8a1d:complete?0xd85cff:0x168cff); r2.material.color.setHex(legendary?0x45ddd8:complete?0x65e9ff:0x168cff); aboutParticles.material.color.setHex(legendary?0xffc957:complete?0xff63ca:0x6cb6ff); aboutParticles.material.opacity=complete?.52:.30; aboutParticles.material.size=complete?.14:.085; mats.forEach((m,i)=>{const cs=legendary?[0xff7a1a,0xffc83d,0x42d8d4,0xfff0c2]:[0xd85cff,0xff4fc8,0x65e9ff,0xa868ff];m.color.setHex(complete?cs[i]:[0x2f93ff,0x5daeff,0x7dc2ff,0x006bd6][i]);m.emissive.copy(m.color);m.emissiveIntensity=complete?.42:.2;});} if(!reduceMotion){ const boost=complete?1.8:1;r1.rotation.z+=.0018*boost;r2.rotation.x-=.0012*boost;aboutParticles.rotation.y+=.0009*boost;aboutParticles.rotation.z=Math.sin(t*.12)*.08;nodes.forEach((m,i)=>{const a=t*.32*boost+m.userData.phase;m.position.set(Math.cos(a)*1.72,Math.sin(a*1.15)*.75,Math.sin(a)*.55);m.rotation.x+=.006*boost;m.rotation.y+=.008*boost;});} window.MippiPerfLab?.measure('about.update',performance.now()-perfAboutStart);const perfAboutRenderStart=performance.now();renderer.render(scene,camera);window.MippiPerfLab?.measure('about.renderCall',performance.now()-perfAboutRenderStart);mippiRuntimeHealth.three.perf.about.drawCalls=renderer.info.render.calls;recordThreeFrame('about');requestAnimationFrame(frame);}
     frame();
   } catch(e){ console.warn('About Three.js scene unavailable.',e); }
 }

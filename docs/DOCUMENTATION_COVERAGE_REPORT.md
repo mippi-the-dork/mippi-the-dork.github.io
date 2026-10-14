@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Previous fully documented baseline:** Mippi Portfolio v2.89; **latest handoff target:** v2.92. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v2.92. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -57,11 +57,11 @@ Six new features increase the documented hierarchy from **233 to 242 feature fol
 
 ## Verification Limits
 
-The handoffs support the specified documentation changes, but do not establish an independent live-code audit or a user-hardware performance fix. The v2.86–v2.89 performance work remains an **open investigation**. The new [regression matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md) and [profile plan](QA/PERFORMANCE_PROFILING_V2.89.md) specify follow-up real-browser checks. No handoff ZIP files are being copied into the public docs tree.
+The release handoffs describe the documented features, but do not establish a verified performance fix on the user's Windows hardware. The v2.86–v2.89 performance work remains an **open investigation**. The new [regression matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md) and [profile plan](QA/PERFORMANCE_PROFILING_V2.89.md) specify follow-up real-browser checks. No handoff ZIP files are being copied into the public docs tree.
 
 
 ## v2.90–v2.92 Addendum
 
 Three additional ZIP handoffs add permanent [Combat Performance Lab](17-qa-operations/combat-performance-lab/DESIGN.md), [Combat Geometry Caching](12-arcade-combat/combat-geometry-caching/DESIGN.md), and [Authored Flight Motion Geometry](12-arcade-combat/authored-flight-motion-geometry/DESIGN.md). This adds **3 new feature folders / 6 Design+Technical documents** to the v2.89 inventory: **242 folders / 484 feature documents**.
 
-Coverage also includes [v2.92 benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md) and [observational performance findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md). The handoffs do not prove the reported FPS issue is resolved. GitHub `main` source files currently observed still identify v2.87 and omit `combat-lab.js`, so public-runtime deployment of v2.92 remains **unverified**. No user-authored audio/lyrics or website code was altered.
+Coverage also includes [v2.92 benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md) and [observational performance findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md). The supplied performance evidence does not prove the reported FPS issue is resolved. No user-authored audio/lyrics or website code was altered.

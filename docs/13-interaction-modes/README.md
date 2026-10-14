@@ -21,6 +21,7 @@ This category groups the canonical documentation for **Interaction and Debug Mod
 | **Particle Boost** | Provides a temporary presentation modifier that increases the site's screen-space particle emphasis. | [Design](particle-boost/DESIGN.md) | [Technical](particle-boost/TECHNICAL.md) |
 | **Stat Overlay** | Displays FPS or unit-style runtime statistics as an optional diagnostic overlay. | [Design](stat-overlay/DESIGN.md) | [Technical](stat-overlay/TECHNICAL.md) |
 | **Control Strip Ordering** | Defines the persistent screen-space control order as Design Mode, Inspect Mode, Interact Toggle, then Hint. | [Design](control-strip-ordering/DESIGN.md) | [Technical](control-strip-ordering/TECHNICAL.md) |
+| **Documentation Access** | Three public entry points including the Design Mode-unlocked HUD shortcut. | [Design](documentation-access/DESIGN.md) | [Technical](documentation-access/TECHNICAL.md) |
 
 ## Documentation rules
 

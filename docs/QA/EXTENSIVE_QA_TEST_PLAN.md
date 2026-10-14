@@ -1883,3 +1883,8 @@ The original checklist is preserved as historical baseline. The current release 
 ## v2.92 Combat Lab QA Addendum
 
 Run [Combat Benchmark QA](COMBAT_BENCHMARK_V2_92.md) and review [Performance Investigation Findings](PERFORMANCE_INVESTIGATION_FINDINGS.md) before treating the lab as validated. The five benchmark scenarios and two geometry modes must exercise production projectile paths without crediting player progression. Verify cleanup and accurate movement under real browser conditions. The handoff does not confirm a solved Windows FPS regression.
+
+
+## v2.93–v2.94 Current Update
+
+The current v2.94 supplement requires [Combat Visual Rendering QA](COMBAT_VISUAL_RENDERING_V2_94.md): five independent diagnostic cosmetic switches, renderer DOM/Canvas A/B, original Castle fireworks and cross-system hits, Rare/Epic/Legendary color/fade/size parity, resource cleanup, no progression/audio changes. v2.93's measured large benefit from preventing particle emission must not be confused with verified v2.94 Windows frame improvement.

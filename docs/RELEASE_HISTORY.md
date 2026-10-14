@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.92
+**Current documented state:** Mippi Portfolio v2.94
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -291,3 +291,18 @@ A 30-second Legendary combined comparison produced 313 frames (~10.4 rAF FPS) wi
 Optimized geometry now uses authored flight trajectory models for registered CSS-animated UFOs, boss, pickups, shooting stars, Doug bones and lab objects. `motionCenter()` reads the browser's active CSS animation clock (`Animation.currentTime`) and computes object centers without layout rectangle measurement in those modeled cases. Effects also seek the modeled center. Unregistered entities fall back to the v2.91 cache; `dev combat geometry off` retains the original v2.90 direct-read path for A/B comparisons. Added named `modelHit` and `animation.lookup` profiler scopes.
 
 The handoff reports successful JavaScript syntax checks and headless 10-second combined workload counts of **105 player shots and 164 hostile shots in both modes**, and limited position-parity observations. **The real Windows/Edge 30-second A/B comparison was still pending.** No reduction in normal projectile counts, hit behavior, audio, particles or achievements was intended.
+
+
+## v2.93 - Combat Visual Isolation
+
+Extended the permanent hidden Combat Lab with five independent cosmetic switches: `player`, `ufo`, `explosions`, `explosionpaint`, `glow`, plus `all` and `status`. Projectile visibility can be suppressed without skipping its physics/hits; disabling explosions suppresses particle creation, whereas hiding explosion paint retains nodes, animation and removal. No combat balancing or progression changes were made. Each report freezes selected visual/geometry options, tracks actual production `explodeAt` emissions and live/peak DOM elements, and exports uniquely named condition-labeled profiles. `dev profile reset` restores visual isolates but preserves geometry selection.
+
+Five Legendary-theme 30-second combined test reports recorded ~**30.4 rAF FPS** all-on, **49.8** explosion emission off, **30.5** player/UFO paint hidden, **24.3** glow off, and **15.3** explosion paint hidden. Disabling particle emission coincided with far fewer long tasks and the strongest improvement, implicating the *particle system as a whole*. The fifth experiment was much later in the session and is not controlled evidence that hiding paint itself causes slowdown. None of these reports proves actual GPU-present frame rate, a precise browser bottleneck, or a complete fix.
+
+## v2.94 - Shared Canvas2D Particle Renderer
+
+Replaced default `explodeAt()` particle rendering with new `particle-renderer.js`: one fixed, pointer-transparent Canvas2D layer and shared rAF/particle data, instead of independently animated `.arcade-pixel` nodes and expiry timers. Original DOM rendering remains available via `dev combat renderer dom`; `canvas` is default, `status` reports selection; choice is session-only, switch blocked during benchmark, and no-Canvas fallback uses DOM. Renderer changes clear only old cosmetic particles.
+
+Preserves all effect consumers (impacts, UFO/Boss, stars, pickups, Doug, Castle fireworks), original counts/colors/shape, easing, 180-degree rotation, shrink to 20%, fade, radii, durations and z-index 70. The Canvas is lazily mounted and removed when idle; DPR backing is capped at 2. Profiler exports distinguish logical sprite emission from physical DOM vs Canvas particles, add `combat.particles.canvasSpawn` and `combat.particles.canvasFrame`, renderer mode, session age and uniquely identified filenames. v2.93's visual isolates continue to work on both backends.
+
+Code syntax and headless functional tests passed. **Repeatable Windows Edge/Chrome ABBA renderer comparisons and visual fidelity inspection remain to be completed.** v2.94 is an architectural optimization, not a proven FPS outcome. See [Shared Canvas Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md) and [Combat Visual Rendering QA](QA/COMBAT_VISUAL_RENDERING_V2_94.md).

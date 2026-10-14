@@ -641,3 +641,8 @@ When resolving a conflict:
 ## Combat Geometry / Profiling v2.90–v2.92
 
 `perf-lab.js` -> `combat-lab.js` -> `script.js` creates an optional laboratory exercising real combat creation/update paths through diagnostic-safe hooks. v2.91 shares DOM position reads between targeting, player shots and hostile emitters; v2.92 first uses authored animation-clock geometry for registered flying elements, then cached layout fallback; hidden geometry-off uses direct legacy reads. Synthetic targets cannot award progression. All laboratory entities are removed on stop, while organic gameplay continues. Captures document rAF/timer/DOM and combat counts, not GPU present time. See [Combat Lab](17-qa-operations/combat-performance-lab/TECHNICAL.md).
+
+
+## v2.93–v2.94 Particle Renderer and Diagnostics
+
+Normal collision/hit/reward paths invoke the existing `explodeAt()` entry point. v2.93 visual isolates can disable paint, glow or cosmetic emission independently, without changing projectile simulation or gameplay progression. v2.94 routes shared particle effects into a single Canvas2D renderer by default; the original per-particle DOM/CSS path remains a selectable/fallback implementation. Both paths must preserve Castle fireworks, Boss/UFO impacts and friendly pickup effects. `dev combat renderer` chooses the backend; `dev profile reset` resets visual isolates but not geometry/renderer selections. Benchmark exports identify renderer, geometry, visual modes and both logical/physical particle counts. See [Shared Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).

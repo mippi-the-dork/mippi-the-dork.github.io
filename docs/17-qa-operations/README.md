@@ -26,6 +26,8 @@ This category groups the canonical documentation for **QA, Runtime Operations, a
 | **Performance Diagnostics** | Hidden performance sampling, isolation switches, exports and careful FPS interpretation. | [Design](performance-diagnostics/DESIGN.md) | [Technical](performance-diagnostics/TECHNICAL.md) |
 | **Combat Performance Lab** | Permanent opt-in five-scenario combat benchmark with JSON export and A/B geometry mode. | [Design](combat-performance-lab/DESIGN.md) | [Technical](combat-performance-lab/TECHNICAL.md) |
 
+| **Combat Visual Isolation** | Five independent cosmetic diagnostic switches with permanent benchmark reporting. | [Design](combat-visual-isolation/DESIGN.md) | [Technical](combat-visual-isolation/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

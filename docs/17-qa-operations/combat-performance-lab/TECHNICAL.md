@@ -53,3 +53,7 @@ v2.90 deferred the initial telemetry-visible-section scan until after `POSTGAME_
 The RAF frame intervals are not GPU-present timings. The fixed UFO emitters do not simulate full roaming enemy AI. Controlled cursor input does not represent the entire real player experience. Repeat runs; compare actual spawned/removed/hit and peak counts to ensure equal work. v2.78 was not instrumented with the identical Combat Lab load, so direct synthetic-performance claims about v2.78 are unsupported.
 
 See [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md) for repeatable workload and accuracy testing.
+
+## v2.93–v2.94 Current Update
+
+v2.93 introduces `window.MippiCombatVisuals`, five session-only visual isolation modes, frozen `visualModes` and `geometryMode` in captures, `effectCalls` and production-wide `effectElementsRequested/Emitted/Suppressed`, and live/peak DOM particle counts. Reports use `testLabel` and unique condition/timestamped filenames. v2.94 adds `particle-renderer.js` before `script.js`, default Canvas backend with DOM fallback, `dev combat renderer dom/canvas/status`, `rendererMode`, `sessionAgeMs`, `effectCanvasParticles`/`effectDomParticles`, and 1Hz Canvas counts. `effectElementsEmitted` now means logical sprites across backends, not actual HTML elements. `dev profile reset` restores visual modes but leaves selected geometry and renderer unchanged. See [Shared Canvas Renderer](../../12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).

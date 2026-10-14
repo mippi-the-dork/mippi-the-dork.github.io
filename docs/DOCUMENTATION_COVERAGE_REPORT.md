@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v2.92. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v2.94. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -62,6 +62,13 @@ The release handoffs describe the documented features, but do not establish a ve
 
 ## v2.90–v2.92 Addendum
 
-Three additional ZIP handoffs add permanent [Combat Performance Lab](17-qa-operations/combat-performance-lab/DESIGN.md), [Combat Geometry Caching](12-arcade-combat/combat-geometry-caching/DESIGN.md), and [Authored Flight Motion Geometry](12-arcade-combat/authored-flight-motion-geometry/DESIGN.md). This adds **3 new feature folders / 6 Design+Technical documents** to the v2.89 inventory: **242 folders / 484 feature documents**.
+Three additional ZIP handoffs add permanent [Combat Performance Lab](17-qa-operations/combat-performance-lab/DESIGN.md), [Combat Geometry Caching](12-arcade-combat/combat-geometry-caching/DESIGN.md), and [Authored Flight Motion Geometry](12-arcade-combat/authored-flight-motion-geometry/DESIGN.md). This adds **3 new feature folders / 6 Design+Technical documents** to the v2.89 inventory: **244 folders / 488 feature documents**.
 
 Coverage also includes [v2.92 benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md) and [observational performance findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md). The supplied performance evidence does not prove the reported FPS issue is resolved. No user-authored audio/lyrics or website code was altered.
+
+
+## v2.93–v2.94 Coverage
+
+Two release handoffs, plus two v2.93 user performance analyses, add **Combat Visual Isolation** (category 17) and **Shared Canvas Particle Renderer** (category 12) as new Design/Technical feature pairs. The documented inventory is now **244 feature folders / 488 feature pages**. Updated documentation includes Console commands, performance tools, effect consumers, asset dependencies, QA matrix, release chronology, references and [Canvas/DOM ABBA testing](QA/COMBAT_VISUAL_RENDERING_V2_94.md).
+
+v2.93 independently hides player/UFO projectile paint, explosion *emission*, explosion *paint*, and glow. Combined benchmark frame-delivery rates were 30.4 all-on versus 49.8 with cosmetic emission disabled; the fifth, much later unbracketed paint-hidden capture did not establish that hidden paint causes poor performance. v2.94 changes the default `explodeAt()` backend to shared Canvas2D with original DOM fallback and A/B control. The release has passed headless code/functional tests, while Windows performance and visual parity remain unverified by the provided evidence. No audio, lyric, portfolio code or runtime assets have been changed in this docs-only update.

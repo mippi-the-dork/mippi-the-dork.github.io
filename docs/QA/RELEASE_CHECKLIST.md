@@ -443,3 +443,8 @@ See [v2.89 profiling procedure](PERFORMANCE_PROFILING_V2.89.md) and [regression 
 - [ ] Validate moving target/ship/effect center parity and Slowmo duration adjustment in real Windows Edge.
 - [ ] Capture ABBA combined runs with consistent viewport, theme, source counts and performance evidence.
 - [ ] Profiled costs are not summed across nested scopes; no blanket FPS fix is claimed.
+
+
+## v2.93–v2.94 Current Update
+
+v2.94 QA: verify Canvas is default and `dev combat renderer dom/canvas/status` works, backend cannot change during active benchmarks, `particle-renderer.js` initializes ahead of `script.js`, visual switches affect both backends with correct emission-vs-paint semantics, DOM fallback activates when Canvas2D unavailable, canvas/rAF cleans up when idle, and real Windows Edge/Chrome ABBA plus visual/theme/Castle checks are performed before claiming improved frame pacing. See [Combat Visual Rendering QA](COMBAT_VISUAL_RENDERING_V2_94.md).

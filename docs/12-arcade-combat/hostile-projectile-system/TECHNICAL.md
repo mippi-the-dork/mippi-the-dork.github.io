@@ -231,3 +231,8 @@ A Super Boss projectile removes when:
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.93–v2.94 Current Update
+
+v2.93 hiding `ufo` paint does not disable hostile projectile rAF, collision, cursor hit or cleanup. `explosions off` suppresses impact particle emission without removing the actual collision/hit event. v2.94 changes the shared `explodeAt()` particle rendering to Canvas2D default with DOM fallback; the projectile's own simulation/DOM mechanics remain unchanged.

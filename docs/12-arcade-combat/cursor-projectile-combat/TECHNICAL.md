@@ -218,3 +218,10 @@ It is separate from the Super Boss's vertical firing model.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.89 Technical Supersession
+
+v2.82 replaced one rAF per Legendary projectile with shared `legendaryActiveShots` / `tickLegendaryShots` (14 cap, 1.8s lifetime). v2.84 added 75ms target-location caching and cheap solid paint. v2.85 latest: 50ms cached samples with predicted target velocity, 120ms delta clamp, per-shot speed cached when fired (1050px/s, 1380px/s Golden Trigger), 46ms CSS transform easing. Original target click handlers still grant rewards. No real-device FPS fix is asserted.
+
+For chronological attribution see [Release History](../../RELEASE_HISTORY.md).

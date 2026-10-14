@@ -26,3 +26,8 @@ Do not leave diagnostic isolation switches enabled during gameplay/progression Q
 ## Acceptance
 
 Capture repeated baseline/isolate/baseline JSON measurements. Note frame spikes, UI/DOM state and browser traces. A causal optimization is a future change, not implied by these logs.
+
+
+## v2.93–v2.94 Current Update
+
+v2.93 permanent Combat Visual Isolation distinguishes hidden projectile paint from suppressed particle emission, hidden particle paint and glow. Tests showed the strongest benefit when cosmetic particle creation was prevented; exact browser rendering subcost remains unisolated. v2.94 implements a shared Canvas2D default with preserved DOM fallback and permanent backend A/B controls. Neither diagnostic v2.93 nor headless v2.94 test proves a real Windows FPS fix.

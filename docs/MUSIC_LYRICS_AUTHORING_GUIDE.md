@@ -1,6 +1,6 @@
 # Music Lyrics Authoring Guide
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Current documented state:** Mippi Portfolio v2.89
 
 The unlocked Music Player supports one editable LRC file per soundtrack track.
 
@@ -242,3 +242,21 @@ For each completed lyric file:
 - Verify HTML-like text displays literally.
 - Check Rare, Epic, and Legendary themes.
 - Check narrow layouts at 760 px or below.
+
+
+## Enhanced LRC and Current v2.89 Viewer
+
+**v2.81 added Enhanced LRC:** Keep the line timestamp `[mm:ss.xx]`, then use `<mm:ss.xx>` before each word/segment:
+
+```text
+[00:11.50]<00:11.50>I <00:11.72>made <00:12.12>this
+[00:15.00]<00:15.00>Every <00:15.33>little <00:15.70>feature
+```
+
+Inline timestamps produce word/segment highlighting; standard LRC lines remain valid in the same file. Spaces and punctuation belong to segments. No animated letter-filling or raw timestamp presentation is implied.
+
+**Current UI:** The v2.80 per-track circled ? buttons were **removed in v2.81**. Use the single Lyrics toggle for the currently selected song. A companion panel appears right of the header player on desktop or below on narrow screens, offering Full/Single modes. Collapse temporarily forces Single; expand restores the selected viewing mode. Native audio seek updates sync; current lyrics are rendered safely as text.
+
+**v2.83 styling:** The companion height follows the player's actual height via ResizeObserver. Active lines and placeholders use ~12px text. Earlier descriptions of 15px/14px collapsed type are v2.82 history, not current behavior.
+
+**Content ownership:** Hand-off ZIPs never replace your locally edited `assets/music/*.lrc` sources. Empty metadata-only templates in archived builds do not establish whether current user-authored lyrics are complete. Use HTTP local preview or GitHub Pages for fetch testing, not `file://`.

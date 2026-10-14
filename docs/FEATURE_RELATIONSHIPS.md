@@ -636,3 +636,8 @@ When resolving a conflict:
 **Docs:** Public `docs` Console, About CTA and unlock-gated Modes button point to the separate public documentation experience. Icon attention exists only while Design Mode is active and the docs link remains undiscovered.
 
 **Diagnostics:** `dev perf` and hidden `dev profile` run alongside production features but provide measurements and temporary test isolates, not new player-facing objectives. None of the v2.86–v2.89 diagnostic instrumentation is proof that the reported Windows FPS issue is fixed.
+
+
+## Combat Geometry / Profiling v2.90–v2.92
+
+`perf-lab.js` -> `combat-lab.js` -> `script.js` creates an optional laboratory exercising real combat creation/update paths through diagnostic-safe hooks. v2.91 shares DOM position reads between targeting, player shots and hostile emitters; v2.92 first uses authored animation-clock geometry for registered flying elements, then cached layout fallback; hidden geometry-off uses direct legacy reads. Synthetic targets cannot award progression. All laboratory entities are removed on stop, while organic gameplay continues. Captures document rAF/timer/DOM and combat counts, not GPU present time. See [Combat Lab](17-qa-operations/combat-performance-lab/TECHNICAL.md).

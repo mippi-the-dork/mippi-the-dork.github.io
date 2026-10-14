@@ -20,7 +20,7 @@ This category groups the canonical documentation for **Interaction and Debug Mod
 | **Nanite Visualization** | Provides a console-driven triangle visualization state inspired by Unreal Engine Nanite debug views. | [Design](nanite-visualization/DESIGN.md) | [Technical](nanite-visualization/TECHNICAL.md) |
 | **Particle Boost** | Provides a temporary presentation modifier that increases the site's screen-space particle emphasis. | [Design](particle-boost/DESIGN.md) | [Technical](particle-boost/TECHNICAL.md) |
 | **Stat Overlay** | Displays FPS or unit-style runtime statistics as an optional diagnostic overlay. | [Design](stat-overlay/DESIGN.md) | [Technical](stat-overlay/TECHNICAL.md) |
-| **Control Strip Ordering** | Defines the persistent screen-space control order as Design Mode, Inspect Mode, Interact Toggle, then Hint. | [Design](control-strip-ordering/DESIGN.md) | [Technical](control-strip-ordering/TECHNICAL.md) |
+| **Control Strip Ordering** | Documents the legacy controls and their current relocation to the four-column HUD, including Docs in Modes and Hint in Utilities. | [Design](control-strip-ordering/DESIGN.md) | [Technical](control-strip-ordering/TECHNICAL.md) |
 | **Documentation Access** | Three public entry points including the Design Mode-unlocked HUD shortcut. | [Design](documentation-access/DESIGN.md) | [Technical](documentation-access/TECHNICAL.md) |
 
 ## Documentation rules

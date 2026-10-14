@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.89
+**Current documented state:** Mippi Portfolio v2.92 (handoff-specified; live main code verification pending)
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -272,3 +272,26 @@ This version is a **diagnostic release, not a performance fix**. The profiler it
 The end state is **v2.89**. Keep version attribution and supersession explicit: current loop order comes from v2.85, current HUD grouping from v2.87, current profiler from v2.89. Older descriptions may remain as versioned history but must not be treated as current implementation instructions.
 
 Refer to [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md), [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md), and [Unified Bottom HUD](01-experience-foundation/unified-bottom-hud/TECHNICAL.md).
+
+
+## v2.90 - Permanent Combat Performance Lab
+
+Added the opt-in, permanent `combat-lab.js` benchmark harness. `dev combat` supports `idle`, `player`, `ufo`, `combined`, and `explosions` for 10–45-second reproducible workloads (30 seconds default). Tests use production projectile and explosion hooks, temporary entities flagged to avoid progression, and local JSON profiler reports. Director non-forced spawns defer during runs and resume afterward. Instrumentation includes 1Hz combat snapshots and counts for creation, cleanup, hits and active/peak populations. The required load order is `perf-lab.js` → `combat-lab.js` → `script.js`.
+
+Five user-supplied Legendary/Edge 30-second samples (2151×1307, DPR1) showed approximate rAF frame-delivery rates: idle **59.4**, player **35.7**, UFO **29.8**, combined **11.7**, explosions **50.3** FPS. These are artificial stress tests, not normal game rates or measured GPU-present timing. Combat hit acquisition and enemy projectile spawning were high-cost measured paths. An initial metadata inconsistency recorded `version:2.89` while identifying a `v2.90` diagnostic harness.
+
+## v2.91 - Cached Geometry with Legacy A/B
+
+Added `combatGeometry` to share target/emitter positions across player-shot acquisition, homing and hostile-shot spawning. Target list refreshes about 125ms; position cache expiry about 115ms, with bounded velocity extrapolation. The UFO benchmark prepares all four emitter centers before performing projectile insertion. `dev combat geometry off/on` compares v2.90 legacy DOM measurement against caching; default is on and the setting cannot change mid-run.
+
+A 30-second Legendary combined comparison produced 313 frames (~10.4 rAF FPS) with legacy reads vs 563 (~18.8) with cache, with **500 hostile shots each**. Optimized emitter geometry read time fell from ~8.23s to ~1.32s across 500 calls, but some expensive reads remained. Comparison runs were not a balanced ABBA design, and objective visibility differed, so improvement should not be interpreted as a fully controlled performance proof. Two exports had misleading `v2.90` filenames while their JSON internally identified v2.91.
+
+## v2.92 - Authored Flight Motion Geometry
+
+Optimized geometry now uses authored flight trajectory models for registered CSS-animated UFOs, boss, pickups, shooting stars, Doug bones and lab objects. `motionCenter()` reads the browser's active CSS animation clock (`Animation.currentTime`) and computes object centers without layout rectangle measurement in those modeled cases. Effects also seek the modeled center. Unregistered entities fall back to the v2.91 cache; `dev combat geometry off` retains the original v2.90 direct-read path for A/B comparisons. Added named `modelHit` and `animation.lookup` profiler scopes.
+
+The handoff reports successful JavaScript syntax checks and headless 10-second combined workload counts of **105 player shots and 164 hostile shots in both modes**, and limited position-parity observations. **The real Windows/Edge 30-second A/B comparison was still pending.** No reduction in normal projectile counts, hit behavior, audio, particles or achievements was intended.
+
+## Repository Verification Caveat
+
+These three versions are documented from their uploaded handoff packages. At the time this update was prepared, the connected GitHub repository `main` still exposed v2.87 `script.js`/`index.html` and did **not** include `combat-lab.js`. This means v2.92 is the **handoff-described target**, not independently verified deployed code. See [Documentation Coverage Report](DOCUMENTATION_COVERAGE_REPORT.md) for the distinction.

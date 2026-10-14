@@ -91,6 +91,8 @@ Total canonical feature pages:
 
 - [Extensive QA Test Plan](QA/EXTENSIVE_QA_TEST_PLAN.md)
 - [Release Checklist](QA/RELEASE_CHECKLIST.md)
+- [v2.81–v2.89 Regression Matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md)
+- [v2.89 Performance Profiling Procedure](QA/PERFORMANCE_PROFILING_V2.89.md)
 
 ## Documentation Rules
 

@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.94
+**Current documented state:** Mippi Portfolio v2.97
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -306,3 +306,24 @@ Replaced default `explodeAt()` particle rendering with new `particle-renderer.js
 Preserves all effect consumers (impacts, UFO/Boss, stars, pickups, Doug, Castle fireworks), original counts/colors/shape, easing, 180-degree rotation, shrink to 20%, fade, radii, durations and z-index 70. The Canvas is lazily mounted and removed when idle; DPR backing is capped at 2. Profiler exports distinguish logical sprite emission from physical DOM vs Canvas particles, add `combat.particles.canvasSpawn` and `combat.particles.canvasFrame`, renderer mode, session age and uniquely identified filenames. v2.93's visual isolates continue to work on both backends.
 
 Code syntax and headless functional tests passed. **Repeatable Windows Edge/Chrome ABBA renderer comparisons and visual fidelity inspection remain to be completed.** v2.94 is an architectural optimization, not a proven FPS outcome. See [Shared Canvas Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md) and [Combat Visual Rendering QA](QA/COMBAT_VISUAL_RENDERING_V2_94.md).
+
+
+## v2.95 - Permanent Long-Session Stability Lab
+
+Introduced `stability-lab.js` before the existing diagnostic and gameplay scripts, and hidden `dev stability help/start/report/export/stop/soak N` commands (N=2–60 nominal minutes). Every ~5 seconds the opt-in monitor samples live and cumulative timer counts, DOM/animations, projectile lifecycle and Canvas state, plus browser JS heap when exposed. `soak` alternates 30-second production-path protected combined-combat runs with ~10.5-second recovery, exports bounded timelines and reports from live counters. Cleanup now cancels diagnostic hostile projectile rAF/guard timers, empty shared player-shot loop and a queued 400ms benchmark start while leaving ordinary projectiles untouched. Initial syntax/headless smoke tests passed.
+
+v2.94 **fresh-page** Legendary comparisons motivating this work showed ~30.6 rAF FPS with DOM particles, **54.7** with Canvas, **56.1** with emissions off (single runs; separate page loads). A later v2.94 **same-session** DOM/Canvas/Canvas/DOM run at ~38–42 minutes varied substantially and could not establish a renderer-wide FPS causal estimate, despite roughly **43x** lower measured `combat.explosion.spawn` JS function time for Canvas. A v2.95 14-cycle monitoring export exhibited later severe collapses and recovery; the tool did not yet measure browser focus, so those cycles cannot all be assumed valid foreground performance.
+
+## v2.96 - Focus-Aware Stability Lab
+
+Stability monitoring now classifies `foreground`, `visible-unfocused`, `hidden`; tracks focus events/time-in-state, an independent rAF heartbeat, first-frame return time and five-second recovery. Interrupted synthetic combat is cancelled, cleaned up, logged separately, then **restarted from the beginning after 1.5s stable foreground**, without contributing to valid-cycle average. Focus loss during recovery repeats only recovery, retaining completed combat metrics. Reports/exports include focus summaries, interruptions and `validForeground` flags; previous timer/DOM/Canvas monitoring stays intact.
+
+One focus-interrupted three-cycle test validated exclusion/restart, with **52.61 delivered rAF FPS** across valid cycles and no diagnostic resource buildup. A fully foreground, zero-interruption **14-cycle/10-minute** run averaged **55.01 rAF FPS** on cycles 1–8 and **49.17** on cycles 9–14, with long tasks rising from **42** to **103**. This is a real measured phase change in foreground callback delivery, **not evidence of a particular leak or confirmed GPU/paint cause**. Eight other v2.96 30-second reports found two severe drops to **18.5 and 23.6** rAF FPS precisely when the cursor classes were `cursor-grown cursor-power-1/2`; later normal-cursor runs recovered to ~53–54 in the same page session. Correlation alone does not establish that cursor growth caused the slowdown.
+
+## v2.97 - Cursor Rendering Lab
+
+Introduced permanent hidden `dev cursor` controls to isolate cursor **visual size** (`gameplay/normal/big/verybig`), CSS `universal` vs experimental body-only `inherit`, native SVG pointer artwork, aura, glow, Trail and Star Power sparks. `dev cursor reset` restores existing v2.96 visuals; `dev profile reset` does not affect this separate lab. The gameplay Mushroom level remains authoritative for the **55px-per-level** Legendary acquisition bonus, unaffected by visual-only overrides. All settings are in memory and not saved.
+
+Profiler exports now record `raw.cursorInitial`/`raw.cursorFinal`, a Cursor Lab summary, and condition-labelled filenames. JavaScript syntax and headless interactions/profile export passed; **controlled Windows Edge A/B and pointer-affordance verification are pending**. Original universal cursor styling remains the default; body-only inheritance is diagnostic, not a proven optimization. No projectile, Canvas, Three.js, metagame, music or lyric behavior was changed.
+
+For current procedures see [Long-Session Stability QA](QA/LONG_SESSION_STABILITY_V2_97.md) and [Cursor Lab Windows QA](QA/CURSOR_LAB_V2_97.md).

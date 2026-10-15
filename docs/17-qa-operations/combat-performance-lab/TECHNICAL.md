@@ -57,3 +57,8 @@ See [Combat Benchmark QA](../../QA/COMBAT_BENCHMARK_V2_92.md) for repeatable wor
 ## v2.93–v2.94 Current Update
 
 v2.93 introduces `window.MippiCombatVisuals`, five session-only visual isolation modes, frozen `visualModes` and `geometryMode` in captures, `effectCalls` and production-wide `effectElementsRequested/Emitted/Suppressed`, and live/peak DOM particle counts. Reports use `testLabel` and unique condition/timestamped filenames. v2.94 adds `particle-renderer.js` before `script.js`, default Canvas backend with DOM fallback, `dev combat renderer dom/canvas/status`, `rendererMode`, `sessionAgeMs`, `effectCanvasParticles`/`effectDomParticles`, and 1Hz Canvas counts. `effectElementsEmitted` now means logical sprites across backends, not actual HTML elements. `dev profile reset` restores visual modes but leaves selected geometry and renderer unchanged. See [Shared Canvas Renderer](../../12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).
+
+
+## v2.95–v2.97 Current Update
+
+v2.95 introduces `MippiStabilityLab` and protected automated combined-combat soak; lab `stop()` cancels pending queued starts and registered **diagnostic** hostile shots without deleting ordinary projectile lifetimes. v2.96 excludes focus-interrupted captures and restarts their numbered cycle after 1.5 seconds foreground. The permanent Combat Lab's existing geometry, renderer and visual switches remain available. v2.97 cursor visual isolation does not affect production hit and reward hooks.

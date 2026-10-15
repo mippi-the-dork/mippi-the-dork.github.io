@@ -44,3 +44,8 @@ Permanent opt-in `combat-lab.js` now adds five stress scenarios and a diagnostic
 ## v2.93–v2.94 Current Update
 
 v2.93 profiler snapshots record pinned visual and geometry modes, production `explodeAt()` effect calls/particle request/emission/suppression, active/peak DOM node counts and `testLabel`. v2.94 adds `combat.particles.canvasSpawn` and `combat.particles.canvasFrame`, backend-specific physical counts, `rendererMode`, Canvas snapshot totals and `sessionAgeMs`. Rendering callback cost is CPU JS time, not browser paint/compositor/GPU presentation. Renderer and geometry choices remain independent of `dev profile reset`.
+
+
+## v2.95–v2.97 Current Update
+
+v2.95 adds opt-in `stability-lab.js` early load, live timer/projectile/Canvas lifecycle snapshots and `MippiPerfLab.lastMetrics()`. v2.96 adds foreground/visible-unfocused/hidden state, focus transitions, recovery and valid-only soak cycles. v2.97 adds `raw.cursorInitial` / `raw.cursorFinal`, native cursor/style/size conditions and cursor-labeled export filenames. **Animation-frame delivery is not GPU-present FPS**; 14 uninterrupted v2.96 soak cycles had 55.01 then 49.17 rAF FPS averages, while extreme drops in other samples correlate with grown cursor classes but remain causally unverified.

@@ -173,3 +173,8 @@ it decrements one banked life, persists, and gives temporary invulnerability.
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.95–v2.97 Current Update
+
+v2.97 introduces a visual-only diagnostic override (`dev cursor size gameplay|normal|big|verybig`). Mushroom collection still increments the actual `cursorPowerLevel`, drives the same progression and banked lives, and grants an unchanged 55px per actual power level Legendary targeting bonus. CSS `inherit` vs `universal` is diagnostic only and original visual styling remains the default. See [Cursor Rendering Lab](../../17-qa-operations/cursor-rendering-lab/TECHNICAL.md).

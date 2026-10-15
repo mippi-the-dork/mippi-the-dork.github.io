@@ -230,3 +230,8 @@ For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
 ## v2.93–v2.94 Current Update
 
 v2.93 `dev combat visual player off` hides Legendary player-shot paint only, leaving targeting, shared rAF, homing, impact, reward click and cleanup intact. `dev combat visual explosions off` suppresses cosmetic impact sprites only. v2.94 renders `explodeAt()` impact effects through shared Canvas2D by default while retaining DOM fallback; it does not convert projectile simulation to Canvas.
+
+
+## v2.95–v2.97 Current Update
+
+v2.95 cancels the shared Legendary player-projectile rAF immediately when no shots remain after benchmark teardown. v2.97 `dev cursor size` changes only the visual Mushroom cursor; real `cursorPowerLevel` and `55px * cursorPowerLevel` Legendary acquisition range are unchanged, as are player shot speeds and collisions.

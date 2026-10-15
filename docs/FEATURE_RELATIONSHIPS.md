@@ -646,3 +646,8 @@ When resolving a conflict:
 ## v2.93–v2.94 Particle Renderer and Diagnostics
 
 Normal collision/hit/reward paths invoke the existing `explodeAt()` entry point. v2.93 visual isolates can disable paint, glow or cosmetic emission independently, without changing projectile simulation or gameplay progression. v2.94 routes shared particle effects into a single Canvas2D renderer by default; the original per-particle DOM/CSS path remains a selectable/fallback implementation. Both paths must preserve Castle fireworks, Boss/UFO impacts and friendly pickup effects. `dev combat renderer` chooses the backend; `dev profile reset` resets visual isolates but not geometry/renderer selections. Benchmark exports identify renderer, geometry, visual modes and both logical/physical particle counts. See [Shared Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).
+
+
+## v2.95–v2.97 Stability and Cursor Diagnostics
+
+`stability-lab.js` loads before `perf-lab.js`, `particle-renderer.js`, `combat-lab.js`, and `script.js`. It observes pending timers, projectile cleanup and Canvas expiry. `dev stability soak` uses the protected production-path Combat Lab, while v2.96 focus awareness rejects incomplete visible-unfocused/hidden attempts. `MippiCursorLab` (v2.97) overrides only effective cursor visuals, with actual `cursorPowerLevel` remaining the sole Mushroom progression and Legendary acquisition bonus authority. Cursor Lab choices are independent of `dev profile reset` and never write storage. Performance results are rAF callback delivery, not GPU presents.

@@ -236,3 +236,8 @@ A Super Boss projectile removes when:
 ## v2.93–v2.94 Current Update
 
 v2.93 hiding `ufo` paint does not disable hostile projectile rAF, collision, cursor hit or cleanup. `explosions off` suppresses impact particle emission without removing the actual collision/hit event. v2.94 changes the shared `explodeAt()` particle rendering to Canvas2D default with DOM fallback; the projectile's own simulation/DOM mechanics remain unchanged.
+
+
+## v2.95–v2.97 Current Update
+
+v2.95 hardened hostile projectile lifetime cleanup with registered callback Sets, split normal and diagnostic ownership, cancellation of the shot's scheduled rAF and guard timeout, and diagnostic-only teardown. A Combat Lab stop cannot erase the visitor's ordinary shots. This is lifecycle hardening, not a modification to projectile trajectory, damage or rewards.

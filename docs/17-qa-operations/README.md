@@ -28,6 +28,10 @@ This category groups the canonical documentation for **QA, Runtime Operations, a
 
 | **Combat Visual Isolation** | Five independent cosmetic diagnostic switches with permanent benchmark reporting. | [Design](combat-visual-isolation/DESIGN.md) | [Technical](combat-visual-isolation/TECHNICAL.md) |
 
+| **Long-Session Stability Lab** | Opt-in resource timelines, combat soak, foreground-aware cycle validation and cleanup. | [Design](long-session-stability-lab/DESIGN.md) | [Technical](long-session-stability-lab/TECHNICAL.md) |
+
+| **Cursor Rendering Lab** | Visual-only cursor-size, CSS style, SVG and cosmetic isolation for reproducible performance comparisons. | [Design](cursor-rendering-lab/DESIGN.md) | [Technical](cursor-rendering-lab/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

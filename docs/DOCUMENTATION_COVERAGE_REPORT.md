@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v2.94. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v2.97. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -72,3 +72,10 @@ Coverage also includes [v2.92 benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md) and [o
 Two release handoffs, plus two v2.93 user performance analyses, add **Combat Visual Isolation** (category 17) and **Shared Canvas Particle Renderer** (category 12) as new Design/Technical feature pairs. The documented inventory is now **244 feature folders / 488 feature pages**. Updated documentation includes Console commands, performance tools, effect consumers, asset dependencies, QA matrix, release chronology, references and [Canvas/DOM ABBA testing](QA/COMBAT_VISUAL_RENDERING_V2_94.md).
 
 v2.93 independently hides player/UFO projectile paint, explosion *emission*, explosion *paint*, and glow. Combined benchmark frame-delivery rates were 30.4 all-on versus 49.8 with cosmetic emission disabled; the fifth, much later unbracketed paint-hidden capture did not establish that hidden paint causes poor performance. v2.94 changes the default `explodeAt()` backend to shared Canvas2D with original DOM fallback and A/B control. The release has passed headless code/functional tests, while Windows performance and visual parity remain unverified by the provided evidence. No audio, lyric, portfolio code or runtime assets have been changed in this docs-only update.
+
+
+## v2.95–v2.97 Coverage
+
+Three additional release handoffs and six performance-analysis documents extend the current specification to **v2.97**. Two feature folders each with Design/Technical documentation were added: [Long-Session Stability Lab](17-qa-operations/long-session-stability-lab/DESIGN.md) and [Cursor Rendering Lab](17-qa-operations/cursor-rendering-lab/DESIGN.md). Total inventory is **246 feature folders and 492 feature pages**. New procedures: [Long-Session Stability QA](QA/LONG_SESSION_STABILITY_V2_97.md) and [Cursor Lab Windows QA](QA/CURSOR_LAB_V2_97.md).
+
+Current documentation distinguishes the validated v2.96 foreground 14-cycle phase change (55.0 then 49.2 callback FPS), the separate correlation of extreme slowdown with grown cursor styles (18.5/23.6), and unproven cursor causation. v2.97 introduces isolation controls and exports, **not a demonstrated performance fix**. Canvas remains the default and original visuals remain unchanged without explicit test toggles. No portfolio source, audio or assets are edited by this documentation-only update.

@@ -198,3 +198,8 @@ The v2.92 runtime requires `perf-lab.js` followed by `combat-lab.js`, then `scri
 ## v2.93–v2.94 Current Update
 
 v2.94 runtime requires `particle-renderer.js` loaded before gameplay `script.js`, alongside existing `perf-lab.js` and `combat-lab.js`. All are intentional runtime assets, not disposable debug archives. Original `.arcade-pixel` CSS animation remains as DOM fallback. Documentation-only edits must never modify JS/CSS/assets or music/LRC files.
+
+
+## v2.95–v2.97 Current Update
+
+The current v2.97 runtime script initialization order is `stability-lab.js`, `perf-lab.js`, `particle-renderer.js`, `combat-lab.js`, `script.js`. All are intentional permanent runtime dependencies even though developer commands are hidden from ordinary player Help. Documentation changes never alter those scripts, twelve MP3s or editable LRCs.

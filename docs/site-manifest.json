@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v2.94",
+  "baseline": "Mippi Portfolio v2.97",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -8,7 +8,7 @@
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
-      "summary": "Version-by-version documentation coverage through v2.94."
+      "summary": "Version-by-version documentation coverage through v2.97."
     },
     {
       "title": "Release History",
@@ -101,6 +101,16 @@
       "title": "Combat Visual Rendering QA v2.94",
       "path": "QA/COMBAT_VISUAL_RENDERING_V2_94.md",
       "summary": "Permanent combat visual isolates, Canvas/DOM ABBA benchmarking, fidelity and regression checks."
+    },
+    {
+      "title": "Long-Session Stability QA",
+      "path": "QA/LONG_SESSION_STABILITY_V2_97.md",
+      "summary": "Focus-aware, 14-cycle combat soak and resource-cleanup testing."
+    },
+    {
+      "title": "Cursor Lab Windows QA",
+      "path": "QA/CURSOR_LAB_V2_97.md",
+      "summary": "Controlled Mushroom cursor visuals and style A/B with unchanged gameplay."
     }
   ]
 }

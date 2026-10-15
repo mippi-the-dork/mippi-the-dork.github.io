@@ -448,3 +448,8 @@ See [v2.89 profiling procedure](PERFORMANCE_PROFILING_V2.89.md) and [regression 
 ## v2.93–v2.94 Current Update
 
 v2.94 QA: verify Canvas is default and `dev combat renderer dom/canvas/status` works, backend cannot change during active benchmarks, `particle-renderer.js` initializes ahead of `script.js`, visual switches affect both backends with correct emission-vs-paint semantics, DOM fallback activates when Canvas2D unavailable, canvas/rAF cleans up when idle, and real Windows Edge/Chrome ABBA plus visual/theme/Castle checks are performed before claiming improved frame pacing. See [Combat Visual Rendering QA](COMBAT_VISUAL_RENDERING_V2_94.md).
+
+
+## v2.95–v2.97 Current Update
+
+Current v2.97 QA: ensure `stability-lab.js` loads before `perf-lab.js`, `particle-renderer.js`, `combat-lab.js`, `script.js`; verify stop/queued cleanup, foreground-only soak results, interruption/recovery, bounded exports; ensure `dev cursor reset` restores original universal styling and all effects, and visual-only size does not alter actual Mushroom progression or Legendary targeting. v2.97 Cursor Lab Edge A/B results remain open. See [Stability QA](LONG_SESSION_STABILITY_V2_97.md) and [Cursor QA](CURSOR_LAB_V2_97.md).

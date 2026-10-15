@@ -1888,3 +1888,8 @@ Run [Combat Benchmark QA](COMBAT_BENCHMARK_V2_92.md) and review [Performance Inv
 ## v2.93–v2.94 Current Update
 
 The current v2.94 supplement requires [Combat Visual Rendering QA](COMBAT_VISUAL_RENDERING_V2_94.md): five independent diagnostic cosmetic switches, renderer DOM/Canvas A/B, original Castle fireworks and cross-system hits, Rare/Epic/Legendary color/fade/size parity, resource cleanup, no progression/audio changes. v2.93's measured large benefit from preventing particle emission must not be confused with verified v2.94 Windows frame improvement.
+
+
+## v2.95–v2.97 Current Update
+
+Current v2.97 release supplement: run [Long-Session Stability QA](LONG_SESSION_STABILITY_V2_97.md) and [Cursor Lab Windows QA](CURSOR_LAB_V2_97.md), including focus/blur interruption exclusion, restart after 1.5s foreground, cleanup after 14 cycles, status and export consistency, normal/big/verybig/inherit/native-off visual controls and unchanged actual Mushroom progression. Existing music, achievements, UI, Canvas and Three.js behavior are not modified by these diagnostics.

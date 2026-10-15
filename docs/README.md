@@ -1,8 +1,8 @@
 # Mippi Portfolio Documentation
 
-**Current documented state:** Mippi Portfolio v2.94
+**Current documented state:** Mippi Portfolio v2.97
 
-**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.94 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
+**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.97 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
 
 This folder is the canonical documentation set for the Mippi portfolio experience.
 
@@ -54,18 +54,18 @@ For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objectiv
 | [14. Dynamic Runtime Systems](14-dynamic-runtime/README.md)                           |       16 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
 | [15. Project Heavy Water Perspective Visualizer](15-perspective-visualizer/README.md) |        8 | The tactical/live camera demonstration for first-, second-, and third-person camera ownership.                 |
 | [16. Finale and Postgame](16-finale-postgame/README.md)                               |       16 | Normal Finale, Session Report, postgame reveal, True Completion, and the 12-track Music Player, repeat/shuffle options, and editable LRC lyrics.               |
-| [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       14 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep.     |
+| [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       16 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and release sweep.     |
 
 Total feature folders:
 
 ```text
-244
+246
 ```
 
 Total canonical feature pages:
 
 ```text
-488
+492
 ```
 
 ## Project-Wide References
@@ -74,6 +74,8 @@ Total canonical feature pages:
 - [Combat Performance Lab](17-qa-operations/combat-performance-lab/DESIGN.md)
 - [Combat Benchmark QA](QA/COMBAT_BENCHMARK_V2_92.md)
 - [Combat Visual Rendering QA](QA/COMBAT_VISUAL_RENDERING_V2_94.md)
+- [Long-Session Stability QA](QA/LONG_SESSION_STABILITY_V2_97.md)
+- [Cursor Lab Windows QA](QA/CURSOR_LAB_V2_97.md)
 - [Shared Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/DESIGN.md)
 - [Performance Investigation Findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md)
 - [Performance Diagnostics](17-qa-operations/performance-diagnostics/DESIGN.md)

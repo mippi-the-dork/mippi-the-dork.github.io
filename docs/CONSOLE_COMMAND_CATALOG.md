@@ -1,6 +1,6 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v2.94
+**Current documented version:** Mippi Portfolio v2.97
 
 This is the authoritative v2.89 command catalog for the in-site Dev Console.
 
@@ -449,3 +449,28 @@ dev combat renderer canvas
 ```
 
 Visual controls are diagnostic and session-only; the first two suppress projectile paint but **not** simulation/hits; `explosions off` skips cosmetic emissions; `explosionpaint off` retains emission and particle lifecycles but hides output; `glow off` removes selected combat shadows/filters. `dev profile reset` restores all visual modes, but does **not** change geometry or renderer. v2.94 defaults to Canvas; DOM remains an opt-in parity/benchmark backend or unavailable-Canvas fallback. Changes cannot be made during a benchmark. See [Combat Visual Isolation](17-qa-operations/combat-visual-isolation/TECHNICAL.md) and [Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/TECHNICAL.md).
+
+
+## v2.95–v2.97 Hidden Diagnostics
+
+```text
+dev stability help
+dev stability start
+dev stability report
+dev stability export
+dev stability stop
+dev stability soak 10
+
+dev cursor help
+dev cursor status
+dev cursor size gameplay|normal|big|verybig
+dev cursor style universal|inherit
+dev cursor native on|off
+dev cursor aura on|off
+dev cursor glow on|off
+dev cursor trail on|off
+dev cursor starsparks on|off
+dev cursor reset
+```
+
+Stability Lab samples opt-in (~5s), can orchestrate 2–60 nominal minutes of production-path synthetic combat and v2.96 excludes focus-interrupted runs rather than counting them as normal foreground FPS. Cursor Lab is visual-only and memory-only; its style-inheritance alternative is an **experimental diagnostic**, not the production default. `dev profile reset` does not reset Cursor Lab; use `dev cursor reset`. See [Stability Lab](17-qa-operations/long-session-stability-lab/TECHNICAL.md) and [Cursor Lab](17-qa-operations/cursor-rendering-lab/TECHNICAL.md).

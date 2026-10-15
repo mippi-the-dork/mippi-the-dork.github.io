@@ -25,11 +25,8 @@ This category groups the canonical documentation for **QA, Runtime Operations, a
 | **Release Candidate Sweep** | Provides a fast DEV-command-driven sanity pass for checking critical states before publishing a build. | [Design](release-candidate-sweep/DESIGN.md) | [Technical](release-candidate-sweep/TECHNICAL.md) |
 | **Performance Diagnostics** | Hidden performance sampling, isolation switches, exports and careful FPS interpretation. | [Design](performance-diagnostics/DESIGN.md) | [Technical](performance-diagnostics/TECHNICAL.md) |
 | **Combat Performance Lab** | Permanent opt-in five-scenario combat benchmark with JSON export and A/B geometry mode. | [Design](combat-performance-lab/DESIGN.md) | [Technical](combat-performance-lab/TECHNICAL.md) |
-
 | **Combat Visual Isolation** | Five independent cosmetic diagnostic switches with permanent benchmark reporting. | [Design](combat-visual-isolation/DESIGN.md) | [Technical](combat-visual-isolation/TECHNICAL.md) |
-
 | **Long-Session Stability Lab** | Opt-in resource timelines, combat soak, foreground-aware cycle validation and cleanup. | [Design](long-session-stability-lab/DESIGN.md) | [Technical](long-session-stability-lab/TECHNICAL.md) |
-
 | **Cursor Rendering Lab** | Visual-only cursor-size, CSS style, SVG and cosmetic isolation for reproducible performance comparisons. | [Design](cursor-rendering-lab/DESIGN.md) | [Technical](cursor-rendering-lab/TECHNICAL.md) |
 
 ## Documentation rules

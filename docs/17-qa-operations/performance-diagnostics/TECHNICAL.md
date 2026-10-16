@@ -49,3 +49,8 @@ v2.93 profiler snapshots record pinned visual and geometry modes, production `ex
 ## v2.95–v2.97 Current Update
 
 v2.95 adds opt-in `stability-lab.js` early load, live timer/projectile/Canvas lifecycle snapshots and `MippiPerfLab.lastMetrics()`. v2.96 adds foreground/visible-unfocused/hidden state, focus transitions, recovery and valid-only soak cycles. v2.97 adds `raw.cursorInitial` / `raw.cursorFinal`, native cursor/style/size conditions and cursor-labeled export filenames. **Animation-frame delivery is not GPU-present FPS**; 14 uninterrupted v2.96 soak cycles had 55.01 then 49.17 rAF FPS averages, while extreme drops in other samples correlate with grown cursor classes but remain causally unverified.
+
+
+## v2.98 Current Behavior
+
+v2.98 profiler JSON and downloaded filenames identify the cursor **architecture** alongside visual level, original style and native SVG setting. Scoped-vs-Legacy moving-pointer A/B/A showed 30.5/10.0/23.1 rAF FPS; Trail ON/OFF comparison showed 30.89/41.13 with an active timed-objective confound. No pointermove event rate/path length was instrumented. These are rAF delivery measurements, not independently observed GPU-presented frames.

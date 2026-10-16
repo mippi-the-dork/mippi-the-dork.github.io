@@ -57,3 +57,18 @@ Eight 30-second performance runs across a 14.7–105.9-minute page session showe
 v2.97 adds `dev cursor` visual-only size, universal-versus-inherited CSS, native SVG, aura, glow, trail and Star-spark isolation, plus `raw.cursorInitial`/`raw.cursorFinal` profile metadata. The production default remains universal cursor styling, with actual Mushroom level/Legendary acquisition unchanged. Syntax/headless controls passed, but controlled real-Windows performance A/B had not been supplied. See [Cursor Lab Windows QA](CURSOR_LAB_V2_97.md).
 
 **Overall:** retain Canvas and permanent diagnostics. Distinguish short or focus-contaminated runs from valid foreground tests; measure before changing cursor CSS or rendering quality. Do not claim the reported performance regression solved.
+
+
+## v2.97 Seven-Run Enlarged Cursor Follow-Up
+
+Five Legendary Windows Edge tests at 2247×1307 reported Normal visual 51.4/46.9 rAF FPS, Big Universal 24.1, Big Inherit 25.8, and Very Big Universal 24.9 (actual Mushroom level 0). Two later runs held actual Mushroom level 1 and +55px targeting constant: Big/native SVG OFF delivered **25.2 FPS**, while Normal/native ON delivered **51.1**. Across all seven tests, enlarged visual classes correlated with ~24–26 FPS even without the large native SVG artwork. Inherited style mode did not eliminate other `cursor-grown`/`:has()` rules; **no individual selector, browser paint or compositor operation was proven causal**.
+
+## v2.98 Scoped/Legacy Moving-Pointer A/B/A
+
+The v2.98 Scoped default uses `cursor-scoped-grown` and explicit interactive targets, while Legacy retains `cursor-grown` and broad selectors for comparisons. With the mouse deliberately moving, actual Mushroom level 0 and Big visual override, Scoped / Legacy / Scoped delivered **30.5 / 10.0 / 23.1** rAF FPS, p95 **66.7 / 166.6 / 83.3ms**, and long tasks **131 / 243 / 188**. Scoped was consistently ahead of Legacy but repeat Scoped results differed substantially. Physical pointer event rate and path distance were not instrumented; timed objectives also varied. **This corroborates the architecture advantage under tested conditions, not a fully solved slowdown or exact cause.**
+
+## v2.98 Trail-On / Trail-Off Follow-Up
+
+With Scoped Big and actual power 0, Trail ON yielded **927 frames / 30s (~30.89 FPS)** and **133 long tasks**, while Trail OFF yielded **1,235 frames (~41.13 FPS)** and **70 long tasks**. The Trail-ON recording had a timed objective visible for **29 of 30** snapshots, versus **0** with Trail OFF. Pointer motion magnitude was also unmeasured, so the apparent +10.24 delivered FPS is **not proven to come solely from Trail emission**. The source uses animated glowing `.cursor-spark` DOM elements that are plausible style/paint/compositing contributors. A Canvas-based trail and pointer-motion telemetry were recommended as **possible future work**, not introduced by v2.98.
+
+See [v2.98 Scoped Cursor QA](CURSOR_ARCHITECTURE_V2_98.md) for controlled follow-up and visual safety rules. All FPS values refer to delivered rAF callbacks, not independent GPU-presented frames.

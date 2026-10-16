@@ -651,3 +651,8 @@ Normal collision/hit/reward paths invoke the existing `explodeAt()` entry point.
 ## v2.95–v2.97 Stability and Cursor Diagnostics
 
 `stability-lab.js` loads before `perf-lab.js`, `particle-renderer.js`, `combat-lab.js`, and `script.js`. It observes pending timers, projectile cleanup and Canvas expiry. `dev stability soak` uses the protected production-path Combat Lab, while v2.96 focus awareness rejects incomplete visible-unfocused/hidden attempts. `MippiCursorLab` (v2.97) overrides only effective cursor visuals, with actual `cursorPowerLevel` remaining the sole Mushroom progression and Legendary acquisition bonus authority. Cursor Lab choices are independent of `dev profile reset` and never write storage. Performance results are rAF callback delivery, not GPU presents.
+
+
+## v2.98 Scoped Cursor Styling
+
+Actual `cursorPowerLevel` from Mushroom pickup is independent of the visual override and cursor CSS architecture. Scoped (default) applies `cursor-scoped-grown` without the broad `cursor-grown` descendant/`:has()` selector network, retaining theme SVG appearance, aura, glow, Trail, sparks and safe modal pointer behavior. Legacy remains available only as a diagnostic A/B path. The Legendary `55px * cursorPowerLevel` targeting bonus and actual progression are unaffected. The Cursor Lab exports architecture and original style/native settings; the `style` control has an effect only under Legacy. See [Scoped Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md).

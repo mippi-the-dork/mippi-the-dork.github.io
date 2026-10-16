@@ -38,3 +38,7 @@ The permanent profiler includes `raw.cursorInitial` and `raw.cursorFinal` snapsh
 ## Validation
 
 Node syntax and Chromium in-memory interaction/export smoke checks passed. Real Windows Edge comparative performance remains to be tested. Use [Cursor Lab QA](../../QA/CURSOR_LAB_V2_97.md); do not claim universal style inheritance or smaller artwork is a proven optimization.
+
+## v2.98 Current Behavior
+
+v2.98 adds `cursorDiagnostics.architecture` and `dev cursor architecture scoped|legacy`. Scoped (default) adds `html.cursor-arch-scoped`/`body.cursor-scoped-grown` and **never** adds `body.cursor-grown`; Legacy restores original `cursor-grown`, descendant and `:has()` selector behavior. `cursor-power-1/2` and native SVG/theme remain available in both. The legacy `style universal|inherit` state is serialized but only affects Legacy. Reset now restores Scoped (not Legacy), gameplay-derived visual size and effects ON. `raw.cursorInitial`/`raw.cursorFinal` and export filenames carry architecture. Size overrides do not alter `cursorPowerLevel` or `55 * cursorPowerLevel` targeting. [Scoped Cursor Technical](../../01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md).

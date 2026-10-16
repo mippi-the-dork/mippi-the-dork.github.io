@@ -203,3 +203,8 @@ v2.94 runtime requires `particle-renderer.js` loaded before gameplay `script.js`
 ## v2.95–v2.97 Current Update
 
 The current v2.97 runtime script initialization order is `stability-lab.js`, `perf-lab.js`, `particle-renderer.js`, `combat-lab.js`, `script.js`. All are intentional permanent runtime dependencies even though developer commands are hidden from ordinary player Help. Documentation changes never alter those scripts, twelve MP3s or editable LRCs.
+
+
+## v2.98 Current Behavior
+
+v2.98 updates runtime asset cache-busting and profile metadata to v2.98. The code-only website update leaves the twelve MP3/LRC sources and all images untouched, preserving the author's edited lyrics. The documentation update modifies no website assets.

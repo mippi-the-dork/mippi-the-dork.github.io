@@ -178,3 +178,8 @@ it decrements one banked life, persists, and gives temporary invulnerability.
 ## v2.95–v2.97 Current Update
 
 v2.97 introduces a visual-only diagnostic override (`dev cursor size gameplay|normal|big|verybig`). Mushroom collection still increments the actual `cursorPowerLevel`, drives the same progression and banked lives, and grants an unchanged 55px per actual power level Legendary targeting bonus. CSS `inherit` vs `universal` is diagnostic only and original visual styling remains the default. See [Cursor Rendering Lab](../../17-qa-operations/cursor-rendering-lab/TECHNICAL.md).
+
+
+## v2.98 Current Behavior
+
+v2.98 Scoped uses `body.cursor-scoped-grown` instead of legacy `body.cursor-grown` by default; both retain cursor power-level classes for the same SVG appearance. Do not treat an earlier `cursor-grown`-only snippet as the current default. `cursorDiagnostics.architecture='scoped'` and visual override are diagnostic/session-only; actual `cursorPowerLevel` remains the gameplay state authority and controls +55px per level Legendary target acquisition. Legacy styling survives as an A/B option, not normal behavior.

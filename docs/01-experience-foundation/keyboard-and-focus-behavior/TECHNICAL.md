@@ -110,3 +110,8 @@ Keyboard-only sweep:
 
 - [Experience Foundation Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v2.98 Current Behavior
+
+v2.98 Scoped enlarged cursor explicitly styles the body and interactive controls rather than applying `body.cursor-grown *` across the page. Native pointer fallback is attached directly to visible gallery, debrief, Finale, Compile, Shop, Blueprint, Wish, Unreal gift and Mippi Bird modal surfaces, avoiding legacy parent `:has()` matching. On blur/exit or with `native off`, the visitor should see the normal system pointer; input focus and keyboard navigation continue unaffected. The Legacy mode remains a test option.

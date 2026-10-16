@@ -1,8 +1,8 @@
 # Mippi Portfolio Documentation
 
-**Current documented state:** Mippi Portfolio v2.97
+**Current documented state:** Mippi Portfolio v2.98
 
-**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.97 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
+**Comprehensive baseline:** v2.78, with chronological release changes v2.79 through v2.98 integrated. The v2.86–v2.89 profiling work is diagnostic and does not claim the reported FPS regression is fixed.
 
 This folder is the canonical documentation set for the Mippi portfolio experience.
 
@@ -32,13 +32,13 @@ Project-wide catalogs should not replace feature documentation. They exist to an
 - Which UI surface owns this control?
 - Which state is persistent, session-scoped, or runtime-only?
 
-For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.92 documented state.
+For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objective IDs, and telemetry event names, the root reference catalogs are authoritative for the current v2.98 documented state.
 
 ## Numbered Documentation Categories
 
 | Category                                                                              | Features | Scope                                                                                                          |
 | ------------------------------------------------------------------------------------- | -------: | -------------------------------------------------------------------------------------------------------------- |
-| [01. Experience Foundation](01-experience-foundation/README.md)                       |       14 | Core site shell, navigation, persistence, accessibility, layout, motion, and reset behavior.                   |
+| [01. Experience Foundation](01-experience-foundation/README.md)                       |       15 | Core site shell, navigation, persistence, accessibility, layout, motion, and reset behavior.                   |
 | [02. Portfolio Content and Professional Presentation](02-portfolio-content/README.md) |       17 | Games, career, consulting, Crafting Play, Unreal tools, galleries, About, and contact presentation.            |
 | [03. Three.js and Interactive 3D Presentation](03-threejs-presentation/README.md)     |        8 | Three.js loading, runtime health, Hero 3D, ambient 3D, About 3D, and 3D interaction input.                     |
 | [04. Rarity Themes and Visual Language](04-themes-visual-language/README.md)          |        9 | Rare, Epic, Legendary presentation, theme cycling, semantic exceptions, attention cues, and particles.         |
@@ -59,13 +59,13 @@ For exact IDs, storage keys, command names, achievement keys, Shop IDs, Objectiv
 Total feature folders:
 
 ```text
-246
+247
 ```
 
 Total canonical feature pages:
 
 ```text
-492
+494
 ```
 
 ## Project-Wide References
@@ -76,6 +76,8 @@ Total canonical feature pages:
 - [Combat Visual Rendering QA](QA/COMBAT_VISUAL_RENDERING_V2_94.md)
 - [Long-Session Stability QA](QA/LONG_SESSION_STABILITY_V2_97.md)
 - [Cursor Lab Windows QA](QA/CURSOR_LAB_V2_97.md)
+- [Scoped Cursor Architecture QA](QA/CURSOR_ARCHITECTURE_V2_98.md)
+- [Scoped Mushroom Cursor](01-experience-foundation/scoped-mushroom-cursor/DESIGN.md)
 - [Shared Canvas Particle Renderer](12-arcade-combat/shared-canvas-particle-renderer/DESIGN.md)
 - [Performance Investigation Findings](QA/PERFORMANCE_INVESTIGATION_FINDINGS.md)
 - [Performance Diagnostics](17-qa-operations/performance-diagnostics/DESIGN.md)

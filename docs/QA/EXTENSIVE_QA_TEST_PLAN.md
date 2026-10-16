@@ -1893,3 +1893,8 @@ The current v2.94 supplement requires [Combat Visual Rendering QA](COMBAT_VISUAL
 ## v2.95–v2.97 Current Update
 
 Current v2.97 release supplement: run [Long-Session Stability QA](LONG_SESSION_STABILITY_V2_97.md) and [Cursor Lab Windows QA](CURSOR_LAB_V2_97.md), including focus/blur interruption exclusion, restart after 1.5s foreground, cleanup after 14 cycles, status and export consistency, normal/big/verybig/inherit/native-off visual controls and unchanged actual Mushroom progression. Existing music, achievements, UI, Canvas and Three.js behavior are not modified by these diagnostics.
+
+
+## v2.98 Current Behavior
+
+v2.98 added [Scoped Cursor Architecture QA](CURSOR_ARCHITECTURE_V2_98.md) to verify scoped/legacy A/B/A while keeping visual Big and actual Mushroom power constant. Test physical pointer movement, Rare/Epic/Legendary visuals, fullscreen overlays, alt-tab safety and independent Trail effect isolation. A moving-pointer A/B/A favored Scoped, but real FPS remains below desired values and no browser subsystem has been causally isolated.

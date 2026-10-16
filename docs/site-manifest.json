@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v2.97",
+  "baseline": "Mippi Portfolio v2.98",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -8,12 +8,12 @@
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
-      "summary": "Version-by-version documentation coverage through v2.97."
+      "summary": "Version-by-version documentation coverage through v2.98."
     },
     {
       "title": "Release History",
       "path": "RELEASE_HISTORY.md",
-      "summary": "Chronological website changes from v2.79 through v2.89, including diagnostics."
+      "summary": "Chronological portfolio releases through v2.98."
     },
     {
       "title": "Music Lyrics Authoring Guide",
@@ -111,6 +111,11 @@
       "title": "Cursor Lab Windows QA",
       "path": "QA/CURSOR_LAB_V2_97.md",
       "summary": "Controlled Mushroom cursor visuals and style A/B with unchanged gameplay."
+    },
+    {
+      "title": "Scoped Cursor Architecture QA",
+      "path": "QA/CURSOR_ARCHITECTURE_V2_98.md",
+      "summary": "Windows Scoped/Legacy moving-pointer comparisons and visual safety checks."
     }
   ]
 }

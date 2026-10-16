@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.97
+**Current documented state:** Mippi Portfolio v2.98
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -327,3 +327,16 @@ Introduced permanent hidden `dev cursor` controls to isolate cursor **visual siz
 Profiler exports now record `raw.cursorInitial`/`raw.cursorFinal`, a Cursor Lab summary, and condition-labelled filenames. JavaScript syntax and headless interactions/profile export passed; **controlled Windows Edge A/B and pointer-affordance verification are pending**. Original universal cursor styling remains the default; body-only inheritance is diagnostic, not a proven optimization. No projectile, Canvas, Three.js, metagame, music or lyric behavior was changed.
 
 For current procedures see [Long-Session Stability QA](QA/LONG_SESSION_STABILITY_V2_97.md) and [Cursor Lab Windows QA](QA/CURSOR_LAB_V2_97.md).
+
+
+## v2.98 - Scoped Mushroom Cursor Architecture
+
+The Mushroom cursor now uses **Scoped** CSS styling by default. `body.cursor-scoped-grown` replaces `body.cursor-grown` while Scoped is active, avoiding the original broad descendant matching and parent `:has()` rules; the old `cursor-grown` implementation remains available via `dev cursor architecture legacy` for controlled comparisons. Both paths preserve `cursor-power-1/2`, themed SVG appearance, original cursor size/hotspot, aura, glow, Trail and Star sparks. Scoped styling targets the body and explicit interactives with native-pointer fallbacks on modal surfaces and inactive windows. `dev cursor style universal/inherit` now affects only Legacy. `dev cursor reset` restores Scoped plus gameplay visual level, all cosmetics ON. Actual Mushroom progression and the **55px per actual level** Legendary target radius remain unchanged. All overrides are memory-only.
+
+The profiler and runtime version identify **v2.98**, with `cursorInitial`/`cursorFinal.architecture` and filename form `cursor-<level>-<architecture>-<style>-<native>`. Syntax/Chromium smoke tests verified reset, Scoped/Legacy switching, matching SVG artwork and modal pointer behavior.
+
+Seven v2.97 runs that motivated this change consistently returned ~**24–26 delivered rAF FPS** for enlarged cursor states versus ~**47–51** for normal size; Big with native SVG off remained **25.2**, so disabling artwork alone did not fix the slowdown. In later v2.98 moving-pointer A/B/A measurements, Scoped/Legacy/Scoped delivered **30.5 / 10.0 / 23.1** rAF FPS. Scoped was substantially better than Legacy, though it was not near the intended ~50–55 FPS and input motion was not measured.
+
+A subsequent Scoped Big Trail-on/off test returned **30.9** versus **41.1** rAF FPS, with 133 vs 70 long tasks. The Trail-on recording also had an active timed objective for 29/30 snapshots versus none in Trail-off; pointer speed/events were not captured. Thus the Trail's DOM/CSS animation work is a reasonable optimization candidate, but the measurements do **not** prove a causal 10 FPS improvement from disabling Trail or establish a full FPS fix. No Canvas Trail replacement was implemented in v2.98.
+
+See [Scoped Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md) and [v2.98 Windows QA](QA/CURSOR_ARCHITECTURE_V2_98.md).

@@ -27,6 +27,8 @@ This category groups the canonical documentation for **Experience Foundation**. 
 | **Full Reset** | Clears all persistent and session progression and reloads the site into a true first-visit state. | [Design](full-reset/DESIGN.md) | [Technical](full-reset/TECHNICAL.md) |
 | **Unified Bottom HUD** | Four-column responsive HUD for progress, gameplay, modes and utilities. | [Design](unified-bottom-hud/DESIGN.md) | [Technical](unified-bottom-hud/TECHNICAL.md) |
 
+| **Scoped Mushroom Cursor** | v2.98 scoped CSS cursor default, preserving native SVG visuals with reversible Legacy comparison. | [Design](scoped-mushroom-cursor/DESIGN.md) | [Technical](scoped-mushroom-cursor/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

@@ -1,8 +1,8 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v2.97
+**Current documented version:** Mippi Portfolio v2.98
 
-This is the authoritative v2.89 command catalog for the in-site Dev Console.
+This is the current v2.98 command catalog for the in-site Dev Console.
 
 Normal player commands are case-insensitive after normalization.
 
@@ -18,7 +18,7 @@ The backtick or tilde key toggles the Console when the command input is not alre
 | --- | --- | --- |
 | `help` | Print clickable Help command groups. | `dev` is intentionally omitted from normal Help. |
 | `clear` | Clear Console output. | `cls` exists as an unlisted alias. |
-| `version` | Print portfolio build identity. | Reports v2.89 static GitHub Pages build. |
+| `version` | Print portfolio build identity. | Reports the v2.98 portfolio build version. |
 | `about` | Navigate to About. | |
 | `home` | Smooth-scroll to top. | |
 | `top` | Smooth-scroll to top. | Alias-like navigation command. |
@@ -474,3 +474,8 @@ dev cursor reset
 ```
 
 Stability Lab samples opt-in (~5s), can orchestrate 2–60 nominal minutes of production-path synthetic combat and v2.96 excludes focus-interrupted runs rather than counting them as normal foreground FPS. Cursor Lab is visual-only and memory-only; its style-inheritance alternative is an **experimental diagnostic**, not the production default. `dev profile reset` does not reset Cursor Lab; use `dev cursor reset`. See [Stability Lab](17-qa-operations/long-session-stability-lab/TECHNICAL.md) and [Cursor Lab](17-qa-operations/cursor-rendering-lab/TECHNICAL.md).
+
+
+## v2.98 Scoped Cursor Commands
+
+`dev cursor architecture scoped` selects the new default cursor architecture, while `dev cursor architecture legacy` restores the original broad `cursor-grown` styling as an A/B control. `dev cursor style universal|inherit` affects **Legacy architecture only**; the state can still be reported/exported while Scoped but does not change Scoped CSS. `dev cursor status` includes architecture, and `dev cursor reset` now restores **Scoped** with gameplay-derived visual level and all visual effects ON. All settings remain session-only. See [Scoped Mushroom Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md).

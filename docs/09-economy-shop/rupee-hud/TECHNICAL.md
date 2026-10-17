@@ -107,3 +107,8 @@ Opening or closing the Shop explicitly refreshes Rupee attention so the pulse di
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.14 Consolidated Update
+
+v3.13 HUD affordability includes available repeatable `bird-life-refill` even though it can never become permanently owned. Shop mastery filters consumables; HUD still announces refills when affordable.

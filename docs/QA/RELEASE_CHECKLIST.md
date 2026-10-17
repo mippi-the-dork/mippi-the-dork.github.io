@@ -484,3 +484,8 @@ Current v3.04 release checks: max three non-clipped, per-panel unique Mushroom o
 ## v3.05–v3.10 Current Specification
 
 Current v3.10: verify Star Power rainbow ring and reduced motion; Elarsi card/link and 1200px grid; stable Hero opening pose; only 2nd Person earns Second Perspective; WebGL failure navigable four-link fallback; v3.10 radial logo pivot with preserved orbit ring angles; wide Your Studio Here art/card. See [v3.10 Regression QA](V3_05_TO_V3_10_REGRESSION_QA.md).
+
+
+## v3.14 Consolidated Update
+
+Current release target is **v3.14**. Verify [v3.11–v3.14 Regression QA](V3_11_TO_V3_14_REGRESSION_QA.md): 14 concise studio reveals, CONTACT and RESUMES rows, no grayscale/no scrollbar, software WebGL fallbacks, Rare/Epic/Legendary cursor ring equality, Shop 11 listings with 10 permanent ownership goals, repeatable Mippi Bird refill, Console input focus toggle, completion theme memory and playlist click-to-play. Historical release-specific checklist text remains historical.

@@ -39,3 +39,8 @@ Verify Buy the Store only unlocks when every canonical inventory item is owned.
 
 - [Achievements and Discovery Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.14 Current Behavior
+
+`postgameEpicCondition('post_shop')` checks `SHOP_ITEMS.filter(item=>item.slot!=='consumable').every(item=>shopOwned.has(item.id))`. Refills do not affect completion.

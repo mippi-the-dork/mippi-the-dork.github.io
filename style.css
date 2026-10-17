@@ -8322,3 +8322,15 @@ body .mippi-despawning .doug-bone-icon{
 /* v3.03 // Keep orbiting mushrooms above content, but under both interface bars. */
 body .game-pickup.mippi-motion.mippi-panel-orbit{z-index:110!important;}
 /* The site header already owns z-index 120; HUD owns z-index 255. */
+
+/* v3.04 mouth-anchored capsule beam, add HP feedback and onscreen entrances */
+.superboss-laser,.superboss-laser.active{border-radius:999px 0 0 999px!important;}
+.superboss-laser::before{content:"";position:absolute;left:-6px;top:50%;width:14px;height:14px;transform:translateY(-50%);border-radius:50%;background:radial-gradient(circle,#fff 0%,#b5faff 40%,transparent 85%);filter:drop-shadow(0 0 6px #67e8ff);}
+.superboss-laser.active::before{width:29px;height:29px;left:-8px;}
+.superboss-add-health{position:absolute;left:26px;right:26px;bottom:-9px;height:5px;overflow:hidden;pointer-events:none;border-radius:3px;border:1px solid var(--game-clickable-ink,#67e8ff);background:rgba(0,0,0,.7);opacity:0;transition:opacity .15s ease;}
+.superboss-add.damaged .superboss-add-health{opacity:1;}
+.superboss-add-health i{display:block;width:100%;height:100%;border-radius:2px;background:var(--game-clickable-ink,#67e8ff);transition:width .12s linear;}
+.superboss-add.boss-hit{filter:brightness(2) drop-shadow(0 0 16px #fff);}
+@keyframes mippi-enter-v304{from{opacity:0;filter:brightness(1.65)}to{opacity:1;filter:brightness(1)}}
+body .mippi-motion.mippi-spawning,.superboss-add.mippi-spawning{animation:mippi-enter-v304 380ms ease-out both!important;}
+@media(prefers-reduced-motion:reduce){body .mippi-motion.mippi-spawning,.superboss-add.mippi-spawning{animation:none!important;}}

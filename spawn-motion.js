@@ -1,4 +1,4 @@
-/* v3.02 // One movement clock for authored screen-space spawn paths.
+/* v3.04 // One movement clock for authored screen-space spawn paths.
    No per-object RAF loops, CSS motion timelines or per-frame layout reads.
    Moving world coordinates are shared with gameplay hit tests. */
 (()=>{
@@ -70,6 +70,15 @@
       // Render panel-anchored sprites in the page overlay, not in the panel.
       const drawX=a.x+(anchor?.left||0),drawY=a.y+(anchor?.top||0);
       el.style.transform='translate3d('+(drawX-a.width*.5)+'px,'+(drawY-a.height*.5)+'px,0) rotate('+rotation+'deg)';
+      if(!a.entranceChecked){
+        a.entranceChecked=true;
+        const visible=drawX>=0&&drawX<=screen.w&&drawY>=0&&drawY<=screen.h;
+        if(visible&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          el.classList.add('mippi-spawning');
+          window.setTimeout(()=>el.classList.remove('mippi-spawning'),420);
+        }
+        el.style.visibility='';
+      }
     }
     stats.frames++;frame++;
     window.MippiPerfLab?.measure('ambient.motion.frame',performance.now()-start);
@@ -83,6 +92,7 @@
     el.style.setProperty('animation','none','important');
     el.style.position='fixed';
     el.style.left='0px';el.style.top='0px';
+    el.style.visibility='hidden';
     const a={elapsed:0,duration:Math.max(100,duration),x:0,y:0,vx:0,vy:0,
       width,height,step,onEnd,panel};
     actors.set(el,a);

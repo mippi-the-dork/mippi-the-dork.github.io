@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.04';
+const MIPPI_BUILD_VERSION='3.06';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -623,7 +623,7 @@ window.addEventListener('mippi:perspective-change',event=>{
   telemetryCount('portfolio.perspectiveModes',mode);
   if(mode==='2nd') telemetryCount('portfolio','secondPersonToggles');
   telemetryMeaningful('perspective_mode',{mode});
-  showAchievement('secondPerson');
+  if(mode==='2nd') showAchievement('secondPerson');
 });
 
 mippiRuntimeHealth.bootStage='core-interactions-ready';
@@ -652,9 +652,9 @@ const ACHIEVEMENTS = {
   },
   secondPerson: {
     title:'Second Perspective',
-    detail:'You looked at the problem from somewhere else.',
-    hint:'Try changing your perspective.',
-    solution:'Scroll to Project Heavy Water and use the Perspective Visualizer.'
+    detail:'You saw the scene through another character\'s eyes.',
+    hint:'The perspective visualizer supports more than first and third person.',
+    solution:'In Project Heavy Water, switch the Perspective Visualizer to 2nd Person.'
   },
   signal: {
     title:'Signal Acquired',
@@ -707,12 +707,12 @@ const ACHIEVEMENTS = {
 };
 const ACHIEVEMENT_KEYS = Object.keys(ACHIEVEMENTS);
 const POSTGAME_ACHIEVEMENTS={
-  post_signals:{rarity:'epic',title:'Signal Saturation',detail:'All 10 Signals found. The original hunt is complete.',hint:'The first layer has ten hidden Signals.',solution:'Find all 10 original Signals in the Achievement Ledger.'},
+  post_signals:{rarity:'epic',title:'Signal Saturation',detail:'All ten original Signals found. The first hunt is complete.',hint:'The first layer has ten hidden Signals.',solution:'Find all 10 original Signals in the Achievement Ledger.'},
   post_cool:{rarity:'epic',title:'Maximum Cool',detail:'Doug reached maximum Coolness at least once.',hint:'Morale has a visible limit.',solution:'Collect Doug Bones until the COOLNESS meter reaches 100% and activates Cool Mode.'},
   post_legendary:{rarity:'epic',title:'Gold Standard',detail:'Legendary rarity was unlocked.',hint:'Epic is not the final rarity.',solution:'After 10/10 Signals, catch a Shooting Star, repair BP_WishManager, and successfully make a validated Wish to unlock Legendary.'},
   post_wish:{rarity:'epic',title:'Reality Validated',detail:'A validated Wish successfully reached Grant Wish.',hint:'Reality dislikes null references.',solution:'Charge the wish command with a Shooting Star, insert Is Valid in BP_WishManager, then successfully complete a Wish.'},
-  post_hearts:{rarity:'epic',title:'Full Hearts',detail:'Five Hearts collected.',hint:'Some pickups look suspiciously familiar.',solution:'Collect 5 Heart pickups.'},
-  post_shop:{rarity:'epic',title:'Buy the Store',detail:'Every Shop item purchased.',hint:'Rupees eventually become a completion problem.',solution:'Purchase every item in the Rupee Shop, including the final Design Mode capstone.'},
+  post_hearts:{rarity:'epic',title:'Full Hearts',detail:'Reach a full five-Heart reserve.',hint:'Some pickups look suspiciously familiar.',solution:'Collect Heart pickups until your current Heart reserve reaches five.'},
+  post_shop:{rarity:'epic',title:'Buy the Store',detail:'Every Shop upgrade is yours.',hint:'Rupees eventually become a completion problem.',solution:'Purchase every item currently listed in the Rupee Shop.'},
   post_castles:{rarity:'epic',title:'Another Castle',detail:'Four Castles checked in one run.',hint:'One wrong Castle is a joke. Four is a system.',solution:'Collect Keys and check Castles until the CASTLES meter reaches 4/4.'},
   post_sections:{rarity:'epic',title:'Grand Tour',detail:'Every major portfolio section visited.',hint:'There are six major professional sections.',solution:'Visit Games, Career, Consulting, Crafting, Tools, and About.'},
   post_superboss:{rarity:'epic',title:'Air Superiority',detail:'The Super UFO Boss was defeated.',hint:'The invasion escalates beyond the normal Boss.',solution:'Keep defeating UFOs and Bosses until the Super UFO Boss appears, then defeat it.'},
@@ -7318,6 +7318,11 @@ async function initScene() {
     camera.position.set(0, 1.5, 8.6);
 
     const root = new THREE.Group();
+    // Opening pose frames the logo on the left face of the core, as in the intended hero composition.
+    // This is also the idle target; otherwise the first animation frames would undo the initial pose.
+    const HERO_OPENING_YAW = -0.36;
+    const HERO_OPENING_PITCH = 0.03;
+    root.rotation.set(HERO_OPENING_PITCH,HERO_OPENING_YAW,0);
     root.position.set(3.05, 0.05, -0.2);
     root.scale.setScalar(1.28);
     scene.add(root);
@@ -7630,8 +7635,8 @@ async function initScene() {
           const g = root.children.find(child => child.userData?.key === info.key);
           if (g) g.position.y = info.pos[1] + Math.sin(t * 1.1 * (slowmoEnabled ? .5 : 1) + i) * 0.08;
         });
-        root.rotation.y += (pointer.x * 0.12 + dragX - root.rotation.y) * 0.025;
-        root.rotation.x += (-pointer.y * 0.06 + dragY - root.rotation.x) * 0.025;
+        root.rotation.y += (HERO_OPENING_YAW + pointer.x * 0.12 + dragX - root.rotation.y) * 0.025;
+        root.rotation.x += (HERO_OPENING_PITCH - pointer.y * 0.06 + dragY - root.rotation.x) * 0.025;
         particles.rotation.y += 0.00045;
         particles.rotation.x = Math.sin(t * 0.08) * 0.035;
       }

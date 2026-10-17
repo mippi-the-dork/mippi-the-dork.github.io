@@ -1,111 +1,13 @@
 # Boss Adds - Design Documentation
 
-**Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Boss Adds > Design
+**Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
-**Implementation baseline:** Mippi Portfolio v2.78
+The Super Boss encounter begins with **six orbiting adds**, equally spaced around its moving core. Each has **3 HP** (half the normal Boss's 6 HP), and each incoming player shot takes one HP. Damaged adds show a short HP bar and hit reaction.
 
-**Feature summary:** Provides supporting enemies that can be shot and explode in place during the Super Boss encounter.
+Destroying an add clears its orbital slot and reduces incoming fire **temporarily**. Unless the encounter has ended, that same slot respawns approximately **5 seconds later** with full 3 HP, returning pressure to the fight. The player must decide whether to keep thinning the orbit or focus on the 27-HP core. This deliberately replaces the older permanent one-shot-add behavior.
 
-> This page is the canonical design documentation for **Boss Adds** within the Arcade, Combat, and System Combos category.
+The add orbit uses the parent Boss's movement clock, so the orbit and the Boss pause during Mega Laser. A destroyed add explodes at its current location, not at the arena origin. Adds can block player shots intended for the core, and a defeated add retains its chance to drop a Heart, without awarding Rupees directly.
 
-## Documentation Relationship
+## Acceptance
 
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Technical Documentation](TECHNICAL.md)
-## Design Intent
-
-Boss Adds divide player attention.
-
-Without Adds, the Super Boss would mostly be:
-
-- line up under core,
-- fire repeatedly,
-- dodge core attacks.
-
-The four supporting enemies introduce a tactical question:
-
-> Do I keep damaging the Boss, or reduce the incoming fire first?
-
-## Count
-
-The encounter begins with:
-
-```text
-4 Adds
-```
-
-Each Add requires one player shot.
-
-## Orbit
-
-Adds move around the Boss in a loose orbit.
-
-Their relative movement makes lining up player shots less trivial than shooting the large central core.
-
-## Fire Pressure
-
-A recurring Add-fire scheduler chooses one random living Add and fires at the gameplay cursor.
-
-As Adds are destroyed, the number of possible firing sources shrinks.
-
-The player therefore receives a real combat benefit for clearing them.
-
-## One-Hit Durability
-
-Adds are deliberately fragile.
-
-Their job is attention division, not additional health grind.
-
-## Death Position
-
-When an Add dies:
-
-- it explodes exactly where it currently is,
-- its visual fades at that position,
-- it does not snap toward the arena origin.
-
-This was a specific v2.68 correction.
-
-The earlier implementation could lose the movement transform when applying the destroyed style.
-
-## Core Blocking
-
-Player projectile collision checks Adds before the Boss core.
-
-An Add can therefore intercept a shot that passes through its radius.
-
-This makes its orbit spatially meaningful.
-
-## Reward
-
-Adds do not give Rupees directly.
-
-The payoff is reduced pressure and a cleaner path to Boss damage.
-
-Their destruction is still tracked in telemetry.
-
-## Design Rules
-
-- Four Adds at encounter start.
-- One hit each.
-- Adds orbit around the Boss.
-- Living Adds contribute fire.
-- Adds are valid player-shot blockers.
-- Death explosion stays at world position.
-- No direct Rupee reward.
-- Destroyed Adds never resume firing.
-
-## Success Criteria
-
-The player can immediately understand that removing Adds makes the fight easier and sees each one die cleanly where it was shot.
-## Related Documentation
-
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Technical Documentation](TECHNICAL.md)
-
-
-## Current v3.01 Behavior
-
-v3.01 Super Boss uses SIX equally spaced Boss-art adds in a circular orbit around its moving core. Their orbit pauses with the parent movement clock during Mega Laser. Earlier descriptions of four adds or generic paths are superseded.
-
-See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.
+Verify six slots, 3 distinct hits per add, readable damaged HP bar, correct world-space explosion, independent 5-second respawn, no resurrection after exit/victory, valid shooting/telemetry and synchronized beam freeze. See [Technical](TECHNICAL.md) and [v3.04 QA](../../QA/V3_02_TO_V3_04_QA.md).

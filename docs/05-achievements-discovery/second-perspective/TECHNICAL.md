@@ -64,3 +64,8 @@ rather than requiring repeated visualizer operation.
 
 - [Achievements and Discovery Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.06 checks `if(mode==='2nd') showAchievement('secondPerson')` in the visualizer mode handler after telemetry; merely switching perspective is no longer sufficient. The achievement hint and solution reference the specific 2nd Person choice.

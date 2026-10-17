@@ -327,3 +327,10 @@ also opens the encounter.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.01 Behavior
+
+v3.00 enlarged the authored super-boss.svg core and resized Boss-art adds. v3.01 introduces top horizontal panning with occasional reversals and six orbiting adds; parent and orbit freeze during Mega Laser. The Boss has its own upward shot mode and existing player-facing hazard/reward mechanics.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

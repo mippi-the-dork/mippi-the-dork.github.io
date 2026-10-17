@@ -146,3 +146,8 @@ Therefore the capstone is part of full Shop completion.
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.14 Current Behavior
+
+Design Mode capstone costs 30 and needs `shop-master`. `allOtherShopItemsOwned` ignores slot `consumable`. Production Discount does not reduce capstone cost.

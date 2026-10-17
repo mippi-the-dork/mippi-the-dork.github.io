@@ -90,3 +90,8 @@ The final Shop purchase feels like opening the site's commentary track rather th
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.14 Current Behavior
+
+v3.13 capstone price is 30 Rupees. Only ten permanent Shop items contribute to complete ownership; repeatable Mippi Bird Life Refills are not requirements.

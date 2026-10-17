@@ -1905,3 +1905,8 @@ v2.98 added [Scoped Cursor Architecture QA](CURSOR_ARCHITECTURE_V2_98.md) to ver
 ## v3.01 Current Test Supplement
 
 [Current Gameplay QA](V3_00_V3_01_GAMEPLAY_QA.md) is the authoritative latest release-specific supplement. The original v2.80 test cases remain historical and must not be interpreted as present-day projectile homing, collectible source, Boss adds or Castle fireworks behavior. Re-test icon art, movement, physical reward collection, Boss/Super Boss mechanics, UI, Star Power, and performance in actual browser.
+
+
+## v3.14 Consolidated Update
+
+The **current v3.14** release-specific acceptance supplement is [v3.11–v3.14 Regression QA](V3_11_TO_V3_14_REGRESSION_QA.md). Earlier v2.x/v3.x release QA values remain available for regression history but must not supersede v3.14 Shop and career behavior.

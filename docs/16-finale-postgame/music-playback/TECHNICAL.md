@@ -262,3 +262,13 @@ shuffle order/history rebuilt if Shuffle is enabled
 ## Superseding Implementation Notes (v2.81–v2.89)
 
 v2.81's `musicSetIcon`, `musicSyncPlayIcon`, `musicSyncProgress`, `musicSyncLyricsMode`, `#music-seek`, `#music-current-time`, `#music-duration` and `#music-lyrics-toggle` now own accessible toolbar and seek. Enhanced LRC inline `<mm:ss.xx>` segments become `entries[].words` with `{text,time}`, safely rendered by `textContent`, not HTML; timestamps never appear in UI. Separate companion lives beside player, with Full/Single modes and forced Single while collapsed. v2.83 `ResizeObserver` tracks player height. v2.85 authoritative repeat modes are `['off','track','playlist']`; expanded buttons order Download, Previous, Play/Pause, Next, Loop, Shuffle, Lyrics. The public MP3/LRC registry is unchanged.
+
+
+## v3.14 Current Behavior
+
+v3.12 playlist row handler calls `selectMusicTrack(index,{autoplay:false})` then `musicAudio.play()` during the direct click gesture. A rejected promise with `NotAllowedError` sets `CLICK PLAY TO START`; other failures show `PLAYBACK UNAVAILABLE`. Lyrics-view controls remain independent.
+
+
+## v3.14 Consolidated Update
+
+v3.12 selecting a playlist track immediately invokes `musicAudio.play()` in its direct click gesture after `selectMusicTrack(...,{autoplay:false})`. On browser `NotAllowedError`, display `CLICK PLAY TO START`, otherwise `PLAYBACK UNAVAILABLE`. Opening lyrics for another song still doesn't switch music.

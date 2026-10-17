@@ -25,3 +25,8 @@ The intended source asset is `assets/career-real/yourstudiohere.png`. It is supp
 Verify first-card position before Mob Entertainment, two-column span above 900px, stacked/narrow layout, no separator gaps, correct text legibility, real image load and theme treatment. The career history, other studio order and other portfolio systems remain unchanged.
 
 See [Technical](TECHNICAL.md) and [v3.10 QA](../../QA/V3_05_TO_V3_10_REGRESSION_QA.md).
+
+
+## v3.14 Current Behavior
+
+v3.12 the first card opens an in-card work-availability reveal; v3.13 adds Wish-style Discord, LinkedIn and Email links plus all three resumes; **v3.14** compacts these into CONTACT and RESUMES horizontally labeled rows, short curated career copy and full-color background with no reveal scrollbar. The heading **Game CONSULTATION** supersedes earlier Indie CONSULTATION elsewhere in the hero.

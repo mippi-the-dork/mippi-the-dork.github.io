@@ -33,6 +33,8 @@ This category groups the canonical documentation for **Portfolio Content and Pro
 | **Elarsi Feature Presentation** | Third featured side project: offline LRC line/word timing, GitHub link and CSS waveform. | [Design](elarsi-feature-presentation/DESIGN.md) | [Technical](elarsi-feature-presentation/TECHNICAL.md) |
 | **Your Studio Here Card** | Wide career/consulting invitation placed before Mob Entertainment. | [Design](your-studio-here-card/DESIGN.md) | [Technical](your-studio-here-card/TECHNICAL.md) |
 
+| **Studio Career Reveals** | All fourteen studio cards reveal concise work details with compact contacts, résumés and full-color art. | [Design](studio-career-reveals/DESIGN.md) | [Technical](studio-career-reveals/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

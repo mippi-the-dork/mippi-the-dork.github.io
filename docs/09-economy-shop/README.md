@@ -32,6 +32,8 @@ This category groups the canonical documentation for **Rupee Economy and Shop**.
 | **Golden Trigger** | A Legendary gameplay item that improves Legendary cursor targeting range and projectile speed. | [Design](golden-trigger/DESIGN.md) | [Technical](golden-trigger/TECHNICAL.md) |
 | **Design Mode Unlocked** | The Legendary Shop capstone appears after Shop mastery and permanently unlocks Design Mode. | [Design](design-mode-unlocked/DESIGN.md) | [Technical](design-mode-unlocked/TECHNICAL.md) |
 
+| **Mippi Bird Life Refill** | Repeatable Epic Rupee purchase banks one Mippi Bird life without affecting permanent Shop completion. | [Design](mippi-bird-life-refill/DESIGN.md) | [Technical](mippi-bird-life-refill/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

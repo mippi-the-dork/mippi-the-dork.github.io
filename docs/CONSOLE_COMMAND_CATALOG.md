@@ -484,3 +484,8 @@ Stability Lab samples opt-in (~5s), can orchestrate 2–60 nominal minutes of pr
 ## v2.99 to v3.01 Command Changes
 
 `dev fx status`, `dev fx help`, `dev fx renderer canvas|dom`, `dev fx reset` operate the cosmetic FX renderer separately from `dev combat renderer`. `dev invasion 0|33|66|near` sets stages and resets pending encounters. `dev pickup heart` remains a testing override, but normal `hey listen` provides Heart sourcing guidance rather than spawning one. `dev ufo`, `dev boss`, `dev superboss` are controlled encounter shortcuts. Current shooting is vertical/enemy-only, not target-seeking. `dev cursor size` still changes visual size only. See [Cursor Shooting](12-arcade-combat/cursor-interaction-and-upward-shooting/TECHNICAL.md) and [FX Renderer](04-themes-visual-language/canvas-first-2d-fx/TECHNICAL.md).
+
+
+## v3.14 Consolidated Update
+
+Current documented target **v3.14**: Console HUD and tilde/backtick both toggle visibility in either direction, even while the input is focused. TRY WISH and OPEN BLUEPRINT cues pulse. Console availability remains independent of hardware Three.js capability; browser graphical fallback uses existing Hero links.

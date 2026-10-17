@@ -23,3 +23,8 @@ On world `pointerdown`, the Cool Mode flag `dougCoolActive` fires angles `[-12,0
 Native buttons/links/inputs and modals are excluded from the document shooting handler. If a valid radius contact exists under the World pointer, contact is used before firing. Behavior under non-Legendary/Star eligibility is checked by ordinary game progression flags. These are separate responsibilities from `combatGeometry` position accounting and visual Cursor Lab `size`.
 
 See [Design](DESIGN.md), [Player Projectile Combat](../cursor-projectile-combat/TECHNICAL.md) and [Gameplay QA](../../QA/V3_00_V3_01_GAMEPLAY_QA.md).
+
+
+## v3.14 Current Behavior
+
+v3.12 `cursorClickRadius()` = `22+cursorPowerLevel*17+(starPower?14:0)` in every Rare/Epic/Legendary theme; earlier Legendary base 31 is superseded. Real proximity collection is separate from enemy-only upward shots.

@@ -154,3 +154,8 @@ Only buy and equip are interactive.
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.14 Current Behavior
+
+`SHOP_ITEMS` has 11 records; `bird-life-refill` slot `consumable`, base cost 10; `design-mode-unlock` cost 30. `shopPrice` uses floor(0.75*cost) for eligible discounts. A refill credits `mushroomBankLives` but never `shopOwned`. `post_shop` and `allOtherShopItemsOwned` exclude consumables.

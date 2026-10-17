@@ -23,6 +23,8 @@ This category groups the canonical documentation for **Three.js and Interactive 
 
 | **Hero Navigation Fallback** | Accessible real-link navigation when Three.js initialization or context fails. | [Design](hero-navigation-fallback/DESIGN.md) | [Technical](hero-navigation-fallback/TECHNICAL.md) |
 
+| **Graphics Capability Fallback** | Detects unavailable/software WebGL and offers lightweight 2D navigation and browser guidance. | [Design](graphics-capability-fallback/DESIGN.md) | [Technical](graphics-capability-fallback/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

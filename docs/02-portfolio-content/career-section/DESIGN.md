@@ -96,3 +96,8 @@ Neither achievement is required to access career information.
 ## v3.05–v3.10 Current Specification
 
 v3.09 adds Your Studio Here before Mob Entertainment in Selected Studios & Companies. The label is Design Direction / Systems Design / Game Consulting · Today. Its card spans two columns above 900px, stacked below. See [Your Studio Here](../your-studio-here-card/DESIGN.md).
+
+
+## v3.14 Current Behavior
+
+v3.12 opens career details within all 14 studio cards, one at a time, with click/Close/Escape dismissal. **Current v3.14** trims summaries to 1–3 meaningful bullets, eliminates scrollbars and retains full-color studio images at rest, hover, focus and dismissal. Your Studio Here has CONTACT (Discord, LinkedIn, Email) and RESUMES (1 Page, Short, Long) in two labeled horizontal rows. See [Studio Career Reveals](../studio-career-reveals/DESIGN.md).

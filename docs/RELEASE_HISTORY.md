@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v3.10
+**Current documented state:** Mippi Portfolio v3.14
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -408,3 +408,23 @@ A wide **Your Studio Here** card is introduced first in Selected Studios & Compa
 The logo plane returns to local `position.set(0,0,1.55)`. A new centered `THREE.Group` `logoOrbit` with `rotation.order='YXZ'` and `rotation.set(-0.35,-0.45,0)` rotates the mark about the core origin, so its normal remains oriented outward rather than using the v3.08 plane translation. v3.08's two decorative ring rotations remain; v3.06's stable root opening pose and v3.07's accessible fallback are preserved. Script version/cache advances to v3.10.
 
 **Visual QA for the final Hero angle, fallback operation, and the career PNG is required.** The v3.10 handoff describes implementation PR #22 as open at the time it was created, not as a verified final browser result. See [v3.10 Regression QA](QA/V3_05_TO_V3_10_REGRESSION_QA.md).
+
+## v3.11 - Visible Cursor Power, Console Toggle and Rarity Memory
+
+[Implementation PR #24](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/24), merged as `c7a897c`, makes the Rare cursor AoE ring visible and refines Star Power's rainbow ring as rotating conic-gradient layers rather than the earlier hue-only treatment. The Design Mode control receives a layered circle/square icon. Console HUD and tilde/backtick toggles open **and close** the Console, even with the Console input focused; TRY WISH and OPEN BLUEPRINT calls to action pulse. Completed saves retain the visitor's last selected available Rare/Epic/Legendary rarity instead of automatically imposing Legendary. Optimized WebP artwork for Your Studio Here was included in this release; v3.13 restores the full-resolution PNG.
+
+## v3.12 - Fourteen Expandable Studio Summaries, Equal Cursor Reach and Click-to-Play
+
+[Implementation PR #25](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/25), merged as `7a12726c`, introduces slide-up career reveals on **all 14 studio cards**, with one open at a time and click/Close/Escape dismissal. This release's longer résumé-based descriptions are superseded by v3.14's concise final copy. Rarity no longer affects nearby interaction radius: base **22px** in Rare, Epic and Legendary, plus **17px per actual Mushroom power level** and **14px during Star Power**. The old Legendary 31px base is historical. Selecting a track attempts Music Player playback immediately in the same user click gesture; browser playback rejection retains an explicit manual-Play fallback.
+
+## v3.13 - Career Links, Software WebGL Fallback and Repeatable Shop Life
+
+[Implementation PR #26](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/26), merged as `ccbf6085`, adds Discord/LinkedIn/Email and three résumé links inside the Your Studio Here reveal. Existing studio summaries expand from career source material, later curated in v3.14. The Hero service label changes from **Indie CONSULTATION** to **Game CONSULTATION**. Software WebGL/unavailable WebGL detection triggers lightweight accessible Hero navigation, skips Ambient/About Three.js initialization, and shows browser-specific graphics guidance above the header. This is best-effort renderer detection, not definitive hardware diagnosis. Your Studio Here art returns to the full-resolution `assets/career-real/yourstudiohere.png`. v3.13 temporarily used Rare-theme grayscale-hover art, superseded by v3.14 full-color behavior.
+
+The Shop adjusts permanent prices for increased Rupee availability and adds an **Epic repeatable Mippi Bird Life Refill** at base 10 Rupees, which adds one stored Bird life per purchase. Production Discount reduces its price to 7. The **Design Mode capstone costs 30 Rupees**. Shop listing becomes eleven entries: ten permanent and one consumable; the consumable is excluded from the Buy the Store achievement and capstone ownership condition.
+
+## v3.14 - Compact Studio Reveals and Full-Color Art
+
+[Implementation PR #27](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/27), merged as `a45fce94`, refines all fourteen studio reveals to **1–3 distinct short bullets each**, eliminating redundant copy and tuning typography, spacing and minimum heights to prevent scrollbars. Your Studio Here's professional links become two compact horizontal, labeled rows: **CONTACT** (Discord, LinkedIn, Email) and **RESUMES** (1 Page, Short, Long). Studio imagery remains full-color throughout rest, hover, focus and slide-dismiss; an accent overlay replaces grayscale. Script/CSS/runtime cache identity advances to **3.14**.
+
+The implementation PR is merged; visual checks for small-screen reveal fit, nested link activation, art coloration during dismiss and graphics-fallback device behavior are still acceptance tests, **not reported as fully validated**. See [v3.14 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md).

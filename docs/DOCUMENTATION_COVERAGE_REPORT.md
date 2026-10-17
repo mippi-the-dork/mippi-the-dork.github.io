@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v3.10. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.14. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -101,3 +101,8 @@ Three successive handoff releases add five feature pairs: [Canvas-First FX](04-t
 Six uploaded documentation handoffs and referenced source commits are incorporated chronologically. Three new feature pairs add [Elarsi Feature Presentation](02-portfolio-content/elarsi-feature-presentation/DESIGN.md), [Your Studio Here Career Card](02-portfolio-content/your-studio-here-card/DESIGN.md), and [Hero Navigation Fallback](03-threejs-presentation/hero-navigation-fallback/DESIGN.md). Totals: **257 feature folders / 514 canonical Design and Technical pages**. Existing Hero, Signal navigation, runtime health, Second Perspective, related achievement hints, Star Power, career/tool layouts, QA, cross-system references, release history and the docs portal are updated.
 
 The current Hero logo configuration uses the v3.10 centered `logoOrbit` and the v3.08 decorative-ring angles; the v3.08 translated logo is superseded. Source handoffs document Elarsi's CSS art, Star Power's hue-only ring rotation, the accessible four-link WebGL fallback, and the wide career card. The 2048×576 `assets/career-real/yourstudiohere.png` is supplied in handoff ZIPs but is an **external website asset dependency**, not installed by documentation changes. Verify that the image actually loads. The v3.10 release notes require human visual QA of final Hero composition. No live-version comparisons are needed in the documentation.
+
+
+## v3.14 Consolidated Update
+
+Current documented state is **v3.14**, including all four v3.11–v3.14 handoffs and merged implementation PRs #24–#27. Three feature pairs added: [Studio Career Reveals](02-portfolio-content/studio-career-reveals/DESIGN.md), [Graphics Capability Fallback](03-threejs-presentation/graphics-capability-fallback/DESIGN.md), and [Mippi Bird Life Refill](09-economy-shop/mippi-bird-life-refill/DESIGN.md). Inventory is **260 features / 520 DESIGN+TECHNICAL pages** across 17 categories. v3.11 corrects ring/Console/theme memory, v3.12 adds career reveals and theme-independent click radius/music selection play, v3.13 adds graphics fallback, links and 11-item Shop, and v3.14 refines full-color, no-scroll career panels. See [v3.14 QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md).

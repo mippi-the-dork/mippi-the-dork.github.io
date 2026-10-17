@@ -281,3 +281,8 @@ Likely CSS, stacking, opacity, sizing, or post-initialization rendering issue.
 ## v3.05–v3.10 Current Specification
 
 v3.07 delays setting `mippiRuntimeHealth.three.hero=true` until successful scene initialization. Exceptions or `webglcontextlost` mark failure, record fallback reason/boot stage, hide failed Canvas and activate usable four-link DOM Hero fallback rather than leaving dead labels. Avoid rendering into a lost context. See [Hero Navigation Fallback](../hero-navigation-fallback/TECHNICAL.md).
+
+
+## v3.14 Current Behavior
+
+v3.13 distinguishes unavailable or recognized software WebGL from normal renderer initialization. `mippiSoftwareFallback` skips Hero, Ambient and About 3D starts; the Hero uses 2D signal links. Browser warnings are best-effort, not guaranteed hardware diagnoses, and a missing renderer-info extension is not proof of software mode.

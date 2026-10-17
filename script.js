@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.15';
+const MIPPI_BUILD_VERSION='3.15.1';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -5936,10 +5936,17 @@ function totalBossVictories(){
   return (Number(sessionTelemetry.arcade?.bossDefeated)||0)+(Number(sessionTelemetry.arcade?.superBossDefeated)||0);
 }
 // Cumulative regular UFO kills: 5 for Boss 1, 15 for Boss 2, 30 for Super Boss.
-const UFO_WAVE_GOALS=[5,10,15];
-const UFO_COMPLETED_KILLS=[0,5,15];
-function ufoWaveGoal(){return UFO_WAVE_GOALS[totalBossVictories()%3];}
-function ufoCompletedWavesKills(){return UFO_COMPLETED_KILLS[totalBossVictories()%3];}
+// These function declarations are safe to call during the initial HUD refresh.
+// Do not reference const/let tables defined here: initial HUD rendering runs
+// earlier in this file, before this part of the module has initialized.
+function ufoWaveGoal(){
+  const stage=totalBossVictories()%3;
+  return stage===0?5:stage===1?10:15;
+}
+function ufoCompletedWavesKills(){
+  const stage=totalBossVictories()%3;
+  return stage===0?0:stage===1?5:15;
+}
 function ufoCycleProgress(){return Math.min(ufoWaveGoal(),invasionWaveKills);}
 function ufoThreatTier(){const p=invasionWaveKills/ufoWaveGoal();return p>=.7?3:p>=.4?2:1;}
 // A single, explicit wave counter. No modulo-based kill threshold or

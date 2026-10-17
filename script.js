@@ -1083,7 +1083,7 @@ function updateMetaTrace(){
   if(legendaryUnlocked && !designModeUnlocked){
     if(allOtherShopItemsOwned('design-mode-unlock')){
       metaTraceKicker.textContent='DESIGN TRACE // CAPSTONE READY';
-      metaTraceText.textContent='The final Shop item is revealed. 10 Rupees unlock Design Mode.';
+      metaTraceText.textContent='The final Shop item is revealed. 30 Rupees unlock Design Mode.';
     }else{
       metaTraceKicker.textContent='DESIGN TRACE // SHOP';
       metaTraceText.textContent='Legendary acquired. Own every other Shop item to reveal the commentary capstone.';

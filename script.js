@@ -1,5 +1,5 @@
-// v3.00 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.00';
+// v3.01 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.01';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -3454,6 +3454,7 @@ function setSlowmo(active){
     telemetryMeaningful('slowmo',{active});
   }
   slowmoEnabled=active;
+  window.MippiSpawnMotion?.setSlowmo(active);
   document.body.classList.toggle('slowmo-mode',active);
   document.querySelectorAll('.shooting-star,.galaga-secret,.game-pickup,.doug-bone').forEach(el=>{
     const base=Number(el.dataset.baseDuration||0);
@@ -5550,7 +5551,7 @@ const combatGeometry=(()=>{
   function center(el,kind,now=performance.now()){
     if(!el?.isConnected)return null;
     if(!optimized)return rect(el,`combat.geometry.legacy.${kind}`);
-    const modeled=motionCenter(el,now);
+    const modeled=window.MippiSpawnMotion?.positionOf(el) || motionCenter(el,now);
     if(modeled){perf()?.measure(`combat.geometry.${kind}.modelHit`,0);return modeled;}
     const store=kind==='emitter'?emitterBounds:targetBounds;
     const old=store.get(el),age=kind==='emitter'?EMITTER_MAX_AGE_MS:TARGET_MAX_AGE_MS;
@@ -6633,6 +6634,116 @@ const pickupKinds=[
   {kind:'star',msg:'BONUS PICKUP // +250 imaginary points.'},
   {kind:'key',msg:'KEY ITEM // no matching lock has been implemented.'}
 ];
+
+// v3.01 // Each spawnable now owns a recognizable screen or panel-space route.
+const SPAWN_PANEL_SELECTOR='.work-card:not(a),.tool-card,.panel,.studio-card,.resume-panel,.about-panel,.consult-project-item,.card';
+let activeHiddenKey=null;
+function spawnPanels(){
+  return Array.from(document.querySelectorAll(SPAWN_PANEL_SELECTOR))
+    .filter(el=>el.isConnected&&!el.closest('.dev-console,.shop-popup,.game-pickup,.superboss-arena')&&
+      !el.matches('a,button')&&!el.closest('a,button')&&el.clientWidth>=110&&el.clientHeight>=65);
+}
+function chooseSpawnPanel(){
+  const panels=spawnPanels();
+  if(!panels.length)return null;
+  // Prefer panels in or near the viewport to make the movement discoverable,
+  // while still allowing an occasional hidden item further down the page.
+  const near=panels.filter(p=>{const r=p.getBoundingClientRect();return r.bottom>-150&&r.top<innerHeight+150;});
+  const pool=near.length&&Math.random()<.75?near:panels;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function spawnScreenPickup(def,{duration,step,onEnd,panel=null}={}){
+  const item=document.createElement('button');
+  item.type='button';item.className='game-pickup';item.dataset.kind=def.kind;
+  item.dataset.telemetryKind=def.kind;item.innerHTML=getPickupMarkup(def.kind);
+  item.setAttribute('aria-label',def.kind==='key'?'Hidden key in a content panel':'Collect '+def.kind);
+  item.addEventListener('click',()=>{
+    if(def.kind==='key'&&activeHiddenKey===item)activeHiddenKey=null;
+    window.MippiSpawnMotion?.stop(item);
+    handleGamePickup(def,item);
+  });
+  if(panel){
+    panel.classList.add('mippi-spawn-panel-host');
+    panel.appendChild(item);
+  }else document.body.appendChild(item);
+  telemetryFlyingSpawn(def.kind);
+  if(step)window.MippiSpawnMotion?.register(item,{duration,width:64,height:64,panel,step,
+    onEnd:()=>{if(item.isConnected){telemetryFlyingMiss(def.kind);item.remove();onEnd?.();}}});
+  directorNoteFriendlyAmbient();
+  return item;
+}
+// Physics pickups bounce at the hotbar, which is the shared game ground plane.
+// They are only credited to the wallet or health meter when actually collected.
+function spawnGroundDrop(kind,x,y,{velocityX=null,duration=15000}={}){
+  const def=pickupKinds.find(entry=>entry.kind===kind);
+  if(!def)return null;
+  const item=spawnScreenPickup(def);
+  const initialX=Math.max(32,Math.min(innerWidth-32,x));
+  let px=initialX,py=Math.max(-65,Math.min(innerHeight-64,y));
+  let vx=velocityX??((Math.random()-.5)*175);
+  let vy=-(225+Math.random()*190),bounces=0,grounded=false;
+  window.MippiSpawnMotion?.register(item,{width:64,height:64,duration,
+    step:({dt,viewport})=>{
+      const floor=viewport.ground-32;
+      if(!grounded){
+        vy+=1150*dt;px+=vx*dt;py+=vy*dt;
+        px=Math.max(33,Math.min(viewport.w-33,px));
+        if(py>=floor){
+          py=floor;bounces++;
+          if(bounces>=3||Math.abs(vy)<95){grounded=true;vy=0;vx=0;}
+          else{vy=-Math.abs(vy)*.34;vx*=.62;}
+        }
+      }
+      return {x:px,y:py,angle:grounded?0:Math.max(-12,Math.min(12,vx*.12))};
+    },
+    onEnd:()=>{if(item.isConnected){telemetryFlyingMiss(kind);item.remove();}}
+  });
+  return item;
+}
+function spawnBounceStar(def){
+  const dir=Math.random()<.5?1:-1;
+  const initial=dir===1?-35:innerWidth+35;
+  const speed=200+Math.random()*95;
+  const lifetime=18000+Math.random()*9000;
+  return spawnScreenPickup(def,{duration:lifetime,
+    step:({t,viewport})=>{
+      const travel=viewport.w+70,shift=(speed*t)% (2*travel);
+      const x=shift<travel?initial+dir*shift:initial+dir*(2*travel-shift);
+      const hops=Math.abs(Math.sin(t*Math.PI*1.23));
+      return {x,y:viewport.ground-32-100*hops};
+    }
+  });
+}
+function spawnPanelMushroom(def){
+  const panel=chooseSpawnPanel();
+  if(!panel)return false;
+  const clockwise=Math.random()<.5;
+  return spawnScreenPickup(def,{panel,duration:15000+Math.random()*9000,
+    step:({t})=>{
+      const w=panel.clientWidth,h=panel.clientHeight;
+      const length=2*(w+h),perimeterOffset=(t*(135+Math.random()*0))*1; // deterministic speed
+      const d=((clockwise?perimeterOffset:length-perimeterOffset)%length+length)%length;
+      if(d<w)return{x:d,y:0};
+      if(d<w+h)return{x:w,y:d-w};
+      if(d<2*w+h)return{x:w-(d-w-h),y:h};
+      return{x:0,y:h-(d-(2*w+h))};
+    }
+  });
+}
+function spawnHiddenPanelKey(def){
+  if(activeHiddenKey?.isConnected||castleQuestActive||activeCastle)return false;
+  const panel=chooseSpawnPanel();
+  if(!panel)return false;
+  const item=spawnScreenPickup(def,{panel});
+  // This one remains in the panel until clicked: no natural flight or expiry.
+  item.classList.add('mippi-panel-key');
+  item.style.setProperty('animation','none','important');
+  item.style.position='absolute';item.style.left='auto';item.style.top='auto';
+  item.style.right='6px';item.style.bottom='6px';
+  activeHiddenKey=item;
+  return item;
+}
+
 function getPickupMarkup(kind){
   // Keep the original button and hitbox. Only the silhouette changes.
   const art=window.MippiGameArt?.pickups?.[kind];
@@ -6645,21 +6756,13 @@ function getPickupMarkup(kind){
 }
 let pickupsSinceKey=0;
 function choosePickupDefinition(){
-  const nonKeys=pickupKinds.filter(entry=>entry.kind!=='key');
-  const lucky=shopHasEquipped('lucky-charm');
-  const chooseNonKey=()=>{
-    if(!lucky){ const pool=heartCount>=5 ? [...nonKeys.filter(e=>e.kind!=='heart'),...(Math.random()<.20?nonKeys.filter(e=>e.kind==='heart'):[])] : nonKeys; return pool[Math.floor(Math.random()*pool.length)]; }
-    const weighted=[];
-    nonKeys.forEach(entry=>{ const copies=entry.kind==='heart'&&heartCount>=5?1:(entry.kind==='heart'||entry.kind==='star')?3:2; for(let i=0;i<copies;i++) weighted.push(entry); });
-    return weighted[Math.floor(Math.random()*weighted.length)];
-  };
-  if(castleQuestActive || activeCastle) return chooseNonKey();
-  const keyDef=pickupKinds.find(entry=>entry.kind==='key');
-  // A little randomness, plus a pity rule. Lucky Charm tightens both without
-  // turning the uncommon pickups into guaranteed schedule spam.
-  if(pickupsSinceKey>=(lucky?2:3) || Math.random()<(lucky?.36:.26)){ pickupsSinceKey=0; return keyDef; }
+  // Hearts and Rupees no longer spawn as ambient flyers.
+  const key=pickupKinds.find(item=>item.kind==='key');
+  if(!activeHiddenKey?.isConnected&&!castleQuestActive&&!activeCastle &&
+    (pickupsSinceKey>=2||Math.random()<.38)){pickupsSinceKey=0;return key;}
   pickupsSinceKey++;
-  return chooseNonKey();
+  const kind=Math.random()<.54?'star':'1up';
+  return pickupKinds.find(item=>item.kind===kind);
 }
 function awardRupees(amount=1,{source='pickup',announce='pickup'}={}){
   const value=Math.max(0,Math.floor(Number(amount)||0));
@@ -6713,22 +6816,19 @@ function handleGamePickup(def,item){
   item.remove();
 }
 function spawnGamePickup(forcedKind=null,force=false){
-  if(reduceMotion&&!force) return false;
-  if(!directorAllowsAmbient('pickup',{force})) return false;
-  const f=randomEdgeFlight(100);
-  // Do not naturally spawn another key while a castle is waiting. Forced test pickups
-  // are allowed because console commands are allowed to be irresponsible.
-  // Before Epic, expose gentle starter collectibles rather than a dead screen.
-  // Keys, stars and mushrooms remain in the Epic game-layer pool.
-  const def=forcedKind ? pickupKinds.find(entry=>entry.kind===forcedKind) :
-    (epicGameplayUnlocked()?choosePickupDefinition():pickupKinds.find(entry=>entry.kind===(Math.random()<.65?'rupee':'heart')));
-  if(!def) return false;
-  const item=document.createElement('button'); item.type='button'; item.className='game-pickup'; item.dataset.kind=def.kind; item.dataset.telemetryKind=def.kind; item.innerHTML=getPickupMarkup(def.kind);
-  telemetryFlyingSpawn(def.kind,{forced:force}); item.setAttribute('aria-label',`A hidden ${def.kind} pickup`);
-  item.style.left=`${f.sx}px`; item.style.top=`${f.sy}px`; item.style.setProperty('--dx',`${f.dx}px`); item.style.setProperty('--dy',`${f.dy}px`); item.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(item,5.2+Math.random()*4.6);
-  item.addEventListener('click',()=>handleGamePickup(def,item));
-  document.body.appendChild(item); combatGeometry.registerFlight(item,f); directorNoteFriendlyAmbient(); removeWhenFlightEnds(item);
-  return true;
+  if(reduceMotion&&!force)return false;
+  if(!force&&!epicGameplayUnlocked())return false;
+  if(!directorAllowsAmbient('pickup',{force}))return false;
+  const def=forcedKind?pickupKinds.find(entry=>entry.kind===forcedKind):choosePickupDefinition();
+  if(!def)return false;
+  if(def.kind==='key')return !!spawnHiddenPanelKey(def);
+  if(def.kind==='star')return !!spawnBounceStar(def);
+  if(def.kind==='1up')return !!spawnPanelMushroom(def);
+  // QA shortcuts may still create Hearts and Rupees at controlled positions;
+  // natural gameplay obtains them only from enemy kills and interactions.
+  if(def.kind==='heart'||def.kind==='rupee')
+    return !!spawnGroundDrop(def.kind,innerWidth*(.2+Math.random()*.6),innerHeight*.24);
+  return false;
 }
 let naturalPickupTimer=null;
 function nextNaturalPickupDelay(){ return easyModeEnabled ? 2600+Math.random()*3200 : epicGameplayUnlocked()?directorDelay('pickup',4600,8600):directorDelay('pickup',11000,16000); }
@@ -6745,16 +6845,32 @@ scheduleNaturalPickup();
 
 // Once Doug assumes command, bones become a recurring background pickup until reload/reset.
 function spawnDougBone(force=false){
-  if(!dougCard?.classList.contains('doug-command')||reduceMotion) return false;
-  if(!directorAllowsAmbient('bone',{force})) return false;
-  const f=randomEdgeFlight(90); const bone=document.createElement('button'); bone.type='button'; bone.className='doug-bone'; bone.setAttribute('aria-label','Doug-approved bone pickup');
+  if(!dougCard?.classList.contains('doug-command')||reduceMotion)return false;
+  if(!directorAllowsAmbient('bone',{force}))return false;
+  const bone=document.createElement('button');bone.type='button';bone.className='doug-bone';
+  bone.setAttribute('aria-label','Falling Doug-approved bone');
+  bone.dataset.telemetryKind='bone';
   bone.innerHTML=window.MippiGameArt?.clickables?.bone
-    ? `<span class="doug-bone-icon game-art-icon" style="--game-art:url('${window.MippiGameArt.clickables.bone}')" aria-hidden="true"></span>`
-    : `<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
-  bone.style.left=`${f.sx}px`; bone.style.top=`${f.sy}px`; bone.style.setProperty('--dx',`${f.dx}px`); bone.style.setProperty('--dy',`${f.dy}px`); bone.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(bone,5.4+Math.random()*3.8);
-  bone.dataset.telemetryKind='bone'; telemetryFlyingSpawn('bone',{forced:force});
-  bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const p=combatGeometry.effectCenter(bone); explodeAt(p.x,p.y,14); collectDougBone(method); setDougBoneCoolVisual(bone,false); bone.remove(); });
-  document.body.appendChild(bone); combatGeometry.registerFlight(bone,f); directorNoteFriendlyAmbient(); setDougBoneCoolVisual(bone,dougCard?.classList.contains('doug-star-cool')); removeWhenFlightEnds(bone);
+    ?`<span class="doug-bone-icon game-art-icon" style="--game-art:url('${window.MippiGameArt.clickables.bone}')" aria-hidden="true"></span>`
+    :`<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></svg>`;
+  const x=(.1+Math.random()*.8)*innerWidth;
+  const spin=(Math.random()<.5?-1:1)*(230+Math.random()*320);
+  const duration=4600+Math.random()*2600;
+  bone.addEventListener('click',()=>{
+    window.MippiSpawnMotion?.stop(bone);
+    const method=telemetryCollectionMethod(bone);
+    const p=combatGeometry.effectCenter(bone);
+    explodeAt(p.x,p.y,14);collectDougBone(method);setDougBoneCoolVisual(bone,false);bone.remove();
+  });
+  document.body.appendChild(bone);telemetryFlyingSpawn('bone',{forced:force});
+  window.MippiSpawnMotion?.register(bone,{duration,width:64,height:38,
+    step:({progress,t,viewport})=>({
+      x:x+Math.sin(t*1.8)*25,y:-30+progress*(viewport.ground+68),
+      angle:spin*t
+    }),
+    onEnd:()=>{telemetryFlyingMiss('bone');bone.remove();}
+  });
+  directorNoteFriendlyAmbient();setDougBoneCoolVisual(bone,dougCard?.classList.contains('doug-star-cool'));
   return true;
 }
 let naturalDougBoneTimer=null;

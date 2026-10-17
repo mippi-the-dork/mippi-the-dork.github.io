@@ -163,3 +163,10 @@ They are therefore not collected by this Star Power hover selector.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.01 Behavior
+
+v3.00 Star Power enables piercing upward enemy-only shots plus area-contact collection/hits through the real Mushroom-scaled cursor click radius. Star Power does not let bullets collect Stars, Hearts, Rupees, Mushrooms, Keys, Bones, Castles or Shooting Stars. The cursor circle remains distinct from the bullet trajectory.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

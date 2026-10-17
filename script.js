@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.06';
+const MIPPI_BUILD_VERSION='3.07';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -7288,6 +7288,24 @@ window.addEventListener('load',()=>{
 // Three.js scene. The site remains fully usable if this import fails.
 const canvas = document.querySelector('#hero-canvas');
 const fallback = document.querySelector('#scene-fallback');
+const heroFallbackLinks = [...(fallback?.querySelectorAll('[data-fallback-signal]') || [])];
+function activateHeroFallback(reason='3D graphics unavailable'){
+  mippiRuntimeHealth.three.hero=false;
+  mippiRuntimeHealth.three.fallbackReason=reason;
+  fallback?.classList.remove('scene-live');
+  fallback?.classList.add('show');
+  canvas?.setAttribute('hidden','');
+  const readout=document.querySelector('#scene-readout');
+  if(readout)readout.textContent='2D SIGNALS // CLICK TO JUMP';
+}
+heroFallbackLinks.forEach(link=>link.addEventListener('click',event=>{
+  const key=link.dataset.fallbackSignal;
+  if(!key || !document.getElementById(key))return;
+  if(document.body.classList.contains('interaction-hunt'))return;
+  telemetryCount('portfolio','heroSignalClicks');
+  telemetryMeaningful('hero_signal',{target:key,fallback:true});
+  showAchievement('signal');
+}));
 fallback?.classList.add('show');
 // Intentionally ignore OS/browser reduced-motion preferences here.
 // Motion is part of the playable portfolio and silently disabling it can hide
@@ -7305,9 +7323,8 @@ async function initScene() {
 
     observeThreeCanvas(canvas);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-    fallback?.classList.remove('show');
-    fallback?.classList.add('scene-live');
-    mippiRuntimeHealth.three.hero=true; mippiRuntimeHealth.bootStage='hero-three-live';
+    // Do not mark the hero healthy until its scene setup has completed.
+    mippiRuntimeHealth.bootStage='hero-three-initializing';
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
 
@@ -7658,12 +7675,20 @@ async function initScene() {
       recordThreeFrame('hero');
       requestAnimationFrame(frame);
     }
+    canvas.addEventListener('webglcontextlost',event=>{
+      event.preventDefault();
+      activateHeroFallback('WebGL context lost');
+      mippiRuntimeHealth.bootStage='hero-context-lost';
+    },{once:true});
+    mippiRuntimeHealth.three.hero=true;
+    mippiRuntimeHealth.bootStage='hero-three-live';
+    fallback?.classList.remove('show');
+    fallback?.classList.add('scene-live');
     frame();
   } catch (error) {
     console.warn('3D scene unavailable, using fallback.', error);
-    fallback?.classList.remove('scene-live');
-    fallback?.classList.add('show');
-    canvas?.setAttribute('hidden','');
+    activateHeroFallback(String(error?.message||error));
+    mippiRuntimeHealth.bootStage='hero-fallback-active';
   }
 }
 

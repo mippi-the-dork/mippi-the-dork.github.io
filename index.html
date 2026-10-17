@@ -17,7 +17,7 @@
     html.hud-pending #play-mode-controls,
     html.hud-pending #hint-trigger {visibility:hidden!important}
   </style>
-  <link rel="stylesheet" href="style.css?v=3.11" />
+  <link rel="stylesheet" href="style.css?v=3.12" />
   <script defer src="stability-lab.js?v=3.04"></script>
   <script defer src="perf-lab.js?v=3.04"></script>
   <script defer src="particle-renderer.js?v=3.04"></script>
@@ -295,89 +295,215 @@
         </div>
         <div class="studio-grid">
           <!-- Visual asset: assets/career-real/yourstudiohere.png (user-provided art). -->
-          <article class="studio-card studio-yourstudio">
+          <article class="studio-card studio-yourstudio" data-studio-detail="yourstudio">
+
             <div class="studio-image studio-yourstudio-image" aria-hidden="true"></div>
-            <strong>Your Studio Here</strong>
+            <strong>Your Studio Here - Mippi is available for work</strong>
             <span>Design Direction / Systems Design / Game Consulting · Today</span>
             <div class="studio-art" aria-hidden="true">YOUR STUDIO</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Your Studio Here - Mippi is available for work" aria-expanded="false" aria-controls="studio-details-yourstudio"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-yourstudio" aria-label="Your Studio Here - Mippi is available for work experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">AVAILABLE FOR WORK</span><button class="studio-reveal-close" type="button" aria-label="Close Your Studio Here - Mippi is available for work details">×</button></div>
+              <p>Game direction, design leadership, systems design, technical design, and consulting.</p>
+              <ul><li>25+ years building games, tools, and real-time interactive experiences.</li><li>Experienced in studio leadership, mentoring, rapid prototyping, and helping teams establish achievable design visions.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-mob">
+          <article class="studio-card studio-mob" data-studio-detail="mob">
+
             <img class="studio-image" src="assets/career-real/mob-poppy.webp" alt="" aria-hidden="true" />
             <strong>Mob Entertainment</strong>
             <span>Studio Design Director / Game Director · 2024-2026</span>
             <div class="studio-art" aria-hidden="true">POPPY PLAYTIME</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Mob Entertainment" aria-expanded="false" aria-controls="studio-details-mob"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-mob" aria-label="Mob Entertainment experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">STUDIO DESIGN + GAME DIRECTION</span><button class="studio-reveal-close" type="button" aria-label="Close Mob Entertainment details">×</button></div>
+              <p>Directed a new game while leading design operations across five studio titles, including Poppy Playtime.</p>
+              <ul><li>Built four dedicated design disciplines from an eight-person department.</li><li>Oversaw reusable Unreal systems and helped secure four realistically scoped project greenlights.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-oberha5li">
+          <article class="studio-card studio-oberha5li" data-studio-detail="oberha5li">
+
             <img class="studio-image" src="assets/career-real/oberha5li.webp" alt="" aria-hidden="true" />
             <strong>Oberha5li</strong>
             <span>Creative Direction / Lead Design · 2022-2025</span>
             <div class="studio-art" aria-hidden="true">LIVE PERFORMANCE TOOLS</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Oberha5li" aria-expanded="false" aria-controls="studio-details-oberha5li"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-oberha5li" aria-label="Oberha5li experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">CREATIVE DIRECTION + REAL-TIME TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Oberha5li details">×</button></div>
+              <p>Co-created a reusable Unreal Engine live-performance platform for touring entertainers.</p>
+              <ul><li>Productized interactive concert technology into a commercial service.</li><li>Collaborated with Epic Games audio engineers and Harmonix staff on engine improvements.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-seven20">
+          <article class="studio-card studio-seven20" data-studio-detail="seven20">
+
             <img class="studio-image" src="assets/career-real/seven20-deadmau5.webp" alt="" aria-hidden="true" />
             <strong>Seven20 &amp; deadmau5</strong>
             <span>Lead Design · 2021-2023</span>
             <div class="studio-art" aria-hidden="true">deadmau5</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Seven20 &amp;amp; deadmau5" aria-expanded="false" aria-controls="studio-details-seven20"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-seven20" aria-label="Seven20 &amp;amp; deadmau5 experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">LIVE PERFORMANCE DESIGN</span><button class="studio-reveal-close" type="button" aria-label="Close Seven20 &amp;amp; deadmau5 details">×</button></div>
+              <p>Designed a responsive, real-time Unreal Engine concert visuals pipeline with deadmau5 and Seven20.</p>
+              <ul><li>Developed interactive show technology for major live performances.</li><li>Helped establish a reusable technical foundation for subsequent touring projects.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-squareenix">
+          <article class="studio-card studio-squareenix" data-studio-detail="squareenix">
+
             <img class="studio-image" src="assets/career-real/squareenix-tombraider.webp" alt="" aria-hidden="true" />
             <strong>Square Enix</strong>
             <span>Game Design / Gameplay Programming · 2013</span>
             <div class="studio-art" aria-hidden="true">TOMB RAIDER // DRAGON QUEST</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Square Enix" aria-expanded="false" aria-controls="studio-details-squareenix"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-squareenix" aria-label="Square Enix experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">GAME DESIGN + PROGRAMMING</span><button class="studio-reveal-close" type="button" aria-label="Close Square Enix details">×</button></div>
+              <p>Supported Crystal Dynamics on Tomb Raider and contributed to a Dragon Quest project.</p>
+              <ul><li>Provided gameplay programming and design production support.</li><li>Delivered assigned tasks during a brief engagement based in Japan.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-gamigo">
+          <article class="studio-card studio-gamigo" data-studio-detail="gamigo">
+
             <img class="studio-image" src="assets/career-real/gamigo.webp" alt="" aria-hidden="true" />
             <strong>Gamigo</strong>
             <span>Localization · 2011-2012</span>
             <div class="studio-art" aria-hidden="true">LIVE MMORPG</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Gamigo" aria-expanded="false" aria-controls="studio-details-gamigo"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-gamigo" aria-label="Gamigo experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">MMORPG LOCALIZATION</span><button class="studio-reveal-close" type="button" aria-label="Close Gamigo details">×</button></div>
+              <p>Managed localization for established live MMO content and expansions.</p>
+              <ul><li>Maintained consistent terminology and lore throughout updates.</li><li>Streamlined adaptation of new material against existing localized game content.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-aeria">
+          <article class="studio-card studio-aeria" data-studio-detail="aeria">
+
             <img class="studio-image" src="assets/career-real/aeria-12sky.webp" alt="" aria-hidden="true" />
             <strong>Aeria Games</strong>
             <span>Community Management / Localization · 2009-2012</span>
             <div class="studio-art" aria-hidden="true">12SKY</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Aeria Games" aria-expanded="false" aria-controls="studio-details-aeria"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-aeria" aria-label="Aeria Games experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">COMMUNITY + LOCALIZATION</span><button class="studio-reveal-close" type="button" aria-label="Close Aeria Games details">×</button></div>
+              <p>Progressed from Game Sage volunteer to contract staff on a faction-based MMO.</p>
+              <ul><li>Moderated player communities and supported live-service operations.</li><li>Led substantial game localization across systems, dialogue, and UI.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-ncsoft">
+          <article class="studio-card studio-ncsoft" data-studio-detail="ncsoft">
+
             <img class="studio-image" src="assets/career-real/ncsoft-aion.webp" alt="" aria-hidden="true" />
             <strong>NCSoft</strong>
             <span>Live Content Design · 2010-2011</span>
             <div class="studio-art" aria-hidden="true">MMORPG LIVE CONTENT</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: NCSoft" aria-expanded="false" aria-controls="studio-details-ncsoft"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-ncsoft" aria-label="NCSoft experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">MMORPG LIVE CONTENT</span><button class="studio-reveal-close" type="button" aria-label="Close NCSoft details">×</button></div>
+              <p>Designed and shipped two substantial live content releases during a six-month contract.</p>
+              <ul><li>Contributed to feature and content production for an active MMORPG.</li><li>Worked directly with the Korean development team.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-changyou">
+          <article class="studio-card studio-changyou" data-studio-detail="changyou">
+
             <img class="studio-image" src="assets/career-real/changyou.webp" alt="" aria-hidden="true" />
             <strong>ChangYou</strong>
             <span>Live Content Design / Programming · 2009-2010</span>
             <div class="studio-art" aria-hidden="true">WESTERN MMO SYSTEMS</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: ChangYou" aria-expanded="false" aria-controls="studio-details-changyou"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-changyou" aria-label="ChangYou experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">LIVE DESIGN + PROGRAMMING</span><button class="studio-reveal-close" type="button" aria-label="Close ChangYou details">×</button></div>
+              <p>Designed and programmed MMORPG content for Western audiences.</p>
+              <ul><li>Adapted core systems and features to different audience expectations.</li><li>Delivered recurring content updates and patches within a cross-cultural team.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-ea">
+          <article class="studio-card studio-ea" data-studio-detail="ea">
+
             <img class="studio-image" src="assets/career-real/ea-sports.webp" alt="" aria-hidden="true" />
             <strong>Electronic Arts</strong>
             <span>Performance Capture · 2008-2010</span>
             <div class="studio-art" aria-hidden="true">AAA SPORTS</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Electronic Arts" aria-expanded="false" aria-controls="studio-details-ea"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-ea" aria-label="Electronic Arts experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">TECHNICAL ANIMATION + CAPTURE</span><button class="studio-reveal-close" type="button" aria-label="Close Electronic Arts details">×</button></div>
+              <p>Supported likeness and performance-capture workflows on AAA sports games.</p>
+              <ul><li>Integrated character scans, animation assets, and capture data.</li><li>Bridged capture and technical art pipelines across production teams.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-insomniac">
+          <article class="studio-card studio-insomniac" data-studio-detail="insomniac">
+
             <img class="studio-image" src="assets/career-real/insomniac-ratchet.webp" alt="" aria-hidden="true" />
             <strong>Insomniac Games</strong>
             <span>Technical Design / Weapons · 2005-2008</span>
             <div class="studio-art" aria-hidden="true">WEAPON SYSTEMS</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Insomniac Games" aria-expanded="false" aria-controls="studio-details-insomniac"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-insomniac" aria-label="Insomniac Games experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">WEAPON DESIGN + PIPELINE TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Insomniac Games details">×</button></div>
+              <p>Designed, prototyped, and programmed weapons and gameplay mechanics.</p>
+              <ul><li>Built weapon interactions and rapid gameplay prototypes.</li><li>Developed visual effects and tools spanning the art and engineering pipelines.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-naughtydog">
+          <article class="studio-card studio-naughtydog" data-studio-detail="naughtydog">
+
             <img class="studio-image" src="assets/career-real/naughtydog-jak.webp" alt="" aria-hidden="true" />
             <strong>Naughty Dog</strong>
             <span>Technical Art / Design · 2005-2008</span>
             <div class="studio-art" aria-hidden="true">TECHNICAL DESIGN</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Naughty Dog" aria-expanded="false" aria-controls="studio-details-naughtydog"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-naughtydog" aria-label="Naughty Dog experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">TECHNICAL ART + DESIGN</span><button class="studio-reveal-close" type="button" aria-label="Close Naughty Dog details">×</button></div>
+              <p>Contributed technical art, game design, and tools work across PlayStation action-adventure projects.</p>
+              <ul><li>Developed internal scripts and technical production workflows.</li><li>Supported effects, characters, and combat-content iteration.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-rockstar">
+          <article class="studio-card studio-rockstar" data-studio-detail="rockstar">
+
             <img class="studio-image" src="assets/career-real/rockstar-gta.webp" alt="" aria-hidden="true" />
             <strong>Rockstar Games</strong>
             <span>Gameplay Design / Tools · 2004-2005</span>
             <div class="studio-art" aria-hidden="true">SECRET CO-OP // AAA SONY</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Rockstar Games" aria-expanded="false" aria-controls="studio-details-rockstar"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-rockstar" aria-label="Rockstar Games experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">GAMEPLAY SYSTEMS + TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Rockstar Games details">×</button></div>
+              <p>Implemented interactive world mechanics for a major AAA Sony-exclusive title.</p>
+              <ul><li>Built mini-games and the secret two-player co-op mode.</li><li>Modeled environment props and developed production tooling.</li></ul>
+            </section>
           </article>
-          <article class="studio-card studio-sony">
+          <article class="studio-card studio-sony" data-studio-detail="sony">
+
             <img class="studio-image" src="assets/career-real/sony-playstation.webp" alt="" aria-hidden="true" />
             <strong>Sony Computer Entertainment America</strong>
             <span>QA Internship · 1998-2002</span>
             <div class="studio-art" aria-hidden="true">PROJECT GAP</div>
+          
+            <button class="studio-card-open" type="button" aria-label="View work details: Sony Computer Entertainment America" aria-expanded="false" aria-controls="studio-details-sony"></button>
+            <span class="studio-card-cue" aria-hidden="true">VIEW WORK <span>↑</span></span>
+            <section class="studio-card-reveal" id="studio-details-sony" aria-label="Sony Computer Entertainment America experience details" aria-hidden="true" inert>
+              <div class="studio-reveal-head"><span class="studio-reveal-kicker">PROJECT GAP + QUALITY ASSURANCE</span><button class="studio-reveal-close" type="button" aria-label="Close Sony Computer Entertainment America details">×</button></div>
+              <p>Participated in SCEA's remote Project GAP youth QA initiative.</p>
+              <ul><li>Evaluated early builds, vertical slices, betas, and demos.</li><li>Delivered bug reports and game-balance assessments that led to Sony-sponsored design education.</li></ul>
+            </section>
           </article>
         </div>
       </div>
@@ -925,7 +1051,7 @@
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
   <script defer src="game-art.js?v=3.04"></script>
   <script defer src="spawn-motion.js?v=3.04"></script>
-  <script defer src="script.js?v=3.11"></script>
+  <script defer src="script.js?v=3.12"></script>
   <script defer src="perspective-demo.js?v=3.04"></script>
 </body>
 </html>

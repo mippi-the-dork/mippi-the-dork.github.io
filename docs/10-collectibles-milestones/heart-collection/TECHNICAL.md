@@ -154,3 +154,8 @@ dev pickup heart
 Since v2.81 `collectHeart()` sends each Heart collected **after** first five to the existing Mippi Bird life bank via `persistMushroomLives()`, not a sixth heart or duplicate claim. Economy telemetry adds `heartBirdLivesEarned`. Post-five natural Heart candidate reintroduction: 20% in non-key selection without Lucky Charm; reduced relative weight one with Lucky Charm, not absolute spawn frequency. v2.85 fixes `updateHeartMeter()` filtering direct span glyph children and excluding `.hud-attention-ring`.
 
 For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
+
+
+## Current v3.01 Behavior
+
+v3.01 natural Hearts originate only from enemy kills: ~5% regular UFO, guaranteed Boss and Super Boss, ~10% Super Boss add. They fall physically and must be clicked. QA-only dev pickup heart remains. No random ambient Heart selection.

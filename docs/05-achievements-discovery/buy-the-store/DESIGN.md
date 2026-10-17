@@ -39,3 +39,8 @@ This includes the final Design Mode unlock item.
 ## v3.05–v3.10 Current Specification
 
 v3.06: Buy the Store requires buying every item currently listed in the Rupee Shop; the hint and solution align.
+
+
+## v3.14 Current Behavior
+
+v3.14 Buy the Store requires all ten permanent Shop items, including Design Mode capstone; eleven cards are shown because the repeatable life refill is excluded.

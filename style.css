@@ -8579,3 +8579,52 @@ html.mippi-software-fallback #ambient-canvas{display:none!important;}
 html.mippi-software-fallback .scene-fallback{display:block!important;opacity:1!important;pointer-events:auto!important;}
 html.mippi-software-fallback .scene-fallback .fallback-node{visibility:visible!important;pointer-events:auto!important;}
 html.mippi-software-fallback .scene-fallback .fallback-system{opacity:1;}
+
+/* v3.14 // Keep every résumé summary readable inside its own studio card.
+   Details are editorially curated for each role, not scroll-driven. */
+.studio-grid > .studio-card{min-height:224px;}
+.studio-card-reveal{padding:13px 15px 14px;scrollbar-width:none;}
+.studio-card-reveal::-webkit-scrollbar{display:none;}
+.studio-reveal-head{margin-bottom:6px;}
+.studio-card-reveal p{font-size:11.4px;line-height:1.36;margin-bottom:6px;}
+.studio-card-reveal ul{font-size:11px;line-height:1.34;padding-left:15px;}
+.studio-card-reveal li+li{margin-top:3px;}
+/* The work links are two compact horizontal rows, category label at left. */
+.studio-card .studio-career-links{
+  display:flex;flex-direction:column;gap:6px;
+  margin-top:9px;padding-top:8px;
+}
+.studio-card .studio-career-linkgroup{
+  display:grid;grid-template-columns:65px minmax(0,1fr);
+  align-items:center;gap:6px;
+}
+.studio-card .studio-career-linkgroup b{
+  font-size:9px;letter-spacing:.06em;white-space:nowrap;
+}
+.studio-card .studio-career-linkbuttons{
+  display:flex;align-items:center;flex-wrap:wrap;gap:5px;
+}
+.studio-card .studio-career-linkgroup a{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:3px 7px;font-size:10px;line-height:1.15;
+  white-space:nowrap;max-width:none;border-radius:2px;
+}
+/* Never desaturate studio imagery, even while hovered or when focus
+   returns to the card opener after the reveal closes. Preserve accent
+   overlays as the hover affordance instead of greyscaling art. */
+body #career .studio-grid .studio-card .studio-image,
+body #career .studio-grid .studio-card:hover .studio-image,
+body #career .studio-grid .studio-card:focus-within .studio-image{
+  -webkit-filter:none!important;filter:none!important;
+  transition:filter 0s!important,-webkit-filter 0s!important;
+}
+@media(max-width:900px){
+  .studio-grid > .studio-card{min-height:232px;}
+}
+@media(max-width:560px){
+  .studio-grid > .studio-card{min-height:244px;}
+  .studio-grid > .studio-card.studio-yourstudio{min-height:260px;}
+  .studio-card-reveal{padding:12px 13px;}
+  .studio-card .studio-career-linkgroup{grid-template-columns:58px minmax(0,1fr);gap:5px;}
+  .studio-card .studio-career-linkgroup a{padding:3px 5px;font-size:9.5px;}
+}

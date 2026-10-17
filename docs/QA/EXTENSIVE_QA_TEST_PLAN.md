@@ -1900,3 +1900,8 @@ Current v2.97 release supplement: run [Long-Session Stability QA](LONG_SESSION_S
 ## v2.98 Current Behavior
 
 v2.98 added [Scoped Cursor Architecture QA](CURSOR_ARCHITECTURE_V2_98.md) to verify scoped/legacy A/B/A while keeping visual Big and actual Mushroom power constant. Test physical pointer movement, Rare/Epic/Legendary visuals, fullscreen overlays, alt-tab safety and independent Trail effect isolation. A moving-pointer A/B/A favored Scoped, but real FPS remains below desired values and no browser subsystem has been causally isolated.
+
+
+## v3.01 Current Test Supplement
+
+[Current Gameplay QA](V3_00_V3_01_GAMEPLAY_QA.md) is the authoritative latest release-specific supplement. The original v2.80 test cases remain historical and must not be interpreted as present-day projectile homing, collectible source, Boss adds or Castle fireworks behavior. Re-test icon art, movement, physical reward collection, Boss/Super Boss mechanics, UI, Star Power, and performance in actual browser.

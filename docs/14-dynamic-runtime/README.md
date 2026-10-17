@@ -29,6 +29,8 @@ This category groups the canonical documentation for **Dynamic Runtime Systems**
 | **Session Statistics** | Summarizes meaningful local telemetry into readable player-facing stats and console output. | [Design](session-statistics/DESIGN.md) | [Technical](session-statistics/TECHNICAL.md) |
 | **Cross-System Cohesion** | Defines deliberate interactions between otherwise separate mechanics so the game layer behaves like one connected system instead of isolated easter eggs. | [Design](cross-system-cohesion/DESIGN.md) | [Technical](cross-system-cohesion/TECHNICAL.md) |
 
+| **Authored Spawn Motion** | Entity-specific paths powered by one shared movement clock. | [Design](authored-spawn-motion/DESIGN.md) | [Technical](authored-spawn-motion/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

@@ -661,3 +661,8 @@ Actual `cursorPowerLevel` from Mushroom pickup is independent of the visual over
 ## v2.99 to v3.01 Rendering, Combat and Spawn Relationships
 
 `MippiFxRenderer` handles two shared cosmetic Canvas2D layers (cursor Trail, Star sparks, Doug rainbow wake, command glow). It is separate from `MippiParticleRenderer` combat impacts; Castle fireworks now use **Canvas-only smaller bursts**. `MippiGameArt` maps 14 SVGs in `assets/game/` to hotbar, clickable and enemy silhouettes. `cursorClickRadius` and actual Mushroom power determine near-pointer interactive contact, while vertically aimed Legendary bullets hit **enemies only**, piercing during Star Power and spreading three-way during Cool Mode. `MippiSpawnMotion` supplies modeled positions for unique actor routes, fed into combatGeometry before DOM bounds fallback. Rupees/Hearts become physical drops, with natural Hearts from enemy deaths only. Shooting Stars are unchanged.
+
+
+## v3.05–v3.10 Current Specification
+
+v3.05 Star Power ring hue changes only cosmetic visuals, not Mushroom-scaled contact. Elarsi joins two side projects, not the running editor. v3.06 fixes opening Hero yaw/pitch and 2nd Person achievement; v3.07 provides accessible fallback navigation/Signal achievement on WebGL errors. v3.09 adds the wide career card. v3.10 parent-centered logo rotation supersedes v3.08 plane translation.

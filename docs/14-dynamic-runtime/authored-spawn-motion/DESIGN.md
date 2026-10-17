@@ -27,3 +27,8 @@ Most actors are optional, finite-lived and click/touch sensitive; the Key is an 
 Movement must be readable without obscuring the portfolio. Star stays over the hotbar without silently escaping the viewport; Mushroom stays visibly attached to one panel's border, even when scrolling; Key remains reachable; drops don't hide behind HUD. Boss bullets align with their visible launch points. No gameplay/achievement behavior is changed merely to implement routes.
 
 **Important:** Successful source syntax checks do not establish that all paths, hotbar collisions, panel clipping or real-browser frame pacing are correct. See [Technical](TECHNICAL.md) and [v3.01 Gameplay QA](../../QA/V3_00_V3_01_GAMEPLAY_QA.md).
+
+
+## Current v3.04 Specification
+
+v3.02 moves Mushroom sprites out of content-panel DOM, maintaining panel-perimeter motion as a **body-level fixed overlay** so panel clipping/inherited styles no longer affect art. v3.03 keeps these overlays above content but below sticky header and bottom HUD. Maximum three Mushrooms, one per unique panel; one active bouncing Star. v3.02 added ~380ms expiry fade/lift/shrink; v3.04 adds ~380ms entrance from bright to normal only for initially onscreen actors, skipped for reduced motion and offscreen entrants.

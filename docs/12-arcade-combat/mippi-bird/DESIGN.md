@@ -163,3 +163,8 @@ Mippi Bird feels like a compact portfolio toy that is fun to replay but discipli
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current v3.04 Specification
+
+v3.04 Mippi Bird keeps the original Mippi logo silhouette but recolors it to Rare blue `#67cfff`, Epic pink `#ff6bd2`, Legendary gold `#ffd16b`; switching rarity while the minigame is open updates the art, not game physics.

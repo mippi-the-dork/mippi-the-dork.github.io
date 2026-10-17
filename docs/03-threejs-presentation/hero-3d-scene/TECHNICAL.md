@@ -326,3 +326,8 @@ The professional Hero overlay remains present.
 
 - [Three.js and Interactive 3D Presentation Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.05–v3.10 Current Specification
+
+**v3.10 current pose:** `HERO_OPENING_YAW=-0.36`, `HERO_OPENING_PITCH=0.03`; initialize root rotation and include both in idle target to avoid pose snapping (v3.06). `logoPlane.position.set(0,0,1.55)` is restored; a centered `THREE.Group` `logoOrbit` with `rotation.order='YXZ'`, `rotation.set(-0.35,-0.45,0)` parents the plane and is itself parented to root. This rotates the logo radially around the sphere instead of translating the plane (the v3.08 `(-0.67,0.53,1.40)` offset is superseded). Rings retain v3.08 `ringA.rotation.set(1.15,0.2,-0.12)` and `ringB.rotation.set(0.62,0.9,0.65)`. Keep small local logo bobbing separate from the parent orbital orientation. v3.07 accessible DOM fallback persists.

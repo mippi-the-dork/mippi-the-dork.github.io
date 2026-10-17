@@ -208,3 +208,8 @@ The current v2.97 runtime script initialization order is `stability-lab.js`, `pe
 ## v2.98 Current Behavior
 
 v2.98 updates runtime asset cache-busting and profile metadata to v2.98. The code-only website update leaves the twelve MP3/LRC sources and all images untouched, preserving the author's edited lyrics. The documentation update modifies no website assets.
+
+
+## v3.01 Runtime Asset Authority
+
+Author art is integrated at assets/game/*.svg (14 files) via game-art.js, unlike earlier assets/gameplay staging. fx-renderer.js handles cosmetic Canvas effects; particle-renderer.js handles combat bursts; spawn-motion.js drives authored movement. All initialize before script.js. Preserve existing MP3 and user-authored LRC. Windows test uses START_LOCAL_TEST.bat with LocalTestServer.ps1.

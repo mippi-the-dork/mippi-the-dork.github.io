@@ -8381,3 +8381,6 @@ body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme
 /* 3D failure fallback: real navigation controls, keyboard access and visible focus. */
 .scene-fallback.show .fallback-node { pointer-events:auto; cursor:pointer; text-decoration:none; }
 .scene-fallback.show .fallback-node:focus-visible { outline:2px solid currentColor; outline-offset:5px; }
+
+.scene-fallback.show { pointer-events:auto; }
+.scene-fallback:not(.show) .fallback-node { visibility:hidden; }

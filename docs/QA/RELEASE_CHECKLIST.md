@@ -474,3 +474,8 @@ v2.98 verification: default `dev cursor status` reports `architecture:scoped`; `
 - [ ] Verify v3.01 Console, diagnostics, local launcher and no performance regressions using browser traces.
 
 See [Current Gameplay QA](V3_00_V3_01_GAMEPLAY_QA.md).
+
+
+## Current v3.04 Specification
+
+Current v3.04 release checks: max three non-clipped, per-panel unique Mushroom overlays under header/HUD; one Star; 1,050ms staggered same-duration Galaga formations and natural cap six; Boss ~50% slower; themed Mippi Bird logo; Super Boss 27 HP, six 3-HP adds with five-second respawn cancelled on exit; lower-mouth beam visuals and hitline; reduced-motion-aware one-time onscreen spawn entrances and natural expiry fades. See [v3.04 QA](V3_02_TO_V3_04_QA.md). These items need browser verification despite successful syntax checks and merged code.

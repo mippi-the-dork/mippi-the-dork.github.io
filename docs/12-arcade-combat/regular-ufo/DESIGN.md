@@ -119,3 +119,8 @@ Regular UFOs establish the arcade vocabulary quickly while repeated kills clearl
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current v3.04 Specification
+
+v3.02 UFO formation size grows with invasion, up to four ships per group and six natural regular UFOs active. v3.03 increases trailing ship intervals from 280ms to 1,050ms, gives all members one flight duration, and brings sine routes inward to prevent edge clipping. See [Galaga Formations](../galaga-formations/DESIGN.md).

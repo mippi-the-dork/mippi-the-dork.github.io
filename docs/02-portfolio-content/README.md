@@ -30,6 +30,9 @@ This category groups the canonical documentation for **Portfolio Content and Pro
 | **About Section** | Presents the personal summary, contact information, Doug, and the About-area interactive presentation. | [Design](about-section/DESIGN.md) | [Technical](about-section/TECHNICAL.md) |
 | **Contact Panel** | Provides a dedicated way to reach Mippi and is also used as the payoff for the Mippi Wish branch. | [Design](contact-panel/DESIGN.md) | [Technical](contact-panel/TECHNICAL.md) |
 
+| **Elarsi Feature Presentation** | Third featured side project: offline LRC line/word timing, GitHub link and CSS waveform. | [Design](elarsi-feature-presentation/DESIGN.md) | [Technical](elarsi-feature-presentation/TECHNICAL.md) |
+| **Your Studio Here Card** | Wide career/consulting invitation placed before Mob Entertainment. | [Design](your-studio-here-card/DESIGN.md) | [Technical](your-studio-here-card/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

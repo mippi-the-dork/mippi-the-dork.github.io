@@ -164,3 +164,8 @@ rainbow-cursor-spark
 ## v3.05–v3.10 Current Specification
 
 v3.05 body.star-power .completion-cursor-aura uses star-power-rainbow-v305 with filter hue-rotate from 0deg to 360deg over 1.15s linear infinite. Keep the original multi-color box-shadow and CSS radius geometry; never animate the transform; prefers-reduced-motion disables the hue animation.
+
+
+## v3.14 Current Behavior
+
+v3.11 replaces simple hue-filter rainbow with rotating multi-color conic-gradient layers. Rare always shows the circle; `cursorClickRadius()` is theme-independent 22+17 per actual Mushroom power+14 during Star Power as of v3.12.

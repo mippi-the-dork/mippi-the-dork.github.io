@@ -1,4 +1,4 @@
-/* v3.01 // One movement clock for authored screen-space spawn paths.
+/* v3.02 // One movement clock for authored screen-space spawn paths.
    No per-object RAF loops, CSS motion timelines or per-frame layout reads.
    Moving world coordinates are shared with gameplay hit tests. */
 (()=>{
@@ -11,10 +11,13 @@
   const smooth=t=>t*t*(3-2*t);
   const blend=(a,b,t)=>a+(b-a)*t;
   let stats={created:0,finished:0,maxActive:0,frames:0};
-  const rectCache=new WeakMap();
+  let rectCache=new WeakMap();
+  function resetRectCache(){rectCache=new WeakMap();}
+  window.addEventListener('scroll',resetRectCache,true);
+  window.addEventListener('resize',resetRectCache,{passive:true});
   function panelRect(panel,now){
     const old=rectCache.get(panel);
-    if(old&&now-old.time<75)return old;
+    if(old&&now-old.time<16)return old;
     const r=panel.getBoundingClientRect();
     const next={left:r.left,top:r.top,width:r.width,height:r.height,time:now};
     rectCache.set(panel,next);return next;
@@ -34,23 +37,39 @@
     actors.delete(el);
     if(finish&&a.onEnd){stats.finished++;a.onEnd();}
   }
+  function expire(el,onRemoved){
+    if(!el || !el.isConnected){onRemoved?.();return false;}
+    stop(el);
+    if(el.dataset.expiring==='1')return false;
+    el.dataset.expiring='1';
+    el.style.removeProperty('animation');
+    el.classList.add('mippi-despawning');
+    el.style.pointerEvents='none';
+    window.setTimeout(()=>{el.remove();onRemoved?.();},380);
+    return true;
+  }
   function render(now){
     raf=0;
     const start=performance.now();
     const dt=Math.min(50,Math.max(0,last?now-last:16.67));last=now;
+    const screen=viewport();
     for(const [el,a] of actors){
-      if(!el.isConnected||a.panel&&!a.panel.isConnected){stop(el);continue;}
+      if(!el.isConnected){stop(el);continue;}
+      if(a.panel&&!a.panel.isConnected){stop(el,{finish:true});continue;}
       a.elapsed+=dt*(slowmo?.5:1);
       const progress=clamp(a.elapsed/a.duration,0,1);
       if(progress>=1){stop(el,{finish:true});continue;}
-      const point=a.step({t:a.elapsed/1000,progress,elapsed:a.elapsed,dt:dt/1000,viewport:viewport(),smooth,blend,clamp});
+      const anchor=a.panel?panelRect(a.panel,now):null;
+      const point=a.step({t:a.elapsed/1000,progress,elapsed:a.elapsed,
+        dt:dt/1000,viewport:screen,panelSize:anchor,smooth,blend,clamp});
       if(!point)continue;
       a.vx=(point.x-a.x)/Math.max(.001,dt);
       a.vy=(point.y-a.y)/Math.max(.001,dt);
       a.x=point.x;a.y=point.y;
       const rotation=point.angle||0;
-      // The child (SVG mask) is its own shape; never rotate an entire content panel.
-      el.style.transform='translate3d('+(a.x-a.width*.5)+'px,'+(a.y-a.height*.5)+'px,0) rotate('+rotation+'deg)';
+      // Render panel-anchored sprites in the page overlay, not in the panel.
+      const drawX=a.x+(anchor?.left||0),drawY=a.y+(anchor?.top||0);
+      el.style.transform='translate3d('+(drawX-a.width*.5)+'px,'+(drawY-a.height*.5)+'px,0) rotate('+rotation+'deg)';
     }
     stats.frames++;frame++;
     window.MippiPerfLab?.measure('ambient.motion.frame',performance.now()-start);
@@ -62,7 +81,7 @@
     stop(el);
     el.classList.add('mippi-motion');
     el.style.setProperty('animation','none','important');
-    el.style.position=panel?'absolute':'fixed';
+    el.style.position='fixed';
     el.style.left='0px';el.style.top='0px';
     const a={elapsed:0,duration:Math.max(100,duration),x:0,y:0,vx:0,vy:0,
       width,height,step,onEnd,panel};
@@ -72,6 +91,6 @@
     return ()=>stop(el);
   }
   function snapshot(){return {active:actors.size,rafActive:!!raf,slowmo,...stats};}
-  window.MippiSpawnMotion=Object.freeze({register,stop,positionOf,ground,viewport,
+  window.MippiSpawnMotion=Object.freeze({register,stop,expire,positionOf,ground,viewport,
     setSlowmo:value=>{slowmo=!!value;},snapshot});
 })();

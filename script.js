@@ -1,5 +1,5 @@
-// v3.01 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.01';
+// v3.02 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.02';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -6336,11 +6336,27 @@ function spawnSuperBoss(force=false){
 }
 window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,adds:superBossRuntime.adds.filter(a=>a.alive).length,cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
 
-function spawnGalaga(force=false){
+function createGalagaFlightPath(){
+  const family=Math.random()<.5?'curve':'sine';
+  const corner=Math.floor(Math.random()*4);
+  const left=corner===0||corner===2,top=corner===0||corner===1;
+  const dir=Math.random()<.5?-1:1;
+  const crossing=Math.floor(Math.random()*2);
+  const endTop=crossing===0?!top:top;
+  const x0=left?-65:innerWidth+65,x1=left?innerWidth+65:-65;
+  const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
+  const bend=top?innerHeight*.70:innerHeight*.27;
+  const side=Math.random()<.5?1:-1;
+  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  return {family,left,dir,x0,x1,y0,y1,bend,side,sineX};
+}
+function spawnGalaga(force=false,sharedPath=null){
   if(ufoBossActive&&!force)return false;
   if(Date.now()<ufoCalmUntil&&!force)return false;
   if((!epicGameplayUnlocked()||reduceMotion)&&!force)return false;
   if(!directorAllowsAmbient('ufo',{force}))return false;
+  // Cap visible ships including those fading after their flight.
+  if(!force&&document.querySelectorAll('.galaga-secret:not(.boss-ufo)').length>=6)return false;
   const threat=ufoThreatTier();
   const ship=document.createElement('button');
   ship.className=`galaga-secret ufo-threat-${threat}`;
@@ -6367,19 +6383,7 @@ function spawnGalaga(force=false){
   });
   document.body.appendChild(ship);
   const duration=threat===1?7400+Math.random()*2000:threat===2?6800+Math.random()*2200:6200+Math.random()*2100;
-  const family=Math.random()<.5?'curve':'sine';
-  // Curved paths include opposite corners, top-to-top, and bottom-to-bottom.
-  const corner=Math.floor(Math.random()*4);
-  const left=corner===0||corner===2;
-  const top=corner===0||corner===1;
-  const dir=Math.random()<.5?-1:1;
-  const crossing=Math.floor(Math.random()*3); // opposite edge or matching top/bottom
-  const endTop=crossing===0?!top:crossing===1?top:!top;
-  const x0=left?-65:innerWidth+65,x1=left?innerWidth+65:-65;
-  const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
-  const bend=top?innerHeight*.70:innerHeight*.27;
-  const side=Math.random()<.5?1:-1;
-  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  const {family,left,dir,x0,x1,y0,y1,bend,side,sineX}=sharedPath||createGalagaFlightPath();
   window.MippiSpawnMotion?.register(ship,{width:44,height:32,duration,
     step:({progress,viewport})=>{
       const p=progress;
@@ -6399,8 +6403,11 @@ function spawnGalaga(force=false){
       return {x,y};
     },
     onEnd:()=>{
-      if(ship.isConnected){telemetryCount('arcade','ufoEscaped');telemetryFlyingMiss('ufo');ship.remove();}
       stopFire();
+      if(ship.isConnected){
+        telemetryCount('arcade','ufoEscaped');telemetryFlyingMiss('ufo');
+        window.MippiSpawnMotion?.expire(ship);
+      }
     }
   });
   const cadence=threat===1?900+Math.floor(Math.random()*360):threat===2?700+Math.floor(Math.random()*280):560+Math.floor(Math.random()*230);
@@ -6429,12 +6436,35 @@ function scheduleNaturalShootingStar(delay=nextNaturalShootingStarDelay()){
 }
 scheduleNaturalShootingStar();
 let naturalGalagaTimer=null;
-function nextNaturalGalagaDelay(){ return easyModeEnabled ? 14000+Math.random()*12000 : directorDelay('ufo',52000,130000); }
+function nextNaturalGalagaDelay(){
+  const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
+  const baseMin=30000-progress*12500;
+  const baseMax=79000-progress*28000;
+  return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax);
+}
 function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
   window.clearTimeout(naturalGalagaTimer);
   naturalGalagaTimer=window.setTimeout(()=>{
-    const spawned=spawnGalaga(false);
-    if(spawned){ scheduleNaturalGalaga(); return; }
+    if(ufoBossActive||superBossActive||invasionEncounterPending){
+      scheduleNaturalGalaga(3500);return;
+    }
+    // At low invasion the player encounters solo UFOs. Later waves form
+    // staggered groups following the EXACT SAME path, like Galaga attacks.
+    const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
+    const formationSize=progress<.22?1:progress<.5?2:progress<.78?3:4;
+    const sharedPath=createGalagaFlightPath();
+    const spawned=spawnGalaga(false,sharedPath);
+    if(spawned){
+      for(let i=1;i<formationSize;i++){
+        const stagger=i*280;
+        window.setTimeout(()=>{
+          if(document.visibilityState!=='visible'||ufoBossActive||superBossActive||
+              invasionEncounterPending||directorAttentionBlocked())return;
+          spawnGalaga(false,sharedPath);
+        },stagger);
+      }
+      scheduleNaturalGalaga();return;
+    }
     const retry=!epicGameplayUnlocked()?5000:reduceMotion?15000:(ufoBossActive||superBossActive||Date.now()<ufoCalmUntil)?3500:directorAttentionBlocked()?1600:5000;
     scheduleNaturalGalaga(retry);
   },delay);
@@ -6701,13 +6731,18 @@ const pickupKinds=[
 // v3.01 // Each spawnable now owns a recognizable screen or panel-space route.
 const SPAWN_PANEL_SELECTOR='.work-card:not(a),.tool-card,.panel,.studio-card,.resume-panel,.about-panel,.consult-project-item,.card';
 let activeHiddenKey=null;
+const activeMushroomPanels=new Map();
+function releaseMushroomPanel(item){
+  for(const [panel,mushroom] of activeMushroomPanels)
+    if(mushroom===item||!mushroom.isConnected||!panel.isConnected)activeMushroomPanels.delete(panel);
+}
 function spawnPanels(){
   return Array.from(document.querySelectorAll(SPAWN_PANEL_SELECTOR))
     .filter(el=>el.isConnected&&!el.closest('.dev-console,.shop-popup,.game-pickup,.superboss-arena')&&
       !el.matches('a,button')&&!el.closest('a,button')&&el.clientWidth>=110&&el.clientHeight>=65);
 }
-function chooseSpawnPanel(){
-  const panels=spawnPanels();
+function chooseSpawnPanel(excluded=null){
+  const panels=spawnPanels().filter(panel=>!excluded?.has(panel));
   if(!panels.length)return null;
   // Prefer panels in or near the viewport to make the movement discoverable,
   // while still allowing an occasional hidden item further down the page.
@@ -6722,16 +6757,26 @@ function spawnScreenPickup(def,{duration,step,onEnd,panel=null}={}){
   item.setAttribute('aria-label',def.kind==='key'?'Hidden key in a content panel':'Collect '+def.kind);
   item.addEventListener('click',()=>{
     if(def.kind==='key'&&activeHiddenKey===item)activeHiddenKey=null;
+    if(def.kind==='1up')releaseMushroomPanel(item);
     window.MippiSpawnMotion?.stop(item);
     handleGamePickup(def,item);
   });
-  if(panel){
+  if(panel&&def.kind==='1up'){
+    // Fixed viewport overlay is not clipped or resized by the host panel.
+    item.classList.add('mippi-panel-orbit');
+    document.body.appendChild(item);
+  }else if(panel){
     panel.classList.add('mippi-spawn-panel-host');
     panel.appendChild(item);
   }else document.body.appendChild(item);
   telemetryFlyingSpawn(def.kind);
   if(step)window.MippiSpawnMotion?.register(item,{duration,width:64,height:64,panel,step,
-    onEnd:()=>{if(item.isConnected){telemetryFlyingMiss(def.kind);item.remove();onEnd?.();}}});
+    onEnd:()=>{
+      if(!item.isConnected)return;
+      telemetryFlyingMiss(def.kind);
+      if(def.kind==='1up')releaseMushroomPanel(item);
+      window.MippiSpawnMotion?.expire(item,onEnd);
+    }});
   directorNoteFriendlyAmbient();
   return item;
 }
@@ -6760,11 +6805,14 @@ function spawnGroundDrop(kind,x,y,{velocityX=null,duration=15000}={}){
       }
       return {x:px,y:py,angle:grounded?0:Math.max(-12,Math.min(12,vx*.12))};
     },
-    onEnd:()=>{if(item.isConnected){telemetryFlyingMiss(kind);item.remove();}}
+    onEnd:()=>{
+      if(item.isConnected){telemetryFlyingMiss(kind);window.MippiSpawnMotion?.expire(item);}
+    }
   });
   return item;
 }
 function spawnBounceStar(def){
+  if(document.querySelector('.game-pickup[data-kind="star"]'))return false;
   const dir=Math.random()<.5?1:-1;
   const initial=dir===1?-35:innerWidth+35;
   const speed=200+Math.random()*95;
@@ -6779,13 +6827,15 @@ function spawnBounceStar(def){
   });
 }
 function spawnPanelMushroom(def){
-  const panel=chooseSpawnPanel();
+  releaseMushroomPanel(null);
+  if(activeMushroomPanels.size>=3)return false;
+  const panel=chooseSpawnPanel(activeMushroomPanels);
   if(!panel)return false;
   const clockwise=Math.random()<.5;
   const speed=115+Math.random()*45;
-  return spawnScreenPickup(def,{panel,duration:15000+Math.random()*9000,
-    step:({t})=>{
-      const w=panel.clientWidth,h=panel.clientHeight;
+  const item=spawnScreenPickup(def,{panel,duration:15000+Math.random()*9000,
+    step:({t,panelSize})=>{
+      const w=panelSize?.width||panel.clientWidth,h=panelSize?.height||panel.clientHeight;
       const length=2*(w+h),perimeterOffset=t*speed;
       const d=((clockwise?perimeterOffset:length-perimeterOffset)%length+length)%length;
       if(d<w)return{x:d,y:0};
@@ -6794,6 +6844,8 @@ function spawnPanelMushroom(def){
       return{x:0,y:h-(d-(2*w+h))};
     }
   });
+  if(item)activeMushroomPanels.set(panel,item);
+  return item;
 }
 function spawnHiddenPanelKey(def){
   if(activeHiddenKey?.isConnected||castleQuestActive||activeCastle)return false;
@@ -6971,7 +7023,11 @@ function spawnDougBone(force=false){
       x:x+Math.sin(t*1.8)*25,y:-30+progress*(viewport.ground+68),
       angle:spin*t
     }),
-    onEnd:()=>{telemetryFlyingMiss('bone');bone.remove();}
+    onEnd:()=>{
+      if(bone.isConnected){
+        telemetryFlyingMiss('bone');window.MippiSpawnMotion?.expire(bone);
+      }
+    }
   });
   directorNoteFriendlyAmbient();setDougBoneCoolVisual(bone,dougCard?.classList.contains('doug-star-cool'));
   return true;

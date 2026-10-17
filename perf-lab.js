@@ -310,13 +310,13 @@
       `visual-${disabled.length?disabled.join('-'):'default'}`,
       `cursor-${(data.cursorInitial?.visualLevel??'na')}-${data.cursorInitial?.architecture||'legacy'}-${data.cursorInitial?.style||'unknown'}-${data.cursorInitial?.native||'unknown'}`,`fx-${data.fxInitial?.mode||'dom'}`].join('-');
     const timestamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z').replace('T','-');
-    const payload={version:window.MIPPI_BUILD_VERSION||'3.01',diagnosticHarness:'v3.01',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
+    const payload={version:window.MIPPI_BUILD_VERSION||'3.02',diagnosticHarness:'v3.02',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
       userAgent:navigator.userAgent,summary:report(),raw:{...data,slowCallbacks:data.slowCallbacks}};
     correlateSpikes(payload.raw);
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
     const link=document.createElement('a');link.href=url;
-    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"3.01"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
+    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"3.02"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
     document.body.appendChild(link);link.click();link.remove();
     window.setTimeout(()=>URL.revokeObjectURL(url),1000);
     return `Downloaded ${link.download}. Upload this file for an exact comparison.`;

@@ -8413,3 +8413,67 @@ body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme
   .studio-grid > .studio-yourstudio { grid-column:auto; min-height:190px; }
   .studio-yourstudio strong, .studio-yourstudio span { max-width:70%; }
 }
+
+/* v3.11 // The physical AoE interaction radius must remain visible in Rare.
+   Rarity changes color, not the existence or size of the ring. */
+body:not(.theme-complete) .completion-cursor-aura {
+  opacity:.75;
+  border-color:rgba(96,190,255,.58);
+  box-shadow:0 0 16px rgba(37,140,246,.22),inset 0 0 10px rgba(59,164,255,.09);
+}
+
+/* Star Power uses a rotating circular spectrum, not a hue shift applied to
+   stacked monochromatic shadows. Pseudos never affect the hit radius. */
+body.star-power .completion-cursor-aura {
+  opacity:1!important;
+  border:2px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 0 12px rgba(255,255,255,.26)!important;
+  filter:none!important;
+  animation:none!important;
+  isolation:isolate;
+}
+body.star-power .completion-cursor-aura::before,
+body.star-power .completion-cursor-aura::after {
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  background:conic-gradient(#ff4242,#ffcc35,#4eeb75,#3aceff,#636aff,#e451ed,#ff4242);
+}
+body.star-power .completion-cursor-aura::before {
+  inset:-4px;
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  animation:mippi-star-aura-orbit-v311 .95s linear infinite;
+}
+body.star-power .completion-cursor-aura::after {
+  inset:-10px;
+  opacity:.78;
+  filter:blur(8px);
+  -webkit-mask:radial-gradient(farthest-side,transparent 61%,#000 83%);
+  mask:radial-gradient(farthest-side,transparent 61%,#000 83%);
+  animation:mippi-star-aura-orbit-v311 1.25s linear infinite reverse;
+}
+@keyframes mippi-star-aura-orbit-v311 {
+  to {transform:rotate(360deg);}
+}
+@media (prefers-reduced-motion:reduce) {
+  body.star-power .completion-cursor-aura::before,
+  body.star-power .completion-cursor-aura::after {animation:none!important;}
+}
+
+/* The same action button alternates between TRY WISH and OPEN BLUEPRINT.
+   Both states pulse whenever available; idle consoles remain quiet. */
+.console-wish-guide:not([hidden]) #console-wish-guide-action {
+  animation:mippi-console-action-ready-v311 1.1s ease-in-out infinite;
+  will-change:transform;
+}
+@keyframes mippi-console-action-ready-v311 {
+  0%,100% {transform:scale(1);box-shadow:0 0 0 0 currentColor;}
+  50% {transform:scale(1.055);box-shadow:0 0 12px 1px currentColor;}
+}
+@media (prefers-reduced-motion:reduce) {
+  .console-wish-guide:not([hidden]) #console-wish-guide-action {
+    animation:none!important;outline:2px solid currentColor;outline-offset:2px;
+  }
+}

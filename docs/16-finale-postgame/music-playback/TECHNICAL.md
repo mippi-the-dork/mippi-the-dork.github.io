@@ -267,3 +267,8 @@ v2.81's `musicSetIcon`, `musicSyncPlayIcon`, `musicSyncProgress`, `musicSyncLyri
 ## v3.14 Current Behavior
 
 v3.12 playlist row handler calls `selectMusicTrack(index,{autoplay:false})` then `musicAudio.play()` during the direct click gesture. A rejected promise with `NotAllowedError` sets `CLICK PLAY TO START`; other failures show `PLAYBACK UNAVAILABLE`. Lyrics-view controls remain independent.
+
+
+## v3.14 Consolidated Update
+
+v3.12 selecting a playlist track immediately invokes `musicAudio.play()` in its direct click gesture after `selectMusicTrack(...,{autoplay:false})`. On browser `NotAllowedError`, display `CLICK PLAY TO START`, otherwise `PLAYBACK UNAVAILABLE`. Opening lyrics for another song still doesn't switch music.

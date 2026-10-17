@@ -6336,11 +6336,27 @@ function spawnSuperBoss(force=false){
 }
 window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,adds:superBossRuntime.adds.filter(a=>a.alive).length,cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
 
-function spawnGalaga(force=false){
+function createGalagaFlightPath(){
+  const family=Math.random()<.5?'curve':'sine';
+  const corner=Math.floor(Math.random()*4);
+  const left=corner===0||corner===2,top=corner===0||corner===1;
+  const dir=Math.random()<.5?-1:1;
+  const crossing=Math.floor(Math.random()*2);
+  const endTop=crossing===0?!top:top;
+  const x0=left?-65:innerWidth+65,x1=left?innerWidth+65:-65;
+  const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
+  const bend=top?innerHeight*.70:innerHeight*.27;
+  const side=Math.random()<.5?1:-1;
+  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  return {family,left,dir,x0,x1,y0,y1,bend,side,sineX};
+}
+function spawnGalaga(force=false,sharedPath=null){
   if(ufoBossActive&&!force)return false;
   if(Date.now()<ufoCalmUntil&&!force)return false;
   if((!epicGameplayUnlocked()||reduceMotion)&&!force)return false;
   if(!directorAllowsAmbient('ufo',{force}))return false;
+  // Cap visible ships including those fading after their flight.
+  if(!force&&document.querySelectorAll('.galaga-secret:not(.boss-ufo)').length>=6)return false;
   const threat=ufoThreatTier();
   const ship=document.createElement('button');
   ship.className=`galaga-secret ufo-threat-${threat}`;
@@ -6367,19 +6383,7 @@ function spawnGalaga(force=false){
   });
   document.body.appendChild(ship);
   const duration=threat===1?7400+Math.random()*2000:threat===2?6800+Math.random()*2200:6200+Math.random()*2100;
-  const family=Math.random()<.5?'curve':'sine';
-  // Curved paths include opposite corners, top-to-top, and bottom-to-bottom.
-  const corner=Math.floor(Math.random()*4);
-  const left=corner===0||corner===2;
-  const top=corner===0||corner===1;
-  const dir=Math.random()<.5?-1:1;
-  const crossing=Math.floor(Math.random()*3); // opposite edge or matching top/bottom
-  const endTop=crossing===0?!top:crossing===1?top:!top;
-  const x0=left?-65:innerWidth+65,x1=left?innerWidth+65:-65;
-  const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
-  const bend=top?innerHeight*.70:innerHeight*.27;
-  const side=Math.random()<.5?1:-1;
-  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  const {family,left,dir,x0,x1,y0,y1,bend,side,sineX}=sharedPath||createGalagaFlightPath();
   window.MippiSpawnMotion?.register(ship,{width:44,height:32,duration,
     step:({progress,viewport})=>{
       const p=progress;
@@ -6441,8 +6445,26 @@ function nextNaturalGalagaDelay(){
 function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
   window.clearTimeout(naturalGalagaTimer);
   naturalGalagaTimer=window.setTimeout(()=>{
-    const spawned=spawnGalaga(false);
-    if(spawned){ scheduleNaturalGalaga(); return; }
+    if(ufoBossActive||superBossActive||invasionEncounterPending){
+      scheduleNaturalGalaga(3500);return;
+    }
+    // At low invasion the player encounters solo UFOs. Later waves form
+    // staggered groups following the EXACT SAME path, like Galaga attacks.
+    const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
+    const formationSize=progress<.22?1:progress<.5?2:progress<.78?3:4;
+    const sharedPath=createGalagaFlightPath();
+    const spawned=spawnGalaga(false,sharedPath);
+    if(spawned){
+      for(let i=1;i<formationSize;i++){
+        const stagger=i*280;
+        window.setTimeout(()=>{
+          if(document.visibilityState!=='visible'||ufoBossActive||superBossActive||
+              invasionEncounterPending||directorAttentionBlocked())return;
+          spawnGalaga(false,sharedPath);
+        },stagger);
+      }
+      scheduleNaturalGalaga();return;
+    }
     const retry=!epicGameplayUnlocked()?5000:reduceMotion?15000:(ufoBossActive||superBossActive||Date.now()<ufoCalmUntil)?3500:directorAttentionBlocked()?1600:5000;
     scheduleNaturalGalaga(retry);
   },delay);

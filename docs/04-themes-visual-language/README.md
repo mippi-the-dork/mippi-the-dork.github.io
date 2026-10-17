@@ -22,6 +22,9 @@ This category groups the canonical documentation for **Rarity Themes and Visual 
 | **Attention Cue Language** | Defines the shared blink, pulse, flash, and glow language used to direct attention toward actionable progression UI. | [Design](attention-cue-language/DESIGN.md) | [Technical](attention-cue-language/TECHNICAL.md) |
 | **Particle Presentation** | Defines the optional screen-space and event-driven particle treatments used to reinforce milestones and playful console effects. | [Design](particle-presentation/DESIGN.md) | [Technical](particle-presentation/TECHNICAL.md) |
 
+| **Canvas-First 2D Cosmetic FX** | Shared Canvas cosmetic trails and sparks, with DOM diagnostic comparison. | [Design](canvas-first-2d-fx/DESIGN.md) | [Technical](canvas-first-2d-fx/TECHNICAL.md) |
+| **Unified Game Artwork** | Fourteen themed SVG assets for HUD, collectibles and combat. | [Design](unified-game-artwork/DESIGN.md) | [Technical](unified-game-artwork/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

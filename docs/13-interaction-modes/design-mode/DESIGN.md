@@ -145,3 +145,8 @@ After mastering the site, the player can replay it as a designer and read the re
 
 - [Interaction and Debug Modes Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.14 Current Behavior
+
+v3.11 Design Mode icon layers an overlapping circle and square; Shop capstone base price is 30 as of v3.13.

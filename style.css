@@ -8158,3 +8158,104 @@ body .superboss-arena .superboss-add::before {
   -webkit-mask-image:url('assets/game/heart-full.svg');
   mask-image:url('assets/game/heart-full.svg');
 }
+
+
+/* v3.00 // larger author art, matching rarity tint, standardized hotbar states */
+body .superboss-arena .superboss-core {
+  width:380px!important;height:236px!important;margin:-118px 0 0 -190px!important;
+}
+body .superboss-arena .superboss-add {
+  width:104px!important;height:72px!important;margin:-36px 0 0 -52px!important;
+}
+body .section-castle {
+  width:87px!important;height:75px!important;margin-left:-43.5px!important;top:-44px!important;
+}
+body .section-castle .castle-art {width:100%!important;height:100%!important;}
+
+/* Single rarity tint for all clickable world elements, enemy sprites and castles */
+body {--game-clickable-ink:#67cfff;--hud-unified-ink:#a9dfff;
+  --hud-unified-border:rgba(103,207,255,.30);--hud-unified-bg:rgba(103,207,255,.055);
+  --hud-unified-active-bg:rgba(36,131,210,.27);--hud-unified-glow:rgba(103,207,255,.47);}
+body.theme-complete:not(.theme-legendary) {
+  --game-clickable-ink:#ff6bd2;--hud-unified-ink:#fface8;
+  --hud-unified-border:rgba(255,110,207,.34);--hud-unified-bg:rgba(255,110,207,.07);
+  --hud-unified-active-bg:rgba(181,54,161,.32);--hud-unified-glow:rgba(255,103,206,.50);
+}
+body.theme-complete.theme-legendary {
+  --game-clickable-ink:#ffd16b;--hud-unified-ink:#ffe19b;
+  --hud-unified-border:rgba(255,199,84,.36);--hud-unified-bg:rgba(255,199,84,.07);
+  --hud-unified-active-bg:rgba(181,123,33,.32);--hud-unified-glow:rgba(255,198,76,.50);
+}
+body .game-pickup,body .doug-bone,body .section-castle,
+body .galaga-secret,body .superboss-core,body .superboss-add {
+  color:var(--game-clickable-ink)!important;
+}
+/* Retire the !important rarity body-colors behind masked UFO and boss art. */
+body .galaga-secret::before,
+body.theme-complete .galaga-secret::before,
+body.theme-complete.theme-legendary .galaga-secret::before,
+body.theme-complete:not(.theme-legendary) .galaga-secret::before,
+body .boss-ufo::before,
+body.theme-complete .boss-ufo::before,
+body.theme-complete.theme-legendary .boss-ufo::before {
+  background:currentColor!important;box-shadow:none!important;
+}
+/* The visible circle equals the gameplay interaction radius. Transform is never animated;
+   the compositor-friendly translate property positions the circle with the pointer. */
+body .completion-cursor-aura,
+body.theme-complete.theme-legendary .completion-cursor-aura,
+body.star-power .completion-cursor-aura {
+  width:calc(var(--cursor-click-radius,22px) * 2)!important;
+  height:calc(var(--cursor-click-radius,22px) * 2)!important;
+  margin:calc(-1 * var(--cursor-click-radius,22px)) 0 0 calc(-1 * var(--cursor-click-radius,22px))!important;
+  box-sizing:border-box!important;transform:none!important;animation:none!important;border-radius:50%!important;
+}
+body.star-power .completion-cursor-aura {
+  opacity:1!important;border:3px solid #fff!important;
+  /* All existing multicolor shadows and rainbow particles remain. */
+}
+/* Hotbar neutral state: identical tint across icons, hearts, meters and utility buttons. */
+#site-game-hud :is(.hud-icon-btn,#rupee-meter,#heart-meter,
+  #hud-gameplay .cool-meter,#hud-gameplay .invasion-meter,#hud-gameplay .castle-meter) {
+  color:var(--hud-unified-ink)!important;
+  border:1px solid var(--hud-unified-border)!important;
+  background:var(--hud-unified-bg)!important;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)!important;
+  border-radius:4px!important;
+  transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease!important;
+}
+#site-game-hud .hud-svg-icon,
+#site-game-hud .hud-svg-icon svg,
+#site-game-hud #hud-gameplay :is(.cool-meter-top,.system-meter-top),
+#site-game-hud #heart-meter > span {color:var(--hud-unified-ink)!important;}
+#site-game-hud .hud-svg-icon svg {stroke:currentColor!important;}
+
+/* Active modes have one consistent filled/outlined visual language. */
+#site-game-hud .hud-icon-btn:is(.active,[aria-pressed="true"]),
+#site-game-hud :is(#inspect-toggle,#design-toggle,#interact-toggle)[aria-pressed="true"] {
+  border-color:var(--hud-unified-ink)!important;
+  background:var(--hud-unified-active-bg)!important;
+  box-shadow:inset 0 0 0 1px var(--hud-unified-glow),0 0 11px var(--hud-unified-glow)!important;
+  color:var(--hud-unified-ink)!important;
+}
+#site-game-hud :is(.hud-icon-btn,#rupee-meter,#heart-meter,
+  #hud-gameplay .cool-meter,#hud-gameplay .invasion-meter,#hud-gameplay .castle-meter):is(:hover,:focus-visible) {
+  border-color:var(--hud-unified-ink)!important;
+  outline:2px solid var(--hud-unified-glow)!important;outline-offset:1px!important;
+}
+/* Attention is not active. One static, bright theme glow avoids costly repaint
+   from independent shadow animations on every hotbar control. */
+#site-game-hud .hud-icon-btn:is(.attention-new,.attention-ready),
+#site-game-hud #rupee-meter.shop-ready,
+#site-game-hud #heart-meter.reward-ready,
+#site-game-hud #hud-gameplay .castle-meter.reward-ready,
+#site-game-hud #hud-gameplay .cool-meter.limit-ready,
+#site-game-hud #hud-gameplay .invasion-meter.contact {
+  animation:none!important;border-color:var(--hud-unified-ink)!important;
+  background:var(--hud-unified-active-bg)!important;
+  box-shadow:0 0 14px var(--hud-unified-glow),inset 0 0 0 1px var(--hud-unified-glow)!important;
+}
+.play-mode-controls > button.active {
+  outline:2px solid currentColor!important;outline-offset:1px!important;
+  box-shadow:0 0 13px currentColor!important;
+}

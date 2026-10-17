@@ -38,6 +38,8 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 
 | **Cursor Interaction and Upward Shooting** | Mushroom-scaled contact radius is separate from upward-only enemy shooting. | [Design](cursor-interaction-and-upward-shooting/DESIGN.md) | [Technical](cursor-interaction-and-upward-shooting/TECHNICAL.md) |
 
+| **Galaga Formations** | Invasion-scaled coordinated UFO groups with 1,050ms spacing and shared flight duration. | [Design](galaga-formations/DESIGN.md) | [Technical](galaga-formations/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

@@ -656,3 +656,8 @@ Normal collision/hit/reward paths invoke the existing `explodeAt()` entry point.
 ## v2.98 Scoped Cursor Styling
 
 Actual `cursorPowerLevel` from Mushroom pickup is independent of the visual override and cursor CSS architecture. Scoped (default) applies `cursor-scoped-grown` without the broad `cursor-grown` descendant/`:has()` selector network, retaining theme SVG appearance, aura, glow, Trail, sparks and safe modal pointer behavior. Legacy remains available only as a diagnostic A/B path. The Legendary `55px * cursorPowerLevel` targeting bonus and actual progression are unaffected. The Cursor Lab exports architecture and original style/native settings; the `style` control has an effect only under Legacy. See [Scoped Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md).
+
+
+## v2.99 to v3.01 Rendering, Combat and Spawn Relationships
+
+`MippiFxRenderer` handles two shared cosmetic Canvas2D layers (cursor Trail, Star sparks, Doug rainbow wake, command glow). It is separate from `MippiParticleRenderer` combat impacts; Castle fireworks now use **Canvas-only smaller bursts**. `MippiGameArt` maps 14 SVGs in `assets/game/` to hotbar, clickable and enemy silhouettes. `cursorClickRadius` and actual Mushroom power determine near-pointer interactive contact, while vertically aimed Legendary bullets hit **enemies only**, piercing during Star Power and spreading three-way during Cool Mode. `MippiSpawnMotion` supplies modeled positions for unique actor routes, fed into combatGeometry before DOM bounds fallback. Rupees/Hearts become physical drops, with natural Hearts from enemy deaths only. Shooting Stars are unchanged.

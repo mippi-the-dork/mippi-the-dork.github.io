@@ -1,200 +1,20 @@
 # Mega Laser - Technical Documentation
 
-**Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mega Laser > Technical
+**Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
-**Implementation baseline:** Mippi Portfolio v2.78
+`superBossMegaLaser()` returns if there is no active encounter, it has ended, or another beam is live. It sets `laserActive`, freezing the Super Boss's movement clock and its six orbiting adds.
 
-**Feature summary:** Provides the Super Boss beam attack that pauses boss movement while continuously tracking the player's cursor at a controlled rate.
-
-> This page is the canonical technical documentation for **Mega Laser** within the Arcade, Combat, and System Combos category.
-
-## Documentation Relationship
-
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Design Documentation](DESIGN.md)
-## Function
+**Authoritative v3.04 beam origin:**
 
 ```js
-superBossMegaLaser()
+const x = s.bossX;
+const y = s.bossY + 62;
 ```
 
-returns immediately when:
+Both the beam element position and its `distancePointToSegment()` collision use this origin. The **+62px** offset is tuned to the lower-center mouth of the SVG from known dimensions, not independently visually validated. The beam's CSS provides a rounded boss-side capsule and a separate glowing orb.
 
-- no encounter exists,
-- encounter ended,
-- another laser is already active.
-
-It then sets:
-
-```js
-s.laserActive=true;
-```
-
-## Origin
-
-The beam captures:
-
-```js
-const x=s.bossX;
-const y=s.bossY;
-```
-
-at attack start.
-
-Because the Boss movement clock pauses while `laserActive`, this origin remains coherent for the attack.
-
-## Length
-
-Beam length:
-
-```js
-Math.hypot(
-  window.innerWidth,
-  window.innerHeight
-)*1.4
-```
-
-This is long enough to span the full viewport diagonal.
-
-## Initial Angle
-
-```js
-let beamAngle=
-  Math.atan2(
-    s.cursorY-y,
-    s.cursorX-x
-  );
-```
-
-## Timing
-
-Normal:
-
-```text
-Charge          900 ms
-Active         1750 ms
-Turn rate       0.88 rad/s
-```
-
-Slowmo:
-
-```text
-Charge         1250 ms
-Active         2300 ms
-Turn rate       0.62 rad/s
-```
-
-## Capped Tracking
-
-Each frame:
-
-```js
-const targetAngle=
-  Math.atan2(
-    s.cursorY-y,
-    s.cursorX-x
-  );
-
-const maxTurn=
-  turnRate*dt;
-
-const delta=
-  angleDelta(
-    beamAngle,
-    targetAngle
-  );
-
-beamAngle +=
-  clamp(
-    delta,
-    -maxTurn,
-    maxTurn
-  );
-```
-
-The beam therefore cannot instantly snap onto the cursor.
-
-## Active Transition
-
-After the charge interval:
-
-```text
-charging
-```
-
-class is removed and:
-
-```text
-active
-```
-
-is added.
-
-## Collision
-
-The active beam endpoint is calculated from angle and length.
-
-Hit condition:
-
-```js
-distancePointToSegment(
-  s.cursorX,
-  s.cursorY,
-  x,
-  y,
-  x2,
-  y2
-)<34
-```
-
-On collision:
-
-```js
-superBossImpact(
-  x,
-  y,
-  165,
-  'mega_laser'
-);
-```
-
-## Boss Movement Freeze
-
-The main encounter render loop only advances:
-
-```js
-state.bossMoveClock
-```
-
-when:
-
-```js
-!state.laserActive
-```
-
-This is the v2.68 correction that prevents post-laser movement teleport.
-
-## End
-
-After active duration:
-
-- beam removes,
-- `laserActive=false`,
-- beam RAF cancels.
-
-Encounter cleanup also cancels the beam RAF and removes any remaining laser node.
+Normal timing: **900ms charge**, **1,750ms active**, **0.88 radians/second** capped turn toward cursor. Slowmo: **1,250ms charge**, **2,300ms active**, **0.62 radians/second**. Its length spans ~1.4 times the viewport diagonal and collision uses a ~34px segment distance. As the beam ends, both beam rAF and movement freeze are cleared. Encounter cleanup removes remaining beam state.
 
 ## QA
 
-- Observe first laser after roughly 3.3 seconds.
-- Keep cursor still and verify beam centers gradually.
-- Move cursor continuously and verify capped tracking.
-- Confirm Boss translation is frozen.
-- Confirm Boss resumes from same movement phase.
-- Toggle Slowmo and compare all three timing variables.
-- Exit encounter during charge and during active beam.
-- Verify no laser remains.
-## Related Documentation
-
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Design Documentation](DESIGN.md)
+Validate visual/collision mouth alignment, capsule shape and orb on narrow/wide screens, cursor tracking and dodging, Slowmo timings, freezing of parent/adds, and exit mid-charge or active beam with no orphan rAF. See [v3.04 QA](../../QA/V3_02_TO_V3_04_QA.md).

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.08';
+const MIPPI_BUILD_VERSION='3.10';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -7381,10 +7381,15 @@ async function initScene() {
         void main(){ vec4 tex=texture2D(logoMap,vUv); float lum=max(tex.r,max(tex.g,tex.b)); float b=0.66+lum*0.52; gl_FragColor=vec4(tintColor*b,tex.a*logoOpacity); }`
     });
     const logoPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.25), logoMaterial);
-    // Place the identity on the upper-left face, not at the visual center/bottom of the shell.
-    // Keep it in front of the wireframe at this offset to avoid z-fighting.
-    logoPlane.position.set(-0.67, 0.53, 1.40);
-    root.add(logoPlane);
+    // v3.10: The logo stays at its original centered local offset. Rotate its
+    // parent around the exact core origin instead of translating the plane.
+    // This keeps its normal radial to the sphere and avoids a detached/flat look.
+    const logoOrbit = new THREE.Group();
+    logoOrbit.rotation.order = 'YXZ';
+    logoOrbit.rotation.set(-0.35, -0.45, 0);
+    logoPlane.position.set(0, 0, 1.55);
+    logoOrbit.add(logoPlane);
+    root.add(logoOrbit);
 
     const ringMat = new THREE.MeshStandardMaterial({ color: 0x283447, roughness: 0.3, metalness: 0.88, emissive:0x00182f, emissiveIntensity:0.16 });
     const ringA = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.025, 8, 100), ringMat);

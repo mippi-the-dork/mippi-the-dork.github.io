@@ -40,3 +40,8 @@ The player learns something about Heavy Water and receives a Signal for doing so
 
 - [Achievements and Discovery Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+**Current v3.06+ condition:** Only selecting **2nd Person** in the Project Heavy Water Perspective Visualizer grants Second Perspective. Switching to 1st or 3rd does not grant it. The hint refers to the option beyond first/third-person, and the solution explicitly says switch to **2nd Person**.

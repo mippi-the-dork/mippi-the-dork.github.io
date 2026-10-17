@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.14';
+const MIPPI_BUILD_VERSION='3.15';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -930,7 +930,7 @@ let castleRunProgress=0;
 // Keep them here, before updateHeartMeter() can transitively reach
 // updateInvasionMeter() / updateCastleMeter().
 let ufoKills=0;
-let nextBossKillThreshold=10; // legacy DEV compatibility only
+let nextBossKillThreshold=5; // legacy DEV compatibility only
 let invasionWaveKills=0;
 let invasionEncounterPending=false;
 let invasionSpawnQueued=false;
@@ -963,17 +963,17 @@ try{
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
 }catch(_){}
 const SHOP_ITEMS=[
-  {id:'lucky-charm',name:'Lucky Charm',cost:5,slot:'gameplay',rarity:'rare',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
-  {id:'dog-whistle',name:'Dog Whistle',cost:5,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
-  {id:'star-extender',name:'Star Extender',cost:7,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
-  {id:'slowpoke',name:'Slowpoke',cost:8,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
-  {id:'interact-toggle',name:'Interact Toggle',cost:12,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
-  {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:12,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
-  {id:'production-discount',name:'Production Discount',cost:16,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
-  {id:'celestial-beacon',name:'Celestial Beacon',cost:18,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
-  {id:'golden-trigger',name:'Golden Trigger',cost:16,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
-  {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:10,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one spare life to your Mippi Bird bank. Buy it again whenever you want.'},
-  {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:30,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
+  {id:'lucky-charm',name:'Lucky Charm',cost:4,slot:'gameplay',rarity:'rare',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
+  {id:'dog-whistle',name:'Dog Whistle',cost:4,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
+  {id:'star-extender',name:'Star Extender',cost:5,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
+  {id:'slowpoke',name:'Slowpoke',cost:6,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
+  {id:'interact-toggle',name:'Interact Toggle',cost:8,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
+  {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
+  {id:'production-discount',name:'Production Discount',cost:11,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
+  {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
+  {id:'golden-trigger',name:'Golden Trigger',cost:11,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
+  {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:7,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one spare life to your Mippi Bird bank. Buy it again whenever you want.'},
+  {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:21,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
 ];
 let shopOwned=new Set();
 let shopEquipped=null;
@@ -1129,14 +1129,15 @@ function updateInvasionMeter(){
   invasionMeter.classList.toggle('visible',epic);
   if(!epic)return;
   const stage=totalBossVictories()%3;
-  const progress=invasionEncounterPending?10:invasionWaveKills;
-  const pct=Math.min(100,Math.floor((stage*10+progress)/30*100));
+  const goal=ufoWaveGoal();
+  const progress=invasionEncounterPending?goal:invasionWaveKills;
+  const pct=Math.min(100,Math.floor((ufoCompletedWavesKills()+progress)/30*100));
   if(invasionMeterValue)invasionMeterValue.textContent=`${pct}%`;
   if(invasionMeterFill)invasionMeterFill.style.width=`${superBossActive?100:pct}%`;
   invasionMeter.classList.toggle('contact',superBossActive);
   invasionMeter.title=superBossActive?'SUPER BOSS // Fight in progress.':
     invasionEncounterPending?`Boss contact ready. ${invasionBossRetryKills} UFOs until reacquisition. Wave progress preserved.`:
-    `INVASION // ${progress}/10 UFOs in current wave. ${stage}/3 boss victories toward escalation.`;
+    `INVASION // ${progress}/${goal} UFOs in current wave. ${stage}/3 boss victories toward escalation.`;
   invasionMeter.setAttribute('aria-label',invasionMeter.title);
 
   });
@@ -4327,6 +4328,7 @@ function resetFlappyGame(){
   ensureFlappyGame();
   flappyState={
     y:140, vy:0, score:0, gameOver:false, started:false,
+    previousHighScore:flappySessionHighScore,
     shopLifeAvailable:shopOwns('bird-extra-life'), invulnerableUntil:0,
     pipes:[{x:590,gapY:118},{x:850,gapY:168}]
   };
@@ -4393,18 +4395,15 @@ function openFlappyGame(){
   };
   flappyRaf=requestAnimationFrame(frame);
 }
-function maybeRewardFlappyMilestone(score){
-  const rewards={5:1,10:1,20:2};
-  const amount=rewards[score];
-  if(!amount) return;
-  const claimed=Array.isArray(sessionTelemetry.flappy?.rupeeMilestones)?sessionTelemetry.flappy.rupeeMilestones:[];
-  if(claimed.includes(score)) return;
-  telemetryUnique('flappy','rupeeMilestones',score);
+// Rupees are paid once at round end against the record before this round.
+function rewardFlappyRound(score,previousHighScore){
+  const amount=score<previousHighScore?0:score-previousHighScore+1;
+  if(amount<=0)return;
   telemetryCount('flappy','rupeesEarned',amount);
-  telemetryMeaningful('flappy_rupee_milestone',{score,amount});
+  telemetryMeaningful('flappy_rupee_round',{score,previousHighScore,amount});
   awardRupees(amount,{source:'mippi_bird',announce:'silent'});
-  consolePrint(`MIPPI BIRD MILESTONE // SCORE ${score} // +${amount} RUPEE${amount===1?'':'S'}`,'good');
-  showTransientToast('MIPPI BIRD MILESTONE',`Score ${score}. The economy has reluctantly recognized your bird skills.`,`+${amount} RUPEE${amount===1?'':'S'}`,'ARCADE');
+  consolePrint(`MIPPI BIRD ROUND // SCORE ${score} // RECORD ${previousHighScore} // +${amount} RUPEE${amount===1?'':'S'}`,'good');
+  showTransientToast('MIPPI BIRD REWARD',`Score ${score} vs. previous record ${previousHighScore}.`,`+${amount} RUPEE${amount===1?'':'S'}`,'ARCADE');
 }
 function drawMippiBirdFallback(ctx,size,accent){
   // Vector fallback approximates the actual Mippi mark so a slow image decode
@@ -4456,7 +4455,6 @@ function drawFlappyFrame(dt){
         const high=flappyPanel.querySelector('#flappy-high-score');
         if(score) score.textContent=`SCORE ${s.score}`;
         if(high) high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
-        maybeRewardFlappyMilestone(s.score);
       }
       const topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
       const pipeHit=bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY);
@@ -4468,6 +4466,7 @@ function drawFlappyFrame(dt){
   if(!wasGameOver && s.gameOver){
     telemetryCount('flappy','deaths');
     telemetryMeaningful('flappy_game_over',{score:s.score});
+    if(s.started)rewardFlappyRound(s.score,s.previousHighScore);
   }
 
   for(const p of s.pipes){
@@ -4777,10 +4776,10 @@ function devSetInvasion(value){
   // QA must change the live encounter state, not merely the lifetime counters.
   ++invasionSpawnEpoch;
   invasionEncounterPending=false;invasionSpawnQueued=false;invasionBossRetryKills=0;
-  ufoKills=0;nextBossKillThreshold=10;
-  invasionWaveKills=v==='near'?9:0;
+  ufoKills=0;nextBossKillThreshold=5;
   const arcade=telemetryPath('arcade');
   arcade.bossDefeated=v==='0'?0:v==='33'?1:2;
+  invasionWaveKills=v==='near'?ufoWaveGoal()-1:0;
   arcade.superBossDefeated=0;
   if(!epicGameplayUnlocked())devSetEpic();
   updateInvasionMeter();updateProgressHudVisibility();
@@ -5933,22 +5932,27 @@ function spawnShootingStar(force=false){
   document.body.appendChild(star); combatGeometry.registerFlight(star,f); directorNoteFriendlyAmbient(); removeWhenFlightEnds(star);
   return true;
 }
-function ufoCycleProgress(){return Math.min(10,invasionWaveKills);}
-function ufoThreatTier(){return invasionWaveKills>=7?3:invasionWaveKills>=4?2:1;}
 function totalBossVictories(){
   return (Number(sessionTelemetry.arcade?.bossDefeated)||0)+(Number(sessionTelemetry.arcade?.superBossDefeated)||0);
 }
+// Cumulative regular UFO kills: 5 for Boss 1, 15 for Boss 2, 30 for Super Boss.
+const UFO_WAVE_GOALS=[5,10,15];
+const UFO_COMPLETED_KILLS=[0,5,15];
+function ufoWaveGoal(){return UFO_WAVE_GOALS[totalBossVictories()%3];}
+function ufoCompletedWavesKills(){return UFO_COMPLETED_KILLS[totalBossVictories()%3];}
+function ufoCycleProgress(){return Math.min(ufoWaveGoal(),invasionWaveKills);}
+function ufoThreatTier(){const p=invasionWaveKills/ufoWaveGoal();return p>=.7?3:p>=.4?2:1;}
 // A single, explicit wave counter. No modulo-based kill threshold or
 // recursive queue may reset the HUD while a fight is unresolved.
 function maybeSpawnUfoBoss(){
   if(ufoBossActive||superBossActive||invasionSpawnQueued)return;
-  if(!invasionEncounterPending && invasionWaveKills<10)return;
+  if(!invasionEncounterPending && invasionWaveKills<ufoWaveGoal())return;
   if(invasionEncounterPending && invasionBossRetryKills>0)return;
   invasionEncounterPending=true;
   const superFight=(totalBossVictories()+1)%3===0;
   invasionSpawnQueued=true;
   const attemptEpoch=++invasionSpawnEpoch;
-  showTransientToast(superFight?'SUPER BOSS INBOUND':'BOSS INBOUND',superFight?'Super contact in the next encounter.':'Ten UFO contacts acquired.','INVASION // CONTACT','ARCADE');
+  showTransientToast(superFight?'SUPER BOSS INBOUND':'BOSS INBOUND',superFight?'Super contact in the next encounter.':'UFO wave contacts acquired.','INVASION // CONTACT','ARCADE');
   const attempt=()=>{
     if(attemptEpoch!==invasionSpawnEpoch)return;
     if(ufoBossActive||superBossActive){invasionSpawnQueued=false;return;}
@@ -5971,7 +5975,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
   ufoKills++;
   if(invasionEncounterPending){
     if(invasionBossRetryKills>0)invasionBossRetryKills--;
-  }else invasionWaveKills=Math.min(10,invasionWaveKills+1);
+  }else invasionWaveKills=Math.min(ufoWaveGoal(),invasionWaveKills+1);
   telemetryCount('arcade','ufoDestroyed');
   telemetryFlyingCollect('ufo',method);
   if(method==='star_power'){
@@ -5985,11 +5989,11 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
   }
   if(Math.random()<.05)spawnGroundDrop('heart',x,y);
   const toward=invasionWaveKills;
-  consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/10`,'good');
-  if(toward===5){
+  consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/${ufoWaveGoal()}`,'good');
+  if(toward===Math.max(2,Math.floor(ufoWaveGoal()*.5))){
     consolePrint('ARCADE NETWORK // hostile response increasing. Apparently they have analytics too.','warn');
-    showTransientToast('ARCADE NETWORK','Hostile response is increasing.','5 / 10 CONTACTS','ESCALATION');
-  }else if(toward===8){
+    showTransientToast('ARCADE NETWORK','Hostile response is increasing.',`${toward} / ${ufoWaveGoal()} CONTACTS`,'ESCALATION');
+  }else if(toward===Math.floor(ufoWaveGoal()*.8)){
     consolePrint('ARCADE NETWORK // formation aggression elevated. Something larger is paying attention.','warn');
   }
   updateInvasionMeter();
@@ -6515,7 +6519,7 @@ function scheduleNaturalShootingStar(delay=nextNaturalShootingStarDelay()){
 scheduleNaturalShootingStar();
 let naturalGalagaTimer=null;
 function nextNaturalGalagaDelay(){
-  const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
+  const progress=Math.min(1,(ufoCompletedWavesKills()+invasionWaveKills)/30);
   const baseMin=30000-progress*12500;
   const baseMax=79000-progress*28000;
   return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax);
@@ -6528,7 +6532,7 @@ function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
     }
     // At low invasion the player encounters solo UFOs. Later waves form
     // staggered groups following the EXACT SAME path, like Galaga attacks.
-    const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
+    const progress=Math.min(1,(ufoCompletedWavesKills()+invasionWaveKills)/30);
     const formationSize=progress<.22?1:progress<.5?2:progress<.78?3:4;
     const sharedPath=createGalagaFlightPath();
     const formationDuration=8000+Math.random()*1600;

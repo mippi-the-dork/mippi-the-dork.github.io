@@ -4298,7 +4298,7 @@ body.theme-complete.theme-legendary .unreal-gift-actions a:hover,body.theme-comp
 
 /* Browser cursors cannot be scaled reliably, so mushrooms switch to a lightweight custom pointer. */
 .power-cursor { position:fixed; z-index:9999; left:0; top:0; width:28px; height:36px; pointer-events:none; opacity:0; transform:translate(-3px,-3px); clip-path:polygon(0 0,0 86%,23% 67%,38% 100%,53% 92%,38% 61%,68% 61%); background:linear-gradient(135deg,#fff 0 56%,#62bfff 57% 100%); filter:drop-shadow(0 2px 1px rgba(0,0,0,.7)) drop-shadow(0 0 6px rgba(93,174,255,.42)); transition:width .12s ease,height .12s ease,opacity .12s ease; }
-body.cursor-grown,body.cursor-grown * { cursor:none !important; }
+html:not(.cursor-test-inheritance) body.cursor-grown,html:not(.cursor-test-inheritance) body.cursor-grown * { cursor:none !important; }
 body.cursor-grown .power-cursor { opacity:1; }
 body.cursor-power-1 .power-cursor { width:32px; height:42px; }
 body.cursor-power-2 .power-cursor { width:46px; height:60px; background:linear-gradient(135deg,#fff6cc 0 52%,#ffc94a 53% 72%,#45ddd8 73% 100%); filter:drop-shadow(0 3px 2px rgba(0,0,0,.7)) drop-shadow(0 0 10px rgba(255,194,61,.48)); }
@@ -7867,8 +7867,8 @@ body:not(.design-mode) #site-game-hud #docs-toggle > .hud-attention-ring{display
 /* Cursor is now an actual browser/native cursor when enlarged. The old CSS
    set cursor:none across the whole page and relied on a DOM imitation; losing
    pointer focus could make the Windows cursor appear missing altogether. */
-body.cursor-grown.cursor-power-1,body.cursor-grown.cursor-power-1 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2242%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%2362bfff%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
-body.cursor-grown.cursor-power-2,body.cursor-grown.cursor-power-2 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2246%22%20height%3D%2260%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23fff6cc%22%20stroke%3D%22%2343e0dc%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
+html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-1,html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-1 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2242%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%2362bfff%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
+html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-2,html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-2 *{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2246%22%20height%3D%2260%22%20viewBox%3D%220%200%2028%2036%22%3E%3Cpath%20d%3D%22M2%202%20L2%2031%20L8%2025%20L12%2034%20L17%2032%20L12%2023%20L23%2024%20Z%22%20fill%3D%22%23fff6cc%22%20stroke%3D%22%2343e0dc%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%20%2F%3E%3C%2Fsvg%3E") 3 3,auto!important;}
 body.cursor-grown .power-cursor{display:none!important;}
 body.cursor-window-inactive,body.cursor-window-inactive *{cursor:auto!important;}
 body:has(.finale-overlay.show,.session-debrief.show,.compile-popup.open,.shop-popup.open,.blueprint-popup.open,.wish-sequence-overlay) .power-cursor{display:none!important;}
@@ -7912,8 +7912,8 @@ body.cursor-grown:has(.finale-overlay.show,.session-debrief.show,.compile-popup.
 }
 /* Theme-specific native mushroom cursor: same size and fallback as v2.84,
    but the actual SVG palette updates when the theme changes. */
-body.cursor-grown.cursor-power-1,body.cursor-grown.cursor-power-1 *,
-body.cursor-grown.cursor-power-2,body.cursor-grown.cursor-power-2 *{
+html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-1,html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-1 *,
+html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-2,html:not(.cursor-test-inheritance) body.cursor-grown.cursor-power-2 *{
   cursor:var(--mippi-grown-cursor,auto)!important;
 }
 /* These retain precedence over cursor upgrades for safety and usability. */
@@ -8016,8 +8016,61 @@ html.profile-no-combat-glow :is(.ufo-projectile,.legendary-player-projectile,.ar
   mix-blend-mode:normal!important;
 }
 
-/* v2.94 Canvas2D burst layer. Created only while particles are alive.
+/* v2.96 Canvas2D burst layer. Created only while particles are alive.
    It matches original arcade-pixel z-order, and never accepts pointer input. */
 .mippi-particle-canvas { position:fixed;inset:0;z-index:70;pointer-events:none;display:block; }
 html.profile-hide-combat-explosionpaint .mippi-particle-canvas,
 html.profile-no-combat-explosions .mippi-particle-canvas { visibility:hidden!important; }
+
+/* v2.97 // Opt-in Cursor Lab isolation. Defaults match v2.96 visuals. */
+/* Inherited cursor mode avoids the universal selector on every descendant. */
+html.cursor-test-inheritance body.cursor-grown {cursor:var(--mippi-grown-cursor,auto)!important;}
+/* Keep the Windows cursor visible when the graphic is intentionally disabled. */
+html.cursor-test-no-native body.cursor-grown,html.cursor-test-no-native body.cursor-grown * {cursor:auto!important;}
+html.cursor-test-no-aura .completion-cursor-aura {display:none!important;}
+html.cursor-test-no-glow :is(.completion-cursor-aura,.cursor-spark,.rainbow-cursor-spark,.power-cursor){box-shadow:none!important;filter:none!important;text-shadow:none!important;}
+html.cursor-test-no-trail .cursor-spark,html.cursor-test-no-starsparks .rainbow-cursor-spark{display:none!important;}
+
+
+/* ==========================================================================
+   v2.98 // Scoped mushroom cursor architecture (default)
+   --------------------------------------------------------------------------
+   We intentionally use a DIFFERENT state class from the legacy `cursor-grown`.
+   It prevents earlier whole-page `*` and `body:has()` cursor rules from
+   matching this mode, without changing those rules for the A/B fallback.
+   The artwork comes from the same theme-aware --mippi-grown-cursor SVG.
+   No cursor:none is applied: native cursor remains available on Windows.
+   ========================================================================== */
+html.cursor-arch-scoped body.cursor-scoped-grown {
+  cursor:var(--mippi-grown-cursor,auto)!important;
+}
+/* Only explicit interactive widgets need help inheriting the upgraded cursor.
+   Do NOT replace with `.cursor-scoped-grown *`: that defeats isolation. */
+html.cursor-arch-scoped body.cursor-scoped-grown :is(a,button,input,select,textarea,summary,label,[role="button"],[role="link"],[onclick]) {
+  cursor:inherit!important;
+}
+/* Native pointer safety for visible full-screen dialogs, without parent :has().
+   The browser naturally inherits this cursor from the active modal surface. */
+html.cursor-arch-scoped body.cursor-scoped-grown :is(
+  .azure-gallery[aria-hidden="false"],.session-debrief.show,.finale-overlay.show,
+  .compile-popup.open,.shop-popup.open,.blueprint-popup.open,
+  .wish-sequence-overlay,.unreal-gift-popup.open,.flappy-game.open
+) {cursor:auto!important;}
+html.cursor-arch-scoped body.cursor-scoped-grown :is(
+  .azure-gallery[aria-hidden="false"],.session-debrief.show,.finale-overlay.show,
+  .compile-popup.open,.shop-popup.open,.blueprint-popup.open,
+  .wish-sequence-overlay,.unreal-gift-popup.open,.flappy-game.open
+) :is(a,button,input,select,textarea,summary,[role="button"],[role="link"]) {cursor:pointer!important;}
+/* The diagnostic "native off" mode must still work for either architecture. */
+html.cursor-arch-scoped.cursor-test-no-native body.cursor-scoped-grown {cursor:auto!important;}
+html.cursor-arch-scoped.cursor-test-no-native body.cursor-scoped-grown :is(a,button,input,select,textarea,summary,label,[role="button"],[role="link"],[onclick]) {cursor:auto!important;}
+html.cursor-arch-scoped body.cursor-scoped-grown.cursor-window-inactive {cursor:auto!important;}
+/* Keep the old DOM imitation hidden in both modes. */
+body.cursor-scoped-grown .power-cursor {display:none!important;}
+
+/* v2.99 // Canvas-first FX layers. Event-transparent and created only while particles exist. */
+.mippi-fx-canvas { position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen; }
+html.profile-no-cursorfx .mippi-fx-low { visibility:hidden; }
+
+/* The single remaining cursor aura follows with compositor-friendly individual translate. */
+.completion-cursor-aura { will-change:translate; }

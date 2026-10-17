@@ -1,4 +1,4 @@
-/* v2.94 // Permanent opt-in performance lab. No sampling runs until `dev profile start`.
+/* v2.97 // Permanent opt-in performance lab. No sampling runs until `dev profile start`.
    Compatible with the v2.78 harness for frame-level comparison; new named subsystem hooks originate in v2.88. */
 (()=>{
   'use strict';
@@ -211,9 +211,21 @@
     };
   }
   function unwrapRaf(){if(!rafWrapped)return;window.requestAnimationFrame=originalRequestAnimationFrame;rafWrapped=false;}
+  // Pointer telemetry is recording-only; avoid per-move DOM reads or writes.
+  window.addEventListener('pointermove',e=>{
+    if(!session)return;
+    const m=session.pointer;
+    m.events++;
+    if(m.lastX!==null){
+      const d=Math.hypot(e.clientX-m.lastX,e.clientY-m.lastY);
+      m.distancePx+=d;m.maxStepPx=Math.max(m.maxStepPx,d);
+    }
+    m.lastX=e.clientX;m.lastY=e.clientY;
+  },{passive:true});
   function start(){
     if(session)stop();
-    session={start:safeNow(),lastFrame:null,longTasks:[],longFrames:[],layoutShift:0,callbackTimes:[],slowCallbacks:{},hudMutations:0,hudAddedNodes:0,hudAttributeChanges:0,theme:document.body.className,mode:{...modes},startedAnimations:countAnimations(),systems:{},currentFrameCosts:Object.create(null),spikes:[],isolationSkipped:{},timerEvents:[],domEvents:[],domTotals:{},uiSnapshots:[],lastUiSample:-Infinity,initialUI:uiStatus(),combatSnapshots:[],combatInitial:window.MippiCombatLab?.snapshot()||null,particleInitial:window.MippiParticleRenderer?.snapshot()||null,sessionAgeMs:Math.round(performance.now())};
+    session={start:safeNow(),lastFrame:null,longTasks:[],longFrames:[],layoutShift:0,callbackTimes:[],slowCallbacks:{},hudMutations:0,hudAddedNodes:0,hudAttributeChanges:0,theme:document.body.className,mode:{...modes},startedAnimations:countAnimations(),systems:{},currentFrameCosts:Object.create(null),spikes:[],isolationSkipped:{},timerEvents:[],domEvents:[],domTotals:{},uiSnapshots:[],lastUiSample:-Infinity,initialUI:uiStatus(),combatSnapshots:[],combatInitial:window.MippiCombatLab?.snapshot()||null,cursorInitial:window.MippiCursorLab?.snapshot()||null,fxInitial:window.MippiFxRenderer?.snapshot()||null,pointer:{events:0,distancePx:0,maxStepPx:0,lastX:null,lastY:null},particleInitial:window.MippiParticleRenderer?.snapshot()||null,
+      stabilityInitial:window.MippiStabilityLab?.snapshot()||null,sessionAgeMs:Math.round(performance.now())};
     sampledFrames=[];
     const hud=document.getElementById('site-game-hud');
     if(hud&&typeof MutationObserver==='function'){
@@ -234,7 +246,8 @@
   let last=null;
   function stop(){
     if(!session)return 'No active recording.';
-    last={...session,elapsedMs:safeNow()-session.start,frames:sampledFrames.slice(),endedAnimations:countAnimations(),finalUI:uiStatus(),combatFinal:window.MippiCombatLab?.snapshot()||null,particleFinal:window.MippiParticleRenderer?.snapshot()||null};
+    last={...session,elapsedMs:safeNow()-session.start,frames:sampledFrames.slice(),endedAnimations:countAnimations(),finalUI:uiStatus(),combatFinal:window.MippiCombatLab?.snapshot()||null,particleFinal:window.MippiParticleRenderer?.snapshot()||null,
+      stabilityFinal:window.MippiStabilityLab?.snapshot()||null,cursorFinal:window.MippiCursorLab?.snapshot()||null,fxFinal:window.MippiFxRenderer?.snapshot()||null};
     correlateSpikes(last);
     session=null;cancelAnimationFrame(rafToken);hudObserver?.disconnect();hudObserver=null;regionObservers.forEach(x=>x.disconnect());regionObservers=[];
     for(const observer of [observerLong,observerShift,observerLoaf])observer?.disconnect();
@@ -271,6 +284,10 @@
       'TIMERS // '+(timers.length?timers.join(' | '):'No timer callbacks recorded'),
       'COMBAT // '+JSON.stringify(s.combatFinal||s.combatInitial||{}) ,
       'COMBAT VISUAL // '+JSON.stringify(s.combatFinal?.visualModes||s.combatInitial?.visualModes||{}),
+      'STABILITY // '+JSON.stringify(s.stabilityFinal||s.stabilityInitial||{}),
+      'CURSOR LAB // '+JSON.stringify(s.cursorInitial||{})+' // FINAL '+JSON.stringify(s.cursorFinal||{}),
+      '2D FX // '+JSON.stringify(s.fxInitial||{})+' // FINAL '+JSON.stringify(s.fxFinal||window.MippiFxRenderer?.snapshot()||{}),
+      'POINTER // '+JSON.stringify({events:s.pointer?.events||0,distancePx:Math.round(s.pointer?.distancePx||0),maxStepPx:Math.round(s.pointer?.maxStepPx||0)}),
       'PARTICLE RENDERER // '+(s.combatFinal?.rendererMode||s.combatInitial?.rendererMode||window.MippiCombatLab?.rendererMode?.()||'unknown')+' // '+JSON.stringify(s.particleFinal||s.particleInitial||{}),
       'UI ACTIVITY // objective visible in '+objectiveSamples+'/'+(s.uiSnapshots?.length||0)+' snapshots // '+JSON.stringify(s.domTotals||{})+' DOM mutations by region',
       'LOAF SCRIPTS // '+((s.longFrames||[]).flatMap(f=>f.scripts||[]).sort((a,b)=>b.durationMs-a.durationMs).slice(0,5).map(x=>`${x.sourceFunctionName||'anonymous'} @ ${x.sourceURL.split('/').pop()||'unknown'} ${x.durationMs}ms`).join(' | ')||'No Chromium script attribution available'),
@@ -290,15 +307,16 @@
     const disabled=Object.entries(experiment.visualModes||{}).filter(([,v])=>v==='off').map(([k])=>k);
     const testLabel=[experiment.mode||'manual',`geo-${experiment.geometryMode||'na'}`,
       `renderer-${experiment.rendererMode||window.MippiCombatLab?.rendererMode?.()||'unknown'}`,
-      `visual-${disabled.length?disabled.join('-'):'default'}`].join('-');
+      `visual-${disabled.length?disabled.join('-'):'default'}`,
+      `cursor-${(data.cursorInitial?.visualLevel??'na')}-${data.cursorInitial?.architecture||'legacy'}-${data.cursorInitial?.style||'unknown'}-${data.cursorInitial?.native||'unknown'}`,`fx-${data.fxInitial?.mode||'dom'}`].join('-');
     const timestamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z').replace('T','-');
-    const payload={version:window.MIPPI_BUILD_VERSION||'2.94',diagnosticHarness:'v2.94',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
+    const payload={version:window.MIPPI_BUILD_VERSION||'2.99',diagnosticHarness:'v2.99',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
       userAgent:navigator.userAgent,summary:report(),raw:{...data,slowCallbacks:data.slowCallbacks}};
     correlateSpikes(payload.raw);
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
     const link=document.createElement('a');link.href=url;
-    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"2.94"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
+    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"2.99"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
     document.body.appendChild(link);link.click();link.remove();
     window.setTimeout(()=>URL.revokeObjectURL(url),1000);
     return `Downloaded ${link.download}. Upload this file for an exact comparison.`;
@@ -321,17 +339,26 @@
       `BOOT // HUD reparented controls ${boot.mountMutations??'?'} // mount duration ${boot.mountDuration?.toFixed(1)??'?'}ms // one-time move, not a second live HUD`
     ];
   }
-  const api={start,stop,report,startup,exportData,configure,resetModes,run,measure,enabled,skip,get active(){return !!session;},get modes(){return {...modes};},
+  function lastMetrics(){
+    if(!last)return null;
+    const frame=summaryValues(last.frames);
+    return {frames:frame.count,avgIntervalMs:frame.avg,p95IntervalMs:frame.p95,
+      longTasks:last.longTasks.length,longTaskMs:last.longTasks.reduce((a,b)=>a+b.duration,0)};
+  }
+  const api={start,stop,report,startup,exportData,configure,resetModes,run,measure,enabled,skip,lastMetrics,get active(){return !!session;},get modes(){return {...modes};},
     markHudMounted(details={}){boot.hudMount=safeNow();boot.mountMutations=details.movedControls??null;boot.mountDuration=details.durationMs??null;html.classList.remove('hud-pending');},
     help(){return [
       'dev profile sample 15         // close console and auto-record 15 seconds',
       'dev profile start | stop | report | boot | reset | export',
-      'v2.94 // Timer, DOM, and combat counters are recorded automatically during a sample.',
-      'v2.94 // Export includes DOM/Canvas renderer, particle counts, per-frame Canvas costs, and unique A/B filenames.',
+      'v2.99 // Canvas-first cursor / star / Doug / command particle FX; DOM A/B retained.',
+      'dev stability help             // long-session sample / soak tests and export',
+      'v2.99 // Exports include renderer mode, pointer movement, and 2D FX activity.',
+      'dev fx help | status | renderer canvas/dom | reset',
       'dev profile hud off/on       // hide the dock (CSS render cost)',
       'dev profile hudfx off/on     // disable dock CSS animations/glows',
       'dev profile themefx off/on   // disable cosmetic page/theme filters and animated glows',
-      'dev profile cursorfx off/on  // disable cursor spark DOM creation',
+      'dev profile cursorfx off/on  // disable all cosmetic cursor spark emissions',
+      'dev cursor help                // granular size/style/glow/trail diagnostics',
       'dev profile ambient off/on   // hide ambient WebGL canvas',
       'dev profile hero off/on      // pause Hero Three.js update and render',
       'dev profile about off/on     // pause About Three.js update and render',

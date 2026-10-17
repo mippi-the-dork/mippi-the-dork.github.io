@@ -1,5 +1,5 @@
-// v2.94 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='2.94';
+// v2.96 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='2.99';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -4459,11 +4459,14 @@ let particleFieldTimer=null;
 function emitCommandParticle(){
   if(!window.MippiPerfLab?.enabled('cursorfx')){window.MippiPerfLab?.skip('cursorfx');return;}
   return window.MippiPerfLab.run('cursor.commandParticle',()=>{
-  const p=document.createElement('i'); p.className='command-particle';
   const palette=document.body.classList.contains('theme-legendary')?['#ffc43f','#ff7a1a','#43e0dc','#fff0b5']:document.body.classList.contains('theme-complete')?['#d96cff','#ff4fc8','#67e8ff','#ffffff']:['#2f93ff','#67e8ff','#d8f3ff','#ffffff'];
-  p.style.left=`${Math.random()*100}vw`; p.style.top=`${60+Math.random()*42}vh`; p.style.background=palette[Math.floor(Math.random()*palette.length)];
-  p.style.setProperty('--px',`${(Math.random()-.5)*120}px`); p.style.setProperty('--py',`${-(80+Math.random()*220)}px`);
-  const size=2+Math.random()*5; p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.boxShadow=`0 0 12px ${p.style.background}`;
+  const x=Math.random()*innerWidth,y=(.60+Math.random()*.42)*innerHeight,color=palette[Math.floor(Math.random()*palette.length)];
+  const dx=(Math.random()-.5)*120,dy=-(80+Math.random()*220),size=2+Math.random()*5;
+  if(window.MippiFxRenderer?.spawn({kind:'command',x,y,dx,dy,size,color,lifetime:2350}))return;
+  const p=document.createElement('i'); p.className='command-particle';
+  p.style.left=`${x}px`; p.style.top=`${y}px`; p.style.background=color;
+  p.style.setProperty('--px',`${dx}px`); p.style.setProperty('--py',`${dy}px`);
+  p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.boxShadow=`0 0 12px ${p.style.background}`;
   document.body.appendChild(p); setTimeout(()=>p.remove(),2600);
   });
 }
@@ -4642,7 +4645,7 @@ function devPrintHelp(){
   consolePrintCommandGroup('DIRECTOR',['dev director quiet','dev director curious','dev director engaged','dev director struggling','dev director mastery']);
   consolePrintCommandGroup('MODES',['dev mode inspect on','dev mode inspect off','dev mode design on','dev mode design off','dev mode interact on','dev mode interact off','dev doug command','dev doug cool','dev doug review']);
   consolePrintCommandGroup('ATTN',['dev attention rupees','dev attention wish','dev attention blueprint']);
-  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev profile','dev combat','dev clean']);
+  consolePrintCommandGroup('UTILITY',['dev snapshot','dev perf','dev profile','dev combat','dev stability','dev cursor','dev fx','dev clean']);
   consolePrint('OBJECTIVE // use dev objective random, dev objective complete, dev objective fail, or dev objective <objective-id>.');
 }
 
@@ -4833,6 +4836,40 @@ function devCommand(args=''){
   const input=String(args||'').trim().toLowerCase();if(!input||input==='help'){devPrintHelp();return;}
   const [root,...rest]=input.split(/\s+/);const tail=rest.join(' ');
   if(root==='snapshot'){devSnapshot();return;}
+  if(root==='stability'){
+    const lab=window.MippiStabilityLab;
+    if(!lab){consolePrint('STABILITY // Monitor unavailable.','warn');return;}
+    const [verb,arg]=rest;
+    const lines=verb==='start'?[lab.start()]
+      :verb==='stop'?[lab.stop()]
+      :verb==='report'?lab.report()
+      :verb==='export'?[lab.exportData()]
+      :verb==='soak'?[lab.soakStart(Number(arg)||10)]
+      :lab.help();
+    lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
+    return;
+  }
+  if(root==='fx'){
+    const lab=window.MippiFxRenderer;
+    if(!lab){consolePrint('FX RENDERER // unavailable','warn');return;}
+    const [verb,arg]=rest;
+    const lines=verb==='status'?lab.report():verb==='reset'?[lab.reset()]:verb==='renderer'?[lab.setMode(arg)]:lab.help();
+    lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
+    return;
+  }
+  if(root==='cursor'){
+    const lab=window.MippiCursorLab;
+    if(!lab){consolePrint('CURSOR LAB // unavailable','warn');return;}
+    const [verb,arg]=rest;
+    const lines=verb==='help'||!verb?lab.help()
+      :verb==='status'?lab.report()
+      :verb==='reset'?[lab.reset()]
+      :verb==='size'?[lab.size(arg)]
+      :['architecture','style','native','aura','glow','trail','starsparks'].includes(verb)?[lab.configure(verb,arg)]
+      :['CURSOR LAB // Unknown command. Use dev cursor help.'];
+    lines.forEach((line,i)=>consolePrint(line,i===0?'good':undefined));
+    return;
+  }
   if(root==='profile'){
     const lab=window.MippiPerfLab;
     if(!lab){consolePrint('DEV PROFILE // performance lab unavailable.','warn');return;}
@@ -5164,21 +5201,86 @@ function announceSystemCombo(id,title,detail){
   consolePrint(`SYSTEM COMBO // ${title.toUpperCase()} // ${detail}`,'good');
   showTransientToast('SYSTEM COMBO',detail,title.toUpperCase(),'INTERACTION');
 }
+// v2.97 // Cursor Lab isolates appearance from actual Mushroom power and
+// Legendary targeting. Nothing here awards pickups or changes player progression.
+// v2.98 // The scoped architecture deliberately never adds `cursor-grown`.
+// This keeps the legacy universal and :has() selectors inactive, while retaining
+// the exact original implementation for A/B measurements.
+const cursorDiagnostics={visualLevel:null,architecture:'scoped',style:'universal',native:'on',aura:'on',glow:'on',trail:'on',starsparks:'on'};
+const effectiveCursorLevel=()=>cursorDiagnostics.visualLevel??cursorPowerLevel;
 function syncNativeMushroomCursor(){
-  if(!cursorPowerLevel){document.body.style.removeProperty('--mippi-grown-cursor');return;}
+  const level=effectiveCursorLevel();
+  if(!level){document.body.style.removeProperty('--mippi-grown-cursor');return;}
   const mode=document.body.classList.contains('theme-legendary')?'legendary':document.body.classList.contains('theme-complete')?'epic':'rare';
   const colors={rare:['#ffffff','#62bfff'],epic:['#ffe0fb','#ff55c8'],legendary:['#fff6cc','#43e0dc']}[mode];
-  const size=cursorPowerLevel===2?48:34;
+  const size=level===2?48:34;
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 28 36"><path d="M2 2 L2 31 L8 25 L12 34 L17 32 L12 23 L23 24 Z" fill="${colors[0]}" stroke="${colors[1]}" stroke-width="2" stroke-linejoin="round"/></svg>`;
   document.body.style.setProperty('--mippi-grown-cursor',`url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 3, auto`);
 }
 function updatePowerCursor(){
-  document.body.classList.toggle('cursor-grown',cursorPowerLevel>0);
-  document.body.classList.toggle('cursor-power-1',cursorPowerLevel===1);
-  document.body.classList.toggle('cursor-power-2',cursorPowerLevel===2);
-  powerCursor.dataset.level=String(cursorPowerLevel);
+  const level=effectiveCursorLevel();
+  const legacy=cursorDiagnostics.architecture==='legacy';
+  document.body.classList.toggle('cursor-grown',level>0&&legacy);
+  document.body.classList.toggle('cursor-scoped-grown',level>0&&!legacy);
+  document.body.classList.toggle('cursor-power-1',level===1);
+  document.body.classList.toggle('cursor-power-2',level===2);
+  powerCursor.dataset.level=String(level);
   syncNativeMushroomCursor();
 }
+function setCursorDiagnosticClasses(){
+  const html=document.documentElement;
+  html.classList.toggle('cursor-arch-scoped',cursorDiagnostics.architecture==='scoped');
+  html.classList.toggle('cursor-test-inheritance',cursorDiagnostics.style==='inherit');
+  for(const key of ['native','aura','glow','trail','starsparks'])
+    html.classList.toggle('cursor-test-no-'+key,cursorDiagnostics[key]==='off');
+  updatePowerCursor();
+}
+window.MippiCursorLab=Object.freeze({
+  snapshot(){return {actualGameplayLevel:cursorPowerLevel,visualLevel:effectiveCursorLevel(),visualOverride:cursorDiagnostics.visualLevel===null?'gameplay':cursorDiagnostics.visualLevel,legendaryTargetBonusPx:cursorPowerLevel*55,architecture:cursorDiagnostics.architecture,...Object.fromEntries(['style','native','aura','glow','trail','starsparks'].map(k=>[k,cursorDiagnostics[k]])),activeTrailNodes:document.querySelectorAll('.cursor-spark').length,activeStarSparks:document.querySelectorAll('.rainbow-cursor-spark').length,fxRenderer:window.MippiFxRenderer?.mode||'dom',activeCanvasFx:window.MippiFxRenderer?.snapshot().active||0};},
+  report(){const s=this.snapshot();return ['CURSOR LAB // '+JSON.stringify(s),'CURSOR LAB // SIZE is visual-only. Actual Mushroom progression and target acquisition are unchanged.'];},
+  size(value){
+    const choices={gameplay:null,normal:0,big:1,verybig:2};
+    if(!Object.hasOwn(choices,value))return 'CURSOR LAB // Use dev cursor size gameplay/normal/big/verybig.';
+    cursorDiagnostics.visualLevel=choices[value];setCursorDiagnosticClasses();
+    return `CURSOR LAB // VISUAL SIZE ${value.toUpperCase()} // gameplay power ${cursorPowerLevel} unchanged.`;
+  },
+  configure(key,value){
+    if(key==='architecture'){
+      if(!['scoped','legacy'].includes(value))return 'CURSOR LAB // Use dev cursor architecture scoped/legacy.';
+      cursorDiagnostics.architecture=value;
+    }else if(key==='style'){
+      if(!['universal','inherit'].includes(value))return 'CURSOR LAB // Use dev cursor style universal/inherit.';
+      cursorDiagnostics.style=value;
+    }else{
+      if(!['on','off'].includes(value))return `CURSOR LAB // Use dev cursor ${key} on/off.`;
+      cursorDiagnostics[key]=value;
+    }
+    setCursorDiagnosticClasses();
+    return `CURSOR LAB // ${key.toUpperCase()} ${value.toUpperCase()}${key==='style'&&cursorDiagnostics.architecture==='scoped'?' // style applies to legacy architecture only':''}`;
+  },
+  reset(){
+    cursorDiagnostics.visualLevel=null;cursorDiagnostics.architecture='scoped';cursorDiagnostics.style='universal';
+    for(const key of ['native','aura','glow','trail','starsparks'])cursorDiagnostics[key]='on';
+    setCursorDiagnosticClasses();
+    return 'CURSOR LAB // All visual overrides restored to gameplay defaults. Progression unchanged.';
+  },
+  help(){return [
+    'dev cursor status | reset',
+    'dev cursor size gameplay/normal/big/verybig  // VISUAL ONLY; no targeting bonus',
+    'dev cursor architecture scoped/legacy         // optimized state vs original CSS for A/B',
+    'dev cursor style universal/inherit           // LEGACY ONLY; descendant rules vs inheritance',
+    'dev cursor native off/on                     // hide mushroom cursor image, show normal pointer',
+    'dev cursor aura off/on                       // hide/show decorative ring',
+    'dev cursor glow off/on                       // disable only cursor visual glows',
+    'dev cursor trail off/on                      // stop pointermove spark creation',
+    'dev cursor starsparks off/on                 // stop Star Power cursor sparks',
+    'dev fx renderer canvas/dom                   // Canvas default vs legacy particle sprites',
+    'Reset returns to the SCOPED architecture. Overrides are not persisted.',
+    'A/B: big + scoped vs big + legacy (universal); keep combat settings identical.'
+  ];}
+});
+// Set default architecture before any Mushroom power is collected.
+setCursorDiagnosticClasses();
 function advanceCursorPower(){
   cursorPowerLevel=(cursorPowerLevel+1)%3;
   updatePowerCursor();
@@ -5194,15 +5296,17 @@ function advanceCursorPower(){
   }
 }
 function emitRainbowCursorSpark(){
-  if(document.documentElement.classList.contains('profile-no-cursorfx'))return;
+  if(document.documentElement.classList.contains('profile-no-cursorfx')||cursorDiagnostics.starsparks==='off')return;
   return window.MippiPerfLab.run('cursor.rainbowSparks',()=>{
   const colors=['#ff3b30','#ff9500','#ffcc00','#34c759','#00c7be','#0a84ff','#bf5af2','#ff2d55'];
   for(let i=0;i<3;i++){
-    const p=document.createElement('i'); p.className='rainbow-cursor-spark';
     const a=Math.random()*Math.PI*2, r=10+Math.random()*30;
-    p.style.left=`${latestPointer.x+Math.cos(a)*r}px`; p.style.top=`${latestPointer.y+Math.sin(a)*r}px`;
-    p.style.background=colors[Math.floor(Math.random()*colors.length)];
-    p.style.setProperty('--rx',`${Math.cos(a)*(36+Math.random()*42)}px`); p.style.setProperty('--ry',`${Math.sin(a)*(36+Math.random()*42)}px`);
+    const rx=latestPointer.x+Math.cos(a)*r,ry=latestPointer.y+Math.sin(a)*r;
+    const color=colors[Math.floor(Math.random()*colors.length)],dx=Math.cos(a)*(36+Math.random()*42),dy=Math.sin(a)*(36+Math.random()*42);
+    if(window.MippiFxRenderer?.spawn({kind:'rainbow',x:rx,y:ry,dx,dy,size:6,color,lifetime:580}))continue;
+    const p=document.createElement('i');p.className='rainbow-cursor-spark';
+    p.style.left=`${rx}px`;p.style.top=`${ry}px`;p.style.background=color;
+    p.style.setProperty('--rx',`${dx}px`); p.style.setProperty('--ry',`${dy}px`);
     document.body.appendChild(p); setTimeout(()=>p.remove(),620);
   }
   });
@@ -5232,16 +5336,28 @@ function activateStarPower(){
 }
 let lastSpark=0;
 const latestPointer={x:window.innerWidth/2,y:window.innerHeight/2};
+// Aura remains one CSS-styled element to preserve its special Star Power ring.
+// `translate` is compositor-friendly and does not override the ring's transform animation.
+// Coalesce many pointer events into one cosmetic position write per animation frame.
+cursorAura.style.left='0';cursorAura.style.top='0';
+let cursorPositionRaf=0;
+function applyCursorVisualPosition(){
+  cursorPositionRaf=0;
+  cursorAura.style.translate=`${latestPointer.x}px ${latestPointer.y}px`;
+  if(cursorDiagnostics.architecture==='legacy'){
+    powerCursor.style.left=`${latestPointer.x}px`;powerCursor.style.top=`${latestPointer.y}px`;
+  }
+}
+
 window.addEventListener('blur',()=>document.body.classList.add('cursor-window-inactive'));
 window.addEventListener('focus',()=>document.body.classList.remove('cursor-window-inactive'));
 document.addEventListener('pointerleave',()=>document.body.classList.add('cursor-window-inactive'));
 document.addEventListener('pointerenter',()=>document.body.classList.remove('cursor-window-inactive'));
 window.addEventListener('pointermove',event=>{
   latestPointer.x=event.clientX; latestPointer.y=event.clientY;
-  powerCursor.style.left=`${event.clientX}px`; powerCursor.style.top=`${event.clientY}px`;
-  cursorAura.style.left=`${event.clientX}px`; cursorAura.style.top=`${event.clientY}px`;
+  if(!cursorPositionRaf)cursorPositionRaf=requestAnimationFrame(applyCursorVisualPosition);
   // Performance lab isolates cosmetic cursor sparks from normal pointer/UI work.
-  if(document.documentElement.classList.contains('profile-no-cursorfx'))return;
+  if(document.documentElement.classList.contains('profile-no-cursorfx')||cursorDiagnostics.trail==='off')return;
   if(!document.body.classList.contains('theme-complete') || reduceMotion) return;
   const legendary=document.body.classList.contains('theme-legendary');
   // Legendary previously emitted as many as three costly glowing DOM particles
@@ -5253,23 +5369,24 @@ window.addEventListener('pointermove',event=>{
   lastSpark=now;
   const count=shooting?1:legendary?2:1;
   for(let i=0;i<count;i++){
+    const x=event.clientX+(legendary?(Math.random()-.5)*8:0),y=event.clientY+(legendary?(Math.random()-.5)*8:0);
+    const color=legendary?['#fff0b5','#ffbd2f','#ff7a1a','#43e0dc','#ffffff'][Math.random()*5|0]:(Math.random()>.45?'#67e8ff':'#ff4fc8');
+    const size=legendary?3+Math.random()*4:4,dx=(Math.random()-.5)*(legendary?72:34),dy=(Math.random()-.5)*(legendary?72:34),lifetime=legendary?1350+Math.random()*550:720;
+    if(window.MippiFxRenderer?.spawn({kind:'trail',x,y,dx,dy,size,color,lifetime}))continue;
     const spark=document.createElement('i'); spark.className='cursor-spark';
-    spark.style.left=`${event.clientX+(legendary?(Math.random()-.5)*8:0)}px`;
-    spark.style.top=`${event.clientY+(legendary?(Math.random()-.5)*8:0)}px`;
+    spark.style.left=`${x}px`;spark.style.top=`${y}px`;
     if(legendary){
-      const legendarySpark=['#fff0b5','#ffbd2f','#ff7a1a','#43e0dc','#ffffff'];
-      spark.style.background=legendarySpark[Math.floor(Math.random()*legendarySpark.length)];
-      const size=3+Math.random()*4;
+      spark.style.background=color;
       spark.style.width=`${size}px`; spark.style.height=`${size}px`;
       spark.style.boxShadow=`0 0 12px ${spark.style.background},0 0 26px ${spark.style.background}`;
-      spark.style.setProperty('--dx',`${(Math.random()-.5)*72}px`);
-      spark.style.setProperty('--dy',`${(Math.random()-.5)*72}px`);
-      spark.style.animationDuration=`${1.35+Math.random()*.55}s`;
+      spark.style.setProperty('--dx',`${dx}px`);
+      spark.style.setProperty('--dy',`${dy}px`);
+      spark.style.animationDuration=`${lifetime/1000}s`;
       document.body.appendChild(spark); setTimeout(()=>spark.remove(),2050);
     } else {
-      spark.style.background=Math.random()>.45?'#67e8ff':'#ff4fc8';
+      spark.style.background=color;
       spark.style.boxShadow=`0 0 9px ${spark.style.background}`;
-      spark.style.setProperty('--dx',`${(Math.random()-.5)*34}px`); spark.style.setProperty('--dy',`${(Math.random()-.5)*34}px`);
+      spark.style.setProperty('--dx',`${dx}px`); spark.style.setProperty('--dy',`${dy}px`);
       document.body.appendChild(spark); setTimeout(()=>spark.remove(),800);
     }
   }
@@ -5451,6 +5568,10 @@ const combatGeometry=(()=>{
   return Object.freeze({targetCenter,emitterCenter,prepareEmitters,targetCandidates,invalidate,mode,
     registerFlight,registerLabTarget,registerStatic,retime,motionCenter,effectCenter});
 })();
+// Track actual hostile projectiles so diagnostic cleanup can cancel callbacks
+// immediately rather than relying on an unmounted element on the next frame.
+const hostileProjectileCleanup=new Set();
+const diagnosticHostileCleanup=new Set();
 function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
   const __combatSpawnAt=performance.now();
   if(!ship?.isConnected || reduceMotion) return;
@@ -5485,7 +5606,14 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
     announceSystemCombo('slowmo-hostile-fire','Slowmo + UFO','Hostile projectiles are slowed too. Fair is fair.');
   }
 
-  const cleanup=()=>{ if(settled)return;const at=performance.now(); settled=true; cancelAnimationFrame(raf); shot.remove(); if(isLabShot)window.MippiCombatLab?.note('ufoCleanup'); window.MippiPerfLab?.measure('combat.ufoProjectile.cleanup',performance.now()-at); };
+  let guardTimeout=0;
+  const cleanup=()=>{ if(settled)return;const at=performance.now(); settled=true;
+    cancelAnimationFrame(raf);if(guardTimeout){clearTimeout(guardTimeout);guardTimeout=0;}
+    shot.remove();hostileProjectileCleanup.delete(cleanup);diagnosticHostileCleanup.delete(cleanup);
+    if(isLabShot)window.MippiCombatLab?.note('ufoCleanup');
+    window.MippiPerfLab?.measure('combat.ufoProjectile.cleanup',performance.now()-at); };
+  hostileProjectileCleanup.add(cleanup);
+  if(isLabShot)diagnosticHostileCleanup.add(cleanup);
   const tick=now=>{
     if(settled || !shot.isConnected){ cleanup(); return; }
     if(!ship.isConnected && now-born>duration*1000+220){ cleanup(); return; }
@@ -5515,7 +5643,8 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
   window.MippiPerfLab?.measure('combat.ufoProjectile.spawn',performance.now()-__combatSpawnAt);
 
   // Absolute cleanup guard. No hostile projectile is allowed to live forever.
-  window.setTimeout(()=>{
+  guardTimeout=window.setTimeout(()=>{
+    guardTimeout=0;
     if(settled)return;
     explodeAt(px,py,4);
     cleanup();
@@ -5651,8 +5780,15 @@ window.MippiCombatHooks=Object.freeze({
   explosion:(x,y,count=18,size=5,options)=>explodeAt(x,y,count,size,options),
   cleanup:()=>{
     [...legendaryActiveShots].filter(shot=>shot.el.dataset.combatLab==='1').forEach(releaseLegendaryShot);
+    if(!legendaryActiveShots.length&&legendaryShotRaf){cancelAnimationFrame(legendaryShotRaf);legendaryShotRaf=0;}
+    [...diagnosticHostileCleanup].forEach(cleanup=>cleanup());
+    // Defensive fallback only; the normal path above cancels the actual rAF and guard timer.
     document.querySelectorAll('.ufo-projectile[data-combat-lab="1"]').forEach(el=>el.remove());
-  }
+  },
+  lifecycle:()=>({activeHostile:hostileProjectileCleanup.size,
+    activeLabHostile:diagnosticHostileCleanup.size,activePlayer:legendaryActiveShots.length,
+    activeLabPlayer:legendaryActiveShots.filter(s=>s.el.dataset.combatLab==='1').length,
+    cachedTargets:legendaryTargetPositions.size})
 });
 
 document.addEventListener('pointerdown',event=>{
@@ -6306,10 +6442,14 @@ const dougBoneTrailTimers=new WeakMap();
 function emitDougRainbowTrail(bone){
   if(!bone?.isConnected || !bone.classList.contains('cool-bone')) return;
   const r=bone.getBoundingClientRect();
+  const x=r.left+r.width*.48+(Math.random()-.5)*12,y=r.top+r.height*.55+(Math.random()-.5)*9;
+  const hue=Math.floor((performance.now()/7+Math.random()*90)%360),dx=-18-Math.random()*28,dy=(Math.random()-.5)*30;
+  const color=`hsl(${hue} 100% 67%)`;
+  if(window.MippiFxRenderer?.spawn({kind:'doug',x,y,dx,dy,color,size:7,lifetime:720}))return;
   const p=document.createElement('i'); p.className='doug-rainbow-particle';
-  p.style.left=`${r.left+r.width*.48+(Math.random()-.5)*12}px`; p.style.top=`${r.top+r.height*.55+(Math.random()-.5)*9}px`;
-  p.style.setProperty('--hue',String(Math.floor((performance.now()/7+Math.random()*90)%360)));
-  p.style.setProperty('--px',`${-18-Math.random()*28}px`); p.style.setProperty('--py',`${(Math.random()-.5)*30}px`);
+  p.style.left=`${x}px`; p.style.top=`${y}px`;
+  p.style.setProperty('--hue',String(hue));
+  p.style.setProperty('--px',`${dx}px`); p.style.setProperty('--py',`${dy}px`);
   document.body.appendChild(p); window.setTimeout(()=>p.remove(),760);
 }
 function setDougBoneCoolVisual(bone,active){

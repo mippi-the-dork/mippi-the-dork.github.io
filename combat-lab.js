@@ -1,4 +1,4 @@
-/* v2.94 // Persistent, opt-in combat benchmarking and visual-isolation lab.
+/* v2.97 // Persistent, opt-in combat benchmarking and visual-isolation lab.
    Runs actual player/UFO projectile and explosion code against disposable targets.
    No progress, economy, achievements, wish or boss states are changed. */
 (()=>{
@@ -50,7 +50,7 @@
   const perf=()=>window.MippiPerfLab;
   const hooks=()=>window.MippiCombatHooks;
   let state=null,last=null;
-  let timers=[],finishTimer=0,stage=null,targets=[],ships=[];
+  let timers=[],finishTimer=0,startTimer=0,stage=null,targets=[],ships=[];
   const metrics=()=>({playerSpawn:0,playerCleanup:0,playerHit:0,ufoSpawn:0,ufoCleanup:0,explosions:0,particles:0,
     effectCalls:0,effectElementsRequested:0,effectElementsEmitted:0,effectElementsSuppressed:0,effectDomParticles:0,effectCanvasParticles:0});
   function snapshot(){
@@ -67,6 +67,7 @@
   function removeStage(){
     timers.forEach(id=>clearInterval(id));timers=[];
     if(finishTimer){clearTimeout(finishTimer);finishTimer=0;}
+    if(startTimer){clearTimeout(startTimer);startTimer=0;}
     stage?.remove();stage=null;targets=[];ships=[];
     hooks()?.cleanup();
   }
@@ -148,12 +149,13 @@
   }
   function run(mode='idle',seconds=30,{closeConsole}={}){
     if(!KINDS.includes(mode))return `COMBAT // Unknown test ${mode}. Use ${KINDS.join(', ')}.`;
-    if(state)return 'COMBAT // A test is already running. Use dev combat stop.';
+    if(state||startTimer)return 'COMBAT // A test is already running or queued. Use dev combat stop.';
     if(!hooks()||!perf())return 'COMBAT // The production projectile hooks or profiler are unavailable.';
     seconds=Math.max(10,Math.min(45,Math.round(Number(seconds)||30)));
     if(perf().active)return 'COMBAT // Stop the current profile before starting an automated test.';
     closeConsole?.();
-    setTimeout(()=>{
+    startTimer=setTimeout(()=>{
+      startTimer=0;
       if(state)return;
       state={mode,seconds,started:performance.now(),geometryMode:hooks().geometryMode(),counters:metrics(),samples:[],peakActivePlayer:0,peakActiveUfo:0,
         visualModes:visualSnapshot(),rendererMode:currentRenderer,sessionAgeMs:Math.round(performance.now()),
@@ -166,7 +168,10 @@
     return `COMBAT // ${mode.toUpperCase()} ${seconds}s queued. Console closes automatically. Use dev profile report/export afterward.`;
   }
   function stop(){
-    if(!state)return 'COMBAT // No active test.';
+    if(!state){
+      if(startTimer){clearTimeout(startTimer);startTimer=0;return 'COMBAT // Queued test cancelled before it began.';}
+      return 'COMBAT // No active test.';
+    }
     // Snapshot before teardown; profile excludes teardown and no progression is saved.
     state.finished=performance.now();state.elapsedSec=+(state.finished-state.started).toFixed(0)/1000;
     last={...state,counters:{...state.counters},samples:state.samples.slice(),
@@ -212,7 +217,7 @@
     'dev combat run explosions 30  // burst/particle stress test',
     'dev combat report | stop | export',
     'CAPTURE // Console closes and the ordinary profiler records automatically; use dev profile export to download JSON.',
-    'TEST RULE // Keep viewport, theme, browser zoom, and scroll position constant. Avoid moving the mouse.',
+    'TEST RULE // Keep viewport, theme, browser zoom, and scroll position constant. Move the cursor only when intentionally benchmarking motion; use a comparable path each run.',
     'SAFETY // Disposable scene targets cannot award Rupees, Hearts, Invasion, Wish charge, or achievements.'
   ];}
   window.MippiCombatLab=Object.freeze({run,stop,report,help,geometry,renderer,rendererMode,visual,note,snapshot,get active(){return !!state;},get last(){return last;}});

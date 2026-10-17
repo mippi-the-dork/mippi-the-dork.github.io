@@ -1,4 +1,4 @@
-/* v2.94 // Shared Canvas2D explosion particle renderer.
+/* v2.97 // Shared Canvas2D explosion particle renderer.
    The authored DOM/CSS arcade-burst path is retained in script.js for A/B testing.
    Cosmetic only: never changes hit tests, damage, achievements or progression. */
 (()=>{

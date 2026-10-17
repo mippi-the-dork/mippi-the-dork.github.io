@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v3.10",
+  "baseline": "Mippi Portfolio v3.14",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -8,12 +8,12 @@
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
-      "summary": "Version-by-version documentation coverage through v3.10."
+      "summary": "Documentation coverage and category inventory through v3.14."
     },
     {
       "title": "Release History",
       "path": "RELEASE_HISTORY.md",
-      "summary": "Chronological portfolio changes through v3.10."
+      "summary": "Chronological release history through v3.14."
     },
     {
       "title": "Music Lyrics Authoring Guide",
@@ -78,9 +78,9 @@
       "summary": "Historical v2.80 test suite with cumulative addenda through v2.98."
     },
     {
-      "title": "Current Release Checklist (v3.10)",
+      "title": "Current Release Checklist (v3.14)",
       "path": "QA/RELEASE_CHECKLIST.md",
-      "summary": "Current v3.10 signoff and historical regression tests."
+      "summary": "Current v3.14 release signoff."
     },
     {
       "title": "v2.81–v2.89 Regression Matrix",
@@ -136,6 +136,11 @@
       "title": "v3.10 Release Regression QA",
       "path": "QA/V3_05_TO_V3_10_REGRESSION_QA.md",
       "summary": "Hero, Star Power, Elarsi, career art and achievement acceptance."
+    },
+    {
+      "title": "v3.14 Regression QA",
+      "path": "QA/V3_11_TO_V3_14_REGRESSION_QA.md",
+      "summary": "Studio reveals, Star Power, shop refill, capability fallback and theme persistence."
     }
   ]
 }

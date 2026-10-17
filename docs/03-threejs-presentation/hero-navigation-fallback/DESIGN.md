@@ -26,3 +26,8 @@ When the real 3D scene successfully initializes, it replaces the fallback; the f
 Simulate failed import/context initialization and later WebGL context loss. Test all four links with mouse and keyboard, ensure section navigation still works, no invisible canvas blocks clicks, and telemetry/Signal Acquired handling remains reasonable. The experience should remain usable even if no 3D rendering can recover.
 
 See [Technical](TECHNICAL.md), [Runtime Health](../runtime-health-and-startup-watchdog/TECHNICAL.md), and [v3.10 QA](../../QA/V3_05_TO_V3_10_REGRESSION_QA.md).
+
+
+## v3.14 Current Behavior
+
+v3.13 broadens the existing v3.07 2D Hero navigation to unavailable WebGL and recognized software rendering, not just initialization/context loss. A browser guidance notice appears above the header. Ambient and About Three.js scenes are skipped on this branch; core portfolio navigation stays available.

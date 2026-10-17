@@ -26,3 +26,8 @@ The original v3.09 handoff reported that the PNG was not checked in alongside th
 Check network response for `assets/career-real/yourstudiohere.png`, grid separator positions at 900/901 and wide desktop, card order/labels, fallback behavior, themes and narrow-screen text readability. This documentation update does **not** itself install the PNG into the website source tree.
 
 See [Design](DESIGN.md) and [v3.10 QA](../../QA/V3_05_TO_V3_10_REGRESSION_QA.md).
+
+
+## v3.14 Current Behavior
+
+v3.11 optimized WebP career imagery, superseded in v3.13 by full-resolution `assets/career-real/yourstudiohere.png`. The v3.14 `.studio-career-links` renders two horizontal labeled groups `.studio-career-linkgroup`, CONTACT and RESUMES, with compact `.studio-career-linkbuttons`. `.studio-card-reveal` uses concise content and full-color art, never grayscale, including while dismissing.

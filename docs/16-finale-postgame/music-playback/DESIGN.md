@@ -168,3 +168,8 @@ The player feels like a compact but complete postgame soundtrack surface with pr
 ## Superseding Implementation Notes (v2.81–v2.89)
 
 v2.81 moved lyrics to a sibling panel under the sticky header, right of the Music Player on desktop and below on narrow screens, and added seek bar, time labels, icon transport, Full/Single choice. Collapsing forces Single temporarily. v2.83 lyrics height tracks Music Player's actual rendered height; text is 12px. v2.85 changed Repeat cycle to Off -> Loop 1 -> Loop All -> Off, with expanded control order Download, Previous, Play/Pause, Next, Loop, Shuffle, Lyrics. All twelve MP3 and editable LRC paths persist. Later performance profiling does not change playback behavior.
+
+
+## v3.14 Current Behavior
+
+v3.12 clicking a song in the expanded playlist immediately attempts playback as the user's click gesture, instead of merely selecting it. If browser media policy rejects playback, show a useful Click Play prompt; selecting another song's lyric view alone still does not switch playback.

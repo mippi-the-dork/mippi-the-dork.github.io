@@ -8384,3 +8384,32 @@ body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme
 
 .scene-fallback.show { pointer-events:auto; }
 .scene-fallback:not(.show) .fallback-node { visibility:hidden; }
+
+
+/* v3.09 // Future collaboration entry. Art belongs beside the other career
+   backgrounds: assets/career-real/yourstudiohere.png. The gradient is a safe
+   fallback until that user-provided image is checked into the repository. */
+.studio-yourstudio .studio-yourstudio-image {
+  background: url('assets/career-real/yourstudiohere.png') right center / cover no-repeat,
+              linear-gradient(115deg, #07101d 0%, #0d2543 65%, #17477a 100%);
+}
+.studio-yourstudio .studio-art {
+  color:rgba(142,203,255,.17);
+  letter-spacing:.08em;
+}
+@media (min-width:901px) {
+  .studio-grid > .studio-yourstudio {
+    grid-column:span 2;
+    min-height:224px;
+  }
+  .studio-yourstudio strong, .studio-yourstudio span { max-width:55%; }
+  /* First card consumes two columns; the third card in each visual row
+     is now 3n+2 instead of 3n. Keep separator lines aligned to the grid. */
+  .studio-grid > article:nth-child(3n) { border-right:1px solid var(--line); }
+  .studio-grid > article:nth-child(3n+2) { border-right:0; }
+  .studio-grid > .studio-sony { border-right:0; }
+}
+@media (max-width:900px) {
+  .studio-grid > .studio-yourstudio { grid-column:auto; min-height:190px; }
+  .studio-yourstudio strong, .studio-yourstudio span { max-width:70%; }
+}

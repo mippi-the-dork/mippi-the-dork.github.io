@@ -73,14 +73,14 @@
   ],
   "qa": [
     {
-      "title": "Extensive QA Test Plan",
+      "title": "Extensive Regression QA (v2.80 base + addenda)",
       "path": "QA/EXTENSIVE_QA_TEST_PLAN.md",
-      "summary": "Full v2.80 manual and DEV-assisted QA plan."
+      "summary": "Historical v2.80 test suite with cumulative addenda through v2.98."
     },
     {
-      "title": "Release Checklist",
+      "title": "Current Release Checklist (v2.98)",
       "path": "QA/RELEASE_CHECKLIST.md",
-      "summary": "Final release-candidate packaging and smoke checklist."
+      "summary": "Current v2.98 signoff with historical version-specific checklist sections."
     },
     {
       "title": "v2.81–v2.89 Regression Matrix",

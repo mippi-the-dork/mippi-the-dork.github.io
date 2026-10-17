@@ -1,6 +1,8 @@
 # Release Checklist
 
-**Current documented target:** Mippi Portfolio v2.89
+**Current documented target:** Mippi Portfolio v2.98
+
+**How to use:** This is the cumulative release checklist. Use the **v2.98 Current Behavior** section and linked v2.98 QA as the current version-specific checks. Older numbered sections retain their original release requirements for regression context; do not use their version examples as v2.98 build identifiers.
 
 Use this as the final release-candidate signoff after feature QA is already complete.
 

@@ -1,6 +1,8 @@
 # Extensive QA Test Plan
 
-**Historical base:** v2.80; see v2.89 supplement below
+**Current documentation scope:** v2.98. **Original test-suite baseline:** v2.80, with subsequent release addenda through v2.98.
+
+The original v2.80 test IDs and version literals below are preserved as historical regression coverage. For current build identity and current release checks, use the [v2.98 Release Checklist](RELEASE_CHECKLIST.md) and [Scoped Cursor Architecture QA](CURSOR_ARCHITECTURE_V2_98.md).
 
 This is the canonical documentation copy of the v2.80 extensive release test plan.
 

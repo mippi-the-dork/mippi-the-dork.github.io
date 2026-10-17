@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v2.98
+**Current documented state:** Mippi Portfolio v3.01
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -340,3 +340,26 @@ Seven v2.97 runs that motivated this change consistently returned ~**24–26 del
 A subsequent Scoped Big Trail-on/off test returned **30.9** versus **41.1** rAF FPS, with 133 vs 70 long tasks. The Trail-on recording also had an active timed objective for 29/30 snapshots versus none in Trail-off; pointer speed/events were not captured. Thus the Trail's DOM/CSS animation work is a reasonable optimization candidate, but the measurements do **not** prove a causal 10 FPS improvement from disabling Trail or establish a full FPS fix. No Canvas Trail replacement was implemented in v2.98.
 
 See [Scoped Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md) and [v2.98 Windows QA](QA/CURSOR_ARCHITECTURE_V2_98.md).
+
+
+## v2.99 - Canvas-First High-Frequency 2D Cosmetic FX
+
+Introduced `fx-renderer.js` and `window.MippiFxRenderer`, a shared Canvas2D backend with two short-lived layers for Epic/Legendary cursor Trail, Star Power rainbow sparks, Doug Bone Cool wake and Command/Particle Boost particles. Rendering defaults to Canvas, with `dev fx renderer dom` retaining CSS/DOM fallback and `dev fx reset` restoring Canvas. Sprite cache up to 128, cosmetic active cap 600 with dropped count, one shared animation loop and no individual particle removal timeouts in Canvas mode. The single DOM cursor Aura remains but its translation is rAF-coalesced. The existing `particle-renderer.js` remains separate and is still responsible for combat explosions.
+
+Profiler reports add `fxInitial`, `fxFinal`, per-kind totals, dropped particles and `POINTER` event count/travel distance, plus `fx-canvas`/`fx-dom` export identity. In-memory Chromium smoke validation of spawning, cleanup and 10-second synthetic combat passed. **No v2.99 real-Windows 60 FPS or pixel-perfect DOM parity result was supplied.** See [Canvas-First FX](04-themes-visual-language/canvas-first-2d-fx/TECHNICAL.md) and [QA](QA/CANVAS_FX_V2_99.md).
+
+## v3.00 - Authored SVG Game Art and Combat Redesign
+
+Merged 14 original SVGs under `assets/game/`, with `game-art.js` mapping HUD Coolness, Invasion, Castle crown, Rupee and Heart icons; world Castle, Rupee, Key, Mushroom, Star, Bone and Heart; UFO, Boss/Add and Super Boss. Rarity masks unify Rare/Epic/Legendary tint. Castle world art was enlarged about 1.5x, Super Boss core about 2x, Boss adds match regular Boss art size. HUD Inspect/Design/Interact buttons now separate active `aria-pressed` state from attention.
+
+The cursor's visible ring is an **actual click/contact radius**, not weapon lock-on. Actual Mushroom power adds 17px per level to a 22px base (31px in Legendary), and Star Power adds 14px. Shooting changed to **manually aimed, vertical enemy-only projectiles**, no homing or pickup targeting. Cool Mode fires a three-shot -12/0/+12 degree spread, Star Power grants piercing. Golden Trigger increases projectile speed, not lock-on range. The shared shot cap is now **18**, replacing historical 14. Regular clicks and Star Power cursor contact remain independent ways to interact with world objects.
+
+Castle fireworks use **nine smaller Canvas-only bursts of 16 particles, 10px each**, with shorter lifetime, replacing nine 34-particle 33px celebrations. FX Canvas sprite cores were sharpened toward the original DOM look. Invasion debug stage setters `dev invasion 0/33/66/near` reset wave/pending encounters and invalidate old delayed spawn attempts. Windows local launcher `START_LOCAL_TEST.bat` and `LocalTestServer.ps1` added. Syntax validation and owner approval preceded merge; comprehensive FPS/visual regression metrics were not supplied.
+
+## v3.01 - Entity-Specific Spawn Paths and Physical Rewards
+
+Added `spawn-motion.js` and `window.MippiSpawnMotion`, a shared requestAnimationFrame driver for authored actor motion; `combatGeometry.center()` checks its modeled position before other geometry paths. The gameplay objects now follow distinct paths: Star bounces above the bottom hotbar for repeated laps, Mushroom loops around a content panel perimeter, hidden Key stays attached to the bottom-right of one content panel until collected, Doug Bone falls and spins, Rupees and Hearts fall with gravity and bounce over the hotbar, regular UFOs fly cubic-Bezier corner swoops or vertical sine paths, regular Boss traces a repeated diamond, and Super Boss pans near the top while **six adds** orbit, freezing during Mega Laser. **Shooting Star movement is unchanged.**
+
+Natural ambient pickup selection now chooses Star/Mushroom or a conditional Key, **not** Heart/Rupee. Rupees arise as collectible physical drops from some trusted interactions (about 24% normal UI, 56% external links, which may emit 2-3), or from enemy rewards; currency enters the wallet only after pickup click. Successful UI drops are limited by approximately 11s per-control cooldown, 700ms global minimum and 10 successful events per minute. Natural Heart sources are enemy defeats: about 5% regular UFO, guaranteed regular Boss, about 10% Super Boss add, guaranteed Super Boss. `dev pickup heart` can still force test pickups, whereas `hey listen` now provides Heart guidance.
+
+JS syntax parsing passed, but an exhaustive real-browser movement and performance validation was not reported. See [Authored Spawn Motion](14-dynamic-runtime/authored-spawn-motion/TECHNICAL.md), [Physical Reward Drops](10-collectibles-milestones/physical-reward-drops/DESIGN.md) and [v3.01 Gameplay QA](QA/V3_00_V3_01_GAMEPLAY_QA.md).

@@ -623,7 +623,7 @@ window.addEventListener('mippi:perspective-change',event=>{
   telemetryCount('portfolio.perspectiveModes',mode);
   if(mode==='2nd') telemetryCount('portfolio','secondPersonToggles');
   telemetryMeaningful('perspective_mode',{mode});
-  showAchievement('secondPerson');
+  if(mode==='2nd') showAchievement('secondPerson');
 });
 
 mippiRuntimeHealth.bootStage='core-interactions-ready';
@@ -652,9 +652,9 @@ const ACHIEVEMENTS = {
   },
   secondPerson: {
     title:'Second Perspective',
-    detail:'You looked at the problem from somewhere else.',
-    hint:'Try changing your perspective.',
-    solution:'Scroll to Project Heavy Water and use the Perspective Visualizer.'
+    detail:'You saw the scene through another character\'s eyes.',
+    hint:'The perspective visualizer supports more than first and third person.',
+    solution:'In Project Heavy Water, switch the Perspective Visualizer to 2nd Person.'
   },
   signal: {
     title:'Signal Acquired',
@@ -7318,6 +7318,11 @@ async function initScene() {
     camera.position.set(0, 1.5, 8.6);
 
     const root = new THREE.Group();
+    // Opening pose frames the logo on the left face of the core, as in the intended hero composition.
+    // This is also the idle target; otherwise the first animation frames would undo the initial pose.
+    const HERO_OPENING_YAW = -0.36;
+    const HERO_OPENING_PITCH = 0.03;
+    root.rotation.set(HERO_OPENING_PITCH,HERO_OPENING_YAW,0);
     root.position.set(3.05, 0.05, -0.2);
     root.scale.setScalar(1.28);
     scene.add(root);
@@ -7630,8 +7635,8 @@ async function initScene() {
           const g = root.children.find(child => child.userData?.key === info.key);
           if (g) g.position.y = info.pos[1] + Math.sin(t * 1.1 * (slowmoEnabled ? .5 : 1) + i) * 0.08;
         });
-        root.rotation.y += (pointer.x * 0.12 + dragX - root.rotation.y) * 0.025;
-        root.rotation.x += (-pointer.y * 0.06 + dragY - root.rotation.x) * 0.025;
+        root.rotation.y += (HERO_OPENING_YAW + pointer.x * 0.12 + dragX - root.rotation.y) * 0.025;
+        root.rotation.x += (HERO_OPENING_PITCH - pointer.y * 0.06 + dragY - root.rotation.x) * 0.025;
         particles.rotation.y += 0.00045;
         particles.rotation.x = Math.sin(t * 0.08) * 0.035;
       }

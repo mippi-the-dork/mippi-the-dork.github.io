@@ -123,3 +123,10 @@ The Boss feels like the earned payoff of the ten-UFO cycle and teaches sustained
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current v3.01 Behavior
+
+v3.01 regular Boss follows top/right/bottom/left diamond movement until killed or its escape timer, and takes six hits. Guaranteed Heart and physical Rupee drops spawn on defeat. Earlier generic fly-across descriptions are historical.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

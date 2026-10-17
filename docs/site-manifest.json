@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v2.98",
+  "baseline": "Mippi Portfolio v3.01",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -8,12 +8,12 @@
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
-      "summary": "Version-by-version documentation coverage through v2.98."
+      "summary": "Version-by-version documentation coverage through v3.01."
     },
     {
       "title": "Release History",
       "path": "RELEASE_HISTORY.md",
-      "summary": "Chronological portfolio releases through v2.98."
+      "summary": "Release chronology through v3.01."
     },
     {
       "title": "Music Lyrics Authoring Guide",
@@ -78,9 +78,9 @@
       "summary": "Historical v2.80 test suite with cumulative addenda through v2.98."
     },
     {
-      "title": "Current Release Checklist (v2.98)",
+      "title": "Current Release Checklist (v3.01)",
       "path": "QA/RELEASE_CHECKLIST.md",
-      "summary": "Current v2.98 signoff with historical version-specific checklist sections."
+      "summary": "Current v3.01 acceptance and preserved historical checks."
     },
     {
       "title": "v2.81–v2.89 Regression Matrix",
@@ -116,6 +116,16 @@
       "title": "Scoped Cursor Architecture QA",
       "path": "QA/CURSOR_ARCHITECTURE_V2_98.md",
       "summary": "Windows Scoped/Legacy moving-pointer comparisons and visual safety checks."
+    },
+    {
+      "title": "v2.99 Canvas FX QA",
+      "path": "QA/CANVAS_FX_V2_99.md",
+      "summary": "Shared Canvas/DOM cosmetic rendering and input parity."
+    },
+    {
+      "title": "v3.01 Gameplay and Movement QA",
+      "path": "QA/V3_00_V3_01_GAMEPLAY_QA.md",
+      "summary": "Authored motion, physical drops, combat, art and Castle regression."
     }
   ]
 }

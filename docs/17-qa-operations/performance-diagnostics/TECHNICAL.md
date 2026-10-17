@@ -54,3 +54,8 @@ v2.95 adds opt-in `stability-lab.js` early load, live timer/projectile/Canvas li
 ## v2.98 Current Behavior
 
 v2.98 profiler JSON and downloaded filenames identify the cursor **architecture** alongside visual level, original style and native SVG setting. Scoped-vs-Legacy moving-pointer A/B/A showed 30.5/10.0/23.1 rAF FPS; Trail ON/OFF comparison showed 30.89/41.13 with an active timed-objective confound. No pointermove event rate/path length was instrumented. These are rAF delivery measurements, not independently observed GPU-presented frames.
+
+
+## v3.01 Profiling Scope
+
+v2.99 profiler records FX canvas state and pointermove events/travel; v3.00 adjusts art and particle fidelity while moving shots to upward-only enemy collisions; v3.01 introduces authored motion in spawn-motion.js and combatGeometry model integration. New workload merits fresh test captures. No real-browser v3.01 FPS or memory gains were provided, so no numeric improvement should be claimed.

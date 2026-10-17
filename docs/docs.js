@@ -162,10 +162,10 @@
   function renderNav(){
     const out=[];
     out.push('<a class="nav-home" data-page="'+esc(state.manifest.home)+'" href="'+pageUrl(state.manifest.home)+'">⌂ Documentation Home</a>');
-    out.push('<div class="nav-label">CURRENT VERSION · '+esc((state.manifest.baseline||'v2.98').replace('Mippi Portfolio ','').toUpperCase())+'</div>');
-    out.push('<a class="ref-link latest" data-page="01-experience-foundation/scoped-mushroom-cursor/DESIGN.md" href="'+pageUrl('01-experience-foundation/scoped-mushroom-cursor/DESIGN.md')+'">LATEST FEATURE · Scoped Mushroom Cursor</a>');
-    out.push('<a class="ref-link latest" data-page="QA/CURSOR_ARCHITECTURE_V2_98.md" href="'+pageUrl('QA/CURSOR_ARCHITECTURE_V2_98.md')+'">CURRENT QA · v2.98 Cursor</a>');
-    out.push('<a class="ref-link latest" data-page="RELEASE_HISTORY.md" href="'+pageUrl('RELEASE_HISTORY.md')+'">RELEASE HISTORY · through v2.98</a>');
+    out.push('<div class="nav-label">CURRENT VERSION · '+esc((state.manifest.baseline||'v3.01').replace('Mippi Portfolio ','').toUpperCase())+'</div>');
+    out.push('<a class="ref-link latest" data-page="14-dynamic-runtime/authored-spawn-motion/DESIGN.md" href="'+pageUrl('14-dynamic-runtime/authored-spawn-motion/DESIGN.md')+'">LATEST FEATURE · Authored Spawn Motion</a>');
+    out.push('<a class="ref-link latest" data-page="QA/V3_00_V3_01_GAMEPLAY_QA.md" href="'+pageUrl('QA/V3_00_V3_01_GAMEPLAY_QA.md')+'">CURRENT QA · v3.01 Gameplay</a>');
+    out.push('<a class="ref-link latest" data-page="RELEASE_HISTORY.md" href="'+pageUrl('RELEASE_HISTORY.md')+'">RELEASE HISTORY · through v3.01</a>');
     out.push('<div class="nav-label">FEATURE DOCUMENTATION</div>');
 
     state.categories.forEach(cat=>{
@@ -456,7 +456,7 @@
       const r=await fetch('site-manifest.json',{cache:'no-cache'});
       if(!r.ok)throw new Error('Could not load documentation manifest.');
       state.manifest=await r.json();
-      const currentVersion=String(state.manifest.baseline||'Mippi Portfolio v2.98').match(/v\d+\.\d+/)?.[0]||'v2.98';
+      const currentVersion=String(state.manifest.baseline||'Mippi Portfolio v3.01').match(/v\d+\.\d+/)?.[0]||'v3.01';
       if(els.version) els.version.textContent=currentVersion+' DOCUMENTED';
       await loadStructure();
       buildPages();

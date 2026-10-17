@@ -136,3 +136,8 @@ The natural no-duplicate rule is primarily enforced by pickup selection and `act
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.01 Behavior
+
+v3.01 only one hidden Key remains stationary at bottom-right of a content panel and scrolls with it until clicked, then activates Castle quest.

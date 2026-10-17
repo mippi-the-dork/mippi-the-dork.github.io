@@ -162,3 +162,8 @@ return neutral Director modifiers when Easy Mode is active.
 v2.84 pre-Epic natural pickup pool becomes Rupee (65%) or Heart (35%), baseline ~11–16 seconds before Director modifiers. Epic base interval is ~4.6–8.6s. A Rare anti-drought fallback can activate around 17s; only a successful spawn counts as assist. Attention checks use `.flappy-game.open`, not mere `.flappy-game` DOM presence. PROFESSIONAL Player Model is independent of Director, not a spawn lock. v2.82 retry after failed opportunity can be ~2s; only friendly rewards count toward `directorAnyFriendlyVisible()`.
 
 For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
+
+
+## Current v3.01 Behavior
+
+v3.01 naturally selects ambient Stars/Mushrooms or conditional Keys, not ambient Hearts/Rupees. Enemy deaths source Hearts, and UI/link/enemy rewards source physical Rupees. Historical v2.84 Rare pickup policy is superseded.

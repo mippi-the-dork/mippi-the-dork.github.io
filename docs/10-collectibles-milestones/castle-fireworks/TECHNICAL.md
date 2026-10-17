@@ -116,3 +116,8 @@ For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
 ## v2.93–v2.94 Current Update
 
 v2.94 routes the existing nine Castle `explodeAt()` bursts through the default shared Canvas particle renderer. Each burst still requests 34 squares of size 33 with `radiusX:560`, `radiusY:450`, and `lifetime:2150`ms, preserving click-to-claim, 3 Rupees and already-airborne friendly auto-collection. `dev combat renderer dom` uses the original DOM/CSS animation for comparison. No change to Castle progression or burst counts.
+
+
+## Current v3.01 Behavior
+
+v3.00 Castle fireworks are NINE smaller CANVAS-ONLY bursts, 16 sprites of 10px per burst, with shorter lifetime. Nine giant 34-particle/33px and DOM fallback rules are historical and not current.

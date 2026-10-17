@@ -287,3 +287,8 @@ Also verify:
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.01 Behavior
+
+v3.01 different entities follow distinct routes: Stars bounce above HUD, Mushrooms circle panels, Keys remain panel-bound, Rupees/Hearts physically fall, Bones fall spinning; Shooting Stars retain old path. Ambient pool excludes Hearts/Rupees.

@@ -191,3 +191,8 @@ A reload can therefore preserve the broad one-third or two-thirds Boss stage whi
 v2.81 authoritative live wave uses `invasionWaveKills` bounded 0–10, `invasionEncounterPending`, `invasionSpawnQueued`, `invasionBossRetryKills` typically four. After 10 regular kills, queue one Boss; more kills cannot overflow wave. Escape retains wave, requiring reacquisition; victory resets only current wave. Every third Boss victory still escalates Super Boss. `nextBossKillThreshold` remains only for legacy DEV compatibility, not real meter progress.
 
 For chronological attribution see [Release History](../../RELEASE_HISTORY.md).
+
+
+## Current v3.01 Behavior
+
+v3.00 dev invasion 0/33/66/near sets stage, resets wave/pending state and invalidates previously queued encounter spawns.

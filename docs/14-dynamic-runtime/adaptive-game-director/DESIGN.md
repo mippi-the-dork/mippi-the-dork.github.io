@@ -163,3 +163,8 @@ The portfolio feels calmer to a reader, livelier to an engaged player, and more 
 ## Current Release Note (v2.89)
 
 v2.84 allows gentle pre-Epic Rupee/Heart opportunities (65/35 weighting), so professional browsing no longer implies an invisible empty arcade layer. Only genuinely open attention surfaces such as `.flappy-game.open` can defer spawns. PROFESSIONAL is a mutable Player Model descriptor, never an instruction to the Director to suppress rewards.
+
+
+## v3.01 Ambient Selection
+
+Natural pickup selection now comprises Stars/Mushrooms with conditional Key opportunity; Hearts are naturally enemy drops, Rupees come from interactions and enemy rewards. Older Rare ambient Heart/Rupee availability notes are historical, not current.

@@ -36,6 +36,8 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 
 | **Shared Canvas Particle Renderer** | Canvas2D default for shared explosion particles, with original DOM renderer retained for A/B comparison. | [Design](shared-canvas-particle-renderer/DESIGN.md) | [Technical](shared-canvas-particle-renderer/TECHNICAL.md) |
 
+| **Cursor Interaction and Upward Shooting** | Mushroom-scaled contact radius is separate from upward-only enemy shooting. | [Design](cursor-interaction-and-upward-shooting/DESIGN.md) | [Technical](cursor-interaction-and-upward-shooting/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

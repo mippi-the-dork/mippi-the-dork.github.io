@@ -235,3 +235,10 @@ v2.93 `dev combat visual player off` hides Legendary player-shot paint only, lea
 ## v2.95–v2.97 Current Update
 
 v2.95 cancels the shared Legendary player-projectile rAF immediately when no shots remain after benchmark teardown. v2.97 `dev cursor size` changes only the visual Mushroom cursor; real `cursorPowerLevel` and `55px * cursorPowerLevel` Legendary acquisition range are unchanged, as are player shot speeds and collisions.
+
+
+## Current v3.01 Behavior
+
+v3.00 replaced homing/lock-on Legendary shots with manual, upward enemy-only projectiles. Cool Mode fires angles -12/0/+12 degrees; Star Power pierces enemies; Golden Trigger increases speed. The current cap is 18 shots, not 14. The cursor ring is for proximity clicks, not a projectile-target acquisition range. Earlier cached homing behavior is historical only.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

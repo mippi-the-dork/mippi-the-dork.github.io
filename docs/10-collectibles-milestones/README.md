@@ -25,6 +25,8 @@ This category groups the canonical documentation for **Collectibles and Claimabl
 | **Doug Bone Pickup** | Feeds the Doug Coolness progression and can trigger special Doug responses and system combinations. | [Design](doug-bone-pickup/DESIGN.md) | [Technical](doug-bone-pickup/TECHNICAL.md) |
 | **Claim-Ready HUD Pattern** | Defines the consistent glowing HUD behavior used when a completed meter is waiting for an explicit player claim. | [Design](claim-ready-hud-pattern/DESIGN.md) | [Technical](claim-ready-hud-pattern/TECHNICAL.md) |
 
+| **Physical Reward Drops** | Collectible ground-bouncing Rupees and enemy-earned Hearts. | [Design](physical-reward-drops/DESIGN.md) | [Technical](physical-reward-drops/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

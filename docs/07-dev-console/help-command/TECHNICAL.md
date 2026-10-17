@@ -178,3 +178,8 @@ so Design Mode appears only after entitlement.
 
 - [Dev Console and Command Surface Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.01 Console Changes
+
+The player-facing hey listen describes enemy-sourced Hearts rather than spawning one. dev pickup heart is intentionally a DEV-only spawn override. dev invasion 0/33/66/near resets stage/wave/pending encounter. dev fx renderer canvas/dom selects cosmetic FX and is independent from dev combat renderer. Other old shortcuts remain unless removed explicitly.

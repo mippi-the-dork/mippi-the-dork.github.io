@@ -183,3 +183,8 @@ v2.97 introduces a visual-only diagnostic override (`dev cursor size gameplay|no
 ## v2.98 Current Behavior
 
 v2.98 Scoped uses `body.cursor-scoped-grown` instead of legacy `body.cursor-grown` by default; both retain cursor power-level classes for the same SVG appearance. Do not treat an earlier `cursor-grown`-only snippet as the current default. `cursorDiagnostics.architecture='scoped'` and visual override are diagnostic/session-only; actual `cursorPowerLevel` remains the gameplay state authority and controls +55px per level Legendary target acquisition. Legacy styling survives as an A/B option, not normal behavior.
+
+
+## Current v3.01 Behavior
+
+v3.01 Mushroom follows the perimeter of a content panel, not generic flight. Actual Mushroom level expands cursor CLICK radius by 17px per level; old +55px projectile lock-on bonus no longer applies to upward enemy-only shots.

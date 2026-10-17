@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v2.98. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.01. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -84,3 +84,8 @@ Current documentation distinguishes the validated v2.96 foreground 14-cycle phas
 ## v2.98 Coverage
 
 The v2.98 cursor architecture handoff and four performance-analysis reports add [Scoped Mushroom Cursor](01-experience-foundation/scoped-mushroom-cursor/DESIGN.md) with Design and Technical documents, bringing the inventory to **247 feature folders / 494 feature pages**. Added [Scoped Cursor Architecture QA](QA/CURSOR_ARCHITECTURE_V2_98.md) and updated Cursor Lab, Mushroom and keyboard/pointer safety, Console, release history, version/navigation and investigation findings. Scoped is the default and Legacy remains a reversible comparison. v2.98 tests show a strong performance association for Scoped under moving-pointer load, but residual performance problems and Trail/objective confounds remain. The recommendation to move the DOM Trail to Canvas belongs to a possible later release, **not v2.98**. All changes in this documentation update are under `docs/` only.
+
+
+## v2.99 to v3.01 Coverage
+
+Three successive handoff releases add five feature pairs: [Canvas-First FX](04-themes-visual-language/canvas-first-2d-fx/DESIGN.md), [Unified Game Artwork](04-themes-visual-language/unified-game-artwork/DESIGN.md), [Physical Reward Drops](10-collectibles-milestones/physical-reward-drops/DESIGN.md), [Cursor Interaction and Upward Shooting](12-arcade-combat/cursor-interaction-and-upward-shooting/DESIGN.md), and [Authored Spawn Motion](14-dynamic-runtime/authored-spawn-motion/DESIGN.md). This brings documentation to **252 feature folders / 504 Design and Technical pages**. The art staging checklist describes proposed integration only; the v3.00 and v3.01 source/merged release briefs describe subsequent completed integration. The distinction between historical v2.99 diagnostic results and unmeasured v3.01 runtime performance is preserved. Website files/assets remain untouched by this docs-only update.

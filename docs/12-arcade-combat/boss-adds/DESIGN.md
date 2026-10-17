@@ -102,3 +102,10 @@ The player can immediately understand that removing Adds makes the fight easier 
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current v3.01 Behavior
+
+v3.01 Super Boss uses SIX equally spaced Boss-art adds in a circular orbit around its moving core. Their orbit pauses with the parent movement clock during Mega Laser. Earlier descriptions of four adds or generic paths are superseded.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

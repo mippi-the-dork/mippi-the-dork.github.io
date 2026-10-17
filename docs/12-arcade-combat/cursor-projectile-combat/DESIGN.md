@@ -114,3 +114,10 @@ The player can understand the Super Boss weapon within one click and can deliber
 ## Current Release Note (v2.89)
 
 v2.82 through v2.85 reworked Legendary mouse shots to share one updater, cap 14 active projectiles and retain homing/reward behavior. Latest v2.85 uses predictive target interpolation for smoother motion under delayed frames. Real Windows/browser FPS was not confirmed fixed; don't confuse the feel goal with the measured diagnostic result.
+
+
+## Current v3.01 Behavior
+
+v3.00 replaced homing/lock-on Legendary shots with manual, upward enemy-only projectiles. Cool Mode fires angles -12/0/+12 degrees; Star Power pierces enemies; Golden Trigger increases speed. The current cap is 18 shots, not 14. The cursor ring is for proximity clicks, not a projectile-target acquisition range. Earlier cached homing behavior is historical only.
+
+See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.

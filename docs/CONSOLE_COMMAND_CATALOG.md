@@ -1,6 +1,6 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v2.98
+**Current documented version:** Mippi Portfolio v3.01
 
 This is the current v2.98 command catalog for the in-site Dev Console.
 
@@ -479,3 +479,8 @@ Stability Lab samples opt-in (~5s), can orchestrate 2–60 nominal minutes of pr
 ## v2.98 Scoped Cursor Commands
 
 `dev cursor architecture scoped` selects the new default cursor architecture, while `dev cursor architecture legacy` restores the original broad `cursor-grown` styling as an A/B control. `dev cursor style universal|inherit` affects **Legacy architecture only**; the state can still be reported/exported while Scoped but does not change Scoped CSS. `dev cursor status` includes architecture, and `dev cursor reset` now restores **Scoped** with gameplay-derived visual level and all visual effects ON. All settings remain session-only. See [Scoped Mushroom Cursor](01-experience-foundation/scoped-mushroom-cursor/TECHNICAL.md).
+
+
+## v2.99 to v3.01 Command Changes
+
+`dev fx status`, `dev fx help`, `dev fx renderer canvas|dom`, `dev fx reset` operate the cosmetic FX renderer separately from `dev combat renderer`. `dev invasion 0|33|66|near` sets stages and resets pending encounters. `dev pickup heart` remains a testing override, but normal `hey listen` provides Heart sourcing guidance rather than spawning one. `dev ufo`, `dev boss`, `dev superboss` are controlled encounter shortcuts. Current shooting is vertical/enemy-only, not target-seeking. `dev cursor size` still changes visual size only. See [Cursor Shooting](12-arcade-combat/cursor-interaction-and-upward-shooting/TECHNICAL.md) and [FX Renderer](04-themes-visual-language/canvas-first-2d-fx/TECHNICAL.md).

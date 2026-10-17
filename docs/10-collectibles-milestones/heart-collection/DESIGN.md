@@ -113,3 +113,8 @@ The player initially reads Hearts as familiar game language, then discovers that
 ## Current Release Note (v2.89)
 
 As of v2.81 the first five Hearts are milestone progress; collecting Hearts beyond 5/5 awards one banked Mippi Bird life per pickup, without adding a sixth Heart or repeating the Unreal Source reward. Post-five Hearts are weighted more rarely in natural pickup selection, not subject to an invented guaranteed interval. v2.85 ensures exactly five HUD heart glyphs.
+
+
+## v3.01 Heart Sources
+
+Natural Hearts originate from defeated enemies only: regular UFO about 5%, Boss guaranteed, Super Boss add about 10%, Super Boss guaranteed. These are physical gravity drops that must be collected. dev pickup heart remains QA-only. Historical ambient Heart descriptions no longer apply.

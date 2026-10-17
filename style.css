@@ -8628,3 +8628,24 @@ body #career .studio-grid .studio-card:focus-within .studio-image{
   .studio-card .studio-career-linkgroup{grid-template-columns:58px minmax(0,1fr);gap:5px;}
   .studio-card .studio-career-linkgroup a{padding:3px 5px;font-size:9.5px;}
 }
+
+/* v3.15: Crafting Play is one shared split panel with independent clickable sides. */
+#crafting .crafting-unified-panel{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:var(--panel-3);margin-top:12px;overflow:hidden;}
+#crafting .crafting-unified-panel>.work-card{margin:0;border:0;border-radius:0;min-width:0;height:100%;}
+#crafting .crafting-unified-panel>.work-card:first-child{border-right:1px solid var(--line);}
+#crafting .crafting-unified-panel .book-mark{transform:scale(.84);transform-origin:top right;}
+#crafting .crafting-unified-panel .book-mark span{font-size:15px;letter-spacing:.015em;}
+@media(max-width:720px){
+  #crafting .crafting-unified-panel{grid-template-columns:1fr;}
+  #crafting .crafting-unified-panel>.work-card:first-child{border-right:0;border-bottom:1px solid var(--line);}
+  #crafting .crafting-unified-panel .book-mark{transform-origin:top left;}
+}
+/* Career cards now contain 4 to 6 short, role-relevant detail points.
+   Preserve clipping and remove scrollbar reliance without compressing type. */
+#career .studio-grid>.studio-card{min-height:258px;}
+#career .studio-card-reveal{overflow:hidden;padding:12px 14px 13px;}
+#career .studio-card-reveal p{font-size:11px;line-height:1.27;margin-bottom:6px;}
+#career .studio-card-reveal ul{font-size:10.5px;line-height:1.27;padding-left:14px;}
+#career .studio-card-reveal li+li{margin-top:2px;}
+@media(max-width:900px){#career .studio-grid>.studio-card{min-height:280px;}}
+@media(max-width:560px){#career .studio-grid>.studio-card{min-height:290px;}#career .studio-grid>.studio-card.studio-yourstudio{min-height:318px;}}

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.12';
+const MIPPI_BUILD_VERSION='3.13';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -592,21 +592,37 @@ document.querySelector('#return-to-top')?.addEventListener('click', event => {
 // so this only warns when WebGL is missing or the renderer clearly identifies itself as software.
 const hardwareWarning = document.querySelector('#hardware-warning');
 const hardwareWarningClose = document.querySelector('#hardware-warning-close');
-function detectSoftwareRendering() {
-  try {
-    const probe = document.createElement('canvas');
-    const gl = probe.getContext('webgl2', { powerPreference:'high-performance' }) || probe.getContext('webgl', { powerPreference:'high-performance' });
-    if (!gl) return true;
-    const ext = gl.getExtension('WEBGL_debug_renderer_info');
-    const renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '') : String(gl.getParameter(gl.RENDERER) || '');
-    if (!renderer) return false;
-    return /(swiftshader|llvmpipe|software rasterizer|software renderer|microsoft basic render|mesa offscreen|angle.*software)/i.test(renderer);
-  } catch (_) {
-    return false;
-  }
+const hardwareHelp=document.querySelector('#hardware-warning-help');
+function graphicsHelpLink(){
+  const ua=navigator.userAgent||'';
+  if(/Edg\//.test(ua))return ['Microsoft Edge','https://support.microsoft.com/en-us/microsoft-edge'];
+  if(/Firefox\//.test(ua))return ['Firefox','https://support.mozilla.org/en-US/kb/performance-settings'];
+  if(/Chrome\//.test(ua))return ['Google Chrome','https://support.google.com/chrome/answer/1385029'];
+  if(/Safari\//.test(ua)&&!/Chrome/.test(ua))return ['Safari','https://support.apple.com/guide/safari/welcome/mac'];
+  return ['your browser','https://support.mozilla.org/en-US/kb/performance-settings'];
 }
-if (detectSoftwareRendering()) hardwareWarning?.classList.add('show');
-hardwareWarningClose?.addEventListener('click', () => hardwareWarning?.classList.remove('show'));
+function detectSoftwareRendering(){
+  try {
+    const probe=document.createElement('canvas');
+    const gl=probe.getContext('webgl2',{powerPreference:'high-performance'})||probe.getContext('webgl',{powerPreference:'high-performance'});
+    if(!gl)return {fallback:true,reason:'WebGL unavailable'};
+    const ext=gl.getExtension('WEBGL_debug_renderer_info');
+    const renderer=String(gl.getParameter(ext?ext.UNMASKED_RENDERER_WEBGL:gl.RENDERER)||'');
+    const software=/(swiftshader|llvmpipe|softpipe|software rasterizer|software renderer|microsoft basic render|mesa offscreen|angle.*software)/i.test(renderer);
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return {fallback:software,reason:software?'Software WebGL renderer':'Graphics accelerator unknown'};
+  }catch(_){return {fallback:false,reason:'GPU detection unavailable'};}
+}
+const mippiGraphicsCapability=detectSoftwareRendering();
+const mippiSoftwareFallback=!!mippiGraphicsCapability.fallback;
+if(mippiSoftwareFallback){
+  document.documentElement.classList.add('mippi-software-fallback');
+  document.body.classList.add('mippi-software-fallback');
+  const [browser,url]=graphicsHelpLink();
+  if(hardwareHelp){hardwareHelp.href=url;hardwareHelp.textContent=`Enable graphics acceleration in ${browser} ↗`;}
+  hardwareWarning?.classList.add('show');
+}
+hardwareWarningClose?.addEventListener('click',()=>hardwareWarning?.classList.remove('show'));
 
 document.querySelectorAll('.signal').forEach(button => {
   button.addEventListener('click', event => {
@@ -947,16 +963,17 @@ try{
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
 }catch(_){}
 const SHOP_ITEMS=[
-  {id:'lucky-charm',name:'Lucky Charm',cost:2,slot:'gameplay',rarity:'rare',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
-  {id:'dog-whistle',name:'Dog Whistle',cost:2,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
-  {id:'star-extender',name:'Star Extender',cost:3,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
-  {id:'slowpoke',name:'Slowpoke',cost:3,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
-  {id:'interact-toggle',name:'Interact Toggle',cost:4,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
-  {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:4,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
-  {id:'production-discount',name:'Production Discount',cost:6,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
-  {id:'celestial-beacon',name:'Celestial Beacon',cost:7,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
-  {id:'golden-trigger',name:'Golden Trigger',cost:5,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
-  {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:10,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
+  {id:'lucky-charm',name:'Lucky Charm',cost:5,slot:'gameplay',rarity:'rare',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
+  {id:'dog-whistle',name:'Dog Whistle',cost:5,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
+  {id:'star-extender',name:'Star Extender',cost:7,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
+  {id:'slowpoke',name:'Slowpoke',cost:8,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
+  {id:'interact-toggle',name:'Interact Toggle',cost:12,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
+  {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:12,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
+  {id:'production-discount',name:'Production Discount',cost:16,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
+  {id:'celestial-beacon',name:'Celestial Beacon',cost:18,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
+  {id:'golden-trigger',name:'Golden Trigger',cost:16,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
+  {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:10,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one spare life to your Mippi Bird bank. Buy it again whenever you want.'},
+  {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:30,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
 ];
 let shopOwned=new Set();
 let shopEquipped=null;
@@ -1006,7 +1023,7 @@ function shopHasEquipped(id){ return shopEquipped===id; }
 function shopOwns(id){ return shopOwned.has(id); }
 function shopDiscountActive(){ return shopOwned.has('production-discount'); }
 function allOtherShopItemsOwned(exceptId='design-mode-unlock'){
-  return SHOP_ITEMS.filter(item=>item.id!==exceptId).every(item=>shopOwned.has(item.id));
+  return SHOP_ITEMS.filter(item=>item.slot!=='consumable'&&item.id!==exceptId).every(item=>shopOwned.has(item.id));
 }
 function shopItemAvailable(item){
   if(!item.requires) return true;
@@ -1028,12 +1045,12 @@ function shopLockedTag(item){
   return 'LOCKED';
 }
 function shopPrice(item){
-  if(shopOwned.has(item.id)) return 0;
+  if(item.slot!=='consumable'&&shopOwned.has(item.id)) return 0;
   if(shopDiscountActive() && item.id!=='production-discount' && item.id!=='design-mode-unlock') return Math.max(1,Math.floor(item.cost*.75));
   return item.cost;
 }
 function affordableShopItems(){
-  return SHOP_ITEMS.filter(item=>shopItemAvailable(item) && !shopOwned.has(item.id) && shopPrice(item)<=rupeeWallet);
+  return SHOP_ITEMS.filter(item=>shopItemAvailable(item) && (item.slot==='consumable'||!shopOwned.has(item.id)) && shopPrice(item)<=rupeeWallet);
 }
 function updateRupeeAttention(){
   if(!rupeeMeter) return;
@@ -1182,7 +1199,7 @@ function postgameEpicCondition(key){
     case 'post_legendary': return legendaryUnlocked;
     case 'post_wish': return finaleWishSatisfied;
     case 'post_hearts': return heartCount>=5;
-    case 'post_shop': return SHOP_ITEMS.every(item=>shopOwned.has(item.id));
+    case 'post_shop': return SHOP_ITEMS.filter(item=>item.slot!=='consumable').every(item=>shopOwned.has(item.id));
     case 'post_castles': return postgameCastleComplete;
     case 'post_sections': return POSTGAME_MAJOR_SECTIONS.every(id=>postgameVisitedSections.has(id));
     case 'post_superboss': return postgameSuperBossDefeated;
@@ -4519,7 +4536,7 @@ function setParticleBoost(active){
 
 function shopMerchantLine(){
   const available=SHOP_ITEMS.filter(shopItemAvailable);
-  const unowned=available.filter(item=>!shopOwned.has(item.id));
+  const unowned=available.filter(item=>item.slot==='consumable'||!shopOwned.has(item.id));
   const locked=SHOP_ITEMS.filter(item=>!shopItemAvailable(item)&&!shopOwned.has(item.id));
   if(!unowned.length && locked.length) return 'SHOPKEEPER // Current inventory cleared. Progression is hiding the remaining bad decisions.';
   if(!unowned.length) return 'SHOPKEEPER // You bought the entire roadmap. Please stop giving the portfolio ideas.';
@@ -4527,13 +4544,13 @@ function shopMerchantLine(){
   const cheapest=Math.min(...unowned.map(shopPrice));
   if(rupeeWallet<cheapest) return `SHOPKEEPER // You are ${cheapest-rupeeWallet} rupee${cheapest-rupeeWallet===1?'':'s'} short of the cheapest remaining bad decision.`;
   if(shopDiscountActive()) return 'SHOPKEEPER // Production Discount active. Somehow procurement became progression.';
-  if(rupeeWallet>=10) return 'SHOPKEEPER // That wallet is becoming a design problem. Spend irresponsibly.';
+  if(rupeeWallet>=10) return 'SHOPKEEPER // Spare Rupees? Bank another Mippi Bird life or complete the collection.';
   return 'SHOPKEEPER // Inventory is real now. This has gone much too far.';
 }
 function shopRarityLabel(rarity){ return rarity==='legendary'?'LEGENDARY':rarity==='epic'?'EPIC':'RARE'; }
 function renderShopCard(item){
   const locked=!shopItemAvailable(item);
-  const owned=shopOwned.has(item.id), equippedNow=shopEquipped===item.id, passive=item.slot==='passive';
+  const owned=item.slot!=='consumable'&&shopOwned.has(item.id), equippedNow=shopEquipped===item.id, passive=item.slot==='passive';
   const price=shopPrice(item);
   const discount=shopDiscountActive()&&!owned&&item.id!=='production-discount'&&price<item.cost;
   const displayName=locked?'???':item.name;
@@ -4542,6 +4559,7 @@ function renderShopCard(item){
   let priceText=owned?'OWNED':discount?`${item.cost} → ${price} RUPEES`:`${price} RUPEE${price===1?'':'S'}`;
   let action='buy',label=`BUY // ${price} RUPEE${price===1?'':'S'}`,disabled=rupeeWallet<price;
   if(locked){action='locked';label=item.requires==='shop-master'?'LOCKED // OWN ALL':'LOCKED // PROGRESSION';disabled=true;priceText='???';}
+  else if(item.slot==='consumable'){action='buy';label=`REFILL // ${price} RUPEES`;disabled=rupeeWallet<price;}
   else if(owned&&passive){action='passive';label=item.id==='interact-toggle'?'CONTROL // UNLOCKED':'PASSIVE // ACTIVE';disabled=true;}
   else if(owned&&equippedNow){action='equipped';label='EQUIPPED';disabled=true;}
   else if(owned){action='equip';label='EQUIP';disabled=false;}
@@ -4582,7 +4600,7 @@ function unequipShopItem(){
 function purchaseShopItem(id){
   const item=shopItem(id);
   if(!item||!shopItemAvailable(item)) return;
-  if(shopOwned.has(id)){ if(item.slot==='gameplay') equipShopItem(id); return; }
+  if(item.slot!=='consumable'&&shopOwned.has(id)){ if(item.slot==='gameplay') equipShopItem(id); return; }
   const price=shopPrice(item);
   if(rupeeWallet<price){
     consolePrint(`SHOPKEEPER // ${item.name} costs ${price} rupees. Wallet: ${rupeeWallet}. Arithmetic remains undefeated.`,'warn');
@@ -4590,7 +4608,9 @@ function purchaseShopItem(id){
     window.setTimeout(()=>shopPopup?.querySelector(`[data-shop-id="${id}"]`)?.classList.remove('shop-denied'),320);
     return;
   }
-  rupeeWallet-=price; shopOwned.add(id);
+  rupeeWallet-=price;
+  if(item.slot!=='consumable')shopOwned.add(id);
+  else {mushroomBankLives++;persistMushroomLives();}
   telemetryCount('economy','rupeesSpent',price); telemetryCount('economy','shopPurchases'); telemetryUnique('economy','shopOwnedItems',id); telemetryMeaningful('shop_purchase',{id,cost:price});
   try{localStorage.setItem(RUPEE_WALLET_KEY,String(rupeeWallet));}catch(_){}
   persistShopState();
@@ -4602,7 +4622,7 @@ function purchaseShopItem(id){
     updateDesignModeAvailability();
   }
   updateRupeeMeter(); renderShop(); updateMetaTrace(); renderLedger(); syncInteractToggle(); evaluatePostgameAchievements();
-  const detail=item.slot==='passive'?`${item.name} is permanently active.`:`${item.name} equipped. Owned items can be swapped for free.`;
+  const detail=item.slot==='consumable'?`+1 Mippi Bird life banked. ${mushroomBankLives} available.`:item.slot==='passive'?`${item.name} is permanently active.`:`${item.name} equipped. Owned items can be swapped for free.`;
   consolePrint(`PURCHASE COMPLETE // ${item.name.toUpperCase()} // -${price} RUPEE${price===1?'':'S'} // WALLET ${rupeeWallet}`,'good');
   if(id==='design-mode-unlock'){
     showTransientToast('DESIGN MODE UNLOCKED','The commentary layer is now available beside Inspect in the bottom-right mode controls.','CAPSTONE // ACQUIRED','SHOP');
@@ -6956,7 +6976,7 @@ function awardRupees(amount=1,{source='pickup',announce='pickup'}={}){
     else showTransientToast('RUPEE ACQUIRED',`+${value} rupee${value===1?'':'s'}. Purchasing power increased.`,`WALLET // ${rupeeWallet}`,'ECONOMY');
   }
   if(before<10 && rupeeWallet>=10){
-    window.setTimeout(()=>showTransientToast('WALLET MILESTONE','10 rupees. You can invest in Production Discount or buy several smaller upgrades now.','ECONOMY // CHOICE DETECTED','SYSTEM'),650);
+    window.setTimeout(()=>showTransientToast('WALLET MILESTONE','10 rupees. Check the Shop for a new upgrade or save toward a masterwork.','ECONOMY // CHOICE DETECTED','SYSTEM'),650);
   }
 }
 function collectRupee(){ awardRupees(1,{source:'pickup',announce:'pickup'}); }
@@ -7241,6 +7261,7 @@ function scheduleThreeRecovery(delay=THREE_LOCAL_PREVIEW?1200:7000){
     if(mippiRuntimeHealth.three.hero&&mippiRuntimeHealth.three.ambient&&mippiRuntimeHealth.three.about)return;
     threePromise=null;
     mippiRuntimeHealth.bootStage='three-retrying';
+    if(mippiSoftwareFallback)return;
     if(!mippiRuntimeHealth.three.hero)initScene();
     if(!mippiRuntimeHealth.three.ambient)initAmbientScene();
     if(!mippiRuntimeHealth.three.about)initAboutScene();
@@ -7326,6 +7347,7 @@ startDynamicObjectives();
 
 async function initScene() {
   if(mippiRuntimeHealth.three.hero)return;
+  if(mippiSoftwareFallback){activateHeroFallback(mippiGraphicsCapability.reason);return;}
   canvas?.removeAttribute('hidden');
   try {
     const THREE = await loadThree();
@@ -7716,7 +7738,7 @@ initScene();
 async function initAmbientScene() {
   if(mippiRuntimeHealth.three.ambient)return;
   const ambientCanvas = document.querySelector('#ambient-canvas');
-  if (!ambientCanvas || reduceMotion) return;
+  if (!ambientCanvas || reduceMotion || mippiSoftwareFallback) return;
   try {
     const THREE = await loadThree();
     observeThreeCanvas(ambientCanvas);
@@ -7825,6 +7847,7 @@ async function initAmbientScene() {
 }
 
 async function initAboutScene() {
+  if(mippiSoftwareFallback)return;
   if(mippiRuntimeHealth.three.about)return;
   const aboutCanvas=document.querySelector('#about-canvas');
   if(!aboutCanvas) return;

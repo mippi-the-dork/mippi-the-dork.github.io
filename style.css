@@ -8259,3 +8259,23 @@ body.star-power .completion-cursor-aura {
   outline:2px solid currentColor!important;outline-offset:1px!important;
   box-shadow:0 0 13px currentColor!important;
 }
+
+/* v3.01 // New non-flying spawn architecture */
+.mippi-spawn-panel-host{position:relative;isolation:isolate;}
+.game-pickup.mippi-motion,.doug-bone.mippi-motion,.galaga-secret.mippi-motion{
+  animation:none!important;transition:none!important;will-change:transform;
+  left:0!important;top:0!important;
+}
+.game-pickup.mippi-ground-drop {
+  z-index:265!important; /* ground pickups sit above the hotbar */
+  filter:drop-shadow(0 0 8px currentColor);
+}
+.game-pickup.mippi-panel-key {
+  position:absolute!important;inset:auto 6px 6px auto!important;
+  width:48px!important;min-width:48px!important;height:48px!important;
+  z-index:38!important;animation:none!important;
+}
+.game-pickup.mippi-panel-key .game-pickup-icon {width:42px!important;height:42px!important;}
+.game-pickup.mippi-motion[data-kind="1up"]{z-index:44!important;}
+.game-pickup.mippi-motion[data-kind="star"]{z-index:264!important;}
+.doug-bone.mippi-motion{z-index:265!important;}

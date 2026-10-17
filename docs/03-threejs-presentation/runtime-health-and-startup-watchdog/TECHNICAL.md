@@ -276,3 +276,8 @@ Likely CSS, stacking, opacity, sizing, or post-initialization rendering issue.
 
 - [Three.js and Interactive 3D Presentation Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.07 delays setting `mippiRuntimeHealth.three.hero=true` until successful scene initialization. Exceptions or `webglcontextlost` mark failure, record fallback reason/boot stage, hide failed Canvas and activate usable four-link DOM Hero fallback rather than leaving dead labels. Avoid rendering into a lost context. See [Hero Navigation Fallback](../hero-navigation-fallback/TECHNICAL.md).

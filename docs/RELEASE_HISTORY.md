@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v3.04
+**Current documented state:** Mippi Portfolio v3.10
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -382,3 +382,29 @@ The ordinary Boss stays at **6 HP**. The Super Boss increases from 18 to **27 HP
 `spawn-motion.js` adds a one-time **~380ms onscreen entrance** (bright-to-normal opacity) only if an actor's **first calculated position** is visible; offscreen entrants keep their natural path. Reduced-motion preference bypasses the entrance, and Super Boss adds receive their own entrance on creation/respawn. v3.02 expiry fade remains.
 
 **Validation:** Code passed syntax checks and three implementation PRs merged; a fresh end-to-end browser gameplay and Windows performance benchmark was **not** completed in the handoff. See [v3.04 Regression and Release QA](QA/V3_02_TO_V3_04_QA.md).
+
+## v3.05 - Star Power Rainbow and Elarsi
+
+Star Power's Mushroom-scaled cursor contact ring restores a rainbow hue rotation (`star-power-rainbow-v305`, 1.15s); it animates filter rather than the ring's transform, preserving actual collision radius, and honors reduced-motion preference. Elarsi joins Azure Altar and Unmark as the **third featured project**, describing offline line/word lyric timing and standard/enhanced LRC export, with an external GitHub link and lightweight CSS waveform art. A three-column feature grid begins at 1200px. The stylesheet version advances to v3.05 (main script remains v3.04).
+
+## v3.06 - Stable Hero Opening and Achievement Guidance
+
+Three.js Hero initializes with yaw **-0.36** and pitch **0.03**, and idle interpolation targets the same offsets so it does not snap back. **Second Perspective** is awarded **only** upon selecting 2nd Person in the Heavy Water visualizer. Updated hints/solutions clarify **Signal Saturation** (all 10 original Signals), **Full Hearts** (current reserve reaches 5) and **Buy the Store** (buy every item in the Shop). Runtime/script cache version advances to v3.06.
+
+## v3.07 - Accessible Hero Navigation on WebGL Failure
+
+The Hero fallback uses four actual, keyboard-accessible anchor links to **Games, Career, Consulting and Tools**, while the Canvas stays aria-hidden. `activateHeroFallback()` makes the DOM navigation usable on initialization exceptions or WebGL context loss, hides the failed Canvas, records a fallback reason, and preserves valid Signal navigation telemetry/achievement semantics. Three.js is only marked healthy after scene initialization completes, not immediately after renderer construction. Script/styles cache metadata advances to v3.07.
+
+## v3.08 - Interim Hero Composition Adjustment
+
+The decorative rings change to `ringA.rotation.set(1.15,0.2,-0.12)` and `ringB.rotation.set(0.62,0.9,0.65)`. This release also translated the Hero logo directly to `(-0.67,0.53,1.40)`, producing an unintended detached appearance. **The direct logo translation is historical and superseded by v3.10.**
+
+## v3.09 - Your Studio Here Career Feature
+
+A wide **Your Studio Here** card is introduced first in Selected Studios & Companies, before Mob Entertainment, labeled **Design Direction / Systems Design / Game Consulting · Today**. It spans two grid columns above 900px, stacks on smaller screens and adjusts separator rules. Styles reference `assets/career-real/yourstudiohere.png` (2048×576); the v3.09 source handoff records that the CSS integration initially lacked the PNG asset. The image is provided in the documentation handoffs for separate website asset integration; documentation does not install it.
+
+## v3.10 - Radial Hero Logo Pivot
+
+The logo plane returns to local `position.set(0,0,1.55)`. A new centered `THREE.Group` `logoOrbit` with `rotation.order='YXZ'` and `rotation.set(-0.35,-0.45,0)` rotates the mark about the core origin, so its normal remains oriented outward rather than using the v3.08 plane translation. v3.08's two decorative ring rotations remain; v3.06's stable root opening pose and v3.07's accessible fallback are preserved. Script version/cache advances to v3.10.
+
+**Visual QA for the final Hero angle, fallback operation, and the career PNG is required.** The v3.10 handoff describes implementation PR #22 as open at the time it was created, not as a verified final browser result. See [v3.10 Regression QA](QA/V3_05_TO_V3_10_REGRESSION_QA.md).

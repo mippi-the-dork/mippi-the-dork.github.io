@@ -87,3 +87,8 @@ These are optional additions to a fully usable professional tools catalog.
 
 - [Portfolio Content and Professional Presentation Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.05 presents Elarsi as the third featured project beside Azure Altar and Unmark, with standard/enhanced LRC line/word synchronization and CSS waveform. At >=1200px show three columns. See [Elarsi](../elarsi-feature-presentation/DESIGN.md).

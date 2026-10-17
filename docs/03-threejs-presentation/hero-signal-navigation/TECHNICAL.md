@@ -197,3 +197,8 @@ That would be a behavioral refinement, not a navigation architecture change.
 
 - [Three.js and Interactive 3D Presentation Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.07 adds real anchor-based fallback signals for Games, Career, Consulting and Tools. `activateHeroFallback(reason)` reveals `#scene-fallback`, hides failed `#hero-canvas`, preserves target IDs and calls `telemetryMeaningful('hero_signal',{target:key,fallback:true})` plus `showAchievement('signal')`, unless interaction-hunt is active. See [Hero Navigation Fallback](../hero-navigation-fallback/TECHNICAL.md).

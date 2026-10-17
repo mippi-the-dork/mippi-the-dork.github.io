@@ -218,3 +218,8 @@ Author art is integrated at assets/game/*.svg (14 files) via game-art.js, unlike
 ## Current v3.04 Specification
 
 v3.02–v3.04 update `script.js`, `spawn-motion.js`, `style.css`, `index.html`, `perf-lab.js`, Windows `START_LOCAL_TEST.bat` and `LOCAL_TEST_README.txt` as applicable. Browser cache/version labels and local launcher now target v3.04. Preserve fourteen `assets/game/*.svg` and all authored MP3/LRC files. Existing game-art/cosmetic Canvas modules remain.
+
+
+## v3.05–v3.10 Current Specification
+
+v3.09/v3.10 CSS references assets/career-real/yourstudiohere.png, a supplied 2048x576 image. Verify real network loading; a fallback gradient does not prove the PNG is installed. v3.05 updated stylesheet cache, v3.06-v3.08/v3.10 script versions and caching. This documentation update does not upload image assets.

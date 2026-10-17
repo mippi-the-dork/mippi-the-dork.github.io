@@ -119,3 +119,8 @@ The player immediately feels a temporary "break the rules" power state and can d
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.05 restores rotating rainbow hue to the Star Power cursor contact ring. Its diameter still derives from Mushroom-scaled --cursor-click-radius; the ring's transform is not animated and reduced motion disables hue rotation.

@@ -1,26 +1,25 @@
 # Mippi Portfolio Documentation
 
-**CURRENT DOCUMENTED VERSION: v3.04**
+**CURRENT DOCUMENTED VERSION: v3.10**
 
-The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.04**, including its game systems, presentation, tooling and performance investigations.
+The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.10**, including its game systems, presentation, tooling and performance investigations.
 
-**254 documented features** across **17 categories**, with **508 canonical Design and Technical pages**.
+**257 documented features** across **17 categories**, with **514 canonical Design and Technical pages**.
 
-## What's Current in v3.04
+## What's Current in v3.10
 
-**v3.04** introduces rarity-tinted Mippi Bird art, **27-HP Super Boss**, six **3-HP respawning adds**, mouth-aligned Mega Laser and smooth onscreen spawn entrances. **v3.03** improves mushroom layering, UFO formation spacing and Boss movement pacing. **v3.02** introduced Galaga formations, concurrency limits and refined sprite expiry, building on v3.01 authored motion and physical rewards.
+**v3.10** restores the Hero logo's radial orientation through a centered orbital pivot. **v3.09** adds the wide Your Studio Here career/consulting card. **v3.07** provides accessible Hero navigation when WebGL fails, **v3.06** stabilizes opening pose and achievement guidance, and **v3.05** restores Star Power's rainbow ring and introduces Elarsi as a third featured side project.
 
 | Read this | Why it matters |
 | --- | --- |
-| [Boss Adds](12-arcade-combat/boss-adds/DESIGN.md) | Six orbiting 3-HP adds with five-second respawns |
-| [Super Boss](12-arcade-combat/super-ufo-boss/DESIGN.md) | 27 HP, scaled phases, horizontal motion and encounter cleanup |
-| [Mega Laser](12-arcade-combat/mega-laser/DESIGN.md) | Mouth-origin beam and tracking |
-| [Galaga Formations](12-arcade-combat/galaga-formations/DESIGN.md) | Current grouped UFO timing and spacing |
-| [Spawn Entrance and Expiry](14-dynamic-runtime/spawn-entrance-expiry/DESIGN.md) | Screen-space presentation, fade and layering |
-| [Mippi Bird](12-arcade-combat/mippi-bird/DESIGN.md) | Rare/Epic/Legendary art tint |
-| [v3.04 Release QA](QA/V3_02_TO_V3_04_QA.md) | Current visual, gameplay and performance acceptance checklist |
+| [Hero 3D Scene](03-threejs-presentation/hero-3d-scene/TECHNICAL.md) | v3.10 radial logo orbit and v3.06 stable root pose |
+| [Hero Navigation Fallback](03-threejs-presentation/hero-navigation-fallback/DESIGN.md) | v3.07 accessible Games, Career, Consulting and Tools links |
+| [Your Studio Here](02-portfolio-content/your-studio-here-card/DESIGN.md) | Wide career/consulting card with supplied art dependency |
+| [Elarsi](02-portfolio-content/elarsi-feature-presentation/DESIGN.md) | Offline line/word LRC timing showcased as third side project |
+| [Second Perspective](05-achievements-discovery/second-perspective/DESIGN.md) | Corrected 2nd Person-only achievement condition |
+| [v3.10 Regression QA](QA/V3_05_TO_V3_10_REGRESSION_QA.md) | Current pose, fallback, achievements, responsive cards and art checks |
 
-**Validation status:** v3.02–v3.04 implementation PRs and syntax checks completed; fresh full-browser gameplay, laser art alignment and Windows performance validation remain open.
+**Validation status:** v3.02–v3.10 implementation PRs and syntax checks completed; fresh full-browser gameplay, laser art alignment and Windows performance validation remain open.
 
 ## Explore the Documentation
 
@@ -34,8 +33,8 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 | Category                                                                              | Features | Scope                                                                                                          |
 | ------------------------------------------------------------------------------------- | -------: | -------------------------------------------------------------------------------------------------------------- |
 | [01. Experience Foundation](01-experience-foundation/README.md)                       |       15 | Core site shell, navigation, persistence, accessibility, layout, motion, and reset behavior.                   |
-| [02. Portfolio Content and Professional Presentation](02-portfolio-content/README.md) |       17 | Games, career, consulting, Crafting Play, Unreal tools, galleries, About, and contact presentation.            |
-| [03. Three.js and Interactive 3D Presentation](03-threejs-presentation/README.md)     |        8 | Three.js loading, runtime health, Hero 3D, ambient 3D, About 3D, and 3D interaction input.                     |
+| [02. Portfolio Content and Professional Presentation](02-portfolio-content/README.md) |       19 | Games, career, consulting, Crafting Play, Unreal tools, galleries, About, and contact presentation.            |
+| [03. Three.js and Interactive 3D Presentation](03-threejs-presentation/README.md)     |        9 | Three.js loading, runtime health, Hero 3D, ambient 3D, About 3D, and 3D interaction input.                     |
 | [04. Rarity Themes and Visual Language](04-themes-visual-language/README.md)          |       11 | Rare, Epic, Legendary presentation, theme cycling, semantic exceptions, attention cues, and particles.         |
 | [05. Achievements and Discovery](05-achievements-discovery/README.md)                 |       30 | Rare discovery Signals, Ledger, hints, Cheat, postgame Epic achievements, and Legendary 100 percent.           |
 | [06. Meta Progression and Guidance](06-progression-guidance/README.md)                |        8 | Progression spine, onboarding, return guidance, Finale readiness, and True Completion framing.                 |
@@ -51,7 +50,7 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 | [16. Finale and Postgame](16-finale-postgame/README.md)                               |       16 | Normal Finale, Session Report, postgame reveal, True Completion, and the 12-track Music Player, repeat/shuffle options, and editable LRC lyrics.               |
 | [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       16 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and Stability and Cursor Labs.     |
 
-**Category total: 17**. **Feature folders: 254**. **Design + Technical feature pages: 508**.
+**Category total: 17**. **Feature folders: 257**. **Design + Technical feature pages: 514**.
 
 ## Project-Wide References
 
@@ -70,6 +69,8 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 
 ## QA and Performance References
 
+- [v3.10 Regression QA](QA/V3_05_TO_V3_10_REGRESSION_QA.md)
+
 - [Current Release Checklist](QA/RELEASE_CHECKLIST.md)
 - [Extensive Regression QA Plan](QA/EXTENSIVE_QA_TEST_PLAN.md)
 - [v3.01 Scoped Cursor Architecture QA](QA/CURSOR_ARCHITECTURE_V2_98.md)
@@ -81,10 +82,10 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 - [v2.81–v2.89 Regression Matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md)
 - [v2.89 Performance Profiling Guide](QA/PERFORMANCE_PROFILING_V2.89.md)
 
-The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.04** documentation requirements.
+The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.10** documentation requirements.
 
 ## Documentation Standards
 
 Each feature folder has one `DESIGN.md` for player-facing rules and intent, and one `TECHNICAL.md` for implementation, dependencies, data and QA. Preserve exact command names, storage keys and feature IDs from the current catalogs; never invent competing identifiers. Distinguish persistent, session-only and derived state, and keep the professional portfolio usable when optional game systems are inactive.
 
-Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.04**; release-specific changes are integrated into the applicable feature pages, catalogs and history.
+Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.10**; release-specific changes are integrated into the applicable feature pages, catalogs and history.

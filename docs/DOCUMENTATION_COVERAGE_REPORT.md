@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v3.04. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.10. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -94,3 +94,10 @@ Three successive handoff releases add five feature pairs: [Canvas-First FX](04-t
 ## v3.02–v3.04 Coverage
 
 [Galaga Formations](12-arcade-combat/galaga-formations/DESIGN.md) and [Spawn Entrance and Expiry](14-dynamic-runtime/spawn-entrance-expiry/DESIGN.md) add two canonical feature pairs. Current documentation totals **254 folders and 508 Design/Technical pages**. v3.02 adds body-level Mushroom overlays, concurrency caps, UFO formations and expiry; v3.03 changes layering, stagger to 1,050ms and Boss pacing; v3.04 tints Mippi Bird, changes the Super Boss to 27 HP and six 3-HP respawning adds, moves laser origin to the mouth and adds onscreen entrances. See [v3.04 QA](QA/V3_02_TO_V3_04_QA.md). Syntax checks and implementation merges were performed; full browser acceptance remains open.
+
+
+## v3.05–v3.10 Coverage
+
+Six uploaded documentation handoffs and referenced source commits are incorporated chronologically. Three new feature pairs add [Elarsi Feature Presentation](02-portfolio-content/elarsi-feature-presentation/DESIGN.md), [Your Studio Here Career Card](02-portfolio-content/your-studio-here-card/DESIGN.md), and [Hero Navigation Fallback](03-threejs-presentation/hero-navigation-fallback/DESIGN.md). Totals: **257 feature folders / 514 canonical Design and Technical pages**. Existing Hero, Signal navigation, runtime health, Second Perspective, related achievement hints, Star Power, career/tool layouts, QA, cross-system references, release history and the docs portal are updated.
+
+The current Hero logo configuration uses the v3.10 centered `logoOrbit` and the v3.08 decorative-ring angles; the v3.08 translated logo is superseded. Source handoffs document Elarsi's CSS art, Star Power's hue-only ring rotation, the accessible four-link WebGL fallback, and the wide career card. The 2048×576 `assets/career-real/yourstudiohere.png` is supplied in handoff ZIPs but is an **external website asset dependency**, not installed by documentation changes. Verify that the image actually loads. The v3.10 release notes require human visual QA of final Hero composition. No live-version comparisons are needed in the documentation.

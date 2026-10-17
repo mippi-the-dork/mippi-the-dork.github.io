@@ -1,6 +1,6 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v3.04",
+  "baseline": "Mippi Portfolio v3.10",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
@@ -8,12 +8,12 @@
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
-      "summary": "Version-by-version documentation coverage through v3.04."
+      "summary": "Version-by-version documentation coverage through v3.10."
     },
     {
       "title": "Release History",
       "path": "RELEASE_HISTORY.md",
-      "summary": "Release chronology through v3.04."
+      "summary": "Chronological portfolio changes through v3.10."
     },
     {
       "title": "Music Lyrics Authoring Guide",
@@ -78,9 +78,9 @@
       "summary": "Historical v2.80 test suite with cumulative addenda through v2.98."
     },
     {
-      "title": "Current Release Checklist (v3.04)",
+      "title": "Current Release Checklist (v3.10)",
       "path": "QA/RELEASE_CHECKLIST.md",
-      "summary": "Current v3.04 acceptance and preserved historical checks."
+      "summary": "Current v3.10 signoff and historical regression tests."
     },
     {
       "title": "v2.81–v2.89 Regression Matrix",
@@ -131,6 +131,11 @@
       "title": "v3.04 Release Regression QA",
       "path": "QA/V3_02_TO_V3_04_QA.md",
       "summary": "Mushroom layers, Galaga formations, Boss/add HP, laser artwork, Bird tint and spawn transitions."
+    },
+    {
+      "title": "v3.10 Release Regression QA",
+      "path": "QA/V3_05_TO_V3_10_REGRESSION_QA.md",
+      "summary": "Hero, Star Power, Elarsi, career art and achievement acceptance."
     }
   ]
 }

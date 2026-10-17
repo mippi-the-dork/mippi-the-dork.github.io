@@ -34,3 +34,8 @@ This includes the final Design Mode unlock item.
 
 - [Achievements and Discovery Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.06: Buy the Store requires buying every item currently listed in the Rupee Shop; the hint and solution align.

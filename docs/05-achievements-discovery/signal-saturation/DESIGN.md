@@ -33,3 +33,8 @@ The player should never be asked to repeat Rare discoveries.
 
 - [Achievements and Discovery Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.06 reconciliation: Signal Saturation's hint specifies the original first-layer **10 Signals**; solution requires **all ten original Signals**, verified in the Achievement Ledger. It is not completion of every postgame achievement.

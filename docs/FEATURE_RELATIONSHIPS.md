@@ -666,3 +666,8 @@ Actual `cursorPowerLevel` from Mushroom pickup is independent of the visual over
 ## v3.05–v3.10 Current Specification
 
 v3.05 Star Power ring hue changes only cosmetic visuals, not Mushroom-scaled contact. Elarsi joins two side projects, not the running editor. v3.06 fixes opening Hero yaw/pitch and 2nd Person achievement; v3.07 provides accessible fallback navigation/Signal achievement on WebGL errors. v3.09 adds the wide career card. v3.10 parent-centered logo rotation supersedes v3.08 plane translation.
+
+
+## v3.14 Consolidated Update
+
+v3.11 selected-rarity persistence is independent of unlocking Legendary. v3.12 equal base 22px cursor AoE across themes, career details and click-to-play music. v3.13 graphics capability decides whether Three.js Hero/Ambient/About initialize; Hero falls back to real navigation links. Permanent Shop completion filters out consumable `bird-life-refill`, which can be repeatedly bought for spare Mippi Bird lives, while Design Mode capstone costs 30 Rupees. v3.14 makes all career reveal content concise, compact and consistently full-color.

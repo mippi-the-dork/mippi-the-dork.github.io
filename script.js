@@ -6741,6 +6741,7 @@ function spawnGroundDrop(kind,x,y,{velocityX=null,duration=15000}={}){
   const def=pickupKinds.find(entry=>entry.kind===kind);
   if(!def)return null;
   const item=spawnScreenPickup(def);
+  item.classList.add('mippi-ground-drop');
   const initialX=Math.max(32,Math.min(innerWidth-32,x));
   let px=initialX,py=Math.max(-65,Math.min(innerHeight-64,y));
   let vx=velocityX??((Math.random()-.5)*175);
@@ -6781,10 +6782,11 @@ function spawnPanelMushroom(def){
   const panel=chooseSpawnPanel();
   if(!panel)return false;
   const clockwise=Math.random()<.5;
+  const speed=115+Math.random()*45;
   return spawnScreenPickup(def,{panel,duration:15000+Math.random()*9000,
     step:({t})=>{
       const w=panel.clientWidth,h=panel.clientHeight;
-      const length=2*(w+h),perimeterOffset=(t*(135+Math.random()*0))*1; // deterministic speed
+      const length=2*(w+h),perimeterOffset=t*speed;
       const d=((clockwise?perimeterOffset:length-perimeterOffset)%length+length)%length;
       if(d<w)return{x:d,y:0};
       if(d<w+h)return{x:w,y:d-w};
@@ -6855,6 +6857,50 @@ function awardArcadeRupees(amount,x,y,source='ufo'){
     if(item)item.dataset.rupeeSource=source;
   }
 }
+// Meaningful UI interactions can produce Rupees, which physically bounce and
+// settle above the hotbar. Repeat activation of one control is throttled.
+// External destinations use a higher chance and typically produce more drops.
+const interactionRupeeLastByElement=new WeakMap();
+let interactionRupeeGlobalAt=0;
+let interactionRupeeRecent=[];
+function maybeSpawnInteractionRupees(event){
+  if(!event.isTrusted || document.visibilityState==='hidden'||reduceMotion)return;
+  const origin=event.target;
+  if(!(origin instanceof Element))return;
+  if(origin.closest('.game-pickup,.doug-bone,.section-castle,.galaga-secret,.superboss-arena,.dev-console,.flappy-game'))return;
+  const control=origin.closest('a[href],button,[role="button"],[role="link"]');
+  if(!control || control.matches('[disabled],[aria-disabled="true"]'))return;
+  // Don't spam the ground with cosmetic currency when using an ongoing game.
+  const now=performance.now(),last=interactionRupeeLastByElement.get(control)||0;
+  if(now-last<11000||now-interactionRupeeGlobalAt<700)return;
+  interactionRupeeRecent=interactionRupeeRecent.filter(t=>now-t<60000);
+  if(interactionRupeeRecent.length>=10)return;
+  const anchor=control.closest('a[href]');
+  let external=false;
+  if(anchor){
+    try{const u=new URL(anchor.href,location.href);
+      external=u.origin!==location.origin && /^https?:$/.test(u.protocol);
+    }catch(_){}
+  }
+  // External links are more rewarding, but never guaranteed.
+  const probability=external?.56:.24;
+  if(Math.random()>=probability)return;
+  interactionRupeeLastByElement.set(control,now);
+  interactionRupeeGlobalAt=now;
+  interactionRupeeRecent.push(now);
+  const r=control.getBoundingClientRect();
+  const x=Math.max(32,Math.min(innerWidth-32,(r.left+r.right)*.5));
+  const y=Math.max(-30,Math.min(innerHeight-90,(r.top+r.bottom)*.5));
+  const amount=external?2+Math.floor(Math.random()*2):1;
+  for(let i=0;i<amount;i++){
+    const item=spawnGroundDrop('rupee',x+(i-(amount-1)*.5)*15,y,{
+      velocityX:(i-(amount-1)*.5)*125+(Math.random()-.5)*50
+    });
+    if(item)item.dataset.rupeeSource=external?'external_link':'ui_interaction';
+  }
+}
+document.addEventListener('click',maybeSpawnInteractionRupees,{capture:true});
+
 function handleGamePickup(def,item){
   const method=telemetryCollectionMethod(item);
   telemetryFlyingCollect(def.kind,method);
@@ -6865,7 +6911,7 @@ function handleGamePickup(def,item){
   if(def.kind==='heart') collectHeart();
   else if(def.kind==='1up') advanceCursorPower();
   else if(def.kind==='star') activateStarPower();
-  else if(def.kind==='rupee') collectRupee();
+  else if(def.kind==='rupee') awardRupees(1,{source:item.dataset.rupeeSource||'pickup',announce:'pickup'});
   else {
     consolePrint(def.msg,'good');
     if(def.kind==='key') activateCastleQuest();

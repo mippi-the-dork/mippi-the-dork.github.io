@@ -33,3 +33,14 @@ NOTES
 - Do not open index.html directly as a file; use this launcher.
 - Keep all site files and assets alongside the BAT file.
 - Changes are on the v3.02 draft branch, not on main.
+
+V3.02 ADDITIONAL TESTS
+- Mushrooms must float over content borders without clipping or panel-dependent scaling.
+- At most three mushrooms can exist, with no two on the same panel.
+- Only one bouncing Star may be visible at once.
+- Expired Stars, Mushrooms, Bones, Rupees, UFOs fade and lift slightly instead of popping away.
+- Castle SVG should have no faint horizontal divider line behind it.
+- Enemy formations share a curve or sine path with 280ms stagger as INVASION grows.
+- Active enemy population is capped at six for natural spawns.
+- Confirm UI, shooting, Star Power, keys, and native browser links remain functional.
+- Compare performance in Rare, Epic, Legendary, especially at high INVASION.

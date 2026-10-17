@@ -104,3 +104,8 @@ Responsive rules collapse the career board, studio grid, timeline, and resume pa
 
 - [Portfolio Content and Professional Presentation Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.14 Current Behavior
+
+Current v3.14 `.studio-grid` click and keyboard delegation toggles `.studio-expanded` and reveal `inert`, aria-hidden/expanded, plus focus management. Panels slide upward; compact v3.14 text and minimum card heights avoid internal scrolling. Imagery remains full-color, with accent overlay rather than v3.13 grayscale. See [Studio Career Reveals](../studio-career-reveals/TECHNICAL.md).

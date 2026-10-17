@@ -31,3 +31,8 @@ v3.08 changed the Hero composition; v3.10 introduced the logo's centered pivot. 
 Test WebGL import failure, renderer construction exception, context loss after success, hidden Canvas state, fallback link accessibility, telemetry, achievement, overlay stacking and repeated visits. If WebGL recovers, ensure the fallback is not incorrectly left clickable over a healthy 3D scene.
 
 See [Design](DESIGN.md) and [v3.10 QA](../../QA/V3_05_TO_V3_10_REGRESSION_QA.md).
+
+
+## v3.14 Current Behavior
+
+v3.13 `detectSoftwareRendering()` probes WebGL2/WebGL, looks for known software renderer signatures and sets `mippiSoftwareFallback` before Three.js boot. `initScene()` activates the existing four-anchor Hero fallback; Ambient and About init return early. Browser-specific `#hardware-warning-help` appears in `#hardware-warning` above the header. See [Graphics Capability Fallback](../graphics-capability-fallback/TECHNICAL.md).

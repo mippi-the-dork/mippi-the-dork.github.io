@@ -1,4 +1,4 @@
-MIPPI PORTFOLIO v3.02 - LOCAL TEST INSTRUCTIONS
+MIPPI PORTFOLIO v3.03 - LOCAL TEST INSTRUCTIONS
 
 1. Extract the ENTIRE GitHub ZIP to a regular folder on your PC.
 2. Double-click START_LOCAL_TEST.bat inside that extracted website folder.
@@ -32,7 +32,7 @@ NOTES
 - Closing this server window stops the site server.
 - Do not open index.html directly as a file; use this launcher.
 - Keep all site files and assets alongside the BAT file.
-- Changes are on the v3.02 draft branch, not on main.
+- Changes are on the v3.03 draft branch, not on main.
 
 V3.02 ADDITIONAL TESTS
 - Mushrooms must float over content borders without clipping or panel-dependent scaling.
@@ -44,3 +44,10 @@ V3.02 ADDITIONAL TESTS
 - Active enemy population is capped at six for natural spawns.
 - Confirm UI, shooting, Star Power, keys, and native browser links remain functional.
 - Compare performance in Rare, Epic, Legendary, especially at high INVASION.
+
+V3.03 TESTS
+- Mushroom visible above content cards, but behind the sticky top menu and bottom hotbar.
+- Sine UFOs stay entirely in viewport horizontally (test narrow and wide windows).
+- Regular Boss diamond cycles at half its former speed; Super Boss horizontal drift halved, laser stop preserved.
+- Group UFOs enter 1.05 seconds apart on identical paths and with identical flight duration; no stacking.
+- Rare, Epic, Legendary and performance diagnostics remain functional.

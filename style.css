@@ -8318,3 +8318,7 @@ body .mippi-despawning .doug-bone-icon{
   body .mippi-despawning .game-art-icon,
   body .mippi-despawning .doug-bone-icon{animation:none!important;}
 }
+
+/* v3.03 // Keep orbiting mushrooms above content, but under both interface bars. */
+body .game-pickup.mippi-motion.mippi-panel-orbit{z-index:110!important;}
+/* The site header already owns z-index 120; HUD owns z-index 255. */

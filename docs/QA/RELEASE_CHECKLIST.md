@@ -479,3 +479,8 @@ See [Current Gameplay QA](V3_00_V3_01_GAMEPLAY_QA.md).
 ## Current v3.04 Specification
 
 Current v3.04 release checks: max three non-clipped, per-panel unique Mushroom overlays under header/HUD; one Star; 1,050ms staggered same-duration Galaga formations and natural cap six; Boss ~50% slower; themed Mippi Bird logo; Super Boss 27 HP, six 3-HP adds with five-second respawn cancelled on exit; lower-mouth beam visuals and hitline; reduced-motion-aware one-time onscreen spawn entrances and natural expiry fades. See [v3.04 QA](V3_02_TO_V3_04_QA.md). These items need browser verification despite successful syntax checks and merged code.
+
+
+## v3.05–v3.10 Current Specification
+
+Current v3.10: verify Star Power rainbow ring and reduced motion; Elarsi card/link and 1200px grid; stable Hero opening pose; only 2nd Person earns Second Perspective; WebGL failure navigable four-link fallback; v3.10 radial logo pivot with preserved orbit ring angles; wide Your Studio Here art/card. See [v3.10 Regression QA](V3_05_TO_V3_10_REGRESSION_QA.md).

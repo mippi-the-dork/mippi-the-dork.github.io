@@ -91,3 +91,8 @@ Neither achievement is required to access career information.
 
 - [Portfolio Content and Professional Presentation Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.09 adds Your Studio Here before Mob Entertainment in Selected Studios & Companies. The label is Design Direction / Systems Design / Game Consulting · Today. Its card spans two columns above 900px, stacked below. See [Your Studio Here](../your-studio-here-card/DESIGN.md).

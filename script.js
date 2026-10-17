@@ -1,5 +1,5 @@
-// v3.02 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.02';
+// v3.03 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.03';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -5960,7 +5960,7 @@ function spawnBossUfo(force=false){
   const ship=document.createElement('button');
   ship.className='galaga-secret boss-ufo'; ship.type='button'; ship.setAttribute('aria-label','Arcade boss UFO, core integrity six of six'); ship.dataset.devNote='ARCADE NOTE // Ten regular UFO defeats escalate into a multi-hit boss contact.'; ship.dataset.designNote='DESIGN NOTE // ESCALATION // Repeated one-hit UFOs establish a familiar rhythm before a six-hit Boss asks for sustained focus. Health is visible, escape shortens reacquisition, and rewards remain small so escalation feels meaningful without turning failure into lost progress.';
   ship.innerHTML='<span class="boss-ufo-label">BOSS</span><span class="boss-ufo-health" aria-hidden="true"><i></i></span><span class="boss-ufo-integrity">CORE 6 / 6</span>';
-  const lifetime=17000+Math.random()*4300; // several diamond laps before escape
+  const lifetime=34000+Math.random()*8600; // same three diamond laps at half speed
   let hp=6;
   const hpFill=ship.querySelector('.boss-ufo-health i');
   const integrity=ship.querySelector('.boss-ufo-integrity');
@@ -6207,7 +6207,7 @@ function spawnSuperBoss(force=false){
   arena.innerHTML=`<div class="superboss-vignette" aria-hidden="true"></div><div class="superboss-header"><span>INTERACT OFF // SUPER CONTACT</span><strong>SUPER BOSS</strong><div class="superboss-health"><i></i></div><small>CORE <b>18</b> / 18</small></div><div class="superboss-core" aria-hidden="true"><span></span></div><div class="superboss-add-layer" aria-hidden="true"></div><div class="superboss-cursor" aria-hidden="true"><i></i></div><button class="superboss-exit" type="button">EXIT BOSS FIGHT</button>`;
   document.body.appendChild(arena);
   const boss=arena.querySelector('.superboss-core'),addLayer=arena.querySelector('.superboss-add-layer'),cursor=arena.querySelector('.superboss-cursor'),fill=arena.querySelector('.superboss-health i'),hpText=arena.querySelector('.superboss-header b');
-  const state={arena,boss,addLayer,cursor,fill,hpText,hp:18,maxHp:18,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:110,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
+  const state={arena,boss,addLayer,cursor,fill,hpText,hp:18,maxHp:18,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:55,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
   superBossRuntime=state;
   for(let i=0;i<6;i++){const el=document.createElement('i');el.className='superboss-add';el.dataset.add=String(i);addLayer.appendChild(el);state.adds.push({el,alive:true,x:0,y:0,phase:i*Math.PI/3});}
   const updateHealth=()=>{const pct=Math.max(0,state.hp/state.maxHp*100);state.fill.style.width=`${pct}%`;state.hpText.textContent=String(Math.max(0,state.hp));};updateHealth();
@@ -6302,7 +6302,7 @@ function spawnSuperBoss(force=false){
       state.bossMoveClock+=dt;
       if(now>=state.bossTurnAt){
         if(Math.random()<.70)state.bossDirection*=-1;
-        state.bossSpeed=85+Math.random()*80;
+        state.bossSpeed=42.5+Math.random()*40;
         state.bossTurnAt=now+1150+Math.random()*2350;
       }
       const side=Math.max(185,Math.min(310,innerWidth*.17));
@@ -6347,10 +6347,12 @@ function createGalagaFlightPath(){
   const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
   const bend=top?innerHeight*.70:innerHeight*.27;
   const side=Math.random()<.5?1:-1;
-  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  const amplitude=Math.min(72,Math.max(16,(innerWidth-110)/8));
+  const margin=22+amplitude;
+  const sineX=side===1?margin:innerWidth-margin;
   return {family,left,dir,x0,x1,y0,y1,bend,side,sineX};
 }
-function spawnGalaga(force=false,sharedPath=null){
+function spawnGalaga(force=false,sharedPath=null,sharedDuration=null){
   if(ufoBossActive&&!force)return false;
   if(Date.now()<ufoCalmUntil&&!force)return false;
   if((!epicGameplayUnlocked()||reduceMotion)&&!force)return false;
@@ -6382,14 +6384,14 @@ function spawnGalaga(force=false,sharedPath=null){
     stopFire();window.MippiSpawnMotion?.stop(ship);ship.remove();
   });
   document.body.appendChild(ship);
-  const duration=threat===1?7400+Math.random()*2000:threat===2?6800+Math.random()*2200:6200+Math.random()*2100;
+  const duration=sharedDuration??(threat===1?7400+Math.random()*2000:threat===2?6800+Math.random()*2200:6200+Math.random()*2100);
   const {family,left,dir,x0,x1,y0,y1,bend,side,sineX}=sharedPath||createGalagaFlightPath();
   window.MippiSpawnMotion?.register(ship,{width:44,height:32,duration,
     step:({progress,viewport})=>{
       const p=progress;
       if(family==='sine'){
         const y=dir>0?-40+(viewport.h+80)*p:viewport.h+40-(viewport.h+80)*p;
-        const amplitude=Math.min(100,viewport.w*.12);
+        const amplitude=Math.min(72,Math.max(16,(viewport.w-110)/8));
         const x=sineX+(side===1?1:-1)*Math.sin(p*Math.PI*4)*amplitude;
         return {x,y};
       }
@@ -6453,14 +6455,15 @@ function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
     const progress=Math.min(1,(totalBossVictories()%3*10+invasionWaveKills)/30);
     const formationSize=progress<.22?1:progress<.5?2:progress<.78?3:4;
     const sharedPath=createGalagaFlightPath();
-    const spawned=spawnGalaga(false,sharedPath);
+    const formationDuration=8000+Math.random()*1600;
+    const spawned=spawnGalaga(false,sharedPath,formationDuration);
     if(spawned){
       for(let i=1;i<formationSize;i++){
-        const stagger=i*280;
+        const stagger=i*1050;
         window.setTimeout(()=>{
           if(document.visibilityState!=='visible'||ufoBossActive||superBossActive||
               invasionEncounterPending||directorAttentionBlocked())return;
-          spawnGalaga(false,sharedPath);
+          spawnGalaga(false,sharedPath,formationDuration);
         },stagger);
       }
       scheduleNaturalGalaga();return;

@@ -214,3 +214,8 @@ The shared flight-end removal then removes the node.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.01 Behavior
+
+v3.01 equal-probability cubic-Bezier corner swoop or vertical sine route. Defeat may emit physical Rupee (30%) and Heart (5%) rewards.

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.10';
+const MIPPI_BUILD_VERSION='3.11';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -892,7 +892,9 @@ try {
 } catch (_) {}
 let achievementTimer;
 let introHintTimer;
-let completionCelebrated = false;
+// Restoring a completed save is NOT the first unlock of Epic. Preserve the
+// most recently selected unlocked rarity across reloads.
+let completionCelebrated = unlockedAchievements.size===ACHIEVEMENT_KEYS.length;
 let legendaryUnlocked = false;
 try { legendaryUnlocked = localStorage.getItem(LEGENDARY_UNLOCK_KEY) === '1'; } catch (_) {}
 let heartCount=0;
@@ -2104,7 +2106,7 @@ function initializeUnifiedHud(){
   attach(utilities,'console-tip-button');
   const icons={
     trophy:'<path d="M8 4h8v7a4 4 0 0 1-8 0V4Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v4m-5 2h10"/>',
-    palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="9" r="1"/><path d="M12 21c-3-2-1-6 2-6h3a4 4 0 0 0 4-4"/>',
+    designShapes:'<rect x="2.5" y="2.5" width="13" height="13" rx=".25"/><circle cx="15.25" cy="15.25" r="6.25"/>',
     book:'<path d="M12 5v15M12 6c-4-3-8-3-10-2v15c4-1 7-1 10 2m0-15c4-3 8-3 10-2v15c-4-1-7-1-10 2"/>',
     eye:'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/>',
     pointer:'<path d="M5 3 20 12l-7 1-3 7-5-17Z"/>',
@@ -2117,7 +2119,7 @@ function initializeUnifiedHud(){
     gem:'<path d="m7 3 10 0 5 7-10 12L2 10l5-7Zm-5 7h20M7 3l5 7 5-7m-5 7v12"/>'
   };
   for(const [id,icon,short] of [
-    ['ledger-trigger','trophy','ACHIEVEMENTS'],['design-toggle','palette','DESIGN MODE'],['docs-toggle','book','DOCUMENTATION'],
+    ['ledger-trigger','trophy','ACHIEVEMENTS'],['design-toggle','designShapes','DESIGN MODE'],['docs-toggle','book','DOCUMENTATION'],
     ['inspect-toggle','eye','INSPECT MODE'],['interact-toggle','pointer','INTERACT MODE'],
     ['hint-trigger','hint','HINT'],['theme-cycle','theme','THEME'],['console-tip-button','terminal','DEV CONSOLE']]){
       const btn=$(id);if(!btn)continue;
@@ -2595,7 +2597,7 @@ function consolePrint(text, cls = '') {
   consoleOutput.appendChild(line);
   consoleOutput.scrollTop = consoleOutput.scrollHeight;
 }
-consoleTipButton?.addEventListener('click', () => openConsole(true));
+consoleTipButton?.addEventListener('click', () => openConsole(!devConsole?.classList.contains('open')));
 document.getElementById('console-wish-guide-action')?.addEventListener('click',event=>{
   const command=event.currentTarget.dataset.command;
   if(command!=='wish'&&command!=='blueprint')return;
@@ -5141,7 +5143,7 @@ consoleInput?.addEventListener('keydown', event => {
 
 window.addEventListener('keydown', event => {
   const key = event.key.toLowerCase();
-  if ((event.key === '`' || event.key === '~') && document.activeElement !== consoleInput) {
+  if ((event.code === 'Backquote' || event.key === '`' || event.key === '~') && !event.repeat && !event.isComposing && !event.ctrlKey && !event.altKey && !event.metaKey) {
     event.preventDefault();
     openConsole(!devConsole?.classList.contains('open'));
     return;

@@ -286,3 +286,8 @@ If not, `drawMippiBirdFallback()` renders a vector approximation.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current v3.04 Specification
+
+v3.04 uses a cached offscreen canvas recolor of `assets/mippi-logo-blue.png` for Rare `#67cfff`, Epic `#ff6bd2`, Legendary `#ffd16b`, preserving transparent logo shape rather than drawing a solid tinted box. Cache clears when the source image loads. Vector fallback uses the same theme color. Theme-switch test must operate while the Bird minigame is already open.

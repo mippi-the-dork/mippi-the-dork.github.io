@@ -219,3 +219,8 @@ The shared flight-end removal then removes the node.
 ## Current v3.01 Behavior
 
 v3.01 equal-probability cubic-Bezier corner swoop or vertical sine route. Defeat may emit physical Rupee (30%) and Heart (5%) rewards.
+
+
+## Current v3.04 Specification
+
+v3.03 formation ships share authored path and *same* duration, spawn at 1,050ms intervals (v3.02's 280ms superseded). Maximum six natural regular UFOs, four per formation. Sine paths shifted inward. Original UFO click, projectile and reward hooks remain.

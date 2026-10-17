@@ -33,3 +33,8 @@ Classes include `.mippi-motion`, `.mippi-panel-key`, `.mippi-ground-drop`, `.mip
 The v3.01 implementation passed JS syntax parsing; no attached Windows performance measurements confirm its actual frame cost. Pay special attention to scroll-parent geometry, clipped panel edges, Key pointer access, Star reversal at screen edges, collectible pileups near the hotbar, and Super Boss/add/beam movement consistency. Shooting Star routes remain untouched.
 
 See [Design](DESIGN.md), [Gameplay QA](../../QA/V3_00_V3_01_GAMEPLAY_QA.md).
+
+
+## Current v3.04 Specification
+
+v3.02 body-level Mushroom overlay follows the selected panel's modeled perimeter with scroll conversion; no longer a child of `.mippi-spawn-panel-host`. Limit to three concurrently and one per panel; only one bouncing Star. v3.03 layering places Mushroom behind header and bottom hotbar; sine UFO paths are shifted inward. v3.04 `spawn-motion.js` applies an approximately 380ms one-time entrance only if the initial modeled coordinates are on-screen, bypassed under reduced motion. Retain v3.02 expiry fades.

@@ -130,3 +130,8 @@ The Boss feels like the earned payoff of the ten-UFO cycle and teaches sustained
 v3.01 regular Boss follows top/right/bottom/left diamond movement until killed or its escape timer, and takes six hits. Guaranteed Heart and physical Rupee drops spawn on defeat. Earlier generic fly-across descriptions are historical.
 
 See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.
+
+
+## Current v3.04 Specification
+
+v3.03 doubles regular Boss three-lap diamond traversal lifetime from ~17–21.3 seconds to ~34–42.6 seconds, reducing traversal speed by 50%, with the same 6 HP and defeat reward.

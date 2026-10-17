@@ -213,3 +213,8 @@ v2.98 updates runtime asset cache-busting and profile metadata to v2.98. The cod
 ## v3.01 Runtime Asset Authority
 
 Author art is integrated at assets/game/*.svg (14 files) via game-art.js, unlike earlier assets/gameplay staging. fx-renderer.js handles cosmetic Canvas effects; particle-renderer.js handles combat bursts; spawn-motion.js drives authored movement. All initialize before script.js. Preserve existing MP3 and user-authored LRC. Windows test uses START_LOCAL_TEST.bat with LocalTestServer.ps1.
+
+
+## Current v3.04 Specification
+
+v3.02–v3.04 update `script.js`, `spawn-motion.js`, `style.css`, `index.html`, `perf-lab.js`, Windows `START_LOCAL_TEST.bat` and `LOCAL_TEST_README.txt` as applicable. Browser cache/version labels and local launcher now target v3.04. Preserve fourteen `assets/game/*.svg` and all authored MP3/LRC files. Existing game-art/cosmetic Canvas modules remain.

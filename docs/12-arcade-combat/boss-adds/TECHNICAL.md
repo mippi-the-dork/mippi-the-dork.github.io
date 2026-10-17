@@ -1,153 +1,21 @@
 # Boss Adds - Technical Documentation
 
-**Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Boss Adds > Technical
+**Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
-**Implementation baseline:** Mippi Portfolio v2.78
+## Runtime representation
 
-**Feature summary:** Provides supporting enemies that can be shot and explode in place during the Super Boss encounter.
+`spawnSuperBoss()` creates **6** `.superboss-add` sprites, each with a distinct orbital phase (one-sixth turn separation), `alive` status, **3 current / maximum HP**, screen-space `x/y`, and original slot identity.
 
-> This page is the canonical technical documentation for **Boss Adds** within the Arcade, Combat, and System Combos category.
+A player-shot collision decrements the selected add's HP by **1** and updates its short health bar and hit feedback. An add is destroyed only when the third valid hit reaches 0. Projectiles test adds before the Super Boss core, preserving the cover/interception mechanic.
 
-## Documentation Relationship
+On add destruction, the runtime records existing telemetry, captures its actual world position, emits its explosion, and marks it inactive. The destroyed slot schedules a **5,000ms** respawn that restores HP to 3 and its orbital location only if the encounter remains active. Every pending respawn timeout is stored in the encounter's timeout registry and cancelled in encounter cleanup so there are no post-fight orphaned adds.
 
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Design Documentation](DESIGN.md)
-## Creation
+## Movement and combat
 
-During Super Boss spawn:
+Living adds orbit the moving parent with the shared `bossMoveClock`; when `laserActive` the parent and orbit freeze. A regular add-fire interval selects a random living add (approximately 1,080ms normal / 1,650ms Slowmo). Destroyed slots cannot fire until respawn.
 
-```js
-for(let i=0;i<4;i++){
-  const el=
-    document.createElement('i');
+Regular Boss HP remains **6**. The Super Boss main core has **27 HP** from v3.04, and its projectile attack phase thresholds are scaled to HP 18 and 9.
 
-  el.className=
-    'superboss-add';
+## Diagnostics and QA
 
-  state.adds.push({
-    el,
-    alive:true,
-    x:0,
-    y:0,
-    phase:i*Math.PI/2
-  });
-}
-```
-
-## Motion
-
-Every encounter render frame, living Adds update relative to current Boss position.
-
-Angle:
-
-```js
-add.phase+
-now*.00072*
-(i%2?1:-1)
-```
-
-Radius:
-
-```text
-145 px
-```
-
-or:
-
-```text
-187 px
-```
-
-depending on index parity.
-
-Horizontal:
-
-```js
-bossX+
-Math.cos(angle)*radius
-```
-
-Vertical:
-
-```js
-bossY+
-Math.sin(angle)*76+
-68
-```
-
-## Add Fire
-
-Recurring Add-fire interval:
-
-```text
-1080 ms normal
-1650 ms Slowmo
-```
-
-At each tick:
-
-1. filter living Adds,
-2. choose one random living Add,
-3. fire a direct Super Boss projectile at gameplay cursor.
-
-If no Adds remain, the interval does nothing.
-
-## Collision
-
-Player vertical projectiles check living Adds first.
-
-Collision radius:
-
-```text
-28 px
-```
-
-## Destroy
-
-`destroyAdd(add)`:
-
-1. returns if already dead,
-2. sets:
-   - `alive=false`,
-3. records:
-   - `superBossAddsDestroyed`,
-4. captures:
-   - `const x=add.x`,
-   - `const y=add.y`,
-5. adds class:
-   - `destroyed`,
-6. calls:
-   - `explodeAt(x,y,30)`,
-7. removes Add after:
-   - 90 ms.
-
-Capturing X/Y before changing visual state is the key v2.68 position-preservation fix.
-
-## CSS
-
-The destroyed class changes:
-
-- opacity,
-- brightness/filter
-
-without applying a replacement positional transform.
-
-## QA
-
-- Shoot each Add once.
-- Verify one shot kills.
-- Verify explosion occurs at actual moving position.
-- Confirm no snap to origin.
-- Compare incoming Add fire with four, two, one, and zero Adds.
-- Fire through an Add toward core and verify Add consumes the shot.
-## Related Documentation
-
-- [Arcade, Combat, and System Combos Index](../README.md)
-- [Design Documentation](DESIGN.md)
-
-
-## Current v3.01 Behavior
-
-v3.01 Super Boss uses SIX equally spaced Boss-art adds in a circular orbit around its moving core. Their orbit pauses with the parent movement clock during Mega Laser. Earlier descriptions of four adds or generic paths are superseded.
-
-See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.
+`window.__MIPPI_SUPERBOSS__.snapshot()` includes current/max boss HP and each add's HP for inspection. Verify hit/health display, concurrent destroyed slots, timer cancellation on exit/victory, no double-counted drops or rewards, and impact coordinates. See [v3.04 QA](../../QA/V3_02_TO_V3_04_QA.md).

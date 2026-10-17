@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v3.01. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.04. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -89,3 +89,8 @@ The v2.98 cursor architecture handoff and four performance-analysis reports add 
 ## v2.99 to v3.01 Coverage
 
 Three successive handoff releases add five feature pairs: [Canvas-First FX](04-themes-visual-language/canvas-first-2d-fx/DESIGN.md), [Unified Game Artwork](04-themes-visual-language/unified-game-artwork/DESIGN.md), [Physical Reward Drops](10-collectibles-milestones/physical-reward-drops/DESIGN.md), [Cursor Interaction and Upward Shooting](12-arcade-combat/cursor-interaction-and-upward-shooting/DESIGN.md), and [Authored Spawn Motion](14-dynamic-runtime/authored-spawn-motion/DESIGN.md). This brings documentation to **252 feature folders / 504 Design and Technical pages**. The art staging checklist describes proposed integration only; the v3.00 and v3.01 source/merged release briefs describe subsequent completed integration. The distinction between historical v2.99 diagnostic results and unmeasured v3.01 runtime performance is preserved. Website files/assets remain untouched by this docs-only update.
+
+
+## v3.02–v3.04 Coverage
+
+[Galaga Formations](12-arcade-combat/galaga-formations/DESIGN.md) and [Spawn Entrance and Expiry](14-dynamic-runtime/spawn-entrance-expiry/DESIGN.md) add two canonical feature pairs. Current documentation totals **254 folders and 508 Design/Technical pages**. v3.02 adds body-level Mushroom overlays, concurrency caps, UFO formations and expiry; v3.03 changes layering, stagger to 1,050ms and Boss pacing; v3.04 tints Mippi Bird, changes the Super Boss to 27 HP and six 3-HP respawning adds, moves laser origin to the mouth and adds onscreen entrances. See [v3.04 QA](QA/V3_02_TO_V3_04_QA.md). Syntax checks and implementation merges were performed; full browser acceptance remains open.

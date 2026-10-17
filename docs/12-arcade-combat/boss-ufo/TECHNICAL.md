@@ -205,3 +205,8 @@ On animation end before defeat:
 v3.01 regular Boss follows top/right/bottom/left diamond movement until killed or its escape timer, and takes six hits. Guaranteed Heart and physical Rupee drops spawn on defeat. Earlier generic fly-across descriptions are historical.
 
 See [Release History](../../RELEASE_HISTORY.md) for historical changes and superseded values.
+
+
+## Current v3.04 Specification
+
+v3.03 regular Boss authored three-lap diamond duration is ~34,000–42,600ms, double v3.01's ~17,000–21,300ms. Its 6 HP, projectile/fire, escape, rewards and hit callbacks remain unchanged.

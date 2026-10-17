@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v3.01
+**Current documented state:** Mippi Portfolio v3.04
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -363,3 +363,22 @@ Added `spawn-motion.js` and `window.MippiSpawnMotion`, a shared requestAnimation
 Natural ambient pickup selection now chooses Star/Mushroom or a conditional Key, **not** Heart/Rupee. Rupees arise as collectible physical drops from some trusted interactions (about 24% normal UI, 56% external links, which may emit 2-3), or from enemy rewards; currency enters the wallet only after pickup click. Successful UI drops are limited by approximately 11s per-control cooldown, 700ms global minimum and 10 successful events per minute. Natural Heart sources are enemy defeats: about 5% regular UFO, guaranteed regular Boss, about 10% Super Boss add, guaranteed Super Boss. `dev pickup heart` can still force test pickups, whereas `hey listen` now provides Heart guidance.
 
 JS syntax parsing passed, but an exhaustive real-browser movement and performance validation was not reported. See [Authored Spawn Motion](14-dynamic-runtime/authored-spawn-motion/TECHNICAL.md), [Physical Reward Drops](10-collectibles-milestones/physical-reward-drops/DESIGN.md) and [v3.01 Gameplay QA](QA/V3_00_V3_01_GAMEPLAY_QA.md).
+
+
+## v3.02 - Spawn Polish and Galaga Formations
+
+[Implementation PR #12](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/12) was merged. Mushrooms changed from potentially clipped content-panel DOM children to body-level fixed overlays following their chosen panel perimeter, limited to **3 active Mushrooms** with distinct panels. Only one bouncing Star is active at a time. Supported pickups, Bones and regular UFOs gained about **380ms** expiry fade/lift/shrink. The Castle artwork lost an unintended faint horizontal divider. Regular natural UFO opportunities became more frequent and gained invasion-escalated formations: up to **4 per formation** and **6 active natural UFOs**. First implementation stagger was 280ms (replaced v3.03). Shooting Stars remain on their existing path.
+
+## v3.03 - Layering, Formation Spacing and Boss Pacing
+
+[Implementation PR #14](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/14) was merged. Body-overlay Mushrooms now stack above ordinary content but **below sticky header and gameplay HUD** (then CSS z 110 vs 120/255). UFO vertical sine paths moved inward with reduced amplitude to prevent viewport-edge clipping. Regular Boss diamond traversal doubled to about **34–42.6 seconds for three laps**, slowing speed 50%. Super Boss horizontal lateral speed was approximately halved while preserving its laser freeze. Galaga formation members now spawn **1,050ms apart** with the **same chosen flight duration**, preventing them from catching and stacking. Script cache tags, profiler/version and Windows launcher labels advance to v3.03.
+
+## v3.04 - Mippi Bird Themes, Boss Durability and Spawn Entrances
+
+[Implementation PR #15](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/15) was merged. Mippi Bird now recolors the original transparent logo through an offscreen Canvas cache per rarity: **Rare #67cfff**, **Epic #ff6bd2**, **Legendary #ffd16b**; image-load cache refresh and the fallback vector use the active theme color.
+
+The ordinary Boss stays at **6 HP**. The Super Boss increases from 18 to **27 HP** with attack thresholds at 18 and 9. Its **six orbiting adds** now have **3 HP each**, visible hit feedback/health, and **5-second respawn in their original orbital slot** after destruction while the fight remains active. Respawn timeouts are cancelled on encounter exit or victory; diagnostic snapshot exposes core max HP and each add's HP. The Mega Laser originates at `bossY + 62` to align the effect and segment hit detection with the **lower-center mouth** of `super-boss.svg`. Its boss-side end now has a rounded capsule and glowing orb. Optical alignment requires actual viewport visual QA.
+
+`spawn-motion.js` adds a one-time **~380ms onscreen entrance** (bright-to-normal opacity) only if an actor's **first calculated position** is visible; offscreen entrants keep their natural path. Reduced-motion preference bypasses the entrance, and Super Boss adds receive their own entrance on creation/respawn. v3.02 expiry fade remains.
+
+**Validation:** Code passed syntax checks and three implementation PRs merged; a fresh end-to-end browser gameplay and Windows performance benchmark was **not** completed in the handoff. See [v3.04 Regression and Release QA](QA/V3_02_TO_V3_04_QA.md).

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.11';
+const MIPPI_BUILD_VERSION='3.12';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -1575,7 +1575,15 @@ function initMusicPlayer(){
   });
   musicTrackList?.addEventListener('click',event=>{
     const selection=event.target.closest('[data-music-track]');
-    if(selection)selectMusicTrack(Number(selection.dataset.musicTrack));
+    if(!selection)return;
+    // Song selection is a direct user gesture. Start audio immediately rather than
+    // waiting for metadata and losing browser autoplay permission.
+    selectMusicTrack(Number(selection.dataset.musicTrack),{autoplay:false});
+    const playback=musicAudio?.play();
+    playback?.catch(error=>{
+      if(musicTrackStatus)musicTrackStatus.textContent=error?.name==='NotAllowedError'
+        ?'CLICK PLAY TO START':'PLAYBACK UNAVAILABLE';
+    });
   });
   musicLyricsToggle?.addEventListener('click',()=>{
     if(musicLyricsPanel?.hidden)openMusicLyrics(musicTrackIndex);else closeMusicLyrics();
@@ -5231,8 +5239,8 @@ const cursorAura=document.createElement('div'); cursorAura.className='completion
 // Authoritative click radius in both world interaction and visible cursor ring.
 // Mushrooms enlarge the game mechanic; cursor diagnostic visual overrides do not.
 function cursorClickRadius(){
-  const base=document.body.classList.contains('theme-legendary')?31:22;
-  return base+cursorPowerLevel*17+(document.body.classList.contains('star-power')?14:0);
+  // Rarity is visual-only: pickup power and Star Power are the only radius modifiers.
+  return 22+cursorPowerLevel*17+(document.body.classList.contains('star-power')?14:0);
 }
 function syncCursorClickRadius(){
   cursorAura.style.setProperty('--cursor-click-radius',cursorClickRadius()+'px');
@@ -5864,9 +5872,8 @@ document.addEventListener('pointerdown',event=>{
   // A native world button click already handles its own interaction.
   if(event.target.closest('.shooting-star,.galaga-secret,.game-pickup,.doug-bone,.section-castle'))return;
   if(event.target.closest('a,button,input,textarea,select,label,.dev-console,.azure-gallery,.flappy-game'))return;
-  const canUseRadius=document.body.classList.contains('theme-complete')||
-    document.body.classList.contains('star-power');
-  const nearby=canUseRadius?nearbyClickable(event.clientX,event.clientY):null;
+  // Same interaction reach in Rare, Epic, and Legendary; unlocks control spawn availability.
+  const nearby=nearbyClickable(event.clientX,event.clientY);
   if(nearby){
     nearby.dataset.telemetryCollectMethod=document.body.classList.contains('star-power')?'star_power':'cursor_radius';
     nearby.click();return;
@@ -7973,3 +7980,49 @@ azureGalleryImage?.addEventListener('touchend', event => {
   if (Math.abs(delta) < 42) return;
   showAzureGalleryImage(azureGalleryIndex + (delta < 0 ? 1 : -1));
 }, { passive: true });
+
+
+// v3.12 // Studio cards reveal their résumé-backed descriptions within their
+// own bounds. Only one card opens at a time; clicking a reveal or Escape closes it.
+(()=>{
+  const grid=document.querySelector('.studio-grid');
+  if(!grid)return;
+  let active=null;
+  function setExpanded(card,expanded,{restoreFocus=false}={}){
+    if(!card)return;
+    const open=card.querySelector('.studio-card-open');
+    const panel=card.querySelector('.studio-card-reveal');
+    const close=card.querySelector('.studio-reveal-close');
+    if(!open||!panel||!close)return;
+    card.classList.toggle('studio-expanded',expanded);
+    open.setAttribute('aria-expanded',String(expanded));
+    panel.setAttribute('aria-hidden',String(!expanded));
+    panel.inert=!expanded;
+    open.setAttribute('aria-label',(expanded?'Close':'View')+' work details: '+panel.getAttribute('aria-label'));
+    if(expanded){
+      active=card;
+      panel.scrollTop=0;
+      close.focus({preventScroll:true});
+    }else{
+      if(active===card)active=null;
+      if(restoreFocus)open.focus({preventScroll:true});
+    }
+  }
+  grid.addEventListener('click',event=>{
+    const source=event.target;
+    if(!(source instanceof Element))return;
+    const card=source.closest('.studio-card[data-studio-detail]');
+    if(!card)return;
+    const clickedOpen=source.closest('.studio-card-open');
+    const clickedReveal=source.closest('.studio-card-reveal');
+    if(!clickedOpen&&!clickedReveal)return;
+    const willOpen=!card.classList.contains('studio-expanded');
+    if(willOpen&&active&&active!==card)setExpanded(active,false);
+    setExpanded(card,willOpen,{restoreFocus:!willOpen});
+  });
+  grid.addEventListener('keydown',event=>{
+    if(event.key!=='Escape'||!active)return;
+    event.preventDefault();
+    setExpanded(active,false,{restoreFocus:true});
+  });
+})();

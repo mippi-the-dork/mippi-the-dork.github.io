@@ -8390,7 +8390,7 @@ body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme
    backgrounds: assets/career-real/yourstudiohere.png. The gradient is a safe
    fallback until that user-provided image is checked into the repository. */
 .studio-yourstudio .studio-yourstudio-image {
-  background: url('assets/career-real/yourstudiohere.png') right center / cover no-repeat,
+  background: url('assets/career-real/yourstudiohere.webp') right center / cover no-repeat,
               linear-gradient(115deg, #07101d 0%, #0d2543 65%, #17477a 100%);
 }
 .studio-yourstudio .studio-art {

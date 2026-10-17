@@ -17,7 +17,7 @@
     html.hud-pending #play-mode-controls,
     html.hud-pending #hint-trigger {visibility:hidden!important}
   </style>
-  <link rel="stylesheet" href="style.css?v=3.05" />
+  <link rel="stylesheet" href="style.css?v=3.07" />
   <script defer src="stability-lab.js?v=3.04"></script>
   <script defer src="perf-lab.js?v=3.04"></script>
   <script defer src="particle-renderer.js?v=3.04"></script>
@@ -110,18 +110,18 @@
     <!-- RENDERER NOTE: The hero scene uses one canvas, one camera, and substantially more emotional investment than originally budgeted. -->
     <!-- FALLBACK NOTE: If WebGL fails, the DOM version below preserves the same navigation concept without pretending the GPU is fine. -->
     <section class="hero" aria-labelledby="hero-title" data-dev-note="DEV NOTE // The hero is a navigable Three.js scene. The shapes are section shortcuts, not decoration.">
-      <div class="hero-scene-wrap" aria-hidden="true">
-        <canvas id="hero-canvas"></canvas>
+      <div class="hero-scene-wrap">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
         <div class="scene-fallback" id="scene-fallback">
           <div class="fallback-system">
             <div class="fallback-orbit orbit-a"></div>
             <div class="fallback-orbit orbit-b"></div>
             <div class="fallback-grid"></div>
             <div class="fallback-core"><img class="brand-logo fallback-logo" src="assets/mippi-logo-blue.png" alt="" /></div>
-            <span class="fallback-node node-games">GAMES</span>
-            <span class="fallback-node node-career">CAREER</span>
-            <span class="fallback-node node-consulting">CONSULTING</span>
-            <span class="fallback-node node-tools">TOOLS</span>
+            <a class="fallback-node node-games" href="#games" data-fallback-signal="games" aria-label="Explore games">GAMES</a>
+            <a class="fallback-node node-career" href="#career" data-fallback-signal="career" aria-label="Explore career">CAREER</a>
+            <a class="fallback-node node-consulting" href="#consulting" data-fallback-signal="consulting" aria-label="Explore consulting">CONSULTING</a>
+            <a class="fallback-node node-tools" href="#tools" data-fallback-signal="tools" aria-label="Explore tools">TOOLS</a>
           </div>
         </div>
       </div>
@@ -918,7 +918,7 @@
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
   <script defer src="game-art.js?v=3.04"></script>
   <script defer src="spawn-motion.js?v=3.04"></script>
-  <script defer src="script.js?v=3.06"></script>
+  <script defer src="script.js?v=3.07"></script>
   <script defer src="perspective-demo.js?v=3.04"></script>
 </body>
 </html>

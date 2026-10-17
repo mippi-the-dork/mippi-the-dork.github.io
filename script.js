@@ -5937,6 +5937,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
     awardArcadeRupees(1,x,y,'ufo');
     telemetryCount('economy','ufoRupeeDrops');
   }
+  if(Math.random()<.05)spawnGroundDrop('heart',x,y);
   const toward=invasionWaveKills;
   consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/10`,'good');
   if(toward===5){
@@ -5956,11 +5957,10 @@ function spawnBossUfo(force=false){
   telemetryCount('arcade','bossSpawned');
   telemetryFlyingSpawn('boss_ufo',{forced:force});
   telemetryMeaningful('boss_spawned');
-  const f=randomEdgeFlight(180);
   const ship=document.createElement('button');
-  ship.className='galaga-secret boss-ufo fly'; ship.type='button'; ship.setAttribute('aria-label','Arcade boss UFO, core integrity six of six'); ship.dataset.devNote='ARCADE NOTE // Ten regular UFO defeats escalate into a multi-hit boss contact.'; ship.dataset.designNote='DESIGN NOTE // ESCALATION // Repeated one-hit UFOs establish a familiar rhythm before a six-hit Boss asks for sustained focus. Health is visible, escape shortens reacquisition, and rewards remain small so escalation feels meaningful without turning failure into lost progress.';
+  ship.className='galaga-secret boss-ufo'; ship.type='button'; ship.setAttribute('aria-label','Arcade boss UFO, core integrity six of six'); ship.dataset.devNote='ARCADE NOTE // Ten regular UFO defeats escalate into a multi-hit boss contact.'; ship.dataset.designNote='DESIGN NOTE // ESCALATION // Repeated one-hit UFOs establish a familiar rhythm before a six-hit Boss asks for sustained focus. Health is visible, escape shortens reacquisition, and rewards remain small so escalation feels meaningful without turning failure into lost progress.';
   ship.innerHTML='<span class="boss-ufo-label">BOSS</span><span class="boss-ufo-health" aria-hidden="true"><i></i></span><span class="boss-ufo-integrity">CORE 6 / 6</span>';
-  ship.style.left=`${f.sx}px`; ship.style.top=`${f.sy}px`; ship.style.setProperty('--dx',`${f.dx}px`); ship.style.setProperty('--dy',`${f.dy}px`); ship.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(ship,15+Math.random()*4);
+  const lifetime=17000+Math.random()*4300; // several diamond laps before escape
   let hp=6;
   const hpFill=ship.querySelector('.boss-ufo-health i');
   const integrity=ship.querySelector('.boss-ufo-integrity');
@@ -5975,6 +5975,7 @@ function spawnBossUfo(force=false){
   let defeated=false;
   const stopBoss=()=>{
     if(ufoFireTimer){window.clearInterval(ufoFireTimer);ufoFireTimer=null;}
+    window.MippiSpawnMotion?.stop(ship);
     if(ship.isConnected) ship.remove();
     ufoBossActive=false;
     window.setTimeout(maybeSpawnUfoBoss,900);
@@ -6012,6 +6013,7 @@ function spawnBossUfo(force=false){
       telemetryCount('arcade','bossDefeated'); telemetryFlyingCollect('boss_ufo',method); telemetryMeaningful('boss_defeated',{method}); finaleBossSatisfied=true; try{localStorage.setItem(FINALE_BOSS_KEY,'1');}catch(_){}
       telemetryCount('economy','bossRupeeRewards',3);
       awardArcadeRupees(3,cx,cy,'boss_ufo');
+      spawnGroundDrop('heart',cx,cy);
       consolePrint('ARCADE BOSS DESTROYED // +5000 definitely-real points // +3 RUPEES // airspace temporarily clear.','good');
       showTransientToast('BOSS DEFEATED','The large arcade contact has been removed from production. Three rupees recovered.','+3 RUPEES // +5000 DEFINITELY-REAL POINTS','ARCADE');
       resolveInvasionBossVictory();
@@ -6023,17 +6025,27 @@ function spawnBossUfo(force=false){
       consolePrint(`ARCADE BOSS HIT // ${hp}/6 core integrity remaining.`,'warn');
     }
   });
-  ship.addEventListener('animationend',()=>{
-    if(defeated) return;
-    telemetryCount('arcade','bossEscaped'); telemetryFlyingMiss('boss_ufo'); telemetryMeaningful('boss_escaped');
-    resolveInvasionBossEscape();
-    ufoCalmUntil=Date.now()+3000;
+  const onBossEscape=()=>{
+    if(defeated||!ship.isConnected)return;
+    telemetryCount('arcade','bossEscaped');telemetryFlyingMiss('boss_ufo');telemetryMeaningful('boss_escaped');
+    resolveInvasionBossEscape();ufoCalmUntil=Date.now()+3000;
     consolePrint(`ARCADE BOSS ESCAPED // reacquisition in ${invasionBossRetryKills} more UFO contacts. Progress retained.`,'warn');
     showTransientToast('BOSS ESCAPED','The contact got away, but the next boss opportunity is closer.','REACQUIRE // SHORTENED','ARCADE');
-    stopBoss();
-    window.setTimeout(updateInvasionMeter,0);
-  },{once:true});
-  document.body.appendChild(ship); combatGeometry.registerFlight(ship,f,'emitter');
+    stopBoss();setTimeout(updateInvasionMeter,0);
+  };
+  document.body.appendChild(ship);
+  window.MippiSpawnMotion?.register(ship,{duration:lifetime,width:104,height:72,
+    step:({progress,viewport})=>{
+      const w=viewport.w,h=viewport.ground;
+      const top={x:w*.5,y:105},right={x:w-100,y:h*.54},
+        bottom={x:w*.5,y:h-105},left={x:100,y:h*.54};
+      const points=[top,right,bottom,left,top];
+      const lap=(progress*3)%1,segment=Math.min(3,Math.floor(lap*4));
+      const t=lap*4-segment;
+      const from=points[segment],to=points[segment+1];
+      return{x:from.x+(to.x-from.x)*t,y:from.y+(to.y-from.y)*t};
+    },onEnd:onBossEscape});
+
   ufoFireTimer=window.setInterval(bossVolley,(610+Math.floor(Math.random()*170))*directorHostileCadenceMultiplier());
   window.setTimeout(bossVolley,320);
 }
@@ -6195,20 +6207,21 @@ function spawnSuperBoss(force=false){
   arena.innerHTML=`<div class="superboss-vignette" aria-hidden="true"></div><div class="superboss-header"><span>INTERACT OFF // SUPER CONTACT</span><strong>SUPER BOSS</strong><div class="superboss-health"><i></i></div><small>CORE <b>18</b> / 18</small></div><div class="superboss-core" aria-hidden="true"><span></span></div><div class="superboss-add-layer" aria-hidden="true"></div><div class="superboss-cursor" aria-hidden="true"><i></i></div><button class="superboss-exit" type="button">EXIT BOSS FIGHT</button>`;
   document.body.appendChild(arena);
   const boss=arena.querySelector('.superboss-core'),addLayer=arena.querySelector('.superboss-add-layer'),cursor=arena.querySelector('.superboss-cursor'),fill=arena.querySelector('.superboss-health i'),hpText=arena.querySelector('.superboss-header b');
-  const state={arena,boss,addLayer,cursor,fill,hpText,hp:18,maxHp:18,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,lastRenderAt:performance.now()};
+  const state={arena,boss,addLayer,cursor,fill,hpText,hp:18,maxHp:18,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:110,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
   superBossRuntime=state;
-  for(let i=0;i<4;i++){const el=document.createElement('i');el.className='superboss-add';el.dataset.add=String(i);addLayer.appendChild(el);state.adds.push({el,alive:true,x:0,y:0,phase:i*Math.PI/2});}
+  for(let i=0;i<6;i++){const el=document.createElement('i');el.className='superboss-add';el.dataset.add=String(i);addLayer.appendChild(el);state.adds.push({el,alive:true,x:0,y:0,phase:i*Math.PI/3});}
   const updateHealth=()=>{const pct=Math.max(0,state.hp/state.maxHp*100);state.fill.style.width=`${pct}%`;state.hpText.textContent=String(Math.max(0,state.hp));};updateHealth();
   const destroyAdd=add=>{
     if(!add.alive)return;
     add.alive=false;
     telemetryCount('arcade','superBossAddsDestroyed');telemetryMeaningful('super_boss_add_destroyed');
     const x=add.x,y=add.y;
+    if(Math.random()<.10)spawnGroundDrop('heart',x,y);
     add.el.classList.add('destroyed');
     explodeAt(x,y,30);
     window.setTimeout(()=>add.el.remove(),90);
   };
-  const damageBoss=(method='direct')=>{if(state.ended)return;state.hp--;telemetryCount('arcade','superBossHits');telemetryCount('arcade.superBossHitMethods',method);telemetryMeaningful('super_boss_hit',{method,hp:state.hp});explodeAt(state.bossX,state.bossY,state.hp<=0?82:12);updateHealth();arena.classList.add('boss-hit');window.setTimeout(()=>arena.classList.remove('boss-hit'),120);if(state.hp<=0){telemetryCount('arcade','superBossDefeated');telemetryFlyingCollect('super_boss',method);telemetryMeaningful('super_boss_defeated',{method}); finaleBossSatisfied=true; postgameSuperBossDefeated=true; try{localStorage.setItem(FINALE_BOSS_KEY,'1');localStorage.setItem(POSTGAME_SUPERBOSS_KEY,'1');}catch(_){}evaluatePostgameAchievements();telemetryCount('economy','superBossRupeeRewards',8);awardArcadeRupees(8,state.bossX,state.bossY,'super_boss');showSuperBossVictory(state);}};
+  const damageBoss=(method='direct')=>{if(state.ended)return;state.hp--;telemetryCount('arcade','superBossHits');telemetryCount('arcade.superBossHitMethods',method);telemetryMeaningful('super_boss_hit',{method,hp:state.hp});explodeAt(state.bossX,state.bossY,state.hp<=0?82:12);updateHealth();arena.classList.add('boss-hit');window.setTimeout(()=>arena.classList.remove('boss-hit'),120);if(state.hp<=0){telemetryCount('arcade','superBossDefeated');telemetryFlyingCollect('super_boss',method);telemetryMeaningful('super_boss_defeated',{method}); finaleBossSatisfied=true; postgameSuperBossDefeated=true; try{localStorage.setItem(FINALE_BOSS_KEY,'1');localStorage.setItem(POSTGAME_SUPERBOSS_KEY,'1');}catch(_){}evaluatePostgameAchievements();telemetryCount('economy','superBossRupeeRewards',8);awardArcadeRupees(8,state.bossX,state.bossY,'super_boss');spawnGroundDrop('heart',state.bossX,state.bossY);showSuperBossVictory(state);}};
   const onMove=e=>{state.pointerX=e.clientX;state.pointerY=e.clientY;};
   const fireBossPlayerShot=()=>{
     if(state.ended)return;
@@ -6285,17 +6298,29 @@ function spawnSuperBoss(force=false){
 
     // Freeze the boss's movement clock during the beam. Using global time here
     // caused the boss to "catch up" to a new sine position the instant the beam ended.
-    if(!state.laserActive) state.bossMoveClock+=dt;
-    state.bossX=window.innerWidth/2+Math.sin(state.bossMoveClock*.00055)*Math.min(230,window.innerWidth*.19);
-    state.bossY=Math.max(130,window.innerHeight*.18)+Math.sin(state.bossMoveClock*.00115)*22;
+    if(!state.laserActive){
+      state.bossMoveClock+=dt;
+      if(now>=state.bossTurnAt){
+        if(Math.random()<.70)state.bossDirection*=-1;
+        state.bossSpeed=85+Math.random()*80;
+        state.bossTurnAt=now+1150+Math.random()*2350;
+      }
+      const side=Math.max(185,Math.min(310,innerWidth*.17));
+      const left=Math.min(innerWidth*.5,side),right=Math.max(innerWidth*.5,innerWidth-side);
+      state.bossX+=state.bossDirection*state.bossSpeed*dt/1000;
+      if(state.bossX<left){state.bossX=left;state.bossDirection=1;}
+      if(state.bossX>right){state.bossX=right;state.bossDirection=-1;}
+      state.bossY=Math.max(145,innerHeight*.175)+Math.sin(state.bossMoveClock*.0009)*16;
+    }
     boss.style.transform=`translate3d(${state.bossX}px,${state.bossY}px,0)`;
 
     state.adds.forEach((add,i)=>{
       if(!add.alive)return;
-      const a=add.phase+now*.00072*(i%2?1:-1);
-      const r=265+(i%2)*48;
-      add.x=state.bossX+Math.cos(a)*r;
-      add.y=state.bossY+Math.sin(a)*125+110;
+      // Six equally-spaced adds circle their moving parent as one formation.
+      const a=add.phase+state.bossMoveClock*.00060;
+      const radius=Math.max(150,Math.min(290,innerWidth*.24));
+      add.x=state.bossX+Math.cos(a)*radius;
+      add.y=state.bossY+Math.sin(a)*radius;
       add.el.style.transform=`translate3d(${add.x}px,${add.y}px,0)`;
     });
     state.raf=requestAnimationFrame(render);
@@ -6312,38 +6337,76 @@ function spawnSuperBoss(force=false){
 window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,adds:superBossRuntime.adds.filter(a=>a.alive).length,cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
 
 function spawnGalaga(force=false){
-  if(ufoBossActive && !force) return false;
-  if(Date.now()<ufoCalmUntil && !force) return false;
-  if((!epicGameplayUnlocked()||reduceMotion) && !force) return false;
-  if(!directorAllowsAmbient('ufo',{force})) return false;
+  if(ufoBossActive&&!force)return false;
+  if(Date.now()<ufoCalmUntil&&!force)return false;
+  if((!epicGameplayUnlocked()||reduceMotion)&&!force)return false;
+  if(!directorAllowsAmbient('ufo',{force}))return false;
   const threat=ufoThreatTier();
-  const f=randomEdgeFlight(120);
-  const ship=document.createElement('button'); ship.className=`galaga-secret fly ufo-threat-${threat}`; ship.type='button'; ship.setAttribute('aria-label',`A tiny arcade ship, threat tier ${threat}`); ship.dataset.telemetryKind='ufo'; ship.dataset.threat=String(threat); ship.dataset.devNote='ARCADE NOTE // Regular UFO pressure quietly increases as the current ten-kill cycle approaches a boss.'; ship.dataset.designNote='DESIGN NOTE // RISING PRESSURE // Regular UFO pressure increases as the ten-contact cycle approaches a Boss. The player can read that escalation through firing behavior and the INVASION meter, so the larger encounter feels authored by prior play instead of appearing as an unrelated random event.';
-  telemetryCount('arcade','ufoSpawned'); telemetryCount('arcade.threatSpawns',String(threat)); telemetryFlyingSpawn('ufo',{forced:force,threat});
-  ship.style.left=`${f.sx}px`; ship.style.top=`${f.sy}px`; ship.style.setProperty('--dx',`${f.dx}px`); ship.style.setProperty('--dy',`${f.dy}px`); ship.style.setProperty('--angle',`${f.angle}deg`);
-  const baseDuration=threat===1?6.5:threat===2?6.15:5.8;
-  setFlightDuration(ship,baseDuration+Math.random()*4.1);
-  let ufoFireTimer=null;
-  const stopUfoFire=()=>{ if(ufoFireTimer){ window.clearInterval(ufoFireTimer); ufoFireTimer=null; } };
+  const ship=document.createElement('button');
+  ship.className=`galaga-secret ufo-threat-${threat}`;
+  ship.type='button';ship.setAttribute('aria-label',`Arcade UFO, threat tier ${threat}`);
+  ship.dataset.telemetryKind='ufo';ship.dataset.threat=String(threat);
+  ship.dataset.devNote='ARCADE NOTE // UFOs follow curved corner-to-corner or vertical sine paths.';
+  ship.dataset.designNote='DESIGN NOTE // UFO path families provide readable, authored motion while retaining escalating fire pressure and invasion progression.';
+  telemetryCount('arcade','ufoSpawned');
+  telemetryCount('arcade.threatSpawns',String(threat));
+  telemetryFlyingSpawn('ufo',{forced:force,threat});
+  let fireTimer=null;
+  const stopFire=()=>{if(fireTimer){clearInterval(fireTimer);fireTimer=null;}};
   const firePattern=()=>{
-    if(threat===1){
-      fireUfoProjectile(ship);
-    }else if(threat===2){
-      fireUfoProjectile(ship);
-      if(Math.random()<.32) window.setTimeout(()=>fireUfoProjectile(ship),150);
-    }else{
-      fireUfoProjectile(ship);
-      if(Math.random()<.58) window.setTimeout(()=>fireUfoProjectile(ship),120);
-    }
+    if(!ship.isConnected)return;
+    fireUfoProjectile(ship);
+    if(threat>=2&&Math.random()<(threat===3?.58:.32))
+      window.setTimeout(()=>fireUfoProjectile(ship),threat===3?120:150);
   };
-  ship.addEventListener('click',()=>{ const method=telemetryCollectionMethod(ship); const p=combatGeometry.effectCenter(ship); const cx=p.x,cy=p.y; explodeAt(cx,cy,30);registerUfoKill(method,cx,cy);stopUfoFire();ship.remove(); });
-  ship.addEventListener('animationend',()=>{ telemetryCount('arcade','ufoEscaped'); stopUfoFire(); },{once:true});
-  document.body.appendChild(ship); combatGeometry.registerFlight(ship,f,'emitter');
+  ship.addEventListener('click',()=>{
+    const method=telemetryCollectionMethod(ship);
+    const p=combatGeometry.effectCenter(ship);
+    explodeAt(p.x,p.y,30);registerUfoKill(method,p.x,p.y);
+    stopFire();window.MippiSpawnMotion?.stop(ship);ship.remove();
+  });
+  document.body.appendChild(ship);
+  const duration=threat===1?7400+Math.random()*2000:threat===2?6800+Math.random()*2200:6200+Math.random()*2100;
+  const family=Math.random()<.5?'curve':'sine';
+  // Curved paths include opposite corners, top-to-top, and bottom-to-bottom.
+  const corner=Math.floor(Math.random()*4);
+  const left=corner===0||corner===2;
+  const top=corner===0||corner===1;
+  const dir=Math.random()<.5?-1:1;
+  const crossing=Math.floor(Math.random()*3); // opposite edge or matching top/bottom
+  const endTop=crossing===0?!top:crossing===1?top:!top;
+  const x0=left?-65:innerWidth+65,x1=left?innerWidth+65:-65;
+  const y0=top?-45:innerHeight+45,y1=endTop?-45:innerHeight+45;
+  const bend=top?innerHeight*.70:innerHeight*.27;
+  const side=Math.random()<.5?1:-1;
+  const sineX=side===1?Math.min(105,innerWidth*.09):innerWidth-Math.min(105,innerWidth*.09);
+  window.MippiSpawnMotion?.register(ship,{width:44,height:32,duration,
+    step:({progress,viewport})=>{
+      const p=progress;
+      if(family==='sine'){
+        const y=dir>0?-40+(viewport.h+80)*p:viewport.h+40-(viewport.h+80)*p;
+        const amplitude=Math.min(100,viewport.w*.12);
+        const x=sineX+(side===1?1:-1)*Math.sin(p*Math.PI*4)*amplitude;
+        return {x,y};
+      }
+      // Cubic Bezier. Controls bend toward the center instead of moving diagonally.
+      const q=1-p;
+      const midY=Math.min(viewport.h-65,Math.max(65,bend));
+      const ctl1={x:left?viewport.w*.25:viewport.w*.75,y:midY};
+      const ctl2={x:left?viewport.w*.75:viewport.w*.25,y:viewport.h-midY};
+      const x=q*q*q*x0+3*q*q*p*ctl1.x+3*q*p*p*ctl2.x+p*p*p*x1;
+      const y=q*q*q*y0+3*q*q*p*ctl1.y+3*q*p*p*ctl2.y+p*p*p*y1;
+      return {x,y};
+    },
+    onEnd:()=>{
+      if(ship.isConnected){telemetryCount('arcade','ufoEscaped');telemetryFlyingMiss('ufo');ship.remove();}
+      stopFire();
+    }
+  });
   const cadence=threat===1?900+Math.floor(Math.random()*360):threat===2?700+Math.floor(Math.random()*280):560+Math.floor(Math.random()*230);
-  ufoFireTimer=window.setInterval(firePattern,cadence*directorHostileCadenceMultiplier());
+  fireTimer=setInterval(firePattern,cadence*directorHostileCadenceMultiplier());
   window.setTimeout(firePattern,threat===1?440:threat===2?360:280);
   directorNoteFriendlyAmbient();
-  removeWhenFlightEnds(ship);
   return true;
 }
 let naturalShootingStarTimer=null;
@@ -6786,17 +6849,11 @@ function awardRupees(amount=1,{source='pickup',announce='pickup'}={}){
 function collectRupee(){ awardRupees(1,{source:'pickup',announce:'pickup'}); }
 function awardArcadeRupees(amount,x,y,source='ufo'){
   const value=Math.max(1,Math.floor(amount));
-  const count=Math.min(5,value);
-  for(let i=0;i<count;i++){
-    const chip=document.createElement('i');
-    chip.className='arcade-rupee-reward';
-    chip.textContent='◆';
-    chip.style.left=`${x+(Math.random()-.5)*20}px`; chip.style.top=`${y+(Math.random()-.5)*16}px`;
-    chip.style.setProperty('--rx',`${(Math.random()-.5)*80}px`); chip.style.setProperty('--ry',`${-45-Math.random()*70}px`);
-    document.body.appendChild(chip);
-    window.setTimeout(()=>chip.remove(),900);
+  for(let i=0;i<value;i++){
+    const px=x+(Math.random()-.5)*90,py=y+(Math.random()-.5)*28;
+    const item=spawnGroundDrop('rupee',px,py,{velocityX:(Math.random()-.5)*280});
+    if(item)item.dataset.rupeeSource=source;
   }
-  window.setTimeout(()=>awardRupees(value,{source,announce:'silent'}),180);
 }
 function handleGamePickup(def,item){
   const method=telemetryCollectionMethod(item);

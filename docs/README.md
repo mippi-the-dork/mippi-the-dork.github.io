@@ -1,25 +1,26 @@
 # Mippi Portfolio Documentation
 
-**CURRENT DOCUMENTED VERSION: v3.01**
+**CURRENT DOCUMENTED VERSION: v3.04**
 
-The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.01**, including its game systems, presentation, tooling and performance investigations.
+The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.04**, including its game systems, presentation, tooling and performance investigations.
 
-**252 documented features** across **17 categories**, with **504 canonical Design and Technical pages**.
+**254 documented features** across **17 categories**, with **508 canonical Design and Technical pages**.
 
-## What's Current in v3.01
+## What's Current in v3.04
 
-**v3.01** introduces distinct paths and collection sources for Stars, Mushrooms, Keys, Bones, Rupees, Hearts, UFOs and Bosses, powered by a shared movement clock. **v3.00** introduced 14 unified SVG art assets, click-radius interaction separate from enemy-only upward shooting and lighter Canvas Castle fireworks. **v2.99** introduced a shared Canvas2D engine for high-frequency cosmetic effects. Shooting Stars retain their original motion.
+**v3.04** introduces rarity-tinted Mippi Bird art, **27-HP Super Boss**, six **3-HP respawning adds**, mouth-aligned Mega Laser and smooth onscreen spawn entrances. **v3.03** improves mushroom layering, UFO formation spacing and Boss movement pacing. **v3.02** introduced Galaga formations, concurrency limits and refined sprite expiry, building on v3.01 authored motion and physical rewards.
 
 | Read this | Why it matters |
 | --- | --- |
-| [Authored Spawn Motion](14-dynamic-runtime/authored-spawn-motion/DESIGN.md) | Current v3.01 entity paths and shared movement clock |
-| [Physical Reward Drops](10-collectibles-milestones/physical-reward-drops/DESIGN.md) | New Rupee and Heart sourcing and collection |
-| [Unified Game Artwork](04-themes-visual-language/unified-game-artwork/DESIGN.md) | v3.00's 14 authored SVGs and theme treatments |
-| [Cursor Interaction and Upward Shooting](12-arcade-combat/cursor-interaction-and-upward-shooting/DESIGN.md) | Current click radius, enemy-only upward shots and modifiers |
-| [Canvas-First 2D FX](04-themes-visual-language/canvas-first-2d-fx/DESIGN.md) | v2.99's cosmetic FX renderer retained in v3.01 |
-| [v3.01 Gameplay QA](QA/V3_00_V3_01_GAMEPLAY_QA.md) | Current movement, art and combat acceptance tests |
+| [Boss Adds](12-arcade-combat/boss-adds/DESIGN.md) | Six orbiting 3-HP adds with five-second respawns |
+| [Super Boss](12-arcade-combat/super-ufo-boss/DESIGN.md) | 27 HP, scaled phases, horizontal motion and encounter cleanup |
+| [Mega Laser](12-arcade-combat/mega-laser/DESIGN.md) | Mouth-origin beam and tracking |
+| [Galaga Formations](12-arcade-combat/galaga-formations/DESIGN.md) | Current grouped UFO timing and spacing |
+| [Spawn Entrance and Expiry](14-dynamic-runtime/spawn-entrance-expiry/DESIGN.md) | Screen-space presentation, fade and layering |
+| [Mippi Bird](12-arcade-combat/mippi-bird/DESIGN.md) | Rare/Epic/Legendary art tint |
+| [v3.04 Release QA](QA/V3_02_TO_V3_04_QA.md) | Current visual, gameplay and performance acceptance checklist |
 
-**Validation status:** Source syntax checks were completed for the v3.00 and v3.01 work, but complete browser gameplay and FPS regressions were not reported. Earlier v2.98 profiling remains historical evidence, not a performance guarantee for v3.01.
+**Validation status:** v3.02–v3.04 implementation PRs and syntax checks completed; fresh full-browser gameplay, laser art alignment and Windows performance validation remain open.
 
 ## Explore the Documentation
 
@@ -43,14 +44,14 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 | [09. Rupee Economy and Shop](09-economy-shop/README.md)                               |       19 | Rupees, Shop discovery, prices, equipment, rarity presentation, affordability cues, and all ten Shop items.    |
 | [10. Collectibles and Claimable Milestones](10-collectibles-milestones/README.md)     |       13 | Flying pickups, Hearts, Keys, Castles, Star Power, Mushrooms, Doug Bones, and claim-ready HUD behavior.        |
 | [11. Doug and Coolness](11-doug-coolness/README.md)                                   |        8 | Doug petting, offscreen cameo, Coolness meter, Cool Mode, command state, Rainbow Bones, and reactions.         |
-| [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md)                   |       23 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird.           |
+| [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md)                   |       24 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird.           |
 | [13. Interaction and Debug Modes](13-interaction-modes/README.md)                     |       10 | Interact, Inspect, Design, Vibe AI, Lumen, Nanite, Particle Boost, stat overlay, and unified HUD modes.            |
-| [14. Dynamic Runtime Systems](14-dynamic-runtime/README.md)                           |       17 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
+| [14. Dynamic Runtime Systems](14-dynamic-runtime/README.md)                           |       18 | Optional Objectives, Adaptive Director, attention budget, anti-drought, Player Model, telemetry, and cohesion. |
 | [15. Project Heavy Water Perspective Visualizer](15-perspective-visualizer/README.md) |        8 | The tactical/live camera demonstration for first-, second-, and third-person camera ownership.                 |
 | [16. Finale and Postgame](16-finale-postgame/README.md)                               |       16 | Normal Finale, Session Report, postgame reveal, True Completion, and the 12-track Music Player, repeat/shuffle options, and editable LRC lyrics.               |
 | [17. QA, Runtime Operations, and Deployment](17-qa-operations/README.md)              |       16 | Startup validation, localhost preview, deployment, reset QA, integration QA, test plan, and Stability and Cursor Labs.     |
 
-**Category total: 17**. **Feature folders: 252**. **Design + Technical feature pages: 504**.
+**Category total: 17**. **Feature folders: 254**. **Design + Technical feature pages: 508**.
 
 ## Project-Wide References
 
@@ -80,10 +81,10 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 - [v2.81–v2.89 Regression Matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md)
 - [v2.89 Performance Profiling Guide](QA/PERFORMANCE_PROFILING_V2.89.md)
 
-The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.01** documentation requirements.
+The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.04** documentation requirements.
 
 ## Documentation Standards
 
 Each feature folder has one `DESIGN.md` for player-facing rules and intent, and one `TECHNICAL.md` for implementation, dependencies, data and QA. Preserve exact command names, storage keys and feature IDs from the current catalogs; never invent competing identifiers. Distinguish persistent, session-only and derived state, and keep the professional portfolio usable when optional game systems are inactive.
 
-Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.01**; release-specific changes are integrated into the applicable feature pages, catalogs and history.
+Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.04**; release-specific changes are integrated into the applicable feature pages, catalogs and history.

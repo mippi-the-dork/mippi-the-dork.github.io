@@ -7577,6 +7577,7 @@ async function initScene() {
     const clock = new THREE.Clock();
     let lastHeroTheme=null;
     function frame() {
+      if(!mippiRuntimeHealth.three.hero && mippiRuntimeHealth.bootStage==='hero-context-lost')return;
       if(!window.MippiPerfLab?.enabled('hero')){window.MippiPerfLab?.skip('hero');requestAnimationFrame(frame);return;}
       if(!shouldRenderThreeCanvas(canvas,'hero')){requestAnimationFrame(frame);return;}
       const perfHeroStart=performance.now();

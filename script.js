@@ -3145,7 +3145,7 @@ function objectiveSeedOpportunity(def){
     if(['pickup-catch','pickup-double','pickup-variety','field-test','legendary-shot','legendary-double'].includes(def.id)){
       if(!document.querySelector('.game-pickup,.doug-bone,.shooting-star')) spawnGamePickup(null,true);
     }else if(def.id==='heart-signal'){
-      if(!document.querySelector('.game-pickup[data-kind="heart"]')) spawnGamePickup('heart',true);
+      if(!document.querySelector('.game-pickup[data-kind="1up"]')) spawnGamePickup('1up',true);
     }else if(def.id==='rupee-hunt'){
       if(!document.querySelector('.game-pickup[data-kind="rupee"]')) spawnGamePickup('rupee',true);
     }else if(['airspace','airspace-one','contact-damage'].includes(def.id)){
@@ -5016,7 +5016,7 @@ const COMMANDS = {
   shroom(){ spawnGamePickup('1up',true); consolePrint('SHROOM // mushroom pickup spawned.','good'); },
   rupee(){ spawnGamePickup('rupee',true); consolePrint(`RUPEE // currency pickup spawned. Current wallet: ${rupeeWallet}.`,'good'); },
   shop(){ openShop(); },
-  'hey listen'(){ spawnGamePickup('heart',true); consolePrint('HEY LISTEN // heart pickup spawned.','good'); },
+  'hey listen'(){ consolePrint('HEY LISTEN // Hearts now drop from defeated enemies. Bosses always leave one behind.','good'); },
   stars(){ consolePrint(`Watch the sky after Epic progression is unlocked. Each Shooting Star powers one wish. Charge: ${wishCharge}/1.`); },
   vibe(){ setVibe(!vibeEnabled); consolePrint(`AI MODE ${vibeEnabled?'ENABLED':'DISABLED'}${vibeEnabled?' // confidence 93% // understanding pending':''}.`,vibeEnabled?'good':''); },
   play(){ openFlappyGame(); consolePrint('PLAY // Mippi Bird launched. Click to flap. Try not to scope-creep into a full game.','good'); },

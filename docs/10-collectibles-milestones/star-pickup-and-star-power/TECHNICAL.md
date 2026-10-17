@@ -159,3 +159,8 @@ rainbow-cursor-spark
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.05 body.star-power .completion-cursor-aura uses star-power-rainbow-v305 with filter hue-rotate from 0deg to 360deg over 1.15s linear infinite. Keep the original multi-color box-shadow and CSS radius geometry; never animate the transform; prefers-reduced-motion disables the hue animation.

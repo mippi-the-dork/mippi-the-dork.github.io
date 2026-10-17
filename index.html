@@ -17,7 +17,7 @@
     html.hud-pending #play-mode-controls,
     html.hud-pending #hint-trigger {visibility:hidden!important}
   </style>
-  <link rel="stylesheet" href="style.css?v=3.12" />
+  <link rel="stylesheet" href="style.css?v=3.13" />
   <script defer src="stability-lab.js?v=3.04"></script>
   <script defer src="perf-lab.js?v=3.04"></script>
   <script defer src="particle-renderer.js?v=3.04"></script>
@@ -48,6 +48,11 @@
 
   <!-- NAVIGATION CONTRACT: section IDs are public API now. Console commands, scene signals, and ordinary links all depend on them. -->
   <!-- CSS NOTE: sticky headers are easy until literally anything else is fixed-position. -->
+  <div class="hardware-warning mippi-software-notice" id="hardware-warning" role="status" aria-live="polite">
+    <span><b>LIGHTWEIGHT EXPERIENCE</b> This browser is using a software graphics path or cannot use WebGL. The 3D scenes are disabled for smoother navigation. Enable graphics acceleration and restart your browser to experience the full website.</span>
+    <a id="hardware-warning-help" href="https://support.mozilla.org/en-US/kb/performance-settings" target="_blank" rel="noopener noreferrer">Graphics acceleration instructions ↗</a>
+    <button type="button" id="hardware-warning-close" aria-label="Dismiss graphics performance notice">×</button>
+  </div>
   <header class="site-header" id="top" data-dev-note="UI NOTE // The header stays deliberately compact. It is navigation, not a second portfolio fighting the first one.">
     <a class="brand" href="#top" aria-label="Mippi The Dork home">
       <span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="assets/mippi-logo-blue.png" alt="" /></span>
@@ -97,11 +102,7 @@
     </section>
   </header>
 
-  <div class="hardware-warning" id="hardware-warning" role="status" aria-live="polite">
-    <span><b>Having performance issues?</b> Your browser appears to be using software rendering. Hardware acceleration may be disabled.</span>
-    <a href="https://support.chess.com/en/articles/9635438-improve-responsiveness-with-hardware-acceleration" target="_blank" rel="noreferrer">How to enable it in major browsers ↗</a>
-    <button type="button" id="hardware-warning-close" aria-label="Dismiss performance notice">×</button>
-  </div>
+
 
   <!-- TODO: Rename final_final_really_final_layout_v7 before ship. Do not ask which v7. -->
   <!-- Browser QA matrix: Chrome, Firefox, Edge, Safari, and vibes. -->
@@ -150,7 +151,7 @@
     <section class="section intro-strip" aria-label="Quick profile" data-dev-note="DESIGN NOTE // The opening stats are a quick read for recruiters, collaborators, and anyone speedrunning the portfolio.">
       <div><strong>25+</strong><span>Years in Games</span></div>
       <div><strong>Design</strong><span>Direction + Systems</span></div>
-      <div><strong>Indie</strong><span>Consultation</span></div>
+      <div><strong>Game</strong><span>Consultation</span></div>
       <div><strong>UE5</strong><span>Tools + Workflow</span></div>
     </section>
 
@@ -308,6 +309,18 @@
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">AVAILABLE FOR WORK</span><button class="studio-reveal-close" type="button" aria-label="Close Your Studio Here - Mippi is available for work details">×</button></div>
               <p>Game direction, design leadership, systems design, technical design, and consulting.</p>
               <ul><li>25+ years building games, tools, and real-time interactive experiences.</li><li>Experienced in studio leadership, mentoring, rapid prototyping, and helping teams establish achievable design visions.</li></ul>
+              <div class="studio-career-links">
+                <div class="studio-career-linkgroup"><b>GET IN TOUCH</b>
+                  <a href="https://discord.com/users/84656708814659584" target="_blank" rel="noopener noreferrer">Discord ↗</a>
+                  <a href="https://www.linkedin.com/in/mippithedork/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+                  <a href="mailto:mippithedork@gmail.com">Email Mippi ↗</a>
+                </div>
+                <div class="studio-career-linkgroup"><b>RÉSUMÉS</b>
+                  <a href="https://docs.google.com/document/d/1VoYU8fTloOpUbW_P8mwk3JpFLm9dfbxwkrNeXt7KGpI/edit?usp=sharing" target="_blank" rel="noopener noreferrer">1 Page ↗</a>
+                  <a href="https://docs.google.com/document/d/1oVgAJUeEF941NNbGgxRFeCruZvCl1257gEkQUj8cdNc/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Short ↗</a>
+                  <a href="https://docs.google.com/document/d/1ruukkPF-2elZ6Bz93nV7lcHIayzNikTjs2UOe8TYmag/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Long ↗</a>
+                </div>
+              </div>
             </section>
           </article>
           <article class="studio-card studio-mob" data-studio-detail="mob">
@@ -322,7 +335,7 @@
             <section class="studio-card-reveal" id="studio-details-mob" aria-label="Mob Entertainment experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">STUDIO DESIGN + GAME DIRECTION</span><button class="studio-reveal-close" type="button" aria-label="Close Mob Entertainment details">×</button></div>
               <p>Directed a new game while leading design operations across five studio titles, including Poppy Playtime.</p>
-              <ul><li>Built four dedicated design disciplines from an eight-person department.</li><li>Oversaw reusable Unreal systems and helped secure four realistically scoped project greenlights.</li></ul>
+              <ul><li>Built four dedicated design disciplines from an eight-person department.</li><li>Oversaw reusable Unreal systems and helped secure four realistically scoped project greenlights.</li><li>Audited an over-scoped space-horror project, preserved reusable technology, and helped redirect resources into four greenlit, achievable titles.</li><li>Structured Game, Level, Technical, and Cinematic Design into dedicated disciplines.</li><li>Oversaw multi-species sensing, local gravity, procedural hazards and terrain, and scalable GOAP AI.</li><li>Mentored designers and established a more sustainable production process without team crunch.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-oberha5li" data-studio-detail="oberha5li">
@@ -337,7 +350,7 @@
             <section class="studio-card-reveal" id="studio-details-oberha5li" aria-label="Oberha5li experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">CREATIVE DIRECTION + REAL-TIME TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Oberha5li details">×</button></div>
               <p>Co-created a reusable Unreal Engine live-performance platform for touring entertainers.</p>
-              <ul><li>Productized interactive concert technology into a commercial service.</li><li>Collaborated with Epic Games audio engineers and Harmonix staff on engine improvements.</li></ul>
+              <ul><li>Productized interactive concert technology into a commercial service.</li><li>Collaborated with Epic Games audio engineers and Harmonix staff on engine improvements.</li><li>Worked with Epic Games' audio engineers and Harmonix on Unreal Engine fixes and real-time audio improvements.</li><li>Helped separate the technology into a repeatable service for touring artists and show technicians.</li><li>Transitioned day-to-day business operations to an executive team once the core technology matured.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-seven20" data-studio-detail="seven20">
@@ -352,7 +365,7 @@
             <section class="studio-card-reveal" id="studio-details-seven20" aria-label="Seven20 &amp;amp; deadmau5 experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">LIVE PERFORMANCE DESIGN</span><button class="studio-reveal-close" type="button" aria-label="Close Seven20 &amp;amp; deadmau5 details">×</button></div>
               <p>Designed a responsive, real-time Unreal Engine concert visuals pipeline with deadmau5 and Seven20.</p>
-              <ul><li>Developed interactive show technology for major live performances.</li><li>Helped establish a reusable technical foundation for subsequent touring projects.</li></ul>
+              <ul><li>Developed interactive show technology for major live performances.</li><li>Helped establish a reusable technical foundation for subsequent touring projects.</li><li>Collaborated with Joel Zimmerman and the Seven20 management team to architect the technical show pipeline.</li><li>Bridged traditional 3D content workflows with responsive, live-controlled Unreal visuals.</li><li>Created foundations used across concert environments and subsequent entertainment-tool projects.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-squareenix" data-studio-detail="squareenix">
@@ -367,7 +380,7 @@
             <section class="studio-card-reveal" id="studio-details-squareenix" aria-label="Square Enix experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">GAME DESIGN + PROGRAMMING</span><button class="studio-reveal-close" type="button" aria-label="Close Square Enix details">×</button></div>
               <p>Supported Crystal Dynamics on Tomb Raider and contributed to a Dragon Quest project.</p>
-              <ul><li>Provided gameplay programming and design production support.</li><li>Delivered assigned tasks during a brief engagement based in Japan.</li></ul>
+              <ul><li>Provided gameplay programming and design production support.</li><li>Delivered assigned tasks during a brief engagement based in Japan.</li><li>Supported gameplay design and programming needs for Crystal Dynamics' Tomb Raider work.</li><li>Contributed production assistance to a Dragon Quest project.</li><li>Worked through a short on-site engagement in Japan and handed off completed tasks.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-gamigo" data-studio-detail="gamigo">
@@ -382,7 +395,7 @@
             <section class="studio-card-reveal" id="studio-details-gamigo" aria-label="Gamigo experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">MMORPG LOCALIZATION</span><button class="studio-reveal-close" type="button" aria-label="Close Gamigo details">×</button></div>
               <p>Managed localization for established live MMO content and expansions.</p>
-              <ul><li>Maintained consistent terminology and lore throughout updates.</li><li>Streamlined adaptation of new material against existing localized game content.</li></ul>
+              <ul><li>Maintained consistent terminology and lore throughout updates.</li><li>Streamlined adaptation of new material against existing localized game content.</li><li>Coordinated terminology and lore consistency for ongoing MMO expansions.</li><li>Adapted continuing live-operations content rather than relocalizing a full base game.</li><li>Streamlined existing translated material into efficient update workflows.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-aeria" data-studio-detail="aeria">
@@ -397,7 +410,7 @@
             <section class="studio-card-reveal" id="studio-details-aeria" aria-label="Aeria Games experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">COMMUNITY + LOCALIZATION</span><button class="studio-reveal-close" type="button" aria-label="Close Aeria Games details">×</button></div>
               <p>Progressed from Game Sage volunteer to contract staff on a faction-based MMO.</p>
-              <ul><li>Moderated player communities and supported live-service operations.</li><li>Led substantial game localization across systems, dialogue, and UI.</li></ul>
+              <ul><li>Moderated player communities and supported live-service operations.</li><li>Led substantial game localization across systems, dialogue, and UI.</li><li>Worked on player moderation, support, and community health for a faction-focused MMORPG.</li><li>Selected for paid localization and community operations work after volunteering as a Game Sage.</li><li>Adapted game systems, dialogue, and UI for an international audience.</li><li>Balanced ongoing player-support demands with full-scale localization production.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-ncsoft" data-studio-detail="ncsoft">
@@ -412,7 +425,7 @@
             <section class="studio-card-reveal" id="studio-details-ncsoft" aria-label="NCSoft experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">MMORPG LIVE CONTENT</span><button class="studio-reveal-close" type="button" aria-label="Close NCSoft details">×</button></div>
               <p>Designed and shipped two substantial live content releases during a six-month contract.</p>
-              <ul><li>Contributed to feature and content production for an active MMORPG.</li><li>Worked directly with the Korean development team.</li></ul>
+              <ul><li>Contributed to feature and content production for an active MMORPG.</li><li>Worked directly with the Korean development team.</li><li>Helped plan, build, and release two major live-content updates during a six-month contract.</li><li>Worked directly with the Korean development team and cross-border production schedules.</li><li>Expanded the scale of content and live-ops work delivered to the existing playerbase.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-changyou" data-studio-detail="changyou">
@@ -427,7 +440,7 @@
             <section class="studio-card-reveal" id="studio-details-changyou" aria-label="ChangYou experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">LIVE DESIGN + PROGRAMMING</span><button class="studio-reveal-close" type="button" aria-label="Close ChangYou details">×</button></div>
               <p>Designed and programmed MMORPG content for Western audiences.</p>
-              <ul><li>Adapted core systems and features to different audience expectations.</li><li>Delivered recurring content updates and patches within a cross-cultural team.</li></ul>
+              <ul><li>Adapted core systems and features to different audience expectations.</li><li>Delivered recurring content updates and patches within a cross-cultural team.</li><li>Brought a Western audience perspective to an established MMORPG's systems and progression.</li><li>Programmed recurring content updates and live-service features.</li><li>Collaborated with the Beijing-based team through remote development and studio visits.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-ea" data-studio-detail="ea">
@@ -442,7 +455,7 @@
             <section class="studio-card-reveal" id="studio-details-ea" aria-label="Electronic Arts experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">TECHNICAL ANIMATION + CAPTURE</span><button class="studio-reveal-close" type="button" aria-label="Close Electronic Arts details">×</button></div>
               <p>Supported likeness and performance-capture workflows on AAA sports games.</p>
-              <ul><li>Integrated character scans, animation assets, and capture data.</li><li>Bridged capture and technical art pipelines across production teams.</li></ul>
+              <ul><li>Integrated character scans, animation assets, and capture data.</li><li>Bridged capture and technical art pipelines across production teams.</li><li>Worked with performance-capture data, character likeness assets, and technical animation pipelines.</li><li>Prepared licensed character and sports-performance inputs for game-production use.</li><li>Connected capture, art, and production engineering workflows.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-insomniac" data-studio-detail="insomniac">
@@ -457,7 +470,7 @@
             <section class="studio-card-reveal" id="studio-details-insomniac" aria-label="Insomniac Games experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">WEAPON DESIGN + PIPELINE TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Insomniac Games details">×</button></div>
               <p>Designed, prototyped, and programmed weapons and gameplay mechanics.</p>
-              <ul><li>Built weapon interactions and rapid gameplay prototypes.</li><li>Developed visual effects and tools spanning the art and engineering pipelines.</li></ul>
+              <ul><li>Built weapon interactions and rapid gameplay prototypes.</li><li>Developed visual effects and tools spanning the art and engineering pipelines.</li><li>Rapidly prototyped gameplay mechanics and weapon behaviors central to action-adventure combat.</li><li>Created visual effects and scripts to bridge art and gameplay engineering.</li><li>Developed internal tools to accelerate technical-art and weapon-production workflows.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-naughtydog" data-studio-detail="naughtydog">
@@ -472,7 +485,7 @@
             <section class="studio-card-reveal" id="studio-details-naughtydog" aria-label="Naughty Dog experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">TECHNICAL ART + DESIGN</span><button class="studio-reveal-close" type="button" aria-label="Close Naughty Dog details">×</button></div>
               <p>Contributed technical art, game design, and tools work across PlayStation action-adventure projects.</p>
-              <ul><li>Developed internal scripts and technical production workflows.</li><li>Supported effects, characters, and combat-content iteration.</li></ul>
+              <ul><li>Developed internal scripts and technical production workflows.</li><li>Supported effects, characters, and combat-content iteration.</li><li>Built technical art solutions and internal pipeline scripts for major PlayStation development.</li><li>Supported game-mechanics prototyping and effects workflows.</li><li>Worked across multiple roles spanning character/combat production and technical design.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-rockstar" data-studio-detail="rockstar">
@@ -487,7 +500,7 @@
             <section class="studio-card-reveal" id="studio-details-rockstar" aria-label="Rockstar Games experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">GAMEPLAY SYSTEMS + TOOLS</span><button class="studio-reveal-close" type="button" aria-label="Close Rockstar Games details">×</button></div>
               <p>Implemented interactive world mechanics for a major AAA Sony-exclusive title.</p>
-              <ul><li>Built mini-games and the secret two-player co-op mode.</li><li>Modeled environment props and developed production tooling.</li></ul>
+              <ul><li>Built mini-games and the secret two-player co-op mode.</li><li>Modeled environment props and developed production tooling.</li><li>Designed and implemented interactive world mechanics and environmental mini-games.</li><li>Worked on the game's secret two-player cooperative mode.</li><li>Modeled environment props and wrote internal tools during the final phase of production.</li><li>Built an early foundation in intentional gameplay design and cross-discipline production.</li></ul>
             </section>
           </article>
           <article class="studio-card studio-sony" data-studio-detail="sony">
@@ -502,7 +515,7 @@
             <section class="studio-card-reveal" id="studio-details-sony" aria-label="Sony Computer Entertainment America experience details" aria-hidden="true" inert>
               <div class="studio-reveal-head"><span class="studio-reveal-kicker">PROJECT GAP + QUALITY ASSURANCE</span><button class="studio-reveal-close" type="button" aria-label="Close Sony Computer Entertainment America details">×</button></div>
               <p>Participated in SCEA's remote Project GAP youth QA initiative.</p>
-              <ul><li>Evaluated early builds, vertical slices, betas, and demos.</li><li>Delivered bug reports and game-balance assessments that led to Sony-sponsored design education.</li></ul>
+              <ul><li>Evaluated early builds, vertical slices, betas, and demos.</li><li>Delivered bug reports and game-balance assessments that led to Sony-sponsored design education.</li><li>Participated in Project GAP's remote QA program across four years.</li><li>Tested pre-release builds, early demos, and vertical slices.</li><li>Provided structured balance feedback and bug reports to development teams.</li><li>The engagement helped lead to SCEA-sponsored formal game-design education.</li></ul>
             </section>
           </article>
         </div>
@@ -1051,7 +1064,7 @@
   <!-- COMPATIBILITY NOTE: Internet Explorer users should first invent a time machine, then reconsider their choices. -->
   <script defer src="game-art.js?v=3.04"></script>
   <script defer src="spawn-motion.js?v=3.04"></script>
-  <script defer src="script.js?v=3.12"></script>
+  <script defer src="script.js?v=3.13"></script>
   <script defer src="perspective-demo.js?v=3.04"></script>
 </body>
 </html>

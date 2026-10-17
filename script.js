@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.07';
+const MIPPI_BUILD_VERSION='3.08';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -7381,16 +7381,20 @@ async function initScene() {
         void main(){ vec4 tex=texture2D(logoMap,vUv); float lum=max(tex.r,max(tex.g,tex.b)); float b=0.66+lum*0.52; gl_FragColor=vec4(tintColor*b,tex.a*logoOpacity); }`
     });
     const logoPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.25), logoMaterial);
-    logoPlane.position.set(0, 0, 1.55);
+    // Place the identity on the upper-left face, not at the visual center/bottom of the shell.
+    // Keep it in front of the wireframe at this offset to avoid z-fighting.
+    logoPlane.position.set(-0.67, 0.53, 1.40);
     root.add(logoPlane);
 
     const ringMat = new THREE.MeshStandardMaterial({ color: 0x283447, roughness: 0.3, metalness: 0.88, emissive:0x00182f, emissiveIntensity:0.16 });
     const ringA = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.025, 8, 100), ringMat);
-    ringA.rotation.set(1.15, 0.2, 0.5);
+    // Reference composition: tall rear orbit arcs around the left of the core.
+    ringA.rotation.set(1.15, 0.2, -0.12);
     root.add(ringA);
     const ringB = ringA.clone();
     ringB.scale.setScalar(1.22);
-    ringB.rotation.set(0.45, 0.9, 1.2);
+    // The crossing orbit sits higher instead of bisecting the logo.
+    ringB.rotation.set(0.62, 0.9, 0.65);
     root.add(ringB);
 
 

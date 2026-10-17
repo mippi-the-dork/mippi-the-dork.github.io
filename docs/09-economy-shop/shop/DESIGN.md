@@ -128,3 +128,8 @@ The Shop creates meaningful small decisions without becoming complicated enough 
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.14 Current Behavior
+
+v3.13 Shop holds **11 listed items**: ten permanent purchases plus repeatable Epic Mippi Bird Life Refill. Refill adds one banked Bird life for base 10 Rupees (7 with Production Discount), remains available after purchase, and does not count for Buy the Store or capstone eligibility. Design Mode base cost is 30 Rupees; other permanent prices were revised with the increased Rupee supply.

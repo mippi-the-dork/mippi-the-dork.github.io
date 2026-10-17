@@ -8334,3 +8334,46 @@ body .game-pickup.mippi-motion.mippi-panel-orbit{z-index:110!important;}
 @keyframes mippi-enter-v304{from{opacity:0;filter:brightness(1.65)}to{opacity:1;filter:brightness(1)}}
 body .mippi-motion.mippi-spawning,.superboss-add.mippi-spawning{animation:mippi-enter-v304 380ms ease-out both!important;}
 @media(prefers-reduced-motion:reduce){body .mippi-motion.mippi-spawning,.superboss-add.mippi-spawning{animation:none!important;}}
+
+
+/* v3.05 // Restore rainbow Star Power motion while retaining the v3.04
+   mushroom-scaled interaction radius. Never animate transform on this ring. */
+body.star-power .completion-cursor-aura {
+  animation:star-power-rainbow-v305 1.15s linear infinite !important;
+  box-shadow:0 0 18px #ff3b30,0 0 28px #ffcc00,0 0 38px #34c759,0 0 48px #0a84ff,0 0 58px #bf5af2 !important;
+}
+@keyframes star-power-rainbow-v305 {
+  from { filter:hue-rotate(0deg); }
+  to { filter:hue-rotate(360deg); }
+}
+@media (prefers-reduced-motion:reduce) {
+  body.star-power .completion-cursor-aura { animation:none !important; }
+}
+
+/* Elarsi sits alongside the existing side-project features, with its own
+   lightweight CSS visual instead of loading another image or animation loop. */
+@media (min-width:1200px) {
+  .tool-feature-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+.elarsi-feature .tool-feature-copy { display:flex; flex-direction:column; align-items:flex-start; }
+.elarsi-feature .inline-card-link { margin-top:auto; padding-top:18px; }
+.elarsi-visual {
+  display:grid; place-items:center; padding:26px;
+  background:radial-gradient(circle at 76% 18%,rgba(44,165,245,.21),transparent 55%),linear-gradient(145deg,#111a27,#070c13);
+}
+.elarsi-art { position:relative; width:min(100%,370px); padding:22px; border:1px solid rgba(109,192,255,.23); background:rgba(6,13,23,.80); border-radius:12px; box-shadow:0 16px 36px rgba(0,0,0,.27); color:#dceeff; }
+.elarsi-art-label { font:700 10px ui-monospace,monospace; letter-spacing:.16em; color:#80cfff; }
+.elarsi-waveform { height:86px; display:flex; align-items:center; justify-content:space-between; gap:4px; padding:8px 0; }
+.elarsi-waveform i { width:5%; height:var(--wave,28%); border-radius:4px; background:linear-gradient(#73d8ff,#3285e3); box-shadow:0 0 10px rgba(58,166,249,.24); }
+.elarsi-waveform i:nth-child(5n+1) { --wave:68%; }
+.elarsi-waveform i:nth-child(3n+2) { --wave:42%; }
+.elarsi-waveform i:nth-child(4n+3) { --wave:85%; }
+.elarsi-lyric { font-size:13px; color:#8dcfff; margin:8px 0 16px; }
+.elarsi-lyric strong { color:#f2f8ff; font-weight:600; }
+.elarsi-timeline { display:flex; align-items:center; gap:10px; font:10px ui-monospace,monospace; color:#93a6bd; }
+.elarsi-timeline div { height:4px; flex:1; border-radius:4px; background:#253f57; }
+.elarsi-timeline b { display:block; width:36%; height:100%; background:#62cfff; border-radius:inherit; }
+body.theme-complete .elarsi-visual { background:radial-gradient(circle at 78% 18%,rgba(255,79,200,.18),transparent 55%),linear-gradient(145deg,#20102d,#090711); }
+body.theme-complete .elarsi-waveform i,body.theme-complete .elarsi-timeline b { background:#ff4fc8; }
+body.theme-complete.theme-legendary .elarsi-visual { background:radial-gradient(circle at 78% 18%,rgba(255,185,74,.20),transparent 55%),linear-gradient(145deg,#24180f,#0a1011); }
+body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme-legendary .elarsi-timeline b { background:#ffc43f; }

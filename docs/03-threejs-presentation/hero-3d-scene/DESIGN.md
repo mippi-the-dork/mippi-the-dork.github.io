@@ -168,3 +168,8 @@ The Hero succeeds when a visitor can:
 
 - [Three.js and Interactive 3D Presentation Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.06 fixes the Hero opening yaw/pitch so idle animation preserves its intended framing. v3.08 refined decorative orbit rings; its direct logo translation caused an undesirable detached visual. **v3.10 fixes composition using a centered rotational logo orbit around the sphere**, retaining radial facing and the v3.08 ring geometry. Ensure 3D appearance is assessed on actual hardware. The accessible v3.07 fallback remains.

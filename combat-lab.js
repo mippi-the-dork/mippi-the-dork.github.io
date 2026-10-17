@@ -102,14 +102,10 @@
       let idx=0;
       timers.push(setInterval(()=>{
         if(!state||!targets.length)return;
-        const x=innerWidth*(.42+(.16*(idx%2))),y=innerHeight*.82;
-        // Real target acquisition is measured too; only our disposable targets
-        // may receive shots, regardless of natural targets that remain onscreen.
-        const t0=performance.now();
-        const acquired=h.playerAcquire(x,y,innerWidth*2);
-        perf()?.measure('combat.playerAcquire',performance.now()-t0);
-        const target=acquired?.dataset?.combatLab==='1'?acquired:targets[idx%targets.length];
-        h.playerFire(x,y,target);idx++;
+        // Vertical, deliberately aimed volleys now exercise the real projectile
+        // collision path. Lab targets remain disposable and progression-safe.
+        const x=innerWidth*(.33+((idx%2)*.33)),y=innerHeight*.82;
+        h.playerFire(x,y,{lab:true});idx++;
       },95));
     }
     if(mode==='ufo'||mode==='combined'){

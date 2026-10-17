@@ -1,5 +1,5 @@
-// v2.96 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='2.99';
+// v3.00 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.00';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -916,6 +916,7 @@ let nextBossKillThreshold=10; // legacy DEV compatibility only
 let invasionWaveKills=0;
 let invasionEncounterPending=false;
 let invasionSpawnQueued=false;
+let invasionSpawnEpoch=0; // Cancel obsolete scheduled encounters after a DEV reset.
 let invasionBossRetryKills=0;
 let ufoBossActive=false;
 let superBossActive=false;
@@ -952,7 +953,7 @@ const SHOP_ITEMS=[
   {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:4,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
   {id:'production-discount',name:'Production Discount',cost:6,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
   {id:'celestial-beacon',name:'Celestial Beacon',cost:7,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
-  {id:'golden-trigger',name:'Golden Trigger',cost:5,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, cursor shots acquire targets farther away and travel faster in every visual theme.'},
+  {id:'golden-trigger',name:'Golden Trigger',cost:5,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
   {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:10,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
 ];
 let shopOwned=new Set();
@@ -978,6 +979,7 @@ function syncInteractToggle(){
   const contentInteractionOff=contentInteractionSuppressed();
   interactToggle.hidden=!unlocked;
   interactToggle.classList.toggle('active',contentInteractionOff);
+  interactToggle.dataset.modeState=contentInteractionOff?'on':'off';
   setHudControlText(interactToggle,`INTERACT // ${contentInteractionOff?'OFF':'ON'}`);
   interactToggle.title=unlocked?(contentInteractionOff?'Normal portfolio interaction is OFF. Click to restore it when the current encounter allows.':'Normal portfolio interaction is ON. Click to suppress it while hunting game-layer interactions.'):'Purchase Interact Toggle in the Shop.';
   interactToggle.setAttribute('aria-pressed',String(contentInteractionOff));
@@ -1109,7 +1111,7 @@ function updateInvasionMeter(){
   if(!epic)return;
   const stage=totalBossVictories()%3;
   const progress=invasionEncounterPending?10:invasionWaveKills;
-  const pct=Math.min(100,Math.round((stage*10+progress)/30*100));
+  const pct=Math.min(100,Math.floor((stage*10+progress)/30*100));
   if(invasionMeterValue)invasionMeterValue.textContent=`${pct}%`;
   if(invasionMeterFill)invasionMeterFill.style.width=`${superBossActive?100:pct}%`;
   invasionMeter.classList.toggle('contact',superBossActive);
@@ -2140,8 +2142,12 @@ function initializeUnifiedHud(){
   // Resource icon treatment uses the same 19px mask and color system as modes.
   for(const [id,icon] of [['cool-meter','cool'],['invasion-meter','invasion'],['castle-meter','castle'],['rupee-meter','gem']]){
     const el=$(id);if(!el)continue;
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[icon]}</svg>`;
-    el.style.setProperty('--meter-icon',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+    const art=window.MippiGameArt?.hud?.[id];
+    if(art)el.style.setProperty('--meter-icon',`url("${art}")`);
+    else{
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[icon]}</svg>`;
+      el.style.setProperty('--meter-icon',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+    }
   }
   // Dedicated ring avoids collision with Wish tooltip pseudo-elements.
   for(const el of dock.querySelectorAll('button')){
@@ -2290,6 +2296,7 @@ function setInspectMode(active, {telemetry=true,skipDesign=false} = {}) {
     telemetryMeaningful('inspect_mode',{active});
   }
   inspectToggle?.classList.toggle('active', active);
+  inspectToggle?.setAttribute('aria-pressed',String(active));
   setHudControlText(inspectToggle,active?'Inspect Mode: On':'Inspect Mode');
   try { localStorage.setItem(INSPECT_KEY, active ? '1' : '0'); } catch (_) {}
 }
@@ -2308,6 +2315,7 @@ function setDesignMode(active, {telemetry=true,skipInspect=false} = {}) {
   const docsButton=document.getElementById('docs-toggle');
   if(docsButton){docsButton.hidden=!designModeUnlocked;let seen=false;try{seen=localStorage.getItem('mippi-docs-discovered-v1')==='1';}catch(_){}docsButton.classList.toggle('attention-new',active&&!seen);}
   designToggle?.classList.toggle('active',active);
+  designToggle?.setAttribute('aria-pressed',String(active));
   setHudControlText(designToggle,active?'Design Mode: On':'Design Mode');
   try{localStorage.setItem(DESIGN_KEY,active?'1':'0');}catch(_){}
   return true;
@@ -2318,6 +2326,7 @@ function updateDesignModeAvailability(){
   if(!designToggle) return;
   designToggle.hidden=!designModeUnlocked;
   designToggle.disabled=!designModeUnlocked;
+  designToggle.setAttribute('aria-pressed',String(document.body.classList.contains('design-mode')));
   designToggle.title=designModeUnlocked?'Reveal the design reasoning behind annotated systems.':'Purchase the Shop capstone after owning every other item to reveal Design Mode.';
   if(!designModeUnlocked && document.body.classList.contains('design-mode')) setDesignMode(false,{telemetry:false,skipInspect:true});
 }
@@ -2887,7 +2896,7 @@ const OBJECTIVE_DEFS=[
     detail:'Combine systems in a way the site recognizes.'},
   {id:'legendary-shot',category:'MASTERY',title:'Hit a flying target with a Legendary shot.',goal:1,reward:2,duration:50000,advanced:true,
     eligible:()=>legendaryGameplayUnlocked() && !reduceMotion,
-    detail:'Left click away from UI and let Legendary target acquisition do the rest.'},
+    detail:'Line up beneath an enemy and shoot straight upward with left click.'},
   {id:'legendary-double',category:'MASTERY',title:'Land two Legendary shots.',goal:2,reward:3,duration:70000,advanced:true,
     eligible:()=>legendaryGameplayUnlocked() && !reduceMotion,
     detail:'Two successful Legendary projectile collections.'},
@@ -4711,14 +4720,23 @@ function devSetCastle(value){
 }
 function devSetInvasion(value){
   const v=String(value||'0').toLowerCase();
+  if(!['0','33','66','near'].includes(v)){
+    consolePrint('DEV // invasion expects 0, 33, 66, or near.','warn');return;
+  }
+  if(ufoBossActive||superBossActive){
+    consolePrint('DEV // Exit the active Boss fight before forcing invasion progress.','warn');return;
+  }
+  // QA must change the live encounter state, not merely the lifetime counters.
+  ++invasionSpawnEpoch;
+  invasionEncounterPending=false;invasionSpawnQueued=false;invasionBossRetryKills=0;
+  ufoKills=0;nextBossKillThreshold=10;
+  invasionWaveKills=v==='near'?9:0;
   const arcade=telemetryPath('arcade');
-  if(v==='0'){arcade.bossDefeated=0;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
-  else if(v==='33'){arcade.bossDefeated=1;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
-  else if(v==='66'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=0;invasionWaveKills=0;nextBossKillThreshold=10;}
-  else if(v==='near'){arcade.bossDefeated=2;arcade.superBossDefeated=0;ufoKills=9;invasionWaveKills=9;nextBossKillThreshold=10;}
-  else {consolePrint('DEV // invasion expects 0, 33, 66, or near.','warn');return;}
+  arcade.bossDefeated=v==='0'?0:v==='33'?1:2;
+  arcade.superBossDefeated=0;
+  if(!epicGameplayUnlocked())devSetEpic();
   updateInvasionMeter();updateProgressHudVisibility();
-  consolePrint(`DEV // Invasion meter forced to ${v==='near'?'one UFO before Super Boss':v+'%'}.`,'good');
+  consolePrint(`DEV // Invasion set to ${v==='near'?'one UFO before Super Boss':v+'%'}; pending encounter cleared.`,'good');
 }
 function devSetShopState(state){
   const s=String(state||'').toLowerCase();
@@ -5190,6 +5208,17 @@ function burstDougPaws(count=5,sourceEl=null){
 
 // Completion-theme cursor aura and trail.
 const cursorAura=document.createElement('div'); cursorAura.className='completion-cursor-aura'; document.body.appendChild(cursorAura);
+// Authoritative click radius in both world interaction and visible cursor ring.
+// Mushrooms enlarge the game mechanic; cursor diagnostic visual overrides do not.
+function cursorClickRadius(){
+  const base=document.body.classList.contains('theme-legendary')?31:22;
+  return base+cursorPowerLevel*17+(document.body.classList.contains('star-power')?14:0);
+}
+function syncCursorClickRadius(){
+  cursorAura.style.setProperty('--cursor-click-radius',cursorClickRadius()+'px');
+}
+window.addEventListener('mippi-theme-change',syncCursorClickRadius);
+syncCursorClickRadius();
 const powerCursor=document.createElement('div'); powerCursor.className='power-cursor'; powerCursor.setAttribute('aria-hidden','true'); document.body.appendChild(powerCursor);
 let starPowerTimer=null, starPowerBurstTimer=null;
 const announcedSystemCombos=new Set(Array.isArray(sessionTelemetry.combos?.announced)?sessionTelemetry.combos.announced:[]);
@@ -5226,6 +5255,7 @@ function updatePowerCursor(){
   document.body.classList.toggle('cursor-power-2',level===2);
   powerCursor.dataset.level=String(level);
   syncNativeMushroomCursor();
+  syncCursorClickRadius();
 }
 function setCursorDiagnosticClasses(){
   const html=document.documentElement;
@@ -5236,8 +5266,8 @@ function setCursorDiagnosticClasses(){
   updatePowerCursor();
 }
 window.MippiCursorLab=Object.freeze({
-  snapshot(){return {actualGameplayLevel:cursorPowerLevel,visualLevel:effectiveCursorLevel(),visualOverride:cursorDiagnostics.visualLevel===null?'gameplay':cursorDiagnostics.visualLevel,legendaryTargetBonusPx:cursorPowerLevel*55,architecture:cursorDiagnostics.architecture,...Object.fromEntries(['style','native','aura','glow','trail','starsparks'].map(k=>[k,cursorDiagnostics[k]])),activeTrailNodes:document.querySelectorAll('.cursor-spark').length,activeStarSparks:document.querySelectorAll('.rainbow-cursor-spark').length,fxRenderer:window.MippiFxRenderer?.mode||'dom',activeCanvasFx:window.MippiFxRenderer?.snapshot().active||0};},
-  report(){const s=this.snapshot();return ['CURSOR LAB // '+JSON.stringify(s),'CURSOR LAB // SIZE is visual-only. Actual Mushroom progression and target acquisition are unchanged.'];},
+  snapshot(){return {actualGameplayLevel:cursorPowerLevel,visualLevel:effectiveCursorLevel(),visualOverride:cursorDiagnostics.visualLevel===null?'gameplay':cursorDiagnostics.visualLevel,clickRadiusPx:cursorClickRadius(),architecture:cursorDiagnostics.architecture,...Object.fromEntries(['style','native','aura','glow','trail','starsparks'].map(k=>[k,cursorDiagnostics[k]])),activeTrailNodes:document.querySelectorAll('.cursor-spark').length,activeStarSparks:document.querySelectorAll('.rainbow-cursor-spark').length,fxRenderer:window.MippiFxRenderer?.mode||'dom',activeCanvasFx:window.MippiFxRenderer?.snapshot().active||0};},
+  report(){const s=this.snapshot();return ['CURSOR LAB // '+JSON.stringify(s),'CURSOR LAB // SIZE is visual-only. Actual Mushroom progression and click radius are unchanged.'];},
   size(value){
     const choices={gameplay:null,normal:0,big:1,verybig:2};
     if(!Object.hasOwn(choices,value))return 'CURSOR LAB // Use dev cursor size gameplay/normal/big/verybig.';
@@ -5266,7 +5296,7 @@ window.MippiCursorLab=Object.freeze({
   },
   help(){return [
     'dev cursor status | reset',
-    'dev cursor size gameplay/normal/big/verybig  // VISUAL ONLY; no targeting bonus',
+    'dev cursor size gameplay/normal/big/verybig  // VISUAL ONLY; click radius follows real mushroom power',
     'dev cursor architecture scoped/legacy         // optimized state vs original CSS for A/B',
     'dev cursor style universal/inherit           // LEGACY ONLY; descendant rules vs inheritance',
     'dev cursor native off/on                     // hide mushroom cursor image, show normal pointer',
@@ -5285,14 +5315,14 @@ function advanceCursorPower(){
   cursorPowerLevel=(cursorPowerLevel+1)%3;
   updatePowerCursor();
   const legendary=document.body.classList.contains('theme-legendary');
-  const rangeNote=legendary&&cursorPowerLevel>0?' Legendary targeting range increased.':legendary&&cursorPowerLevel===0?' Legendary targeting range returned to normal.':'';
+  const rangeNote=legendary&&cursorPowerLevel>0?' Click radius increased.':legendary&&cursorPowerLevel===0?' Click radius returned to normal.':'';
   const lifeNote=` Mippi Bird life progress: ${mushroomLifeProgress}/20.`;
   const message=(cursorPowerLevel===1?'MUSHROOM ACQUIRED // cursor size increased.':cursorPowerLevel===2?'MUSHROOM ACQUIRED // cursor at maximum size. Please point responsibly.':'MUSHROOM ACQUIRED // cursor wrapped back to normal size.')+rangeNote+lifeNote;
   consolePrint(message,'good');
   showTransientToast('MUSHROOM ACQUIRED',(cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.')+rangeNote+lifeNote,`CURSOR // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'} · SHROOMS ${mushroomLifeProgress}/20`,'POWER-UP');
   if(legendary&&cursorPowerLevel>0){
     telemetryCount('combos','legendaryMushroom');
-    announceSystemCombo('legendary-mushroom','Mushroom + Legendary','A larger cursor also expands Legendary target acquisition.');
+    announceSystemCombo('legendary-mushroom','Mushroom + Legendary','The enlarged cursor increases your nearby click radius.');
   }
 }
 function emitRainbowCursorSpark(){
@@ -5312,26 +5342,28 @@ function emitRainbowCursorSpark(){
   });
 }
 function collectStarPowerHoverTarget(){
-  if(!document.body.classList.contains('star-power')) return;
-  const hit=document.elementFromPoint(latestPointer.x,latestPointer.y)?.closest?.('.shooting-star,.galaga-secret,.game-pickup,.doug-bone');
-  if(!hit?.isConnected || hit.dataset.starPowerHit==='1') return;
+  if(!document.body.classList.contains('star-power'))return;
+  // Use the same mushroom-scaled area as the visible ring, not the pixel beneath the pointer.
+  const hit=nearbyClickable(latestPointer.x,latestPointer.y,{starAuto:true});
+  if(!hit?.isConnected || hit.dataset.starPowerHit==='1')return;
   const repeatableBoss=hit.classList.contains('boss-ufo');
   hit.dataset.starPowerHit='1';
   hit.dataset.telemetryCollectMethod='star_power';
   hit.click();
   if(repeatableBoss){
-    window.setTimeout(()=>{ if(hit?.isConnected) delete hit.dataset.starPowerHit; },700);
+    window.setTimeout(()=>{if(hit.isConnected)delete hit.dataset.starPowerHit;},700);
   }
 }
 function activateStarPower(){
   telemetryCount('modes','starPowerActivations');
   telemetryMeaningful('star_power');
   document.body.classList.remove('star-power'); void document.body.offsetWidth; document.body.classList.add('star-power');
+  syncCursorClickRadius();
   clearTimeout(starPowerTimer); clearInterval(starPowerBurstTimer);
   for(let i=0;i<9;i++) setTimeout(emitRainbowCursorSpark,i*45);
   starPowerBurstTimer=setInterval(()=>{ emitRainbowCursorSpark(); collectStarPowerHoverTarget(); },70);
   const starPowerDuration=shopHasEquipped('star-extender')?5600:3600;
-  starPowerTimer=setTimeout(()=>{ document.body.classList.remove('star-power'); clearInterval(starPowerBurstTimer); starPowerBurstTimer=null; },starPowerDuration);
+  starPowerTimer=setTimeout(()=>{ document.body.classList.remove('star-power'); syncCursorClickRadius(); clearInterval(starPowerBurstTimer); starPowerBurstTimer=null; },starPowerDuration);
   consolePrint('STAR POWER // temporary rainbow cursor effect enabled. Flying objects are collected on contact.','good');
 }
 let lastSpark=0;
@@ -5650,127 +5682,143 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
     cleanup();
   },Math.ceil(duration*1000)+700);
 }
-function nearestFlyingTarget(x,y,maxDistance=null){
-  const cursorRangeBonus=cursorPowerLevel*55;
-  const acquisition=maxDistance??((shopHasEquipped('golden-trigger')?485:365)+cursorRangeBonus+directorTargetBonus());
-  let best=null,bestDistance=acquisition;
-  const now=performance.now();
-  // Shared with homing: multiple shots no longer cause repeated full-page
-  // layout reads simply to select or follow the same moving target.
-  for(const el of combatGeometry.targetCandidates(now)){
-    if(!el.isConnected)continue;
-    const pos=combatGeometry.targetCenter(el,now);if(!pos)continue;
-    const lead=Math.min(110,Math.max(0,now-(pos.time||now)));
-    const cx=pos.x+(pos.vx||0)*lead,cy=pos.y+(pos.vy||0)*lead;
-    const d=Math.hypot(cx-x,cy-y);
-    if(d<bestDistance){bestDistance=d;best=el;}
+// v3.00 // The visible cursor circle is a close-range click affordance.
+// Shooting is separate: fixed upward volleys with enemy-only collision.
+const legendaryActiveShots=[];
+let legendaryShotRaf=0;
+const MAX_LEGENDARY_SHOTS=18;
+const SHOT_HIT_PADDING=5;
+function nearbyClickable(x,y,{starAuto=false}={}){
+  const radius=cursorClickRadius();
+  let best=null,nearest=Infinity;
+  const candidates=starAuto
+    ?combatGeometry.targetCandidates(performance.now())
+    :document.querySelectorAll(COMBAT_TARGET_SELECTOR+',.section-castle');
+  for(const el of candidates){
+    if(!el.isConnected||el.dataset.combatLab==='1')continue;
+    if(starAuto&&el.classList.contains('section-castle'))continue;
+    let cx,cy,halfW,halfH;
+    if(starAuto){
+      const pos=combatGeometry.targetCenter(el);
+      if(!pos)continue;
+      cx=pos.x;cy=pos.y;
+      const isBoss=el.classList.contains('boss-ufo'),isStar=el.classList.contains('shooting-star');
+      halfW=isStar?85:isBoss?52:el.classList.contains('galaga-secret')?22:32;
+      halfH=isStar?16:isBoss?36:el.classList.contains('doug-bone')?19:32;
+    }else{
+      const r=el.getBoundingClientRect();
+      if(!r.width||!r.height||r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)continue;
+      cx=r.left+r.width*.5;cy=r.top+r.height*.5;
+      halfW=r.width*.5;halfH=r.height*.5;
+    }
+    const gapX=Math.max(0,Math.abs(x-cx)-halfW);
+    const gapY=Math.max(0,Math.abs(y-cy)-halfH);
+    if(Math.hypot(gapX,gapY)>radius)continue;
+    const d=Math.hypot(x-cx,y-cy);
+    if(d<nearest){nearest=d;best=el;}
   }
   return best;
 }
-
-// One simulation loop. Crucially, sampling the CSS-animated target position
-// every animation frame forces layout synchronizations while firing. Cache each
-// target for 75 ms and let the projectile home toward that cached position.
-const legendaryActiveShots=[];
-let legendaryShotRaf=0;
-const MAX_LEGENDARY_SHOTS=14;
-const SHOT_TARGET_SAMPLE_MS=50;
-const legendaryTargetPositions=new Map();
 function releaseLegendaryShot(shot){
-  const __cleanupAt=performance.now();
-  if(shot.el.dataset.combatLab==='1')window.MippiCombatLab?.note('playerCleanup');
+  const began=performance.now();
+  if(shot.isLabShot)window.MippiCombatLab?.note('playerCleanup');
   shot.el.remove();
   const index=legendaryActiveShots.indexOf(shot);
   if(index>=0)legendaryActiveShots.splice(index,1);
-  if(!legendaryActiveShots.some(other=>other.target===shot.target)) legendaryTargetPositions.delete(shot.target);
-  window.MippiPerfLab?.measure('combat.playerProjectile.cleanup',performance.now()-__cleanupAt);
+  window.MippiPerfLab?.measure('combat.playerProjectile.cleanup',performance.now()-began);
 }
-function sampleLegendaryTargets(now){
-  const __sampleStart=performance.now();
-  // A unique set avoids repeated sampling for multiple projectiles sharing
-  // one target, while target and emitter layouts are read before shot writes.
-  const uniqueTargets=new Set(legendaryActiveShots.map(shot=>shot.target));
-  for(const target of uniqueTargets){
-    if(!target?.isConnected)continue;
-    if(combatGeometry.mode()==='off'){
-      const cached=legendaryTargetPositions.get(target);
-      if(cached&&now-cached.time<SHOT_TARGET_SAMPLE_MS)continue;
-      const r=target.getBoundingClientRect();const tx=r.left+r.width*.5,ty=r.top+r.height*.5;
-      const elapsed=cached?Math.max(1,now-cached.time):1;
-      legendaryTargetPositions.set(target,{x:tx,y:ty,
-        vx:cached?Math.max(-1.8,Math.min(1.8,(tx-cached.x)/elapsed)):0,
-        vy:cached?Math.max(-1.8,Math.min(1.8,(ty-cached.y)/elapsed)):0,time:now});
-    }else{
-      const pos=combatGeometry.targetCenter(target,now);
-      if(pos)legendaryTargetPositions.set(target,pos);
-    }
+function segmentHitsAABB(x0,y0,x1,y1,cx,cy,rx,ry){
+  const dx=x1-x0,dy=y1-y0;
+  let lo=0,hi=1;
+  if(Math.abs(dx)<.00001){if(Math.abs(x0-cx)>rx)return false;}
+  else{
+    const a=(cx-rx-x0)/dx,b=(cx+rx-x0)/dx;
+    lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
+    if(lo>hi)return false;
   }
-  window.MippiPerfLab?.measure('combat.playerProjectile.sampleTargets',performance.now()-__sampleStart);
+  if(Math.abs(dy)<.00001){if(Math.abs(y0-cy)>ry)return false;}
+  else{
+    const a=(cy-ry-y0)/dy,b=(cy+ry-y0)/dy;
+    lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
+    if(lo>hi)return false;
+  }
+  return lo<=hi;
 }
 function tickLegendaryShots(now){
   legendaryShotRaf=0;
   if(!legendaryActiveShots.length)return;
   if(!window.MippiPerfLab?.enabled('projectiles')){
     window.MippiPerfLab?.skip('projectiles');
-    for(const shot of legendaryActiveShots){shot.last=now;shot.born+=Math.min(100,Math.max(0,now-(shot.pauseLast||now)));shot.pauseLast=now;}
-    legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
-    return;
+    for(const shot of legendaryActiveShots){
+      shot.last=now;shot.born+=Math.min(100,Math.max(0,now-(shot.pauseLast||now)));shot.pauseLast=now;
+    }
+    legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);return;
   }
-  for(const shot of legendaryActiveShots){if(shot.pauseLast){shot.born+=Math.max(0,now-shot.pauseLast);shot.pauseLast=0;}}
-  const perfShotStart=performance.now();
-  // A cached center costs no layout work on most frames even with many shots.
-  sampleLegendaryTargets(now);
+  for(const shot of legendaryActiveShots){
+    if(shot.pauseLast){shot.born+=Math.max(0,now-shot.pauseLast);shot.pauseLast=0;}
+  }
+  const began=performance.now();
+  // Only regular UFOs, regular bosses, and disposable combat-lab enemies.
+  // Neither pickups nor castles nor shooting stars can be hit by bullets.
+  const targets=combatGeometry.targetCandidates(now).filter(el=>el.isConnected&&
+    (el.classList.contains('galaga-secret')||el.dataset.combatLab==='1'));
+  const positions=new Map();
   for(let i=legendaryActiveShots.length-1;i>=0;i--){
     const shot=legendaryActiveShots[i];
-    if(!shot.el.isConnected||!shot.target?.isConnected||now-shot.born>1800){releaseLegendaryShot(shot);continue;}
-    const pos=legendaryTargetPositions.get(shot.target);
-    if(!pos)continue;
-    // Predict the moving target between layout samples to avoid visible
-    // 50-75ms direction snaps. The projectile itself still moves every rAF.
-    const lead=Math.min(combatGeometry.mode()==='on'?110:70,Math.max(0,now-pos.time));
-    const tx=pos.x+pos.vx*lead,ty=pos.y+pos.vy*lead;
-    const dx=tx-shot.px,dy=ty-shot.py,dist=Math.hypot(dx,dy);
-    if(dist<23){
-      releaseLegendaryShot(shot);
-      if(shot.target.dataset.combatLab==='1')window.MippiCombatLab?.note('playerHit');
-      else telemetryCount('arcade','playerHits');
-      if(shot.target.isConnected){if(shot.target.dataset.combatLab!=='1')shot.target.dataset.telemetryCollectMethod='legendary';shot.target.click();}
-      continue;
-    }
-    // Keep world-space speed consistent if an animation frame is delayed.
-    // v2.84's 35ms cap caused shots to crawl/step on slower rAF frames.
+    if(!shot.el.isConnected||now-shot.born>1800||shot.py< -40){releaseLegendaryShot(shot);continue;}
     const dt=Math.min(.12,Math.max(0,(now-shot.last)/1000));shot.last=now;
-    const travel=Math.min(dist,shot.speed*dt);
-    if(dist>0){shot.px+=dx/dist*travel;shot.py+=dy/dist*travel;}
-    shot.el.style.transform=`translate3d(${shot.px-shot.x}px,${shot.py-shot.y}px,0) rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
+    const nextX=shot.px+shot.vx*dt,nextY=shot.py+shot.vy*dt;
+    let touched=false;
+    for(const target of targets){
+      if((target.dataset.combatLab==='1')!==shot.isLabShot||shot.hitTargets.has(target))continue;
+      let pos=positions.get(target);
+      if(!pos){pos=combatGeometry.targetCenter(target,now);if(pos)positions.set(target,pos);}
+      if(!pos)continue;
+      const boss=target.classList.contains('boss-ufo');
+      const halfW=target.dataset.combatLab==='1'?23:boss?52:22;
+      const halfH=target.dataset.combatLab==='1'?23:boss?36:16;
+      if(!segmentHitsAABB(shot.px,shot.py,nextX,nextY,pos.x,pos.y,
+          halfW+SHOT_HIT_PADDING,halfH+SHOT_HIT_PADDING))continue;
+      shot.hitTargets.add(target);touched=true;
+      if(shot.isLabShot)window.MippiCombatLab?.note('playerHit');
+      else telemetryCount('arcade','playerHits');
+      if(target.isConnected){
+        if(!shot.isLabShot)target.dataset.telemetryCollectMethod='legendary';
+        target.click();
+      }
+      if(!shot.piercing)break;
+    }
+    if(touched&&!shot.piercing){releaseLegendaryShot(shot);continue;}
+    shot.px=nextX;shot.py=nextY;
+    shot.el.style.transform=`translate3d(${shot.px-shot.x}px,${shot.py-shot.y}px,0) rotate(${shot.angle-90}deg)`;
   }
-  const elapsed=performance.now()-perfShotStart;
+  const elapsed=performance.now()-began;
   window.MippiPerfLab?.measure('projectiles.update',elapsed);
   window.MippiPerfLab?.measure('combat.playerProjectile.tick',elapsed);
   if(legendaryActiveShots.length)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
 }
-function fireLegendaryPlayerShot(x,y,target){
-  const __spawnAt=performance.now();
-  if(!target?.isConnected)return;
+function fireLegendaryPlayerShot(x,y,{angle=0,lab=false}={}){
+  const began=performance.now();
   if(legendaryActiveShots.length>=MAX_LEGENDARY_SHOTS)releaseLegendaryShot(legendaryActiveShots[0]);
-  const isLabShot=target.dataset.combatLab==='1';
-  if(!isLabShot)telemetryCount('arcade','playerShots');
-  else window.MippiCombatLab?.note('playerSpawn');
+  if(lab)window.MippiCombatLab?.note('playerSpawn');
+  else telemetryCount('arcade','playerShots');
   const el=document.createElement('i');el.className='legendary-player-projectile';
-  if(isLabShot)el.dataset.combatLab='1';
+  if(lab)el.dataset.combatLab='1';
   el.style.left=`${x}px`;el.style.top=`${y}px`;
   document.body.appendChild(el);
-  const now=performance.now();
-  legendaryActiveShots.push({el,target,x,y,px:x,py:y,born:now,last:now,speed:shopHasEquipped('golden-trigger')?1380:1050});
+  const speed=shopHasEquipped('golden-trigger')?1380:1050;
+  const radians=angle*Math.PI/180,now=performance.now();
+  legendaryActiveShots.push({el,x,y,px:x,py:y,angle,vx:Math.sin(radians)*speed,
+    vy:-Math.cos(radians)*speed,born:now,last:now,isLabShot:lab,
+    piercing:!lab&&document.body.classList.contains('star-power'),hitTargets:new Set()});
+  el.style.transform=`rotate(${angle-90}deg)`;
   if(!legendaryShotRaf)legendaryShotRaf=requestAnimationFrame(tickLegendaryShots);
-  window.MippiPerfLab?.measure('combat.playerProjectile.spawn',performance.now()-__spawnAt);
+  window.MippiPerfLab?.measure('combat.playerProjectile.spawn',performance.now()-began);
 }
-
 // The permanent diagnostic lab calls the real projectile functions with
 // throwaway targets. It cannot trigger ordinary progress/kill accounting.
 window.MippiCombatHooks=Object.freeze({
-  playerFire:(x,y,target)=>fireLegendaryPlayerShot(x,y,target),
-  playerAcquire:(x,y,range)=>nearestFlyingTarget(x,y,range),
+  playerFire:(x,y,options={})=>fireLegendaryPlayerShot(x,y,options),
   hostileFire:(ship,offset)=>fireUfoProjectile(ship,offset),
   prepareVolley:ships=>combatGeometry.prepareEmitters(ships),
   geometryMode:value=>combatGeometry.mode(value),
@@ -5788,15 +5836,24 @@ window.MippiCombatHooks=Object.freeze({
   lifecycle:()=>({activeHostile:hostileProjectileCleanup.size,
     activeLabHostile:diagnosticHostileCleanup.size,activePlayer:legendaryActiveShots.length,
     activeLabPlayer:legendaryActiveShots.filter(s=>s.el.dataset.combatLab==='1').length,
-    cachedTargets:legendaryTargetPositions.size})
+    cachedTargets:0})
 });
 
 document.addEventListener('pointerdown',event=>{
-  if(event.button!==0 || !legendaryGameplayUnlocked()) return;
-  if(event.target.closest('.shooting-star,.galaga-secret,.game-pickup,.doug-bone,.legendary-player-projectile,.ufo-projectile')) return;
-  if(event.target.closest('a,button,input,textarea,select,label,.dev-console,.azure-gallery,.flappy-game')) return;
-  const target=nearestFlyingTarget(event.clientX,event.clientY);
-  if(target) fireLegendaryPlayerShot(event.clientX,event.clientY,target);
+  if(event.button!==0)return;
+  // A native world button click already handles its own interaction.
+  if(event.target.closest('.shooting-star,.galaga-secret,.game-pickup,.doug-bone,.section-castle'))return;
+  if(event.target.closest('a,button,input,textarea,select,label,.dev-console,.azure-gallery,.flappy-game'))return;
+  const canUseRadius=document.body.classList.contains('theme-complete')||
+    document.body.classList.contains('star-power');
+  const nearby=canUseRadius?nearbyClickable(event.clientX,event.clientY):null;
+  if(nearby){
+    nearby.dataset.telemetryCollectMethod=document.body.classList.contains('star-power')?'star_power':'cursor_radius';
+    nearby.click();return;
+  }
+  if(!legendaryGameplayUnlocked())return;
+  const firingAngles=dougCoolActive?[-12,0,12]:[0];
+  for(const angle of firingAngles)fireLegendaryPlayerShot(event.clientX,event.clientY,{angle});
 });
 
 function randomEdgeFlight(margin=220){
@@ -5843,8 +5900,10 @@ function maybeSpawnUfoBoss(){
   invasionEncounterPending=true;
   const superFight=(totalBossVictories()+1)%3===0;
   invasionSpawnQueued=true;
+  const attemptEpoch=++invasionSpawnEpoch;
   showTransientToast(superFight?'SUPER BOSS INBOUND':'BOSS INBOUND',superFight?'Super contact in the next encounter.':'Ten UFO contacts acquired.','INVASION // CONTACT','ARCADE');
   const attempt=()=>{
+    if(attemptEpoch!==invasionSpawnEpoch)return;
     if(ufoBossActive||superBossActive){invasionSpawnQueued=false;return;}
     if(!easyModeEnabled&&directorAttentionBlocked()){window.setTimeout(attempt,900);return;}
     invasionSpawnQueued=false;
@@ -5853,6 +5912,7 @@ function maybeSpawnUfoBoss(){
   window.setTimeout(attempt,900);
 }
 function resolveInvasionBossVictory(){
+  ++invasionSpawnEpoch;
   invasionEncounterPending=false;invasionSpawnQueued=false;invasionBossRetryKills=0;invasionWaveKills=0;
   updateInvasionMeter();
 }
@@ -6180,7 +6240,7 @@ function spawnSuperBoss(force=false){
       let hitAdd=null;
       for(const add of state.adds){
         if(!add.alive)continue;
-        if(hitSegment(add.x,add.y,28,y,nextY)){hitAdd=add;break;}
+        if(hitSegment(add.x,add.y,56,y,nextY)){hitAdd=add;break;}
       }
       if(hitAdd){
         telemetryCount('arcade','playerHits');
@@ -6188,7 +6248,7 @@ function spawnSuperBoss(force=false){
         remove();
         return;
       }
-      if(!state.ended && hitSegment(state.bossX,state.bossY,72,y,nextY)){
+      if(!state.ended && hitSegment(state.bossX,state.bossY,144,y,nextY)){
         telemetryCount('arcade','playerHits');
         damageBoss('superboss_player_shot');
         remove();
@@ -6232,9 +6292,9 @@ function spawnSuperBoss(force=false){
     state.adds.forEach((add,i)=>{
       if(!add.alive)return;
       const a=add.phase+now*.00072*(i%2?1:-1);
-      const r=145+(i%2)*42;
+      const r=265+(i%2)*48;
       add.x=state.bossX+Math.cos(a)*r;
-      add.y=state.bossY+Math.sin(a)*76+68;
+      add.y=state.bossY+Math.sin(a)*125+110;
       add.el.style.transform=`translate3d(${add.x}px,${add.y}px,0)`;
     });
     state.raf=requestAnimationFrame(render);
@@ -6323,8 +6383,20 @@ let castleSpawnTimer=null;
 const castleBoundaries=['games','career','consulting','crafting','tools','about'];
 function persistCastleRun(){try{localStorage.setItem(CASTLE_PROGRESS_KEY,String(castleRunProgress));}catch(_){} updateCastleMeter();updateProgressHudVisibility();}
 function castleRunFireworks(){
+  // Castle fireworks always use shared Canvas and never create a DOM fallback.
+  // Nine small bursts preserve the celebration with far less overdraw.
+  if(reduceMotion)return;
   const bursts=[[.13,.25],[.29,.42],[.46,.18],[.64,.32],[.82,.20],[.9,.52],[.18,.66],[.52,.60],[.74,.72]];
-  bursts.forEach(([px,py],i)=>window.setTimeout(()=>explodeAt(innerWidth*px,innerHeight*py,34,33,{radiusX:560,radiusY:450,lifetime:2150}),i*115));
+  const colors=document.body.classList.contains('theme-legendary')
+    ?['#fff0b5','#ffc83d','#ff7a1a','#43e0dc','#ffffff']
+    :['#67e8ff','#ff4fc8','#b13cff','#ffffff'];
+  bursts.forEach(([px,py],i)=>window.setTimeout(()=>{
+    const begin=performance.now();
+    const ok=window.MippiParticleRenderer?.burst(innerWidth*px,innerHeight*py,16,10,
+      {radiusX:440,radiusY:340,lifetime:1120},colors);
+    window.MippiPerfLab?.measure('castle.fireworks.canvasSpawn',performance.now()-begin);
+    if(i===0&&!ok)consolePrint('CASTLE FIREWORKS // Canvas unavailable; cosmetics skipped.','warn');
+  },i*145));
 }
 function castleAutoCollectWindow(){
   // Snapshot the already-spawned FRIENDLY flyers only. New objects arriving
@@ -6366,6 +6438,8 @@ function advanceCastleRun(){
 }
 castleMeter?.addEventListener('click',()=>{if(castleRunProgress>=4)claimCastleReward();});
 function castleMarkup(){
+  const art=window.MippiGameArt?.clickables?.castle;
+  if(art)return `<span class="castle-art game-art-icon" style="--game-art:url('${art}')" aria-hidden="true"></span>`;
   // Chunky three-tower platformer fortress silhouette. Familiar at a glance,
   // but built specifically for this page rather than copied from game art.
   return `<svg viewBox="0 0 72 60" aria-hidden="true">
@@ -6560,6 +6634,9 @@ const pickupKinds=[
   {kind:'key',msg:'KEY ITEM // no matching lock has been implemented.'}
 ];
 function getPickupMarkup(kind){
+  // Keep the original button and hitbox. Only the silhouette changes.
+  const art=window.MippiGameArt?.pickups?.[kind];
+  if(art)return `<span class="game-pickup-icon game-art-icon" style="--game-art:url('${art}')" aria-hidden="true"></span>`;
   if(kind==='rupee') return `<svg class="game-pickup-icon pickup-rupee" viewBox="0 0 64 80" aria-hidden="true"><polygon class="pickup-fill" points="32,4 54,18 47,57 32,74 17,57 10,18"/><polyline class="pickup-line" points="32,8 46,20 41,53 32,65 23,53 18,20 32,8"/><polyline class="pickup-line pickup-facet" points="22,27 32,35 42,27"/><polyline class="pickup-line pickup-facet" points="22,46 32,35 42,46"/></svg>`;
   if(kind==='1up') return `<svg class="game-pickup-icon pickup-mushroom" viewBox="0 0 72 72" aria-hidden="true"><path class="pickup-cap" d="M12 38c0-16 11-26 24-26 15 0 24 11 24 24 0 7-5 12-12 12H24c-7 0-12-3-12-10Z"/><circle class="pickup-spot" cx="25" cy="27" r="5"/><circle class="pickup-spot" cx="46" cy="28" r="5"/><rect class="pickup-stem" x="26" y="42" width="20" height="18" rx="7"/><circle class="pickup-eye" cx="31" cy="49" r="1.8"/><circle class="pickup-eye" cx="41" cy="49" r="1.8"/></svg>`;
   if(kind==='star') return `<svg class="game-pickup-icon pickup-star" viewBox="0 0 72 72" aria-hidden="true"><path class="pickup-fill" d="M36 7l7.4 15 16.6 2.4-12 11.7 2.9 16.5L36 45 21.1 52.6 24 36.1 12 24.4 28.6 22z"/></svg>`;
@@ -6671,7 +6748,9 @@ function spawnDougBone(force=false){
   if(!dougCard?.classList.contains('doug-command')||reduceMotion) return false;
   if(!directorAllowsAmbient('bone',{force})) return false;
   const f=randomEdgeFlight(90); const bone=document.createElement('button'); bone.type='button'; bone.className='doug-bone'; bone.setAttribute('aria-label','Doug-approved bone pickup');
-  bone.innerHTML=`<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
+  bone.innerHTML=window.MippiGameArt?.clickables?.bone
+    ? `<span class="doug-bone-icon game-art-icon" style="--game-art:url('${window.MippiGameArt.clickables.bone}')" aria-hidden="true"></span>`
+    : `<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
   bone.style.left=`${f.sx}px`; bone.style.top=`${f.sy}px`; bone.style.setProperty('--dx',`${f.dx}px`); bone.style.setProperty('--dy',`${f.dy}px`); bone.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(bone,5.4+Math.random()*3.8);
   bone.dataset.telemetryKind='bone'; telemetryFlyingSpawn('bone',{forced:force});
   bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const p=combatGeometry.effectCenter(bone); explodeAt(p.x,p.y,14); collectDougBone(method); setDougBoneCoolVisual(bone,false); bone.remove(); });

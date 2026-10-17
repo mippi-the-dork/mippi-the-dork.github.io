@@ -1,10 +1,10 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Mippi Portfolio v3.01 - Local Test
+title Mippi Portfolio v3.02 - Local Test
 echo.
 echo =====================================================
-echo   MIPPI PORTFOLIO v3.01 - LOCAL TEST SERVER
+echo   MIPPI PORTFOLIO v3.02 - LOCAL TEST SERVER
 echo =====================================================
 echo.
 echo The site will open in your default browser.

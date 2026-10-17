@@ -1,5 +1,5 @@
-// v3.03 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.03';
+// v3.04 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.04';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -4215,6 +4215,21 @@ function openSourceViewer(){
 // PLAY // A tiny Flappy-style side quest. This was a portfolio once.
 let flappyPanel=null, flappyCanvas=null, flappyCtx=null, flappyRaf=0;
 let flappyBirdImage=null, flappyState=null;
+const flappyBirdTints=new Map();
+function tintedMippiBird(color){
+  if(!flappyBirdImage?.naturalWidth)return null;
+  if(flappyBirdTints.has(color))return flappyBirdTints.get(color);
+  const canvas=document.createElement('canvas');
+  canvas.width=flappyBirdImage.naturalWidth;
+  canvas.height=flappyBirdImage.naturalHeight;
+  const c=canvas.getContext('2d');
+  if(!c)return flappyBirdImage;
+  c.drawImage(flappyBirdImage,0,0);
+  c.globalCompositeOperation='source-in';
+  c.fillStyle=color;c.fillRect(0,0,canvas.width,canvas.height);
+  flappyBirdTints.set(color,canvas);
+  return canvas;
+}
 let flappySessionHighScore=0;
 function flappyJumpStrength(){ return slowmoEnabled ? -5.25 : -6.9; }
 function flappyGravity(){ return slowmoEnabled ? .24 : .36; }
@@ -4278,6 +4293,7 @@ function ensureFlappyGame(){
   flappyBirdImage=new Image();
   flappyBirdImage.decoding='async';
   flappyBirdImage.src='assets/mippi-logo-blue.png';
+  flappyBirdImage.addEventListener('load',()=>flappyBirdTints.clear(),{once:true});
   return flappyPanel;
 }
 function resetFlappyGame(){
@@ -4437,13 +4453,14 @@ function drawFlappyFrame(dt){
   ctx.save();
   ctx.translate(bx,by);
   ctx.rotate(Math.max(-.35,Math.min(.55,s.vy*.045)));
-  const playerTint=legendary?'#ffc43f':complete?'#d96cff':'#2f93ff';
+  const playerTint=legendary?'#ffd16b':complete?'#ff6bd2':'#67cfff';
   const invulnerable=performance.now()<s.invulnerableUntil;
   const blinkVisible=!invulnerable || Math.floor(performance.now()/90)%2===0;
   if(blinkVisible){
     // Keep the mark crisp. Invulnerability is communicated by blinking, not glow.
-    if(flappyBirdImage?.naturalWidth>0){
-      ctx.drawImage(flappyBirdImage,-size/2,-size/2,size,size);
+    const logo=tintedMippiBird(playerTint);
+    if(logo){
+      ctx.drawImage(logo,-size/2,-size/2,size,size);
     } else {
       drawMippiBirdFallback(ctx,size,playerTint);
     }
@@ -6141,7 +6158,7 @@ function superBossMegaLaser(){
   const s=superBossRuntime;if(!s||s.ended||s.laserActive)return;
   s.laserActive=true;telemetryCount('arcade','superBossLasers');
 
-  const x=s.bossX,y=s.bossY,len=Math.hypot(window.innerWidth,window.innerHeight)*1.4;
+  const x=s.bossX,y=s.bossY+62,len=Math.hypot(window.innerWidth,window.innerHeight)*1.4;
   let beamAngle=Math.atan2(s.cursorY-y,s.cursorX-x);
   const beam=document.createElement('div');
   beam.className='superboss-laser charging';
@@ -6204,22 +6221,52 @@ function spawnSuperBoss(force=false){
   document.querySelectorAll('.galaga-secret,.ufo-projectile').forEach(el=>el.remove());
   updateInvasionMeter();
   const arena=document.createElement('section');arena.className='superboss-arena';arena.setAttribute('aria-label','Super Boss arcade encounter');arena.dataset.devNote='ARCADE NOTE // Every third boss victory escalates into a temporary full-screen encounter with adds, rockets, and a mega laser.';arena.dataset.designNote='DESIGN NOTE // FOCUSED ENCOUNTER // The Super Boss borrows the same Interact Off state the player can purchase, so page-lock behavior has one rule instead of two. Adds divide attention, rockets chase, the laser sweeps, and Exit Fight keeps the commitment reversible.';
-  arena.innerHTML=`<div class="superboss-vignette" aria-hidden="true"></div><div class="superboss-header"><span>INTERACT OFF // SUPER CONTACT</span><strong>SUPER BOSS</strong><div class="superboss-health"><i></i></div><small>CORE <b>18</b> / 18</small></div><div class="superboss-core" aria-hidden="true"><span></span></div><div class="superboss-add-layer" aria-hidden="true"></div><div class="superboss-cursor" aria-hidden="true"><i></i></div><button class="superboss-exit" type="button">EXIT BOSS FIGHT</button>`;
+  arena.innerHTML=`<div class="superboss-vignette" aria-hidden="true"></div><div class="superboss-header"><span>INTERACT OFF // SUPER CONTACT</span><strong>SUPER BOSS</strong><div class="superboss-health"><i></i></div><small>CORE <b>27</b> / 27</small></div><div class="superboss-core" aria-hidden="true"><span></span></div><div class="superboss-add-layer" aria-hidden="true"></div><div class="superboss-cursor" aria-hidden="true"><i></i></div><button class="superboss-exit" type="button">EXIT BOSS FIGHT</button>`;
   document.body.appendChild(arena);
   const boss=arena.querySelector('.superboss-core'),addLayer=arena.querySelector('.superboss-add-layer'),cursor=arena.querySelector('.superboss-cursor'),fill=arena.querySelector('.superboss-health i'),hpText=arena.querySelector('.superboss-header b');
-  const state={arena,boss,addLayer,cursor,fill,hpText,hp:18,maxHp:18,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:55,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
+  const state={arena,boss,addLayer,cursor,fill,hpText,hp:27,maxHp:27,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:55,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
   superBossRuntime=state;
-  for(let i=0;i<6;i++){const el=document.createElement('i');el.className='superboss-add';el.dataset.add=String(i);addLayer.appendChild(el);state.adds.push({el,alive:true,x:0,y:0,phase:i*Math.PI/3});}
+  const addMaxHp=3,addRespawnDelay=5000;
+  const createAddVisual=i=>{
+    const el=document.createElement('i');el.className='superboss-add mippi-spawning';
+    el.dataset.add=String(i);el.dataset.hp=String(addMaxHp);
+    el.innerHTML='<span class="superboss-add-health" aria-hidden="true"><i></i></span>';
+    addLayer.appendChild(el);
+    return el;
+  };
+  for(let i=0;i<6;i++)state.adds.push({el:createAddVisual(i),alive:true,
+    hp:addMaxHp,index:i,x:0,y:0,phase:i*Math.PI/3});
   const updateHealth=()=>{const pct=Math.max(0,state.hp/state.maxHp*100);state.fill.style.width=`${pct}%`;state.hpText.textContent=String(Math.max(0,state.hp));};updateHealth();
   const destroyAdd=add=>{
-    if(!add.alive)return;
-    add.alive=false;
-    telemetryCount('arcade','superBossAddsDestroyed');telemetryMeaningful('super_boss_add_destroyed');
-    const x=add.x,y=add.y;
+    if(!add.alive||state.ended)return;
+    add.alive=false;add.hp=0;
+    telemetryCount('arcade','superBossAddsDestroyed');
+    telemetryMeaningful('super_boss_add_destroyed',{index:add.index});
+    const x=add.x,y=add.y,oldVisual=add.el;
     if(Math.random()<.10)spawnGroundDrop('heart',x,y);
-    add.el.classList.add('destroyed');
+    oldVisual.classList.add('destroyed');
     explodeAt(x,y,30);
-    window.setTimeout(()=>add.el.remove(),90);
+    window.setTimeout(()=>oldVisual.remove(),90);
+    const timer=window.setTimeout(()=>{
+      if(state.ended||!arena.isConnected)return;
+      add.el=createAddVisual(add.index);add.hp=addMaxHp;add.alive=true;
+      telemetryCount('arcade','superBossAddsRespawned');
+      telemetryMeaningful('super_boss_add_respawned',{index:add.index});
+    },addRespawnDelay);
+    state.timeouts.push(timer);
+  };
+  const damageAdd=add=>{
+    if(!add.alive||state.ended)return;
+    add.hp=Math.max(0,add.hp-1);
+    telemetryCount('arcade','superBossAddHits');
+    telemetryMeaningful('super_boss_add_hit',{index:add.index,hp:add.hp,maxHp:addMaxHp});
+    if(add.hp<=0){destroyAdd(add);return;}
+    const element=add.el;
+    element.dataset.hp=String(add.hp);element.classList.add('damaged','boss-hit');
+    const bar=element.querySelector('.superboss-add-health i');
+    if(bar)bar.style.width=`${add.hp/addMaxHp*100}%`;
+    explodeAt(add.x,add.y,9);
+    window.setTimeout(()=>element.classList.remove('boss-hit'),140);
   };
   const damageBoss=(method='direct')=>{if(state.ended)return;state.hp--;telemetryCount('arcade','superBossHits');telemetryCount('arcade.superBossHitMethods',method);telemetryMeaningful('super_boss_hit',{method,hp:state.hp});explodeAt(state.bossX,state.bossY,state.hp<=0?82:12);updateHealth();arena.classList.add('boss-hit');window.setTimeout(()=>arena.classList.remove('boss-hit'),120);if(state.hp<=0){telemetryCount('arcade','superBossDefeated');telemetryFlyingCollect('super_boss',method);telemetryMeaningful('super_boss_defeated',{method}); finaleBossSatisfied=true; postgameSuperBossDefeated=true; try{localStorage.setItem(FINALE_BOSS_KEY,'1');localStorage.setItem(POSTGAME_SUPERBOSS_KEY,'1');}catch(_){}evaluatePostgameAchievements();telemetryCount('economy','superBossRupeeRewards',8);awardArcadeRupees(8,state.bossX,state.bossY,'super_boss');spawnGroundDrop('heart',state.bossX,state.bossY);showSuperBossVictory(state);}};
   const onMove=e=>{state.pointerX=e.clientX;state.pointerY=e.clientY;};
@@ -6258,7 +6305,7 @@ function spawnSuperBoss(force=false){
       }
       if(hitAdd){
         telemetryCount('arcade','playerHits');
-        destroyAdd(hitAdd);
+        damageAdd(hitAdd);
         remove();
         return;
       }
@@ -6326,7 +6373,7 @@ function spawnSuperBoss(force=false){
     state.raf=requestAnimationFrame(render);
   };
   state.raf=requestAnimationFrame(render);
-  const bossFire=window.setInterval(()=>{if(state.ended)return;const count=state.hp<=6?3:state.hp<=12?2:1;for(let i=0;i<count;i++){const spread=(i-(count-1)/2)*55;superBossProjectile({x:state.bossX,y:state.bossY,targetX:state.cursorX+spread,targetY:state.cursorY,sourceType:'super_bullet',speed:760});}},slowmoEnabled?1200:760);state.timers.push(bossFire);
+  const bossFire=window.setInterval(()=>{if(state.ended)return;const count=state.hp<=state.maxHp/3?3:state.hp<=state.maxHp*2/3?2:1;for(let i=0;i<count;i++){const spread=(i-(count-1)/2)*55;superBossProjectile({x:state.bossX,y:state.bossY,targetX:state.cursorX+spread,targetY:state.cursorY,sourceType:'super_bullet',speed:760});}},slowmoEnabled?1200:760);state.timers.push(bossFire);
   const addFire=window.setInterval(()=>{if(state.ended)return;const alive=state.adds.filter(a=>a.alive);if(!alive.length)return;const add=alive[Math.floor(Math.random()*alive.length)];superBossProjectile({x:add.x,y:add.y,targetX:state.cursorX,targetY:state.cursorY,sourceType:'add_bullet',speed:650});},slowmoEnabled?1650:1080);state.timers.push(addFire);
   const rockets=window.setInterval(()=>{if(state.ended)return;telemetryCount('arcade','superBossRockets');superBossProjectile({x:state.bossX,y:state.bossY,targetX:state.cursorX,targetY:state.cursorY,sourceType:'homing_rocket',speed:255,radius:29,className:'superboss-rocket',homing:true,lifetime:7600});},slowmoEnabled?3900:2650);state.timers.push(rockets);
   const lasers=window.setInterval(()=>superBossMegaLaser(),slowmoEnabled?7600:5350);state.timers.push(lasers);
@@ -6334,7 +6381,7 @@ function spawnSuperBoss(force=false){
   const firstLaser=window.setTimeout(()=>superBossMegaLaser(),3300);state.timeouts.push(firstLaser);
   consolePrint('SUPER BOSS // INTERACT OFF temporarily engaged. Left click fires straight upward from the cursor. Line up with the core or adds while avoiding rockets and the sweeping laser. EXIT BOSS FIGHT is always available.','warn');
 }
-window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,adds:superBossRuntime.adds.filter(a=>a.alive).length,cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
+window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,maxHp:superBossRuntime.maxHp,adds:superBossRuntime.adds.filter(a=>a.alive).length,addHp:superBossRuntime.adds.map(a=>a.hp),cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
 
 function createGalagaFlightPath(){
   const family=Math.random()<.5?'curve':'sine';

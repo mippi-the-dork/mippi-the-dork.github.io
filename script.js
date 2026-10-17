@@ -5694,10 +5694,10 @@ function nearbyClickable(x,y,{starAuto=false}={}){
   let best=null,nearest=Infinity;
   const candidates=starAuto
     ?combatGeometry.targetCandidates(performance.now())
-    :document.querySelectorAll(COMBAT_TARGET_SELECTOR+',.section-castle');
+    :document.querySelectorAll(COMBAT_TARGET_SELECTOR+',.section-castle,.mippi-panel-key');
   for(const el of candidates){
     if(!el.isConnected||el.dataset.combatLab==='1')continue;
-    if(starAuto&&el.classList.contains('section-castle'))continue;
+    if(starAuto&&(el.classList.contains('section-castle')||el.classList.contains('mippi-panel-key')))continue;
     let cx,cy,halfW,halfH;
     if(starAuto){
       const pos=combatGeometry.targetCenter(el);

@@ -8377,3 +8377,7 @@ body.theme-complete .elarsi-visual { background:radial-gradient(circle at 78% 18
 body.theme-complete .elarsi-waveform i,body.theme-complete .elarsi-timeline b { background:#ff4fc8; }
 body.theme-complete.theme-legendary .elarsi-visual { background:radial-gradient(circle at 78% 18%,rgba(255,185,74,.20),transparent 55%),linear-gradient(145deg,#24180f,#0a1011); }
 body.theme-complete.theme-legendary .elarsi-waveform i,body.theme-complete.theme-legendary .elarsi-timeline b { background:#ffc43f; }
+
+/* 3D failure fallback: real navigation controls, keyboard access and visible focus. */
+.scene-fallback.show .fallback-node { pointer-events:auto; cursor:pointer; text-decoration:none; }
+.scene-fallback.show .fallback-node:focus-visible { outline:2px solid currentColor; outline-offset:5px; }

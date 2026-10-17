@@ -1,4 +1,4 @@
-/* v2.99 // Cosmetic Canvas-first high-frequency 2D FX.
+/* v3.00 // Cosmetic Canvas-first high-frequency 2D FX.
    Shared, auto-detaching Canvas layers replace transient DOM sprites by default.
    The original DOM paths in script.js remain available via `dev fx renderer dom`.
    This module never owns hit testing, progression, or gameplay state. */
@@ -33,22 +33,33 @@
     l.canvas.width=Math.ceil(w*dpr);l.canvas.height=Math.ceil(h*dpr);
     l.canvas.style.width=w+'px';l.canvas.style.height=h+'px';
   }
-  function sprite(color,size){
-    const rounded=Math.max(2,Math.min(12,Math.round(size)));
-    // Quantize rainbow hues so a long session reuses sprites instead of regenerating them.
-    const tint=color.startsWith('hsl(')?color.replace(/hsl\((\d+)/,(_,h)=>'hsl('+(Math.floor(Number(h)/15)*15)):color;
-    const key=tint+'/'+rounded;
+  // Match the legacy DOM sprite: hard core, narrow falloff, low-alpha halo.
+  // Cache by kind, tint and size so no per-particle gradient allocations occur.
+  function sprite(kind,color,size){
+    const rounded=Math.max(2,Math.min(16,Math.round(size*2)/2));
+    const hue=color.startsWith('hsl(')?Number(color.slice(4)):NaN;
+    const tint=Number.isFinite(hue)?('hsl('+Math.floor(hue/15)*15+color.slice(color.indexOf(' ',4))):color;
+    const key=kind+'/'+tint+'/'+rounded;
     if(sprites.has(key))return sprites.get(key);
     const s=document.createElement('canvas');
-    const half=Math.ceil(rounded*4+10);
+    const core=rounded*.5;
+    const halo=kind==='command'?0:kind==='rainbow'?6:kind==='doug'?8:kind==='trail'&&rounded>4?9:5;
+    const half=Math.ceil(core+halo+2);
     s.width=s.height=half*2;
     const ctx=s.getContext('2d');
     if(!ctx)return null;
-    const grad=ctx.createRadialGradient(half,half,rounded*.15,half,half,half);
-    grad.addColorStop(0,'#ffffff');
-    grad.addColorStop(.10,tint);grad.addColorStop(.23,tint);
-    grad.addColorStop(.55,tint.startsWith('#')?tint+'55':tint.replace(/\)$/, ' / .33)'));grad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=grad;ctx.beginPath();ctx.arc(half,half,half,0,Math.PI*2);ctx.fill();
+    if(halo){
+      const grad=ctx.createRadialGradient(half,half,core*.65,half,half,core+halo);
+      grad.addColorStop(0,tint);
+      grad.addColorStop(.24,tint);
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.globalAlpha=kind==='doug'?.29:kind==='rainbow'?.24:.20;
+      ctx.fillStyle=grad;
+      ctx.beginPath();ctx.arc(half,half,core+halo,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=tint;
+    ctx.beginPath();ctx.arc(half,half,core,0,Math.PI*2);ctx.fill();
     if(sprites.size>=128)sprites.clear();
     sprites.set(key,s);
     return s;
@@ -75,9 +86,11 @@
         const noGlow=(p.kind==='trail'||p.kind==='rainbow')&&html.classList.contains('cursor-test-no-glow');
         const q=ease(Math.min(1,t)),s=p.kind==='command'?(.35+.65*(1-q)):(1-.85*q);
         const alpha=p.kind==='command'?Math.min(.9,Math.max(0,t/.12*.9))*(1-q):1-q;
-        const image=noGlow?null:sprite(p.color,p.size);
+        const image=noGlow?null:sprite(p.kind,p.color,p.size);
         if(!image&&!noGlow)continue;
-        const x=(p.x+p.dx*q)*dpr,y=(p.y+p.dy*q)*dpr;
+        // DOM trail/command particles use their top-left; rainbow particles are centered.
+        const offset=(p.kind==='trail'||p.kind==='command')?p.size*.5:0;
+        const x=(p.x+p.dx*q+offset)*dpr,y=(p.y+p.dy*q+offset)*dpr;
         ctx.globalAlpha=alpha;
         if(noGlow){
           ctx.beginPath();ctx.arc(x,y,Math.max(1,p.size*s*dpr*.5),0,Math.PI*2);

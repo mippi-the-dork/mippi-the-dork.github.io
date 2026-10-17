@@ -8074,3 +8074,87 @@ html.profile-no-cursorfx .mippi-fx-low { visibility:hidden; }
 
 /* The single remaining cursor aura follows with compositor-friendly individual translate. */
 .completion-cursor-aura { will-change:translate; }
+body:not(.theme-complete) .game-pickup[data-kind="rupee"]{color:#2f93ff;}
+body:not(.theme-complete) .game-pickup[data-kind="heart"]{color:#ff75cf;}
+body:not(.theme-complete) .game-pickup[data-kind="star"]{color:#8fd6ff;}
+body:not(.theme-complete) .game-pickup[data-kind="1up"]{color:#48cfff;}
+body:not(.theme-complete) .game-pickup[data-kind="key"]{color:#5daeff;}
+body:not(.theme-complete) .doug-bone{color:#e7f4ff;}
+body:not(.theme-complete) .galaga-secret:not(.boss-ufo){color:#2f93ff;}
+body:not(.theme-complete) .galaga-secret.boss-ufo{color:#2f93ff;}
+body:not(.theme-complete) .superboss-core{color:#67e8ff;}
+body:not(.theme-complete) .superboss-add{color:#2f93ff;}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="rupee"]{color:#38d6e8;}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="heart"]{color:#ff4fc8;}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="star"]{color:#c66cff;}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="1up"]{color:#9f52f2;}
+body.theme-complete:not(.theme-legendary) .game-pickup[data-kind="key"]{color:#df72ff;}
+body.theme-complete:not(.theme-legendary) .doug-bone{color:#f4ddff;}
+body.theme-complete:not(.theme-legendary) .galaga-secret:not(.boss-ufo){color:#ff4fc8;}
+body.theme-complete:not(.theme-legendary) .galaga-secret.boss-ufo{color:#ff4fc8;}
+body.theme-complete:not(.theme-legendary) .superboss-core{color:#ff4fc8;}
+body.theme-complete:not(.theme-legendary) .superboss-add{color:#ff4fc8;}
+body.theme-complete.theme-legendary .game-pickup[data-kind="rupee"]{color:#24bdbb;}
+body.theme-complete.theme-legendary .game-pickup[data-kind="heart"]{color:#ff7b35;}
+body.theme-complete.theme-legendary .game-pickup[data-kind="star"]{color:#ffd24f;}
+body.theme-complete.theme-legendary .game-pickup[data-kind="1up"]{color:#2bc8ac;}
+body.theme-complete.theme-legendary .game-pickup[data-kind="key"]{color:#ffc43f;}
+body.theme-complete.theme-legendary .doug-bone{color:#ffd78a;}
+body.theme-complete.theme-legendary .galaga-secret:not(.boss-ufo){color:#ffab3b;}
+body.theme-complete.theme-legendary .galaga-secret.boss-ufo{color:#ff9a24;}
+body.theme-complete.theme-legendary .superboss-core{color:#ffc43f;}
+body.theme-complete.theme-legendary .superboss-add{color:#ff9a24;}
+
+
+/* v3.00 // New supplied SVG silhouettes. CSS preserves theme tinting and original hitboxes. */
+.game-art-icon {
+  display:block;background-color:currentColor;
+  -webkit-mask-image:var(--game-art);mask-image:var(--game-art);
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-size:contain;mask-size:contain;
+}
+.game-pickup .game-art-icon {width:56px;height:56px;margin:auto;}
+.doug-bone .game-art-icon {width:60px;height:32px;margin:auto;}
+.section-castle .castle-art {width:100%;height:100%;transition:transform .15s ease,filter .15s ease;}
+.section-castle:hover .castle-art {transform:translateY(-3px) scale(1.08);filter:drop-shadow(0 0 5px currentColor);}
+body .galaga-secret:not(.boss-ufo)::before {
+  content:"";left:1px!important;top:0!important;width:42px!important;height:32px!important;
+  border:0!important;box-shadow:none!important;background:currentColor!important;
+  -webkit-mask:url('assets/game/enemy.svg') center/contain no-repeat;
+  mask:url('assets/game/enemy.svg') center/contain no-repeat;
+}
+body .galaga-secret.boss-ufo::before {
+  content:"";left:2px!important;top:0!important;width:100px!important;height:62px!important;
+  border:0!important;box-shadow:none!important;background:currentColor!important;
+  -webkit-mask:url('assets/game/boss.svg') center/contain no-repeat;
+  mask:url('assets/game/boss.svg') center/contain no-repeat;
+}
+body .superboss-arena .superboss-core::before {
+  inset:0!important;width:100%!important;height:100%!important;
+  content:"";border:0!important;border-radius:0!important;clip-path:none!important;
+  box-shadow:none!important;background:currentColor!important;
+  -webkit-mask:url('assets/game/super-boss.svg') center/contain no-repeat;
+  mask:url('assets/game/super-boss.svg') center/contain no-repeat;
+}
+body .superboss-arena .superboss-core::after,
+body .superboss-arena .superboss-core span::before,
+body .superboss-arena .superboss-core span::after,
+body .superboss-arena .superboss-add::after {content:none!important;}
+body .superboss-arena .superboss-add::before {
+  inset:0!important;width:100%!important;height:100%!important;
+  content:"";border:0!important;clip-path:none!important;
+  background:currentColor!important;
+  -webkit-mask:url('assets/game/boss.svg') center/contain no-repeat;
+  mask:url('assets/game/boss.svg') center/contain no-repeat;
+}
+#site-game-hud #heart-meter > span:not(.hud-attention-ring) {font-size:0!important;}
+#site-game-hud #heart-meter > span:not(.hud-attention-ring)::before {
+  content:"";display:block;width:15px;height:15px;flex:none;background:currentColor;
+  -webkit-mask:url('assets/game/heart-empty.svg') center/contain no-repeat;
+  mask:url('assets/game/heart-empty.svg') center/contain no-repeat;
+}
+#site-game-hud #heart-meter > span.filled::before {
+  -webkit-mask-image:url('assets/game/heart-full.svg');
+  mask-image:url('assets/game/heart-full.svg');
+}

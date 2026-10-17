@@ -1,5 +1,5 @@
-// v2.96 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='2.99';
+// v3.00 // Build version is authored once for all runtime and profiler output.
+const MIPPI_BUILD_VERSION='3.00';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -2140,8 +2140,12 @@ function initializeUnifiedHud(){
   // Resource icon treatment uses the same 19px mask and color system as modes.
   for(const [id,icon] of [['cool-meter','cool'],['invasion-meter','invasion'],['castle-meter','castle'],['rupee-meter','gem']]){
     const el=$(id);if(!el)continue;
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[icon]}</svg>`;
-    el.style.setProperty('--meter-icon',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+    const art=window.MippiGameArt?.hud?.[id];
+    if(art)el.style.setProperty('--meter-icon',`url("${art}")`);
+    else{
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[icon]}</svg>`;
+      el.style.setProperty('--meter-icon',`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+    }
   }
   // Dedicated ring avoids collision with Wish tooltip pseudo-elements.
   for(const el of dock.querySelectorAll('button')){
@@ -6366,6 +6370,8 @@ function advanceCastleRun(){
 }
 castleMeter?.addEventListener('click',()=>{if(castleRunProgress>=4)claimCastleReward();});
 function castleMarkup(){
+  const art=window.MippiGameArt?.clickables?.castle;
+  if(art)return `<span class="castle-art game-art-icon" style="--game-art:url('${art}')" aria-hidden="true"></span>`;
   // Chunky three-tower platformer fortress silhouette. Familiar at a glance,
   // but built specifically for this page rather than copied from game art.
   return `<svg viewBox="0 0 72 60" aria-hidden="true">
@@ -6560,6 +6566,9 @@ const pickupKinds=[
   {kind:'key',msg:'KEY ITEM // no matching lock has been implemented.'}
 ];
 function getPickupMarkup(kind){
+  // Keep the original button and hitbox. Only the silhouette changes.
+  const art=window.MippiGameArt?.pickups?.[kind];
+  if(art)return `<span class="game-pickup-icon game-art-icon" style="--game-art:url('${art}')" aria-hidden="true"></span>`;
   if(kind==='rupee') return `<svg class="game-pickup-icon pickup-rupee" viewBox="0 0 64 80" aria-hidden="true"><polygon class="pickup-fill" points="32,4 54,18 47,57 32,74 17,57 10,18"/><polyline class="pickup-line" points="32,8 46,20 41,53 32,65 23,53 18,20 32,8"/><polyline class="pickup-line pickup-facet" points="22,27 32,35 42,27"/><polyline class="pickup-line pickup-facet" points="22,46 32,35 42,46"/></svg>`;
   if(kind==='1up') return `<svg class="game-pickup-icon pickup-mushroom" viewBox="0 0 72 72" aria-hidden="true"><path class="pickup-cap" d="M12 38c0-16 11-26 24-26 15 0 24 11 24 24 0 7-5 12-12 12H24c-7 0-12-3-12-10Z"/><circle class="pickup-spot" cx="25" cy="27" r="5"/><circle class="pickup-spot" cx="46" cy="28" r="5"/><rect class="pickup-stem" x="26" y="42" width="20" height="18" rx="7"/><circle class="pickup-eye" cx="31" cy="49" r="1.8"/><circle class="pickup-eye" cx="41" cy="49" r="1.8"/></svg>`;
   if(kind==='star') return `<svg class="game-pickup-icon pickup-star" viewBox="0 0 72 72" aria-hidden="true"><path class="pickup-fill" d="M36 7l7.4 15 16.6 2.4-12 11.7 2.9 16.5L36 45 21.1 52.6 24 36.1 12 24.4 28.6 22z"/></svg>`;
@@ -6671,7 +6680,9 @@ function spawnDougBone(force=false){
   if(!dougCard?.classList.contains('doug-command')||reduceMotion) return false;
   if(!directorAllowsAmbient('bone',{force})) return false;
   const f=randomEdgeFlight(90); const bone=document.createElement('button'); bone.type='button'; bone.className='doug-bone'; bone.setAttribute('aria-label','Doug-approved bone pickup');
-  bone.innerHTML=`<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
+  bone.innerHTML=window.MippiGameArt?.clickables?.bone
+    ? `<span class="doug-bone-icon game-art-icon" style="--game-art:url('${window.MippiGameArt.clickables.bone}')" aria-hidden="true"></span>`
+    : `<svg class="doug-bone-icon" viewBox="0 0 72 36" aria-hidden="true"><g><rect x="17" y="12" width="38" height="12" rx="6"/><circle cx="12" cy="10" r="7"/><circle cx="12" cy="26" r="7"/><circle cx="60" cy="10" r="7"/><circle cx="60" cy="26" r="7"/></g></svg>`;
   bone.style.left=`${f.sx}px`; bone.style.top=`${f.sy}px`; bone.style.setProperty('--dx',`${f.dx}px`); bone.style.setProperty('--dy',`${f.dy}px`); bone.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(bone,5.4+Math.random()*3.8);
   bone.dataset.telemetryKind='bone'; telemetryFlyingSpawn('bone',{forced:force});
   bone.addEventListener('click',()=>{ const method=telemetryCollectionMethod(bone); const p=combatGeometry.effectCenter(bone); explodeAt(p.x,p.y,14); collectDougBone(method); setDougBoneCoolVisual(bone,false); bone.remove(); });

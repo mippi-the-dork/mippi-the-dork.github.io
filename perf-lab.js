@@ -310,13 +310,13 @@
       `visual-${disabled.length?disabled.join('-'):'default'}`,
       `cursor-${(data.cursorInitial?.visualLevel??'na')}-${data.cursorInitial?.architecture||'legacy'}-${data.cursorInitial?.style||'unknown'}-${data.cursorInitial?.native||'unknown'}`,`fx-${data.fxInitial?.mode||'dom'}`].join('-');
     const timestamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z').replace('T','-');
-    const payload={version:window.MIPPI_BUILD_VERSION||'2.99',diagnosticHarness:'v2.99',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
+    const payload={version:window.MIPPI_BUILD_VERSION||'3.00',diagnosticHarness:'v3.00',capturedAt:new Date().toISOString(),testLabel,viewport:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
       userAgent:navigator.userAgent,summary:report(),raw:{...data,slowCallbacks:data.slowCallbacks}};
     correlateSpikes(payload.raw);
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
     const link=document.createElement('a');link.href=url;
-    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"2.99"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
+    link.download=`mippi-profile-v${window.MIPPI_BUILD_VERSION||"3.00"}-${selectedTheme}-${testLabel}-${timestamp}.json`;
     document.body.appendChild(link);link.click();link.remove();
     window.setTimeout(()=>URL.revokeObjectURL(url),1000);
     return `Downloaded ${link.download}. Upload this file for an exact comparison.`;
@@ -352,7 +352,7 @@
       'dev profile start | stop | report | boot | reset | export',
       'v2.99 // Canvas-first cursor / star / Doug / command particle FX; DOM A/B retained.',
       'dev stability help             // long-session sample / soak tests and export',
-      'v2.99 // Exports include renderer mode, pointer movement, and 2D FX activity.',
+      'v3.00 // Crisp Canvas FX, supplied SVG game art, and preserved DOM fallback.',
       'dev fx help | status | renderer canvas/dom | reset',
       'dev profile hud off/on       // hide the dock (CSS render cost)',
       'dev profile hudfx off/on     // disable dock CSS animations/glows',

@@ -33,3 +33,8 @@ All five Hearts collected.
 
 - [Achievements and Discovery Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.05–v3.10 Current Specification
+
+v3.06 hint/solution reconciliation: Full Hearts is achieved when the current reserve reaches **five Hearts**, rather than merely owning a claim or collecting five cumulatively regardless of current reserve.

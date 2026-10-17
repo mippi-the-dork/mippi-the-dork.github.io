@@ -1,4 +1,4 @@
-MIPPI PORTFOLIO v3.00 - LOCAL TEST INSTRUCTIONS
+MIPPI PORTFOLIO v3.01 - LOCAL TEST INSTRUCTIONS
 
 1. Extract the ENTIRE GitHub ZIP to a regular folder on your PC.
 2. Double-click START_LOCAL_TEST.bat inside that extracted website folder.
@@ -12,19 +12,24 @@ The launcher uses Windows PowerShell and a built-in .NET localhost web server.
 You need an internet connection for externally hosted Three.js dependencies.
 
 WHAT TO TEST
-- Compare new HUD meter and heart icons in Rare, Epic, Legendary.
-- Collect Rupee, Heart, Key, Mushroom, Star, Bone; check castle.
-- Examine the regular UFO, Boss, Super Boss, and Super Boss adds.
-- Confirm the shooting star still has its ORIGINAL distinct art.
-- In dev console, compare: dev fx renderer dom
-                          dev fx renderer canvas
-  Stop the combat benchmark before changing FX renderer.
-- Capture new 30-second v3.00 performance runs in Epic and Legendary.
-- Check your unlocked music player and individual MP3 downloads.
+- Star continuously bounces across the width above the hotbar and disappears when its timer expires.
+- Rupees can burst from meaningful UI interactions. External website links drop 2-3 more often.
+- Rupees fall, bounce on the hotbar, settle briefly, and are only awarded when clicked.
+- Mushrooms orbit a content card, including corners, and follow the card when scrolling.
+- A single Key appears in the lower-right of a panel and remains until clicked.
+- Regular UFOs follow sweeping corner paths (including top-to-top and bottom-to-bottom) or vertical sine waves.
+- Defeated UFOs have a small chance to drop a Heart. Normal Boss and Super Boss guarantee Hearts.
+- Boss travels in a repeating diamond and escapes after its timer.
+- Super Boss moves horizontally with occasional direction reversals and stops during its Mega Laser.
+- Six adds orbit the Super Boss in a single formation.
+- Bones fall and spin.
+- Shooting Stars continue using their original path.
+- Shooting, click-radius, difficulty, theme switching and progression still behave normally.
+- Run Epic and Legendary performance checks using dev profile sample 30.
 
 NOTES
 - This test is LOCAL. It does not change or publish your GitHub Pages site.
 - Closing this server window stops the site server.
 - Do not open index.html directly as a file; use this launcher.
 - Keep all site files and assets alongside the BAT file.
-- Changes are on the v3.00 draft branch, not on main.
+- Changes are on the v3.01 draft branch, not on main.

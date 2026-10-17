@@ -460,3 +460,17 @@ Current v2.97 QA: ensure `stability-lab.js` loads before `perf-lab.js`, `particl
 ## v2.98 Current Behavior
 
 v2.98 verification: default `dev cursor status` reports `architecture:scoped`; `dev cursor reset` restores Scoped/gameplay size and all effects. Verify Legacy remains selectable, `style universal|inherit` only affects Legacy, v2.98 profile filenames/snapshots identify architecture, both modes display matching native SVG pointer, and all modal/window focus fallback controls are operable. Validate moving-cursor performance and Trail/objective confounds separately. See [Scoped Cursor QA](CURSOR_ARCHITECTURE_V2_98.md).
+
+
+## Current v3.01 Acceptance
+
+- [ ] Verify 14 SVG assets and game-art.js roles, theme colors, HUD active state and clickable sizes.
+- [ ] Verify cursor radius (+17px per real Mushroom level, +14px Star Power) and enemy-only upward shooting with Cool three-shot spread and Star Power piercing.
+- [ ] Verify smaller nine-burst Canvas-only Castle fireworks with all progression unchanged.
+- [ ] Verify authored Spawn Motion for Stars, Rupees, Mushrooms, Hearts, Keys, Bones, UFO, Boss, six Super Boss adds; Shooting Stars unchanged.
+- [ ] Verify ambient pool excludes Heart/Rupee and natural Hearts come from enemy deaths only.
+- [ ] Verify Rupee wallet increments on physical collection, not on generating drops.
+- [ ] Verify fx-renderer.js, game-art.js and spawn-motion.js initialize before script.js.
+- [ ] Verify v3.01 Console, diagnostics, local launcher and no performance regressions using browser traces.
+
+See [Current Gameplay QA](V3_00_V3_01_GAMEPLAY_QA.md).

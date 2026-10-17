@@ -190,3 +190,8 @@ The player quickly learns a consistent rule:
 
 - [Collectibles and Claimable Milestones Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## v3.01 Spawnable Movement
+
+Stars bounce above the HUD, Mushrooms follow a content-panel perimeter, hidden Keys stay attached until collected, Rupees and Hearts fall with gravity, and Bones fall spinning. Shooting Star behavior is unchanged. No generic fly-across path is shared by all pickups.

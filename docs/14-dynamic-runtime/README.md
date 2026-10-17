@@ -31,6 +31,8 @@ This category groups the canonical documentation for **Dynamic Runtime Systems**
 
 | **Authored Spawn Motion** | Entity-specific paths powered by one shared movement clock. | [Design](authored-spawn-motion/DESIGN.md) | [Technical](authored-spawn-motion/TECHNICAL.md) |
 
+| **Spawn Entrance and Expiry** | Onscreen entrance and natural-expiry transitions with clipping-safe mushroom layering. | [Design](spawn-entrance-expiry/DESIGN.md) | [Technical](spawn-entrance-expiry/TECHNICAL.md) |
+
 ## Documentation rules
 
 - This README is the category index and should stay concise.

@@ -21,11 +21,14 @@ This category groups the canonical documentation for **Collectibles and Claimabl
 | **Castle Claim State** | Makes the Castles HUD pulse at 4 out of 4 and waits for the player to click it before firing the completion reward. | [Design](castle-claim-state/DESIGN.md) | [Technical](castle-claim-state/TECHNICAL.md) |
 | **Castle Fireworks** | Provides the Castle reward celebration using larger particles for readability without increasing particle count. | [Design](castle-fireworks/DESIGN.md) | [Technical](castle-fireworks/TECHNICAL.md) |
 | **Star Pickup and Star Power** | Grants a temporary power state that affects movement, arcade interactions, and selected system-combo behavior. | [Design](star-pickup-and-star-power/DESIGN.md) | [Technical](star-pickup-and-star-power/TECHNICAL.md) |
-| **Mushroom Pickup** | Advances cursor power and Mippi Bird extra-life progression through the Mushroom collectible. | [Design](mushroom-pickup/DESIGN.md) | [Technical](mushroom-pickup/TECHNICAL.md) |
+| **Mushroom Pickup** | Grows cursor power to a fixed maximum and can buffer hits at max; does not provide Bird Lives. | [Design](mushroom-pickup/DESIGN.md) | [Technical](mushroom-pickup/TECHNICAL.md) |
 | **Doug Bone Pickup** | Feeds the Doug Coolness progression and can trigger special Doug responses and system combinations. | [Design](doug-bone-pickup/DESIGN.md) | [Technical](doug-bone-pickup/TECHNICAL.md) |
 | **Claim-Ready HUD Pattern** | Defines the consistent glowing HUD behavior used when a completed meter is waiting for an explicit player claim. | [Design](claim-ready-hud-pattern/DESIGN.md) | [Technical](claim-ready-hud-pattern/TECHNICAL.md) |
 
 | **Physical Reward Drops** | Collectible ground-bouncing Rupees and enemy-earned Hearts. | [Design](physical-reward-drops/DESIGN.md) | [Technical](physical-reward-drops/TECHNICAL.md) |
+
+
+**Current v3.25.2 correction:** Keys retain their Epic gate after the v3.23 restoration; the Rare Insert Coin item grants UFO/s shooting access only. Ordinary Hearts and Mushrooms never replenish Bird Lives. See [systems integration](../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
 
 ## Documentation rules
 

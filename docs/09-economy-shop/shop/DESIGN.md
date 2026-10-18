@@ -1,5 +1,13 @@
 # Shop - Design Documentation
 
+## Current v3.25.2 verified update
+
+Current Shop inventory has 13 definitions: 7 independently equippable gameplay modifiers, 5 owned passive/capstone items, and one repeatable Bird Life Refill. All owned gameplay upgrades may be active together. Item rarity does not imply a single equipment slot; ownership and equipment are separate. Individual EQUIP/UNEQUIP and UNEQUIP ALL provide full control.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Shop > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

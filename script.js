@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.15.5';
+const MIPPI_BUILD_VERSION='3.16.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -1226,7 +1226,7 @@ function unlockPostgameAchievement(key,{announce=true}={}){
   telemetryCount('achievements','postgameUnlocks');
   telemetryMeaningful('postgame_achievement_unlocked',{key,rarity:data.rarity});
   if(postgameRevealed&&announce){
-    showTransientToast(data.title,data.detail,`${unlockedAchievements.size+postgameUnlockedCount()} / 20 FOUND`,`${data.rarity.toUpperCase()} ACHIEVEMENT UNLOCKED`);
+    showTransientToast(data.title,data.detail,`${unlockedAchievements.size+postgameUnlockedCount()} / 20 FOUND`,`${data.rarity.toUpperCase()} ACHIEVEMENT UNLOCKED`,{achievementKey:key,rarity:data.rarity});
   }
   return true;
 }
@@ -1265,9 +1265,38 @@ function updateAchievementProgress(extraCount = null) {
   updateCompletionState();
   evaluatePostgameAchievements({announce:postgameRevealed});
 }
-function ledgerEntryMarkup({num,data,found,rarity='rare'}){
+// Achievement emblems use lightweight inline SVG silhouettes, not external fonts.
+// Locked achievements retain their identifiable silhouette as a visual clue.
+const ACHIEVEMENT_ICON_PATHS={
+  "curious":"<path d=\"M12 5a4 4 0 0 0-7 2 4 4 0 0 0 0 7 4 4 0 0 0 7 5V5Zm0 0a4 4 0 0 1 7 2 4 4 0 0 1 0 7 4 4 0 0 1-7 5\"/><path d=\"M8 9h2m4 5h2M8 16l2-2\"/>",
+  "secondPerson":"<path d=\"M3 8V4h5m8 0h5v4M3 16v4h5m8 0h5v-4M2 12s4-5 10-5 10 5 10 5-4 5-10 5-10-5-10-5Z\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\"/>",
+  "signal":"<path d=\"M12 20V9m-4 11h8m-4-15-3 3 3 3 3-3-3-3ZM6 4a11 11 0 0 0 0 16m12-16a11 11 0 0 1 0 16\"/>",
+  "wip":"<path d=\"M4 7h16v10H4zM7 17v4m10-4v4M6 7l6 10m0-10 6 10\"/>",
+  "ghost":"<path d=\"M5 20V10a7 7 0 0 1 14 0v10l-3-2-4 2-4-2-3 2Z\"/><path d=\"M9 11v2m6-2v2\"/>",
+  "lore":"<path d=\"M7 4h11v15H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1m0 0v12m2-7h6m-6 4h6M6 19h13\"/>",
+  "doug":"<ellipse cx=\"12\" cy=\"15\" rx=\"5\" ry=\"4\"/><circle cx=\"5\" cy=\"9\" r=\"1.4\"/><circle cx=\"10\" cy=\"6\" r=\"1.4\"/><circle cx=\"15\" cy=\"6\" r=\"1.4\"/><circle cx=\"20\" cy=\"9\" r=\"1.4\"/>",
+  "unmark":"<path d=\"M5 3h10l4 4v14H5zM15 3v5h4M8 12l3 3-3 3m5 0h3\"/><path d=\"M8 8q4-5 8 0\"/>",
+  "nda":"<path d=\"M5 3h10l4 4v14H5zM15 3v5h4M8 11h8m-8 4h8m-8 3h5\"/><path d=\"M9 11h6m-6 4h6\" stroke-width=\"3\"/>",
+  "konami":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"11\" rx=\"5\"/><path d=\"M8 10v7m-3.5-3.5h7M15.5 12h.1m2.5 3h.1\"/>",
+  "post_signals":"<circle cx=\"12\" cy=\"12\" r=\"5\"/><path d=\"M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M20 4l-2 2M6 18l-2 2\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>",
+  "post_cool":"<path d=\"M12 22c6-2 8-7 5-12-1 3-3 4-3 4 1-5-2-9-5-12 0 5-3 7-4 12-1 4 2 7 7 8Z\"/><path d=\"M10 20c-2-3 0-5 2-7 0 3 4 4 2 7\"/>",
+  "post_legendary":"<path d=\"m3 7 4 3 5-6 5 6 4-3-2 12H5L3 7Zm2 12h14v3H5z\"/><path d=\"M12 9v5\"/>",
+  "post_wish":"<rect x=\"3\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"m7 12 3 3 6-6M3 12H1m22 0h-2M12 6V3\"/>",
+  "post_hearts":"<path d=\"M20 6c-2-3-6-2-8 1-2-3-6-4-8-1-3 4 0 8 8 15 8-7 11-11 8-15Z\"/><path d=\"M7 10h10m-5-5v10\"/>",
+  "post_shop":"<path d=\"M4 8h16l-1 13H5L4 8ZM8 9V6a4 4 0 0 1 8 0v3\"/><path d=\"m12 12 3 3-3 3-3-3z\"/>",
+  "post_castles":"<path d=\"M3 21V6h4v3h3V6h4v3h3V6h4v15H3Zm7 0v-7h4v7M3 12h18\"/><path d=\"M19 3V1m-2 2h4\"/>",
+  "post_sections":"<path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16\"/><circle cx=\"6\" cy=\"9\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"18\" cy=\"15\" r=\"1\"/>",
+  "post_superboss":"<path d=\"M2 12c2-6 18-6 20 0l-4 4H6l-4-4Zm7-6 3-4 3 4M8 16l-2 4m10-4 2 4\"/><path d=\"m11 10 2 2-2 2\"/>",
+  "post_complete":"<path d=\"M7 4h10v8a5 5 0 0 1-10 0V4Zm0 2H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4m-5 4v3m-5 2h10\"/><path d=\"m12 7 1.2 2.3 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4L12 7Z\"/>"
+};
+function achievementEmblem(key){
+  const paths=ACHIEVEMENT_ICON_PATHS[key]||ACHIEVEMENT_ICON_PATHS.curious;
+  return '<svg class="achievement-emblem-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+}
+
+function ledgerEntryMarkup({key,num,data,found,rarity='rare'}){
   const detail=found?data.detail:`<span class="ledger-hint-label">TRACE //</span> ${data.hint}`;
-  return `<div class="ledger-entry rarity-${rarity} ${found?'unlocked':''}"><span class="num">${num}</span><div><span class="ledger-rarity">${rarity.toUpperCase()}</span><strong>${found?data.title:'???'}</strong><small>${detail}</small></div></div>`;
+  return `<div class="ledger-entry rarity-${rarity} ${found?'unlocked':''}"><span class="achievement-emblem" aria-hidden="true">${achievementEmblem(key)}</span><div><span class="ledger-rarity">${rarity.toUpperCase()}</span><strong>${found?data.title:'???'}</strong><small>${detail}</small></div></div>`;
 }
 function renderLedger() {
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
@@ -1277,12 +1306,12 @@ function renderLedger() {
   if(postgameRevealed){
     const legendary=POSTGAME_ACHIEVEMENTS[POSTGAME_LEGENDARY_KEY];
     markup+=`<div class="ledger-tier-head legendary"><span>POSTGAME // TRUE COMPLETION</span><strong>LEGENDARY CAPSTONE</strong></div>`;
-    markup+=ledgerEntryMarkup({num:'20',data:legendary,found:unlockedPostgameAchievements.has(POSTGAME_LEGENDARY_KEY),rarity:'legendary'});
+    markup+=ledgerEntryMarkup({key:POSTGAME_LEGENDARY_KEY,num:'20',data:legendary,found:unlockedPostgameAchievements.has(POSTGAME_LEGENDARY_KEY),rarity:'legendary'});
     markup+=`<div class="ledger-tier-head epic"><span>POSTGAME // 9 CHALLENGES</span><strong>EPIC ACHIEVEMENTS</strong></div>`;
-    POSTGAME_EPIC_KEYS.forEach((key,index)=>{markup+=ledgerEntryMarkup({num:String(11+index).padStart(2,'0'),data:POSTGAME_ACHIEVEMENTS[key],found:unlockedPostgameAchievements.has(key),rarity:'epic'});});
+    POSTGAME_EPIC_KEYS.forEach((key,index)=>{markup+=ledgerEntryMarkup({key,num:String(11+index).padStart(2,'0'),data:POSTGAME_ACHIEVEMENTS[key],found:unlockedPostgameAchievements.has(key),rarity:'epic'});});
     markup+=`<div class="ledger-tier-head rare"><span>ORIGINAL DISCOVERY</span><strong>RARE ACHIEVEMENTS</strong></div>`;
   }
-  markup+=ACHIEVEMENT_KEYS.map((key,index)=>ledgerEntryMarkup({num:String(index+1).padStart(2,'0'),data:ACHIEVEMENTS[key],found:unlockedAchievements.has(key),rarity:'rare'})).join('');
+  markup+=ACHIEVEMENT_KEYS.map((key,index)=>ledgerEntryMarkup({key,num:String(index+1).padStart(2,'0'),data:ACHIEVEMENTS[key],found:unlockedAchievements.has(key),rarity:'rare'})).join('');
   if(!postgameRevealed&&unlockedAchievements.size===ACHIEVEMENT_KEYS.length){
     if(!legendaryUnlocked){
       const next=wishCharge>0?'A Shooting Star is charged. Open the Dev Console and try wish.':'Epic is not the end. Keep Epic active and watch the sky for a celestial signal.';
@@ -1991,7 +2020,7 @@ function removeSystemToast(entry){
   entry.el.remove();
   repositionSystemToasts();
 }
-function showTransientToast(title,detail,progressLabel='SYSTEM',topLabel='SYSTEM',{persistent=false}={}){
+function showTransientToast(title,detail,progressLabel='SYSTEM',topLabel='SYSTEM',{persistent=false,achievementKey=null,rarity='rare'}={}){
   const el=document.createElement('article');el.className='system-toast';el.setAttribute('role','status');
   const heading=document.createElement('div');heading.className='system-toast-heading';
   const type=document.createElement('span');type.textContent=topLabel;
@@ -2000,7 +2029,13 @@ function showTransientToast(title,detail,progressLabel='SYSTEM',topLabel='SYSTEM
   const name=document.createElement('strong');name.textContent=title;
   const description=document.createElement('small');description.textContent=detail;
   const progress=document.createElement('b');progress.textContent=progressLabel;
-  el.append(heading,name,description,progress);
+  if(achievementKey){
+    el.classList.add('achievement-unlock-toast',`rarity-${rarity}`);
+    const badge=document.createElement('span');badge.className='achievement-emblem toast-emblem';badge.setAttribute('aria-hidden','true');badge.innerHTML=achievementEmblem(achievementKey);
+    const content=document.createElement('div');content.className='achievement-toast-content';content.append(name,description,progress);
+    const row=document.createElement('div');row.className='achievement-toast-row';row.append(badge,content);
+    el.append(heading,row);
+  }else el.append(heading,name,description,progress);
   const entry={el,timer:null};
   close.addEventListener('click',()=>removeSystemToast(entry));
   activeSystemToasts.push(entry);toastStack.appendChild(el);
@@ -2308,7 +2343,7 @@ function showAchievement(key, { force = false, demoIndex = null } = {}) {
   }
   if (firstDiscovery) window.clearTimeout(introHintTimer);
   updateAchievementProgress(demoIndex ?? null);
-  showTransientToast(data.title,data.detail,`RARE // ${unlockedAchievements.size} / ${ACHIEVEMENT_KEYS.length}`,'RARE ACHIEVEMENT UNLOCKED');
+  showTransientToast(data.title,data.detail,`RARE // ${unlockedAchievements.size} / ${ACHIEVEMENT_KEYS.length}`,'RARE ACHIEVEMENT UNLOCKED',{achievementKey:key,rarity:'rare'});
   if (firstDiscovery) window.setTimeout(openLedger, 1100);
 }
 

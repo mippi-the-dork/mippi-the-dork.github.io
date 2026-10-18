@@ -8673,3 +8673,22 @@ body.hud-unified #site-game-hud #hud-gameplay > :is(#cool-meter,#invasion-meter,
   body.hud-unified #site-game-hud > #hud-gameplay{margin-left:0!important;}
   body.hud-unified #site-game-hud > #hud-progress:has(> .visible) + #hud-gameplay{margin-left:20px!important;}
 }
+
+/* v3.16 | Achievement emblems keep rarity colors independent of site theme. */
+.achievement-ledger .ledger-entry{grid-template-columns:40px minmax(0,1fr);align-items:center;}
+.achievement-emblem{--emblem-color:#67cfff;display:grid;place-items:center;flex:none;width:38px;height:38px;box-sizing:border-box;border:1px solid currentColor;border-radius:4px;color:var(--emblem-color);background:color-mix(in srgb,var(--emblem-color) 9%,transparent);}
+.achievement-emblem-svg{width:27px;height:27px;display:block;overflow:visible;}
+.rarity-rare .achievement-emblem{--emblem-color:#67cfff;}
+.rarity-epic .achievement-emblem{--emblem-color:#bd85ff;}
+.rarity-legendary .achievement-emblem{--emblem-color:#ffc83d;}
+.ledger-entry:not(.unlocked) .achievement-emblem{opacity:.56;filter:saturate(.6);}
+.ledger-entry.unlocked .achievement-emblem{opacity:1;box-shadow:0 0 12px color-mix(in srgb,var(--emblem-color) 24%,transparent);}
+.achievement-toast-row{display:flex;align-items:center;gap:11px;margin-top:5px;}
+.achievement-toast-row .toast-emblem{width:42px;height:42px;}
+.achievement-toast-row .toast-emblem svg{width:29px;height:29px;}
+.achievement-toast-content{flex:1;min-width:0;}
+.achievement-unlock-toast .achievement-toast-content strong{margin:0;}
+.achievement-unlock-toast .achievement-toast-content>b{display:block;margin-top:6px;font-size:8px;letter-spacing:.08em;color:var(--emblem-color);}
+.achievement-unlock-toast.rarity-rare{--emblem-color:#67cfff;}
+.achievement-unlock-toast.rarity-epic{--emblem-color:#bd85ff;}
+.achievement-unlock-toast.rarity-legendary{--emblem-color:#ffc83d;}

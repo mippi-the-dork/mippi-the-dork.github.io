@@ -1,5 +1,13 @@
 # Heart Collection - Technical Documentation
 
+## Current v3.25.2 verified update
+
+Heart discovery and collection remain part of the portfolio game-layer. Once `hudTrackDiscovered('hearts')` or corresponding discovered state is registered, reaching zero must not hide the HUD. Regular UFO reward branch has a 20% eligible Heart-drop probability. Super Boss impacts use `showArcadeCursorHit` and shared half-Heart protection; these are not direct Bird life decrements.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Heart Collection > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

@@ -8711,3 +8711,6 @@ body.hud-unified #site-game-hud{z-index:255!important;}
 .shop-item-actions{display:flex;gap:7px;margin-top:auto;align-items:stretch;}
 .shop-item-actions>button{margin-top:0;flex:1 1 0;min-width:0;padding:7px 4px;font-size:8px;line-height:1.3;}
 @media(max-width:600px){.shop-item-actions{flex-wrap:wrap}.shop-item-actions>button{flex-basis:100%;}}
+
+/* v3.18.2: the purchased Dev Console hotbar control stays absent until unlocked. */
+#site-game-hud #console-tip-button[hidden],#discovery-controls #console-tip-button[hidden]{display:none!important;}

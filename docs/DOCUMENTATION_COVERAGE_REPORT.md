@@ -111,3 +111,12 @@ Current documented state is **v3.14**, including all four v3.11–v3.14 handoffs
 ## v3.24 Consolidated Update
 
 Ten documentation handoffs v3.15–v3.24 added as a [systems integration reference](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [versioned acceptance matrix](QA/V3_15_TO_V3_24_REGRESSION_QA.md). Existing 260 feature pairs remain intact; this release updates documentation/reference coverage without claiming new canonical feature folders or completion of browser QA. Changes cover icon semantics, Shop and Console gates, Insert Coin cadence, half-Heart damage, Bird life accounting, projectile protection, v3.23 Key revert, and v3.24 pause handling.
+
+
+## v3.25.2 Documentation Rebuild and Gap Review
+
+Source material: twelve version-scoped handoff groups covering v3.15, v3.16, v3.17, v3.18, v3.19, v3.20, v3.21, v3.22, v3.23, v3.24, v3.25.0 and v3.25.1, plus the v3.25.1 and v3.25.2 development handoffs and merged PRs #49–#55. This round fixes the earlier overly terse v3.15–v3.24 integration, replaces the obsolete v2.78 Shop catalog with the actual 13 definitions from current source, expands Release History, and adds current-state corrections to the directly impacted Design/Technical feature pairs, runtime/persistence references, and release QA. The existing 17-category documentation hierarchy is retained rather than multiplying folders for every patch.
+
+**Corrections of material errors:** Bounty modifies regular UFO drop chance 30% → 45%, not +45 percentage points; Insert Coin 0.25 natural delay and alternative early-combat entitlement; v3.22 Key experiment reverted in v3.23; Mushrooms and Hearts are not Bird refill sources; v3.25.0 Shield/Spare Life UI replaced by v3.25.1 unified Lives; the worker supersedes the old in-thread Bird round state; Shop equipment is an array of simultaneously active items. Repeatedly preserve historical versions in Release History, rather than claiming each historical statement remains current.
+
+**Verification limits:** All source-grounded handoff rules must be distinguished from real browser QA. The former were reviewed, but actual FPS baselines, privacy-mode browser testing, mobile and cross-theme testing require follow-up. Current and historical pages continue to coexist; pages retaining older baseline labels should be read with their v3.25.2 update sections and release reference. The existing 260-feature / 520-feature-page count is an inventory of the original hierarchy, not evidence every historical section was freshly rewritten.

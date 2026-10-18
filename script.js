@@ -1022,8 +1022,8 @@ const SHOP_ITEMS=[
   {id:'interact-toggle',name:'Interact Toggle',cost:8,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
   {id:'bird-extra-life',name:'Mippi Bird',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Passive: +1 life each new Mippi Bird round. Refill: purchase another life for your bank. Every hit costs one life, including the last.'},
   {id:'production-discount',name:'Production Discount',cost:11,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
-  {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
-  {id:'arcade-bounty',name:'Arcade Bounty',cost:10,slot:'passive',rarity:'epic',tag:'ECONOMY',requires:'epic',description:'Regular UFO defeats have a 45% chance to drop a Rupee instead of 30%.'},
+  {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'gameplay',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Equip to make Shooting Stars appear more often and remain catchable longer. Unequip to return to normal.'},
+  {id:'arcade-bounty',name:'Arcade Bounty',cost:10,slot:'gameplay',rarity:'epic',tag:'ECONOMY',requires:'epic',description:'Equip to raise regular UFO Rupee-drop chance from 30% to 45%. Unequip to restore the normal chance.'},
   {id:'golden-trigger',name:'Golden Trigger',cost:11,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
   {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:7,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one life to your Mippi Bird bank. Each banked life protects against one hit. Repeatable.'},
   {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:21,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
@@ -4721,6 +4721,7 @@ function equipShopItem(id,{announce=true}={}){
   shopEquipped.add(id);
   persistShopState(); applyShopEquipmentState(); renderShop();
   if(id==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
+  if(id==='celestial-beacon')scheduleNaturalShootingStar(nextNaturalShootingStarDelay());
   telemetryCount('economy','shopEquips'); telemetryUnique('economy','shopEquippedItems',id); telemetryMeaningful('shop_equip',{id});
   if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'MULTIPLE MODIFIERS ALLOWED','SHOP'); }
   return true;
@@ -4737,6 +4738,7 @@ function unequipShopItem(id=null){
   if(!changed)return;
   persistShopState(); applyShopEquipmentState(); renderShop();
   if(hadInsertCoin)scheduleNaturalGalaga(nextNaturalGalagaDelay());
+  if(removals.includes('celestial-beacon'))scheduleNaturalShootingStar(nextNaturalShootingStarDelay());
   consolePrint(`SHOP // ${id?shopItem(id)?.name||'Gameplay modifier':'All gameplay modifiers'} unequipped.`,'good');
 }
 function purchaseShopItem(id){
@@ -6116,7 +6118,7 @@ function spawnShootingStar(force=false){
   const f=randomEdgeFlight(240);
   const star=document.createElement('button'); star.className='shooting-star fly'; star.type='button'; star.setAttribute('aria-label','A bright shooting star'); star.dataset.telemetryKind='shooting_star';
   telemetryFlyingSpawn('shooting_star',{forced:force}); telemetryCount('wish','shootingStarsSpawned');
-  star.style.left=`${f.sx}px`; star.style.top=`${f.sy}px`; star.style.setProperty('--dx',`${f.dx}px`); star.style.setProperty('--dy',`${f.dy}px`); star.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(star,(shopOwns('celestial-beacon')?3.4:2.05)+Math.random()*(shopOwns('celestial-beacon')?1.55:1.15));
+  star.style.left=`${f.sx}px`; star.style.top=`${f.sy}px`; star.style.setProperty('--dx',`${f.dx}px`); star.style.setProperty('--dy',`${f.dy}px`); star.style.setProperty('--angle',`${f.angle}deg`); setFlightDuration(star,(shopHasEquipped('celestial-beacon')?3.4:2.05)+Math.random()*(shopHasEquipped('celestial-beacon')?1.55:1.15));
   star.addEventListener('click',()=>{ 
     const method=telemetryCollectionMethod(star); telemetryFlyingCollect('shooting_star',method); telemetryCount('wish','shootingStarsCollected');
     const p=combatGeometry.effectCenter(star); explodeAt(p.x,p.y,24);
@@ -6186,7 +6188,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
     telemetryCount('combos','starPowerUfoKills');
     announceSystemCombo('star-power-ufo','Star Power + UFO','Star Power turns cursor contact into anti-air.');
   }
-  const droppedRupee=Math.random()<(shopOwns('arcade-bounty')?.45:.30);
+  const droppedRupee=Math.random()<(shopHasEquipped('arcade-bounty')?.45:.30);
   if(droppedRupee){
     awardArcadeRupees(1,x,y,'ufo');
     telemetryCount('economy','ufoRupeeDrops');
@@ -6717,7 +6719,7 @@ function spawnGalaga(force=false,sharedPath=null,sharedDuration=null){
 }
 let naturalShootingStarTimer=null;
 function nextNaturalShootingStarDelay(){
-  const beacon=shopOwns('celestial-beacon');
+  const beacon=shopHasEquipped('celestial-beacon');
   return easyModeEnabled ? 9000+Math.random()*7000 : directorDelay('shooting_star',beacon?18000:28000,beacon?38000:62000);
 }
 function scheduleNaturalShootingStar(delay=nextNaturalShootingStarDelay()){

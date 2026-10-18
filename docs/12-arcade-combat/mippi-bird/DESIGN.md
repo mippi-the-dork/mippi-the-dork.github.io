@@ -1,5 +1,15 @@
 # Mippi Bird - Design Documentation
 
+## Current implementation correction (v3.25.2)
+
+**Current design (v3.25.2).** Mippi Bird is a one-button optional Canvas minigame. A round begins with one base Life plus any per-round Shop Life and purchased refill bank. The last valid hit ends the round. Its game-over/score logic follows the worker's simulation, while the page displays the same themed Bird animation, visual score, Lives and controls. The side game should not degrade portfolio scrolling, navigation, or FPS when closed.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mippi Bird > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -168,10 +178,3 @@ Mippi Bird feels like a compact portfolio toy that is fun to replay but discipli
 ## Current v3.04 Specification
 
 v3.04 Mippi Bird keeps the original Mippi logo silhouette but recolors it to Rare blue `#67cfff`, Epic pink `#ff6bd2`, Legendary gold `#ffd16b`; switching rarity while the minigame is open updates the art, not game physics.
-
-
-## Current implementation correction (v3.25.2)
-
-**Current design (v3.25.2).** Mippi Bird is a one-button optional Canvas minigame. A round begins with one base Life plus any per-round Shop Life and purchased refill bank. The last valid hit ends the round. Its game-over/score logic follows the worker's simulation, while the page displays the same themed Bird animation, visual score, Lives and controls. The side game should not degrade portfolio scrolling, navigation, or FPS when closed.
-
-For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

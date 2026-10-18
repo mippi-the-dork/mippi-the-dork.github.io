@@ -8730,3 +8730,9 @@ body.hud-unified #site-game-hud{z-index:255!important;}
 
 #heart-meter>span.half-filled{font-size:inherit;line-height:1;}
 #heart-meter>span.half-filled .heart-half-core{inset:0;display:grid;place-items:center;font-size:.55em;}
+
+html.mippi-game-paused :is(.game-pickup,.doug-bone,.galaga-secret,.shooting-star,.section-castle,.ufo-projectile,.legendary-player-projectile){animation-play-state:paused!important;}
+#mippi-pause-overlay[hidden]{display:none!important;}
+#mippi-pause-overlay{position:fixed;inset:0;z-index:560;background:#060c16ae;display:grid;place-items:center;pointer-events:none;}
+.mippi-pause-panel{display:grid;gap:12px;pointer-events:auto;text-align:center;min-width:300px;padding:25px;background:#0c1929;border:1px solid #67cfff;color:white;font:12px ui-monospace,monospace;box-shadow:0 20px 60px #000a;}
+.mippi-pause-panel strong{font-size:20px;letter-spacing:.16em;}.mippi-pause-panel button{padding:10px;border:1px solid #67cfff;background:#123858;color:white;cursor:pointer;}

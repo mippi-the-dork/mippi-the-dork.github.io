@@ -1,5 +1,13 @@
 # Shop Availability Rules - Technical Documentation
 
+## Current v3.25.2 verified update
+
+`shopItemAvailable(item)` checks `requires` (Epic, Legendary, shop-master), not the rarity label alone. Epic means ten Rare achievements; Legendary checks Legendary entitlement; Shop-master requires Legendary and all other non-consumable purchases. The Bird refill requires Epic; the per-round Bird passive and production discount have no explicit `requires` metadata. Equipment toggles are independent of purchase availability.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Shop Availability Rules > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

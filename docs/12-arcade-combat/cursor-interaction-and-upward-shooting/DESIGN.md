@@ -1,5 +1,15 @@
 # Cursor Interaction and Upward Shooting - Design
 
+## Current implementation correction (v3.25.2)
+
+Clicking a collectible or an in-range interactive object takes priority. Otherwise upward cursor projectiles are available at Legendary, or earlier while Insert Coin is equipped. The latter allows Rare buyers to defeat the UFOs they have unlocked without granting Epic/Legendary entitlements.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Introduced:** v3.00. **Current documented version:** v3.01.
 
 ## Two distinct mechanics
@@ -17,10 +27,3 @@ Distinguishing manual aim from proximity interaction preserves readable agency. 
 ## Acceptance
 
 Test world pointer clicks, wide cursor radius, regular UFO/Boss collisions, Star Power contact and piercing, Cool Mode three-shot spread, and the non-interaction of bullets with collectibles or Shooting Stars. Ensure modal and navigation controls do not accidentally fire bullets. See [Technical](TECHNICAL.md).
-
-
-## Current implementation correction (v3.25.2)
-
-Clicking a collectible or an in-range interactive object takes priority. Otherwise upward cursor projectiles are available at Legendary, or earlier while Insert Coin is equipped. The latter allows Rare buyers to defeat the UFOs they have unlocked without granting Epic/Legendary entitlements.
-
-Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

@@ -1,17 +1,17 @@
 # Mippi Portfolio Documentation
 
-**CURRENT DOCUMENTED VERSION: v3.24**
+**CURRENT DOCUMENTED VERSION: v3.25.2**
 
-The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.24**, including its game systems, presentation, tooling and performance investigations.
+The Design, Technical, reference and QA documentation for the interactive Mippi portfolio. This is the canonical description of the experience **through v3.25.2**, including its game systems, presentation, tooling and performance investigations.
 
 **260 documented features** across **17 categories**, with **520 canonical Design and Technical pages**.
 
-## What's Current in v3.24
+## What's Current in v3.25.2
 
-**v3.15–v3.24** refine 20 achievement emblems and Shop icons, revise Shop progression/Console access, separate Mippi Bird lives from Hearts, introduce half-Heart damage and defensive projectile layers, restore Key spawning in v3.23, and add user/focus/Shop gameplay pause and Castle click feedback in v3.24. See [current systems integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [acceptance QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).
+**v3.15–v3.25.2** refine 20 achievement emblems and Shop icons, revise Shop progression/Console access, separate Mippi Bird lives from Hearts, introduce half-Heart damage and defensive projectile layers, restore Key spawning in v3.23, and add user/focus/Shop gameplay pause and Castle click feedback in v3.24. See [current systems integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [acceptance QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).
 
 
-**v3.24** finalizes the fourteen expandable studio career summaries with concise, scrollbar-free details, two compact CONTACT/RESUMES rows and permanently full-color art. **v3.13** adds a repeatable Mippi Bird Life Refill and capability-aware 2D fallback for software or unavailable WebGL. **v3.12** makes the actual cursor interaction radius consistent across themes and song selection play immediately. **v3.11** refines the Star Power ring, Console controls, and persistence of the selected theme.
+**v3.25.2** finalizes the fourteen expandable studio career summaries with concise, scrollbar-free details, two compact CONTACT/RESUMES rows and permanently full-color art. **v3.13** adds a repeatable Mippi Bird Life Refill and capability-aware 2D fallback for software or unavailable WebGL. **v3.12** makes the actual cursor interaction radius consistent across themes and song selection play immediately. **v3.11** refines the Star Power ring, Console controls, and persistence of the selected theme.
 
 | Read this | Why it matters |
 | --- | --- |
@@ -72,7 +72,7 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 
 ## QA and Performance References
 
-- [v3.15–v3.24 Integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md)
+- [v3.15–v3.25.2 Integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md)
 - [v3.15–v3.24 Regression QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md)
 
 - [v3.11–v3.14 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md)
@@ -90,10 +90,10 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 - [v2.81–v2.89 Regression Matrix](QA/V2_81_TO_V2_89_REGRESSION_MATRIX.md)
 - [v2.89 Performance Profiling Guide](QA/PERFORMANCE_PROFILING_V2.89.md)
 
-The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.24** documentation requirements.
+The extensive regression plan originated with v2.80 and contains subsequent release addenda; version-numbered QA pages preserve the tests for their respective releases. The Release Checklist and this home page identify the **current v3.25.2** documentation requirements.
 
 ## Documentation Standards
 
 Each feature folder has one `DESIGN.md` for player-facing rules and intent, and one `TECHNICAL.md` for implementation, dependencies, data and QA. Preserve exact command names, storage keys and feature IDs from the current catalogs; never invent competing identifiers. Distinguish persistent, session-only and derived state, and keep the professional portfolio usable when optional game systems are inactive.
 
-Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.24**; release-specific changes are integrated into the applicable feature pages, catalogs and history.
+Earlier feature pages may retain a historical implementation-baseline label such as v2.78. Those labels indicate where the original specification was authored, **not** the current documentation version. The current release identity is **v3.25.2**; release-specific changes are integrated into the applicable feature pages, catalogs and history.

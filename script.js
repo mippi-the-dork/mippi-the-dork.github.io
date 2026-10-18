@@ -1,3 +1,59 @@
+/* Storage is optional. Preserve full gameplay in an in-memory session when privacy
+   settings block first-party storage; never override the browser's native APIs. */
+function createMippiStorage(kind){
+  const volatile=new Map(), removed=new Set();
+  let native=null, persistent=false;
+  try{
+    native=window[kind];
+    const probe='__mippi_storage_probe__';
+    native.setItem(probe,'1');
+    if(native.getItem(probe)!=='1')throw new Error('Storage probe did not persist');
+    native.removeItem(probe);
+    persistent=true;
+  }catch(_){ native=null; }
+  const notify=()=>{
+    if(kind!=='localStorage'||document.getElementById('mippi-storage-notice'))return;
+    const show=()=>{
+      if(document.getElementById('mippi-storage-notice')||!document.body)return;
+      const notice=document.createElement('div');
+      notice.id='mippi-storage-notice';
+      notice.setAttribute('role','status');
+      notice.textContent='Browser storage is unavailable. The site still works, but your progress may not be saved after reloading.';
+      document.body.appendChild(notice);
+    };
+    if(document.body)show();
+    else document.addEventListener('DOMContentLoaded',show,{once:true});
+  };
+  if(!persistent)notify();
+  const losePersistence=()=>{if(persistent){persistent=false;native=null;notify();}};
+  return {
+    getItem(key){
+      key=String(key);
+      if(removed.has(key))return null;
+      if(volatile.has(key))return volatile.get(key);
+      if(native){try{return native.getItem(key);}catch(_){losePersistence();}}
+      return null;
+    },
+    setItem(key,value){
+      key=String(key);value=String(value);
+      removed.delete(key);
+      if(native){try{native.setItem(key,value);volatile.delete(key);return;}catch(_){losePersistence();}}
+      volatile.set(key,value);
+    },
+    removeItem(key){
+      key=String(key);volatile.delete(key);removed.add(key);
+      if(native){try{native.removeItem(key);removed.delete(key);}catch(_){losePersistence();}}
+    },
+    clear(){
+      volatile.clear();removed.clear();
+      if(native){try{native.clear();return;}catch(_){losePersistence();}}
+    },
+    get persistent(){return persistent;}
+  };
+}
+const localStorage=createMippiStorage('localStorage');
+const sessionStorage=createMippiStorage('sessionStorage');
+
 // v3.04 // Build version is authored once for all runtime and profiler output.
 const MIPPI_BUILD_VERSION='3.25.1';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;

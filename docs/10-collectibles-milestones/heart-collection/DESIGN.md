@@ -1,5 +1,13 @@
 # Heart Collection - Design Documentation
 
+## Current v3.25.2 verified update
+
+Hearts and Mippi Bird Lives are separate systems. Enemy Heart drops support the player's normal combat defenses, while Bird refills are Shop purchases. The discovered Heart HUD remains present when the number returns to zero (v3.24). Eligible regular UFO Heart-drop probability increased from 5% to 20% in v3.25.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Heart Collection > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

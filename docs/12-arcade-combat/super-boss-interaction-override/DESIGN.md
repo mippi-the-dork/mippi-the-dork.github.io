@@ -113,3 +113,10 @@ The Super Boss can safely take over input for a few seconds and then return the 
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+The Super Boss temporarily forces Interact OFF for **all visitors**, including those who have not bought the Interact toggle, without unlocking its Shop entitlement. When the encounter ends, normal interaction state and controls resume.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

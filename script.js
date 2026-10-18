@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.24.0';
+const MIPPI_BUILD_VERSION='3.25.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 
 /* A pause state shared by arcade timers, moving entities, Shop and Mippi Bird.
@@ -967,6 +967,7 @@ try { rupeeWallet=Math.max(0,Number(localStorage.getItem(RUPEE_WALLET_KEY)||0));
 let rupeeDiscovered=false;
 let wishCharge=0;
 let mushroomLifeProgress=0;
+let mushroomHitBuffer=0; // Each extra mushroom collected at max size absorbs one hit.
 let mushroomBankLives=0;
 let dougCoolProgress=0;
 let castleRunProgress=0;
@@ -4439,7 +4440,7 @@ function resetFlappyGame(){
 function updateFlappyLivesHud(){
   const el=flappyPanel?.querySelector('#flappy-lives'); if(!el) return;
   const shop=flappyState?.shopLifeAvailable?'SHIELD 1':'SHIELD 0';
-  el.textContent=`EXTRA LIVES // ${shop} · REFILLS ${mushroomBankLives}`;
+  el.textContent=`${shop} · SPARE LIVES ${mushroomBankLives}`;
   el.classList.toggle('has-life',!!flappyState?.shopLifeAvailable||mushroomBankLives>0);
 }
 function persistMushroomLives(){
@@ -5500,19 +5501,25 @@ window.MippiCursorLab=Object.freeze({
 // Set default architecture before any Mushroom power is collected.
 setCursorDiagnosticClasses();
 function advanceCursorPower(){
-  cursorPowerLevel=(cursorPowerLevel+1)%3;
+  const wasMax=cursorPowerLevel>=2;
+  if(wasMax)mushroomHitBuffer++;
+  else cursorPowerLevel=Math.min(2,cursorPowerLevel+1);
   updatePowerCursor();
-  const legendary=document.body.classList.contains('theme-legendary');
-  const rangeNote=legendary&&cursorPowerLevel>0?' Click radius increased.':legendary&&cursorPowerLevel===0?' Click radius returned to normal.':'';
-  const lifeNote='';
-  const message=(cursorPowerLevel===1?'MUSHROOM ACQUIRED // cursor size increased.':cursorPowerLevel===2?'MUSHROOM ACQUIRED // cursor at maximum size. Please point responsibly.':'MUSHROOM ACQUIRED // cursor wrapped back to normal size.')+rangeNote+lifeNote;
+  const rangeNote=cursorPowerLevel>0&&document.body.classList.contains('theme-legendary')?' Increased click radius active.':'';
+  const message=wasMax
+    ?`MUSHROOM BUFFER // +1 protected hit // ${mushroomHitBuffer} buffered.`
+    :`MUSHROOM ACQUIRED // cursor ${cursorPowerLevel===2?'MAX':'LARGE'}.`;
   consolePrint(message,'good');
-  showTransientToast('MUSHROOM ACQUIRED',(cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.')+rangeNote+lifeNote,`CURSOR // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'}`,'POWER-UP');
-  if(legendary&&cursorPowerLevel>0){
+  showTransientToast(wasMax?'MUSHROOM SHIELD':'MUSHROOM ACQUIRED',
+    wasMax?`An extra mushroom absorbs the next hit. ${mushroomHitBuffer} buffer hit(s) stored.`
+      :`Cursor size increased to ${cursorPowerLevel===2?'maximum':'large'}.${rangeNote}`,
+    `CURSOR // ${cursorPowerLevel===2?'MAX':cursorPowerLevel===1?'LARGE':'NORMAL'} · BUFFER ${mushroomHitBuffer}`,'POWER-UP');
+  if(document.body.classList.contains('theme-legendary')&&cursorPowerLevel>0){
     telemetryCount('combos','legendaryMushroom');
     announceSystemCombo('legendary-mushroom','Mushroom + Legendary','The enlarged cursor increases your nearby click radius.');
   }
 }
+
 function emitRainbowCursorSpark(){
   if(document.documentElement.classList.contains('profile-no-cursorfx')||cursorDiagnostics.starsparks==='off')return;
   return window.MippiPerfLab.run('cursor.rainbowSparks',()=>{
@@ -5642,7 +5649,8 @@ function explodeAt(x,y,count=18,size=5,{radiusX=150,radiusY=120,lifetime=850}={}
 function showArcadeCursorHit(x,y){
   if(document.body.classList.contains('star-power'))return;
   arcadeCursorHits++;
-  if(cursorPowerLevel>0){cursorPowerLevel--;updatePowerCursor();}
+  if(mushroomHitBuffer>0){mushroomHitBuffer--;consolePrint(`MUSHROOM BUFFER // absorbed projectile. ${mushroomHitBuffer} buffer hit(s) remain.`,'good');}
+  else if(cursorPowerLevel>0){cursorPowerLevel--;updatePowerCursor();}
   else damageHeartHalf();
   telemetryCount('arcade','cursorHits');
   telemetryMeaningful('ufo_projectile_hit',{count:arcadeCursorHits});
@@ -6155,7 +6163,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
     awardArcadeRupees(1,x,y,'ufo');
     telemetryCount('economy','ufoRupeeDrops');
   }
-  if(Math.random()<.05)spawnGroundDrop('heart',x,y);
+  if(heartHalfUnits<10&&Math.random()<.20)spawnGroundDrop('heart',x,y);
   const toward=invasionWaveKills;
   consolePrint(`ARCADE CONTACT DESTROYED // +100 definitely-real points${droppedRupee?' // +1 RUPEE':''} // UFOs ${toward}/${ufoWaveGoal()}`,'good');
   if(toward===Math.max(2,Math.floor(ufoWaveGoal()*.5))){
@@ -7082,6 +7090,7 @@ function spawnBounceStar(def){
 }
 function spawnPanelMushroom(def){
   releaseMushroomPanel(null);
+  if(cursorPowerLevel>=2)return false;
   if(activeMushroomPanels.size>=3)return false;
   const panel=chooseSpawnPanel(activeMushroomPanels);
   if(!panel)return false;
@@ -7132,7 +7141,7 @@ function choosePickupDefinition(){
   if(!activeHiddenKey?.isConnected&&!castleQuestActive&&!activeCastle &&
     (pickupsSinceKey>=2||Math.random()<.38)){pickupsSinceKey=0;return key;}
   pickupsSinceKey++;
-  const kind=Math.random()<.54?'star':'1up';
+  const kind=cursorPowerLevel>=2?'star':Math.random()<.54?'star':'1up';
   return pickupKinds.find(item=>item.kind===kind);
 }
 function awardRupees(amount=1,{source='pickup',announce='pickup'}={}){
@@ -7232,7 +7241,7 @@ function spawnGamePickup(forcedKind=null,force=false){
   if(!def)return false;
   if(def.kind==='key')return !!spawnHiddenPanelKey(def);
   if(def.kind==='star')return !!spawnBounceStar(def);
-  if(def.kind==='1up')return !!spawnPanelMushroom(def);
+  if(def.kind==='1up')return cursorPowerLevel<2?!!spawnPanelMushroom(def):false;
   // QA shortcuts may still create Hearts and Rupees at controlled positions;
   // natural gameplay obtains them only from enemy kills and interactions.
   if(def.kind==='heart'||def.kind==='rupee')

@@ -8663,3 +8663,13 @@ body #career .studio-grid .studio-card:focus-within .studio-image{
 body.hud-unified #site-game-hud #hud-gameplay :is(#cool-meter,#invasion-meter,#castle-meter):not(.visible){
   display:none!important;
 }
+
+/* v3.15.4 | An undiscovered track never occupies layout space. */
+body.hud-unified #site-game-hud #hud-gameplay > :is(#cool-meter,#invasion-meter,#castle-meter):not(.visible){display:none!important;}
+/* Remove the empty Progress group entirely rather than leaving a blank column.
+   Once any resource/achievement appears, restore the intended 20px grouping. */
+@media(min-width:1000px){
+  body.hud-unified #site-game-hud > #hud-progress:not(:has(> .visible)){display:none!important;}
+  body.hud-unified #site-game-hud > #hud-gameplay{margin-left:0!important;}
+  body.hud-unified #site-game-hud > #hud-progress:has(> .visible) + #hud-gameplay{margin-left:20px!important;}
+}

@@ -8656,3 +8656,10 @@ body #career .studio-grid .studio-card:focus-within .studio-image{
   body.hud-unified #site-game-hud > #hud-gameplay{justify-content:flex-start!important;}
   body.hud-unified #site-game-hud > #hud-progress{justify-content:flex-start!important;}
 }
+
+/* v3.15.3 | Discovery controls HUD meter visibility even after reparenting.
+   The unified HUD's default display:grid!important must not force undiscovered
+   tracks on screen. Keep the existing visible-grid presentation intact. */
+body.hud-unified #site-game-hud #hud-gameplay :is(#cool-meter,#invasion-meter,#castle-meter):not(.visible){
+  display:none!important;
+}

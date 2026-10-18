@@ -8742,3 +8742,7 @@ body.superboss-active .superboss-arena{z-index:90;}
 body.superboss-active :is(.game-pickup,.doug-bone,.shooting-star,.section-castle){z-index:110!important;}
 body.superboss-active .superboss-header{top:var(--superboss-header-top,106px);}
 body.superboss-active .superboss-exit{bottom:var(--superboss-hud-clearance,76px);}
+
+/* Multi-item loadouts may contain several names; keep the Shop summary readable. */
+.shop-equipped-row > strong { min-width:0;overflow-wrap:anywhere;line-height:1.5; }
+.shop-equipped-row { min-width:0; }

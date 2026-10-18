@@ -106,3 +106,10 @@ The player can understand purchase, ownership, and equipment state without readi
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+**Current design (v3.25.2).** Equipment has unlimited simultaneous capacity. Buying an equippable item auto-equips that item without switching off other owned modifiers. Each purchased gameplay card offers EQUIP or UNEQUIP; UNEQUIP ALL disables the active set without forfeiting ownership. Owned passives remain active without equipment slots; Bird refill is a repeatable consumable. Original single-item behavior is a historical rule, not the current design.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

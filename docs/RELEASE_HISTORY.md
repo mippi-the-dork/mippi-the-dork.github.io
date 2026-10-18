@@ -1,6 +1,6 @@
 # Release History
 
-**Current documented state:** Mippi Portfolio v3.14
+**Current documented state:** Mippi Portfolio v3.24
 
 This page records documentation-relevant changes after the original comprehensive v2.78 documentation pass.
 
@@ -428,3 +428,48 @@ The Shop adjusts permanent prices for increased Rupee availability and adds an *
 [Implementation PR #27](https://github.com/mippi-the-dork/mippi-the-dork.github.io/pull/27), merged as `a45fce94`, refines all fourteen studio reveals to **1–3 distinct short bullets each**, eliminating redundant copy and tuning typography, spacing and minimum heights to prevent scrollbars. Your Studio Here's professional links become two compact horizontal, labeled rows: **CONTACT** (Discord, LinkedIn, Email) and **RESUMES** (1 Page, Short, Long). Studio imagery remains full-color throughout rest, hover, focus and slide-dismiss; an accent overlay replaces grayscale. Script/CSS/runtime cache identity advances to **3.14**.
 
 The implementation PR is merged; visual checks for small-screen reveal fit, nested link activation, art coloration during dismiss and graphics-fallback device behavior are still acceptance tests, **not reported as fully validated**. See [v3.14 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md).
+
+
+## v3.15–v3.24 Chronological Update
+
+### v3.15
+
+3.15.5 pre-icon stable baseline, preserving existing Three.js hero, Shop, achievements, arcade and music.
+
+### v3.16
+
+Unique SVG emblems added for 10 Rare, 9 Epic, 1 Legendary achievements; locked presentation and toasts updated.
+
+### v3.17
+
+Shop item glyphs, Doug Bone stacking below header/HUD, Arcade Bounty +45% UFO Rupee-drop chance.
+
+### v3.18
+
+Bird shield/refill Shop combined; Insert Coin increase; Epic Dev Console Shop purchase gated by Shooting Star. Follow-up 3.18.1 preserves RESET/SHOP; 3.18.2 hides Console hotbar until purchased.
+
+### v3.19
+
+16 achievement/Shop SVG icons refined, locked hints strengthened, Legendary borders distinguished.
+
+### v3.20
+
+Additional icon refinements; DEV commands work before Console purchase while normal command gates remain.
+
+### v3.21
+
+Curious Mind brain, Signal Acquired antenna, Unmark U/down-arrow silhouettes fixed; PASSIVE // ACTIVE corrected; Insert Coin ~4× natural UFO wave frequency.
+
+### v3.22
+
+Half-Heart hostile projectile damage, Mippi Bird lives no longer awarded by Hearts or Mushrooms; Bird refill purchases and rewards credit lives directly. Temporary Key changes subsequently reverted.
+
+### v3.23
+
+Restores prior Key eligibility/panel placement; Star invulnerability, Mushroom tier damage buffering, and Bone collision with friendly/hostile shots.
+
+### v3.24
+
+P-key and focus/visibility pause requiring explicit resume; Shop/Bird suspend background play, discovered Heart HUD stays visible, Castle clicks trigger impact VFX. Browser QA outstanding.
+
+Current behavior supersedes temporary earlier rules. See [integration reference](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).

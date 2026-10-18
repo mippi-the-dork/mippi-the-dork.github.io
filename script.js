@@ -4628,29 +4628,6 @@ function drawFlappyFrame(){
   for(let y=0;y<h;y+=26){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
 
   for(const p of s.pipes){
-      if(!p.scored && p.x+pipeW<bx){
-        p.scored=true; s.score++;
-        flappySessionHighScore=Math.max(flappySessionHighScore,s.score);
-        telemetryMax('flappy','highScore',flappySessionHighScore);
-        const score=flappyPanel.querySelector('#flappy-score');
-        const high=flappyPanel.querySelector('#flappy-high-score');
-        if(score) score.textContent=`SCORE ${s.score}`;
-        if(high) high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
-      }
-      const topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
-      const pipeHit=bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY);
-      if(pipeHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('pipe');
-    }
-    const boundaryHit=crossedWall;
-    if(boundaryHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('boundary');
-  }
-  if(!wasGameOver && s.gameOver){
-    telemetryCount('flappy','deaths');
-    telemetryMeaningful('flappy_game_over',{score:s.score});
-    if(s.started)rewardFlappyRound(s.score,s.previousHighScore);
-  }
-
-  for(const p of s.pipes){
     const gap=124, pipeW=43.2, topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
     ctx.fillStyle=pipe; ctx.fillRect(p.x,0,pipeW,topH); ctx.fillRect(p.x,bottomY,pipeW,h-bottomY);
     ctx.strokeStyle=pipeEdge; ctx.lineWidth=2; ctx.strokeRect(p.x,0,pipeW,topH); ctx.strokeRect(p.x,bottomY,pipeW,h-bottomY);

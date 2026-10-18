@@ -4659,8 +4659,10 @@ function equipShopItem(id,{announce=true}={}){
   const item=shopItem(id);
   if(!item||item.slot!=='gameplay'||!shopOwned.has(id)||!shopItemAvailable(item)) return false;
   if(shopEquipped===id) return true;
+  const previousEquipped=shopEquipped;
   shopEquipped=id;
   persistShopState(); applyShopEquipmentState(); renderShop();
+  if(id==='insert-coin'||previousEquipped==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
   telemetryCount('economy','shopEquips'); telemetryUnique('economy','shopEquippedItems',id); telemetryMeaningful('shop_equip',{id});
   if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped. One slot, one bad idea at a time.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'ONE GAMEPLAY MODIFIER','SHOP'); }
   return true;
@@ -4669,6 +4671,7 @@ function unequipShopItem(){
   if(!shopEquipped) return;
   const previous=shopItem(shopEquipped);
   shopEquipped=null; persistShopState(); applyShopEquipmentState(); renderShop();
+  if(previous?.id==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
   telemetryCount('economy','shopUnequips'); telemetryMeaningful('shop_unequip',{id:previous?.id||'unknown'});
   consolePrint(`SHOP // ${previous?.name||'Gameplay modifier'} unequipped. Raw portfolio difficulty restored.`,'good');
 }

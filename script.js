@@ -1029,13 +1029,14 @@ const SHOP_ITEMS=[
   {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:21,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
 ];
 let shopOwned=new Set();
-let shopEquipped=null;
+let shopEquipped=new Set();
 try {
   const stored=JSON.parse(localStorage.getItem(SHOP_STATE_KEY)||'{}');
   const migratedOwned=Array.isArray(stored.owned)?stored.owned.map(id=>id==='galaga-warranty'?'bird-extra-life':id==='tractor-beam'?'interact-toggle':id):[];
   shopOwned=new Set(migratedOwned.filter(id=>SHOP_ITEMS.some(item=>item.id===id)));
-  const migratedEquipped=(stored.equipped==='galaga-warranty'||stored.equipped==='tractor-beam'||stored.equipped==='lucky-charm')?null:stored.equipped;
-  shopEquipped=typeof migratedEquipped==='string'&&shopOwned.has(migratedEquipped)&&shopItem(migratedEquipped)?.slot==='gameplay'?migratedEquipped:null;
+  // Upgrade older single-slot saves without discarding the player's existing loadout.
+  const savedEquipped=Array.isArray(stored.equipped)?stored.equipped:typeof stored.equipped==='string'?[stored.equipped]:[];
+  shopEquipped=new Set(savedEquipped.filter(id=>id!=='galaga-warranty'&&id!=='tractor-beam'&&shopOwned.has(id)&&shopItem(id)?.slot==='gameplay'));
   rupeeDiscovered=localStorage.getItem(RUPEE_DISCOVERED_KEY)==='1'||rupeeWallet>0||shopOwned.size>0;
   if(shopOwned.has('design-mode-unlock')){designModeUnlocked=true;localStorage.setItem(DESIGN_UNLOCK_KEY,'1');}
   if(rupeeDiscovered) localStorage.setItem(RUPEE_DISCOVERED_KEY,'1');
@@ -1072,7 +1073,7 @@ function setInteractMode(active){
 }
 interactToggle?.addEventListener('click',()=>setInteractMode(!interactModeEnabled));
 function shopItem(id){ return SHOP_ITEMS.find(item=>item.id===id)||null; }
-function shopHasEquipped(id){ return shopEquipped===id; }
+function shopHasEquipped(id){ return shopEquipped.has(id); }
 function shopOwns(id){ return shopOwned.has(id); }
 function shopDiscountActive(){ return shopOwned.has('production-discount'); }
 function allOtherShopItemsOwned(exceptId='design-mode-unlock'){
@@ -1121,11 +1122,11 @@ function updateRupeeAttention(){
   }
 }
 function persistShopState(){
-  try{localStorage.setItem(SHOP_STATE_KEY,JSON.stringify({owned:[...shopOwned],equipped:shopEquipped}));}catch(_){}
+  try{localStorage.setItem(SHOP_STATE_KEY,JSON.stringify({owned:[...shopOwned],equipped:[...shopEquipped]}));}catch(_){}
   syncShopTelemetrySnapshot();
 }
 function applyShopEquipmentState(){
-  document.body.dataset.shopEquipped=shopEquipped||'';
+  document.body.dataset.shopEquipped=[...shopEquipped].join(' ');
 }
 function updateMetaTrace(){
   if(!metaTrace) return;
@@ -1239,7 +1240,7 @@ function updateProgressHudVisibility(){
 function syncShopTelemetrySnapshot(){
   const economy=telemetryPath('economy');
   economy.shopOwnedSnapshot=[...shopOwned];
-  economy.shopEquippedSnapshot=shopEquipped;
+  economy.shopEquippedSnapshot=[...shopEquipped];
   economy.walletSnapshot=rupeeWallet;
   telemetryScheduleSave();
 }
@@ -3027,10 +3028,10 @@ const OBJECTIVE_DEFS=[
     eligible:()=>legendaryGameplayUnlocked() && !reduceMotion,
     detail:'Two successful Legendary projectile collections.'},
   {id:'field-test',category:'LOADOUT',title:'Collect a pickup with a Shop modifier equipped.',goal:1,reward:1,duration:50000,
-    eligible:()=>!!shopEquipped && epicGameplayUnlocked() && !reduceMotion,
+    eligible:()=>shopEquipped.size>0 && epicGameplayUnlocked() && !reduceMotion,
     detail:'Put the current gameplay modifier to work.'},
   {id:'loadout',category:'LOADOUT',title:'Equip one owned gameplay upgrade.',goal:1,reward:1,duration:45000,
-    eligible:()=>!shopEquipped && SHOP_ITEMS.some(item=>item.slot==='gameplay' && shopOwned.has(item.id)),
+    eligible:()=>SHOP_ITEMS.some(item=>item.slot==='gameplay' && shopOwned.has(item.id) && !shopHasEquipped(item.id)),
     detail:'Owned gameplay gear can be swapped freely.'},
   {id:'shop-buy',category:'LOADOUT',title:'Buy one Shop item.',goal:1,reward:2,duration:70000,
     eligible:()=>rupeeDiscovered && SHOP_ITEMS.some(item=>!shopOwned.has(item.id)&&shopItemAvailable(item)&&shopPrice(item)<=rupeeWallet),
@@ -3320,7 +3321,7 @@ function objectiveHandleEvent(type,detail={}){
     case 'system-combo': if(type==='system_combo') objectiveIncrement(); break;
     case 'legendary-shot': if(type==='flying_collected' && detail.method==='legendary') objectiveIncrement(); break;
     case 'legendary-double': if(type==='flying_collected' && detail.method==='legendary') objectiveIncrement(); break;
-    case 'field-test': if(type==='flying_collected' && friendly && !!shopEquipped) objectiveIncrement(); break;
+    case 'field-test': if(type==='flying_collected' && friendly && shopEquipped.size>0) objectiveIncrement(); break;
     case 'loadout': if(type==='shop_equip') objectiveIncrement(); break;
     case 'shop-buy': if(type==='shop_purchase') objectiveIncrement(); break;
     case 'slowmo-test': if(type==='slowmo') objectiveIncrement(); break;
@@ -4678,7 +4679,7 @@ function shopItemIcon(id){
 }
 function renderShopCard(item){
   const locked=!shopItemAvailable(item);
-  const owned=item.slot!=='consumable'&&shopOwned.has(item.id), equippedNow=shopEquipped===item.id, passive=item.slot==='passive';
+  const owned=item.slot!=='consumable'&&shopOwned.has(item.id), equippedNow=shopHasEquipped(item.id), passive=item.slot==='passive';
   const price=shopPrice(item);
   const discount=shopDiscountActive()&&!owned&&item.id!=='production-discount'&&price<item.cost;
   const displayName=locked?'???':item.name;
@@ -4689,7 +4690,7 @@ function renderShopCard(item){
   if(locked){action='locked';label=item.requires==='shop-master'?'LOCKED // OWN ALL':'LOCKED // PROGRESSION';disabled=true;priceText='???';}
   else if(item.slot==='consumable'){action='buy';label=`REFILL // ${price} RUPEES`;disabled=rupeeWallet<price;}
   else if(owned&&passive){action='passive';label=item.id==='interact-toggle'?'CONTROL // UNLOCKED':'PASSIVE // ACTIVE';disabled=true;}
-  else if(owned&&equippedNow){action='equipped';label='EQUIPPED';disabled=true;}
+  else if(owned&&equippedNow){action='unequip';label='UNEQUIP';disabled=false;}
   else if(owned){action='equip';label='EQUIP';disabled=false;}
   const birdButtons=item.id==='bird-extra-life';
   const refill=shopItem('bird-life-refill');
@@ -4706,9 +4707,9 @@ function renderShopCard(item){
 function renderShop(){
   if(!shopItemsEl) return;
   if(shopWalletCount) shopWalletCount.textContent=String(rupeeWallet);
-  const equipped=shopItem(shopEquipped);
-  if(shopEquippedName) shopEquippedName.textContent=equipped?.name?.toUpperCase()||'NONE';
-  if(shopUnequip){shopUnequip.disabled=!equipped;shopUnequip.classList.toggle('visible',!!equipped);}
+  const equipped=[...shopEquipped].map(shopItem).filter(Boolean);
+  if(shopEquippedName) shopEquippedName.textContent=equipped.length?equipped.map(item=>item.name.toUpperCase()).join(' + '):'NONE';
+  if(shopUnequip){shopUnequip.disabled=!equipped.length;shopUnequip.classList.toggle('visible',!!equipped.length);}
   const groups=[['rare','FIELD GEAR'],['epic','SYSTEM GEAR'],['legendary','MASTERWORKS']];
   shopItemsEl.innerHTML=groups.map(([rarity,subtitle])=>`<section class="shop-rarity-section rarity-${rarity}" data-rarity="${rarity}"><header><span>${shopRarityLabel(rarity)}</span><small>${subtitle}</small></header><div class="shop-rarity-grid">${SHOP_ITEMS.filter(item=>item.rarity===rarity&&item.id!=='bird-life-refill').map(renderShopCard).join('')}</div></section>`).join('');
   if(shopMerchant) shopMerchant.textContent=shopMerchantLine();
@@ -4716,22 +4717,27 @@ function renderShop(){
 function equipShopItem(id,{announce=true}={}){
   const item=shopItem(id);
   if(!item||item.slot!=='gameplay'||!shopOwned.has(id)||!shopItemAvailable(item)) return false;
-  if(shopEquipped===id) return true;
-  const previousEquipped=shopEquipped;
-  shopEquipped=id;
+  if(shopEquipped.has(id)) return true;
+  shopEquipped.add(id);
   persistShopState(); applyShopEquipmentState(); renderShop();
-  if(id==='insert-coin'||previousEquipped==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
+  if(id==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
   telemetryCount('economy','shopEquips'); telemetryUnique('economy','shopEquippedItems',id); telemetryMeaningful('shop_equip',{id});
-  if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped. One slot, one bad idea at a time.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'ONE GAMEPLAY MODIFIER','SHOP'); }
+  if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'MULTIPLE MODIFIERS ALLOWED','SHOP'); }
   return true;
 }
-function unequipShopItem(){
-  if(!shopEquipped) return;
-  const previous=shopItem(shopEquipped);
-  shopEquipped=null; persistShopState(); applyShopEquipmentState(); renderShop();
-  if(previous?.id==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
-  telemetryCount('economy','shopUnequips'); telemetryMeaningful('shop_unequip',{id:previous?.id||'unknown'});
-  consolePrint(`SHOP // ${previous?.name||'Gameplay modifier'} unequipped. Raw portfolio difficulty restored.`,'good');
+function unequipShopItem(id=null){
+  const removals=id?[id]:[...shopEquipped];
+  let changed=false,hadInsertCoin=false;
+  for(const itemId of removals){
+    if(!shopEquipped.delete(itemId))continue;
+    changed=true;
+    if(itemId==='insert-coin')hadInsertCoin=true;
+    telemetryCount('economy','shopUnequips');telemetryMeaningful('shop_unequip',{id:itemId});
+  }
+  if(!changed)return;
+  persistShopState(); applyShopEquipmentState(); renderShop();
+  if(hadInsertCoin)scheduleNaturalGalaga(nextNaturalGalagaDelay());
+  consolePrint(`SHOP // ${id?shopItem(id)?.name||'Gameplay modifier':'All gameplay modifiers'} unequipped.`,'good');
 }
 function purchaseShopItem(id){
   const item=shopItem(id);
@@ -4786,9 +4792,9 @@ shopPopup?.addEventListener('pointerdown',event=>{ if(event.target===shopPopup) 
 shopItemsEl?.addEventListener('click',event=>{
   const button=event.target.closest('button[data-shop-id]'); if(!button||button.disabled) return;
   const id=button.dataset.shopId, action=button.dataset.shopAction;
-  if(action==='buy') purchaseShopItem(id); else if(action==='equip') equipShopItem(id);
+  if(action==='buy') purchaseShopItem(id); else if(action==='equip') equipShopItem(id); else if(action==='unequip') unequipShopItem(id);
 });
-shopUnequip?.addEventListener('click',unequipShopItem);
+shopUnequip?.addEventListener('click',()=>unequipShopItem());
 rupeeMeter?.addEventListener('click',openShop);
 
 function consolePrintFunCommands(){
@@ -4942,7 +4948,7 @@ function devSetInvasion(value){
 }
 function devSetShopState(state){
   const s=String(state||'').toLowerCase();
-  const setOwned=ids=>{shopOwned=new Set(ids.filter(id=>SHOP_ITEMS.some(item=>item.id===id)));shopEquipped=null;};
+  const setOwned=ids=>{shopOwned=new Set(ids.filter(id=>SHOP_ITEMS.some(item=>item.id===id)));shopEquipped=new Set();};
   if(s==='empty'){
     setOwned([]);designModeUnlocked=false;try{localStorage.removeItem(DESIGN_UNLOCK_KEY);}catch(_){}
   }else if(s==='affordable'){

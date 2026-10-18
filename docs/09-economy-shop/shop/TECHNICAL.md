@@ -1,5 +1,13 @@
 # Shop - Technical Documentation
 
+## Current v3.25.2 verified update
+
+`SHOP_ITEMS` in `script.js` defines current ID/cost/rarity/slot and eligibility. Use [current inventory catalog](../../SHOP_INVENTORY_CATALOG.md) rather than an original historical ten-item list. `shopOwned` is a Set of purchases; `shopEquipped` is a Set of active gameplay modifiers serialized as an array in `mippi-shop-state-v1`. Legacy string saves migrate. Owned passives use `shopOwns`; active gear effects use `shopHasEquipped`.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Shop > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

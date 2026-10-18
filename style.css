@@ -8497,7 +8497,7 @@ body.star-power .completion-cursor-aura::after {
 .studio-card-cue span{font:inherit!important;color:inherit!important;margin:0!important;max-width:none!important;}
 .studio-card-reveal {
   position:absolute;inset:0;z-index:12;display:block;
-  box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;
+  box-sizing:border-box;overflow-y:auto;overscroll-behavior:auto;
   padding:15px 17px 16px;scrollbar-width:thin;
   background:linear-gradient(145deg,rgba(8,19,36,.985),rgba(9,30,54,.985));
   color:#e4f1ff;transform:translateY(101%);

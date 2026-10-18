@@ -1014,7 +1014,7 @@ try{
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
 }catch(_){}
 const SHOP_ITEMS=[
-  {id:'insert-coin',name:'Insert Coin',cost:6,slot:'gameplay',rarity:'rare',tag:'ARCADE',description:'Equip to make regular UFO waves arrive about 4 times as often. Unequip for normal pacing.'},
+  {id:'insert-coin',name:'Insert Coin',cost:6,slot:'gameplay',rarity:'rare',tag:'ARCADE',description:'Equip to unlock UFO encounters and upward shooting early in Rare. Natural UFO waves arrive about 4 times as often. Unequip to disable early access.'},
   {id:'dog-whistle',name:'Dog Whistle',cost:4,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
   {id:'star-extender',name:'Star Extender',cost:5,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
   {id:'slowpoke',name:'Slowpoke',cost:6,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
@@ -1756,6 +1756,8 @@ function currentThemeMode(){
   return 'rare';
 }
 function epicGameplayUnlocked(){ return unlockedAchievements.size===ACHIEVEMENT_KEYS.length; }
+// Insert Coin is an alternate arcade-only unlock; it does not grant Epic progression.
+function arcadeCombatUnlocked(){ return epicGameplayUnlocked() || shopHasEquipped('insert-coin'); }
 function legendaryGameplayUnlocked(){ return !!legendaryUnlocked; }
 
 const DOUG_THEME_IMAGES={
@@ -2880,7 +2882,7 @@ function directorSpawnOpportunityByPriority(preferred=null,{force=false}={}){
   if(hasWish && typeof hasWish==='function' && !hasWishCharge() && epicGameplayUnlocked()) add(()=>spawnShootingStar(force));
   if(dougCard?.classList.contains('doug-command')) add(()=>spawnDougBone(force));
   add(()=>spawnGamePickup(null,force));
-  if(epicGameplayUnlocked() && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil) add(()=>spawnGalaga(force));
+  if(arcadeCombatUnlocked() && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil) add(()=>spawnGalaga(force));
   for(const attempt of attempts){ try{ if(attempt()) return true; }catch(_){ } }
   return false;
 }
@@ -3007,10 +3009,10 @@ const OBJECTIVE_DEFS=[
     eligible:()=>!!(castleQuestActive||activeCastle),
     detail:'A Key already created the opportunity. Find the Castle before time expires.'},
   {id:'airspace-one',category:'ARCADE',title:'Destroy one regular UFO.',goal:1,reward:1,duration:50000,
-    eligible:()=>epicGameplayUnlocked() && !reduceMotion && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil,
+    eligible:()=>arcadeCombatUnlocked() && !reduceMotion && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil,
     detail:'Any valid kill method counts.'},
   {id:'airspace',category:'ARCADE',title:'Destroy two regular UFOs.',goal:2,reward:2,duration:75000,
-    eligible:()=>epicGameplayUnlocked() && !reduceMotion && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil,
+    eligible:()=>arcadeCombatUnlocked() && !reduceMotion && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil,
     detail:'Clear two contacts before the timer empties.'},
   {id:'contact-damage',category:'SYSTEM COMBO',title:'Destroy a UFO with Star Power contact.',goal:1,reward:3,duration:6000,advanced:true,
     eligible:()=>epicGameplayUnlocked() && !reduceMotion && document.body.classList.contains('star-power') && !ufoBossActive && !superBossActive && Date.now()>=ufoCalmUntil,
@@ -6085,7 +6087,7 @@ document.addEventListener('pointerdown',event=>{
     nearby.dataset.telemetryCollectMethod=document.body.classList.contains('star-power')?'star_power':'cursor_radius';
     nearby.click();return;
   }
-  if(!legendaryGameplayUnlocked())return;
+  if(!legendaryGameplayUnlocked() && !shopHasEquipped('insert-coin'))return;
   const firingAngles=dougCoolActive?[-12,0,12]:[0];
   for(const angle of firingAngles)fireLegendaryPlayerShot(event.clientX,event.clientY,{angle});
 });
@@ -6197,7 +6199,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
 }
 function spawnBossUfo(force=false){
   if(ufoBossActive || superBossActive) return;
-  if((!epicGameplayUnlocked()||reduceMotion) && !force) return;
+  if((!arcadeCombatUnlocked()||reduceMotion) && !force) return;
   ufoBossActive=true;
   updateInvasionMeter();
   telemetryCount('arcade','bossSpawned');
@@ -6644,7 +6646,7 @@ function createGalagaFlightPath(){
 function spawnGalaga(force=false,sharedPath=null,sharedDuration=null){
   if(ufoBossActive&&!force)return false;
   if(Date.now()<ufoCalmUntil&&!force)return false;
-  if((!epicGameplayUnlocked()||reduceMotion)&&!force)return false;
+  if((!arcadeCombatUnlocked()||reduceMotion)&&!force)return false;
   if(!directorAllowsAmbient('ufo',{force}))return false;
   // Cap visible ships including those fading after their flight.
   if(!force&&document.querySelectorAll('.galaga-secret:not(.boss-ufo)').length>=6)return false;
@@ -6757,7 +6759,7 @@ function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
       }
       scheduleNaturalGalaga();return;
     }
-    const retry=!epicGameplayUnlocked()?5000:reduceMotion?15000:(ufoBossActive||superBossActive||Date.now()<ufoCalmUntil)?3500:directorAttentionBlocked()?1600:5000;
+    const retry=!arcadeCombatUnlocked()?5000:reduceMotion?15000:(ufoBossActive||superBossActive||Date.now()<ufoCalmUntil)?3500:directorAttentionBlocked()?1600:5000;
     scheduleNaturalGalaga(retry);
   },delay);
 }

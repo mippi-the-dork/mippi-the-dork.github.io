@@ -1,5 +1,15 @@
 # Key Pickup - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+Natural `spawnKey`-family eligibility requires Epic unless forced. The prior authored panel preference and Key → Castle sequencing were restored in v3.23. Separate forced console actions are not specifications for regular discovery spawning.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Key Pickup > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -141,10 +151,3 @@ The natural no-duplicate rule is primarily enforced by pickup selection and `act
 ## Current v3.01 Behavior
 
 v3.01 only one hidden Key remains stationary at bottom-right of a content panel and scrolls with it until clicked, then activates Castle quest.
-
-
-## Current implementation correction (v3.25.2)
-
-Natural `spawnKey`-family eligibility requires Epic unless forced. The prior authored panel preference and Key → Castle sequencing were restored in v3.23. Separate forced console actions are not specifications for regular discovery spawning.
-
-Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

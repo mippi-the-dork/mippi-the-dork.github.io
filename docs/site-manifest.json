@@ -1,10 +1,15 @@
 {
   "title": "Mippi Portfolio Documentation",
-  "baseline": "Mippi Portfolio v3.14",
+  "baseline": "Mippi Portfolio v3.24",
   "home": "README.md",
   "github": "https://github.com/mippi-the-dork/mippi-the-dork.github.io/tree/main/docs",
   "portfolio": "https://mippi-the-dork.github.io/",
   "references": [
+    {
+      "title": "v3.15–v3.24 Systems Integration",
+      "path": "V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md",
+      "summary": "Canonical Shop, icons, gameplay damage, Bird lives and pause behavior through v3.24."
+    },
     {
       "title": "Documentation Coverage Report",
       "path": "DOCUMENTATION_COVERAGE_REPORT.md",
@@ -69,6 +74,11 @@
       "title": "Performance Investigation Findings",
       "path": "QA/PERFORMANCE_INVESTIGATION_FINDINGS.md",
       "summary": "Cross-release evidence, controlled comparisons and unresolved causal questions."
+    },
+    {
+      "title": "v3.15–v3.24 Regression QA",
+      "path": "QA/V3_15_TO_V3_24_REGRESSION_QA.md",
+      "summary": "Release acceptance checks for achievement icons, Shop, damage, pause and progression."
     }
   ],
   "qa": [

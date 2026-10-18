@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v3.14. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.24. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 
@@ -106,3 +106,8 @@ The current Hero logo configuration uses the v3.10 centered `logoOrbit` and the 
 ## v3.14 Consolidated Update
 
 Current documented state is **v3.14**, including all four v3.11–v3.14 handoffs and merged implementation PRs #24–#27. Three feature pairs added: [Studio Career Reveals](02-portfolio-content/studio-career-reveals/DESIGN.md), [Graphics Capability Fallback](03-threejs-presentation/graphics-capability-fallback/DESIGN.md), and [Mippi Bird Life Refill](09-economy-shop/mippi-bird-life-refill/DESIGN.md). Inventory is **260 features / 520 DESIGN+TECHNICAL pages** across 17 categories. v3.11 corrects ring/Console/theme memory, v3.12 adds career reveals and theme-independent click radius/music selection play, v3.13 adds graphics fallback, links and 11-item Shop, and v3.14 refines full-color, no-scroll career panels. See [v3.14 QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md).
+
+
+## v3.24 Consolidated Update
+
+Ten documentation handoffs v3.15–v3.24 added as a [systems integration reference](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [versioned acceptance matrix](QA/V3_15_TO_V3_24_REGRESSION_QA.md). Existing 260 feature pairs remain intact; this release updates documentation/reference coverage without claiming new canonical feature folders or completion of browser QA. Changes cover icon semantics, Shop and Console gates, Insert Coin cadence, half-Heart damage, Bird life accounting, projectile protection, v3.23 Key revert, and v3.24 pause handling.

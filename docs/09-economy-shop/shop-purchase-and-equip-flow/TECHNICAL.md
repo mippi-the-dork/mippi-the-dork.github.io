@@ -1,5 +1,15 @@
 # Shop Purchase and Equip Flow - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+**Current implementation (v3.25.2).** `shopEquipped` is a JavaScript Set, and `shopHasEquipped(id)` is its membership predicate. The `mippi-shop-state-v1` serialized `equipped` value is an array. Older string saves migrate to a Set after confirming each ID remains owned and gameplay-eligible. Owned Celestial Beacon and Arcade Bounty from older passive-era saves are added to equipment during migration to preserve prior effects. `equipShopItem` adds an item, `unequipShopItem(id)` removes an item, and `unequipShopItem()` removes all items. Insert Coin and Celestial Beacon reschedule their respective natural timers when toggled. Test multiple upgrades simultaneously, per-item toggles, reload, migration and all-equipment removal.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Shop Purchase and Equip Flow > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

@@ -273,3 +273,15 @@ When adding a persistent state in a future release:
 No new browser-storage key is introduced for bonus Heart lives: they are credited into the existing Mippi Bird Mushroom-life bank. Invasion wave/encounter state remains session-runtime rather than long-term persistent. The performance profile isolates and JSON capture buffers are developer runtime state, not persistent progression.
 
 **Current command-removal warning:** `particles` is no longer public as of v2.85, but its internal particle effect still exists. See [Console Command Catalog](CONSOLE_COMMAND_CATALOG.md).
+
+## v3.25.2 storage and migration correction
+
+The older registry above remains useful for key-name provenance, but its storage availability and Shop payload assumptions require these current overrides:
+
+- `mippi-shop-state-v1` is JSON with `owned: string[]` and **`equipped: string[]`**, not a single `equipped` ID. Older string saves migrate to the new set; legacy owned IDs `galaga-warranty` and `tractor-beam` map to `bird-extra-life` and `interact-toggle`. Previously owned Celestial Beacon and Arcade Bounty become equipped on legacy conversion to preserve effects.
+- `mippi-bird-mushroom-lives-v1` retains its historical name but now means **banked purchased Bird refill Lives**. Heart and ordinary Mushroom pickups do not credit it. The Bird worker consumes a bank snapshot at round creation and reports bank changes back to the main script; it does not access storage directly.
+- The main runtime wraps access to `localStorage` and `sessionStorage` with safe adapters. If the browser denies them, state remains available in page-lifetime memory and a nonblocking notice warns that a reload may discard progress. Do not promise persistence in a browser that blocks storage.
+- Other standalone scripts must be audited individually before asserting full-site storage-denial support.
+- Full origin reset includes persistent and session browser storage and applicable caches, registrations and reload logic; distinguish reset of actual browser state from temporary in-memory storage.
+
+All documented storage identifiers should be compared against the v3.25.2 implementation before being described as exhaustive.

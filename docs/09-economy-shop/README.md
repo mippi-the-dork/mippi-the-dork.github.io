@@ -21,18 +21,21 @@ This category groups the canonical documentation for **Rupee Economy and Shop**.
 | **Shop Purchase and Equip Flow** | Handles buying items, equipping gameplay modifiers, unequipping them, and persisting ownership. | [Design](shop-purchase-and-equip-flow/DESIGN.md) | [Technical](shop-purchase-and-equip-flow/TECHNICAL.md) |
 | **Shop Rarity Presentation** | Keeps Rare, Epic, and Legendary Shop cards tied to their item rarity instead of inheriting the active site theme. | [Design](shop-rarity-presentation/DESIGN.md) | [Technical](shop-rarity-presentation/TECHNICAL.md) |
 | **Shop Affordability Cue** | Makes the Rupee HUD pulse when at least one currently available unowned item can be afforded. | [Design](shop-affordability-cue/DESIGN.md) | [Technical](shop-affordability-cue/TECHNICAL.md) |
-| **Lucky Charm** | A Rare gameplay item that increases the relative appearance chance of Hearts, Keys, and Stars. | [Design](lucky-charm/DESIGN.md) | [Technical](lucky-charm/TECHNICAL.md) |
+| **Lucky Charm (historical, no longer sold)** | Earlier Rare gameplay item, absent from the current v3.25.2 `SHOP_ITEMS`. | [Design](lucky-charm/DESIGN.md) | [Technical](lucky-charm/TECHNICAL.md) |
 | **Dog Whistle** | A Rare gameplay item that increases Doug Bone opportunities once Doug is in command. | [Design](dog-whistle/DESIGN.md) | [Technical](dog-whistle/TECHNICAL.md) |
 | **Star Extender** | A Rare gameplay item that increases Star Power duration. | [Design](star-extender/DESIGN.md) | [Technical](star-extender/TECHNICAL.md) |
 | **Slowpoke** | A Rare gameplay item that keeps newly spawned flying objects on screen longer. | [Design](slowpoke/DESIGN.md) | [Technical](slowpoke/TECHNICAL.md) |
 | **Interact Toggle Shop Item** | An Epic passive item that unlocks the Interact Mode control. | [Design](interact-toggle-shop-item/DESIGN.md) | [Technical](interact-toggle-shop-item/TECHNICAL.md) |
-| **Mippi Bird Extra Life** | An Epic passive item that gives each Mippi Bird round a rechargeable hit shield. | [Design](mippi-bird-extra-life/DESIGN.md) | [Technical](mippi-bird-extra-life/TECHNICAL.md) |
+| **Mippi Bird Extra Life** | An Epic passive item that gives each Mippi Bird round one extra Life per round, distinct from refill Lives. | [Design](mippi-bird-extra-life/DESIGN.md) | [Technical](mippi-bird-extra-life/TECHNICAL.md) |
 | **Production Discount** | An Epic passive item that permanently reduces the price of remaining unowned Shop inventory. | [Design](production-discount/DESIGN.md) | [Technical](production-discount/TECHNICAL.md) |
-| **Celestial Beacon** | An Epic passive item that increases Shooting Star frequency and catchable duration after Epic unlock. | [Design](celestial-beacon/DESIGN.md) | [Technical](celestial-beacon/TECHNICAL.md) |
-| **Golden Trigger** | A Legendary gameplay item that improves Legendary cursor targeting range and projectile speed. | [Design](golden-trigger/DESIGN.md) | [Technical](golden-trigger/TECHNICAL.md) |
+| **Celestial Beacon** | An Epic equippable gameplay modifier that increases Shooting Star frequency and catchable duration after Epic unlock. | [Design](celestial-beacon/DESIGN.md) | [Technical](celestial-beacon/TECHNICAL.md) |
+| **Golden Trigger** | A Legendary gameplay modifier that increases upward cursor projectile speed. | [Design](golden-trigger/DESIGN.md) | [Technical](golden-trigger/TECHNICAL.md) |
 | **Design Mode Unlocked** | The Legendary Shop capstone appears after Shop mastery and permanently unlocks Design Mode. | [Design](design-mode-unlocked/DESIGN.md) | [Technical](design-mode-unlocked/TECHNICAL.md) |
 
 | **Mippi Bird Life Refill** | Repeatable Epic Rupee purchase banks one Mippi Bird life without affecting permanent Shop completion. | [Design](mippi-bird-life-refill/DESIGN.md) | [Technical](mippi-bird-life-refill/TECHNICAL.md) |
+
+
+**Current inventory:** Use [Shop Inventory Catalog](../SHOP_INVENTORY_CATALOG.md) for all 13 v3.25.2 entries, including Insert Coin and Arcade Bounty, which are not separate legacy feature folders here. Gameplay items can be equipped simultaneously. The table above is a feature index and includes retained historical topics; it is not a current purchasable inventory list.
 
 ## Documentation rules
 

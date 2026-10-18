@@ -1,5 +1,15 @@
 # Key Pickup - Design Documentation
 
+## Current implementation correction (v3.25.2)
+
+Keys remain a prerequisite to Castle checks. The v3.22 early-Key/panel-placement experiment was reversed in v3.23. Regular Keys still follow the Epic natural-spawn gate; owning/equipping Insert Coin does **not** independently unlock Keys.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Key Pickup > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

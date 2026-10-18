@@ -1,5 +1,13 @@
 # Invasion Meter - Design Documentation
 
+## Current v3.25.2 verified update
+
+Invasion escalation uses staged thresholds: first five regular UFO kills, then ten more, then fifteen more, resulting in a recurring Super Boss encounter. The meter expresses cumulative stage position out of thirty while Boss escapes retain a reduced reacquisition path.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Invasion Meter > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

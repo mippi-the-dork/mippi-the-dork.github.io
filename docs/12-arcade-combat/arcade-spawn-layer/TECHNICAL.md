@@ -1,5 +1,15 @@
 # Arcade Spawn Layer - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+`arcadeCombatUnlocked()` is `epicGameplayUnlocked() || shopHasEquipped('insert-coin')`; `spawnGalaga` and normal Boss eligibility use it. Spawn-delay range starts at 30–79 seconds and trends toward 17.5–51 seconds; equipped Insert Coin multiplies natural delay by 0.25. Reduced Motion, attention/modals, boss state and visible UFO cap remain effective; forced DEV spawns are separate.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Arcade Spawn Layer > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

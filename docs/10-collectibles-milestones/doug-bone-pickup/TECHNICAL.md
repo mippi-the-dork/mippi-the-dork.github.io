@@ -1,5 +1,13 @@
 # Doug Bone Pickup - Technical Documentation
 
+## Current v3.25.2 verified update
+
+Bone flight and layering respect the established ambient-object stack. `boneProjectileCollision` uses segment-to-AABB tests against live Bone bounding rectangles; production hostile and player shots test traveled segments before resolving hits. Diagnostic Combat Lab shots should not trigger ordinary Bone gameplay interception.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Doug Bone Pickup > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

@@ -1,5 +1,15 @@
 # Super UFO Boss - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+`superBossImpact` calls `showArcadeCursorHit` with about 650ms shared damage lock. Defense priority is Star immunity, available max-tier Mushroom buffer, cursor-size tier, then half-Hearts. The encounter suppresses content via `superBossInteractOverride`; overlay stacking and repositioning preserve header, hotbar and pickups. Teardown restores the saved interaction state.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
 ## Encounter state

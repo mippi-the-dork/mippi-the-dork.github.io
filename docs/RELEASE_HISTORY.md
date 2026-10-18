@@ -430,46 +430,90 @@ The Shop adjusts permanent prices for increased Rupee availability and adds an *
 The implementation PR is merged; visual checks for small-screen reveal fit, nested link activation, art coloration during dismiss and graphics-fallback device behavior are still acceptance tests, **not reported as fully validated**. See [v3.14 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md).
 
 
-## v3.15–v3.24 Chronological Update
+## v3.15–v3.25.2: source-grounded release record
 
-### v3.15
+The history here represents **behavior at each release**, while the [current systems reference](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) represents the latest implementation. Some decisions were reversed later. Source: reconstructed v3.15–v3.25.1 version-specific handoffs and subsequent implementation PRs #49–#55. Runtime-specific features have been checked against the current `script.js`.
 
-3.15.5 pre-icon stable baseline, preserving existing Three.js hero, Shop, achievements, arcade and music.
+### v3.15 and v3.15.1–3.15.5: economy, progression, authored content and initialization
 
-### v3.16
+**Design.** Shop costs were retuned for accessibility, Bird's Rupee economy changed to round-end comparison against the score record captured *when that run began*, and the Invasion progression was organized into 5, 10 and 15 UFO kill stages leading to two regular Bosses and a Super Boss. Fourteen Selected Studios & Companies reveals gained more substantial career points, and the Crafting Play destinations received a coordinated split presentation. The discovery-based footer HUD progressively reveals Coolness on first Bone, Invasion on first UFO defeat and Castles on first Key; undiscovered meters do not occupy space.
 
-Unique SVG emblems added for 10 Rare, 9 Epic, 1 Legendary achievements; locked presentation and toasts updated.
+**Technical.** `rewardFlappyRound(score,previousHighScore)` computes zero below the old record, one when tied, and improvement margin plus one when above it. v3.15.1 fixed a serious initialization-order/temporal-dead-zone bug on returning sessions: early HUD updates could call a wave helper that used a not-yet-initialized `const` table. Hoisted function-based thresholds made the 5/10/15 logic safe during startup. v3.15.2 first implemented discovery meters; 3.15.3 fixed unified-HUD CSS specificity and 3.15.4 fixed reset state and collapsed empty layout gaps. v3.15.5 added a comprehensive origin-scoped reset of persistent/session state, applicable caches and registrations before reload. This is not simply a minor baseline update. Historical PRs #29–#34.
 
-### v3.17
+### v3.16: achievement visual identity
 
-Shop item glyphs, Doug Bone stacking below header/HUD, Arcade Bounty +45% UFO Rupee-drop chance.
+**Design.** Each of the 20 achievements (10 original Rare, nine Epic postgame, one Legendary completion) received an identifiable inline SVG emblem. The icons communicate the title's subject and maintain their owned rarity palette in the Ledger, hints, locked entries and unlock notifications. The release changed recognizability rather than unlock eligibility.
 
-### v3.18
+**Technical.** Achievement-key-to-SVG mapping renders inline with existing achievement metadata. Toasts and the Ledger reuse the same identity without relying on additional images or changing the achievement storage keys. Historical PR #35.
 
-Bird shield/refill Shop combined; Insert Coin increase; Epic Dev Console Shop purchase gated by Shooting Star. Follow-up 3.18.1 preserves RESET/SHOP; 3.18.2 hides Console hotbar until purchased.
+### v3.17: Shop iconography, Bone stacking and Arcade Bounty
 
-### v3.19
+**Design.** Shop goods gained distinct illustrated emblems. Ambient Doug Bones were moved below sticky navigation and the unified HUD so flying collectibles cannot obstruct core portfolio controls. The original Epic Arcade Bounty purchase applied to qualifying regular UFO kills, increasing the Rupee drop probability **from 30% to 45%**. This equals **+15 percentage points**, not +45 percentage points. At v3.17 it was a permanently active owned passive, later revised by PR #51 to independently equippable.
 
-16 achievement/Shop SVG icons refined, locked hints strengthened, Legendary borders distinguished.
+**Technical.** `SHOP_ICON_PATHS` / `shopItemIcon` build inline SVGs. Regular UFO reward decisions used an owned Bounty check at v3.17; current code uses `shopHasEquipped('arcade-bounty')`. Historical PR #36.
 
-### v3.20
+### v3.18, v3.18.1 and v3.18.2: Shop control and Dev Console progression
 
-Additional icon refinements; DEV commands work before Console purchase while normal command gates remain.
+**Design.** The Bird extra-life and refill paths were presented together on the Bird Shop card, but remain distinct permanent/passive and repeatable/consumable purchases. Insert Coin provided faster natural UFO waves. Dev Console became a purchasable Epic entitlement tied to the Shooting Star progression path, without removing the explicitly public Shop and RESET recovery paths. The console icon must not appear as a normal accessible control before purchase.
 
-### v3.21
+**Technical.** Purchase state, command authorization, Shop card rendering, console icon availability and star scheduling are separate concerns. v3.18.1 protected the RESET/SHOP exceptions after command gating; 3.18.2 fixed hidden pre-purchase Console hotbar behavior. Their order matters to reconstruct the security and UX intent.
 
-Curious Mind brain, Signal Acquired antenna, Unmark U/down-arrow silhouettes fixed; PASSIVE // ACTIVE corrected; Insert Coin ~4× natural UFO wave frequency.
+### v3.19–v3.20: icon polish and capability boundaries
 
-### v3.22
+**Design.** A second pass polished achievement and Shop SVG silhouettes, locked discovery hints and rarity borders while preserving readability in all site themes. v3.20 clarified the divide between development-facing commands, accessible public commands, and the purchased Dev Console UI.
 
-Half-Heart hostile projectile damage, Mippi Bird lives no longer awarded by Hearts or Mushrooms; Bird refill purchases and rewards credit lives directly. Temporary Key changes subsequently reverted.
+**Technical.** DEV commands remain usable through their intended debug route without granting ordinary Console ownership. A UI lock is not necessarily a lock on all command implementations. Current docs should never say merely that 'all Console commands are Epic-gated' without identifying the exception.
 
-### v3.23
+### v3.21: Insert Coin rate and SVG refinements
 
-Restores prior Key eligibility/panel placement; Star invulnerability, Mushroom tier damage buffering, and Bone collision with friendly/hostile shots.
+**Design.** Brain, antenna and Unmark-style emblem silhouettes were refined; passive Shop labels were corrected. Insert Coin was tuned to make a visibly meaningful difference to the natural arcade cadence.
 
-### v3.24
+**Technical.** The natural UFO spawn-delay multiplier for equipped Insert Coin changed **0.60 → 0.25**. This corresponds to roughly four times the ordinary frequency before other director/encounter factors, not a blanket claim of exactly four times as many concurrent enemies.
 
-P-key and focus/visibility pause requiring explicit resume; Shop/Bird suspend background play, discovered Heart HUD stays visible, Castle clicks trigger impact VFX. Browser QA outstanding.
+### v3.22: Half-Heart damage and separated Bird lives
 
-Current behavior supersedes temporary earlier rules. See [integration reference](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).
+**Design.** Ordinary hostile projectiles consume half-Hearts, while Bird life capacity stopped being credited by collecting regular Hearts or Mushrooms. Refill Shop purchases became the dedicated supply for banked Bird lives.
+
+**Technical.** The cursor/Heart damage pipeline and Bird bank state are separate. v3.22 briefly experimented with early Key eligibility and spawn location. **Those Key changes are not current** and are reversed below.
+
+### v3.23: Key restoration and layered projectile protection
+
+**Design.** Regular Keys returned to their prior Epic progression gate and authored panel-placement logic; their Key → Castle cadence remained intact. Star Power grants immunity, cursor-size Mushroom tiers protect against damage, and live Doug Bones act as interceptors for incoming and outgoing projectiles without being consumed.
+
+**Technical.** Swept segment/AABB intersection tests account for fast projectiles passing a Bone between frames. Production hostile and player bullets use those tests before applying hit effects, while isolated Combat Lab shots should not contaminate gameplay accounting. The max-size Mushroom hit buffer introduced later in v3.25 adds a *separate* protection tier before cursor-size shrinkage.
+
+### v3.24: pause coordinator, Hearts display and Castle impact
+
+**Design.** A shared pause mechanism supports P-key manual pause, focus/visibility pause with explicit resume, and background suspension when the Shop or Bird is active. Once the Heart HUD is discovered, reaching zero Hearts no longer hides it. Clicking a Castle gets tactile impact effects.
+
+**Technical.** `MippiPause` maintains reasons and wraps scheduling APIs to defer gameplay callbacks without discarding registered timers. The Bird overlay is allowed to play while its host page is suspended, but manual or unfocused pause still matters. v3.25.2 adds worker coordination to this contract. Historical PR #45.
+
+### v3.25.0: Mushroom tier permanence and Heart-drop rebalance
+
+**Design.** Mushroom cursor size no longer cycles downward on collection. Previously visible Mushrooms at maximum size can contribute a separate limited hit buffer. Eligible regular UFO Heart drops were increased **5% → 20%**. The transient Bird UI split into Shields / Spare Lives is **only historical**, superseded by v3.25.1.
+
+**Technical.** A max-tier buffer must resolve before ordinary cursor tier reduction, then fall through to half-Heart damage. That ordering is shared between regular combat and later Super Boss damage. Historical PR #47.
+
+### v3.25.1: one Lives model and unified Super Boss interactions
+
+**Design.** Bird uses **LIVES N**, where N indicates exactly how many more valid hits the run can sustain. One inherent Life, one additional per-round Life from the owned Bird upgrade, and purchased banked refill Lives sum to the displayed number. The hit that consumes the final Life causes Game Over, with no extra uncounted fatal hit. Super Boss damage now affects the same Mushroom/Heart defenses as ordinary UFO combat. The site header, HUD and ambient pickups remain present during the encounter; the Boss temporarily applies Interact OFF without granting permanent ownership and restores the former setting afterward.
+
+**Technical.** At this historical endpoint, `flappyLivesRemaining` and `consumeFlappyLife` manage the life source order, 1650ms hit immunity and round termination. Super Boss impacts route through `showArcadeCursorHit`, with approximately 650ms contact protection. The arena's layering/geometry were revised to preserve ordinary site controls. Historical PR #48; v3.25.2 later replaces Bird physics/state implementation.
+
+### After v3.25.1: PRs #49–#54
+
+- **#49:** Expanded career detail panels allow ordinary page scroll chaining when there is no remaining internal scroll range. An open panel no longer traps wheel/trackpad movement.
+- **#50:** Equipped Rare Insert Coin becomes an alternative early arcade access route: natural UFOs and upward shooting can operate without all ten Rare achievements. This grants **combat only**, not Epic progression or Shop rights.
+- **#51:** Removes the single gameplay equipment slot. All owned modifiers can be active independently; per-item UNEQUIP and global UNEQUIP ALL are supported. Older single-item saves migrate to an equipped-ID array. Celestial Beacon and Arcade Bounty change from owned passives to equippable gameplay modifiers, and previously owned items stay active during migration.
+- **#52:** A primary-script browser storage abstraction uses in-memory fallback when `localStorage` or `sessionStorage` is denied, and displays a small temporary-progress warning. Adds Bird numeric/bounds checks. This is **not a guarantee** that every other standalone script is storage-denial safe.
+- **#53–#54:** Bird completion state gains a nonconfigurable per-round latch, physics state is put inside a closure, and initial exploit-regression checks are added. These are engineering controls, not server-side security.
+
+### v3.25.2: Mippi Bird isolated worker simulation (PR #55)
+
+**Design.** Mippi Bird still looks and plays as the existing one-button side game, using the same life capacity and rewards. The objective was greater resistance to accidental/casual state tampering without overloading the main portfolio renderer. Gameplay is not represented as cryptographically secure.
+
+**Technical.** `mippi-bird-worker.js` owns fixed-step Bird movement, pipe/boundary collisions, life depletion, score and Game Over; `script.js` draws snapshots in the normal Canvas and applies result events to the site's telemetry, HUD and Rupee wallet. The worker is created when Bird opens and terminated when it closes. Simulation targets 60 Hz with a bounded four-step catch-up; state snapshots target 30 Hz plus meaningful events. The existing shared pause reasons communicate pause to the worker, and the worker does not accept direct arbitrary state-update messages. `tests/mippi-bird-integrity.test.cjs` includes worker-state/message and collision/pause regression tests.
+
+**Evidence limit.** Source parsing and selected mocked checks were performed in development; comprehensive browser QA and actual before/after FPS benchmarking were not reported completed. No standalone documentation changes were published as part of PR #55.
+
+See [current systems design and technical integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md), [Shop Inventory](SHOP_INVENTORY_CATALOG.md), and [release QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).

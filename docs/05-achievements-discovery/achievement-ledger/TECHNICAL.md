@@ -1,5 +1,15 @@
 # Achievement Ledger - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+Current icon markup is keyed to achievement metadata and shared across the Ledger and notifications. `epicGameplayUnlocked()` still requires all ten original Rare achievements; the equipped Insert Coin early-combat permission does not change achievement state.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Achievements and Discovery > Achievement Ledger > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

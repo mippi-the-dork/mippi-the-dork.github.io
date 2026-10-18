@@ -1,5 +1,13 @@
 # Hostile Projectile System - Technical Documentation
 
+## Current v3.25.2 verified update
+
+Projectiles test movement segments against `boneProjectileCollision` before damage resolution, preventing tunneling. `showArcadeCursorHit` evaluates Star immunity, `mushroomHitBuffer`, `cursorPowerLevel`, then `damageHeartHalf`. Super Boss contact uses that shared path and approximately 650ms hit-lock. Projectile destruction must release motion/timer resources, not only visual elements.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Hostile Projectile System > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

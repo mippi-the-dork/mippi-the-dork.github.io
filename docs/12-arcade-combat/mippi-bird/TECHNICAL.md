@@ -1,5 +1,15 @@
 # Mippi Bird - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+**Current architecture (v3.25.2).** `script.js` creates a dedicated `Worker('mippi-bird-worker.js')` only when the game opens and terminates it on Quit. `mippi-bird-worker.js` owns position, velocity, obstacles, lives, collision decisions, score and Game Over. Its fixed step is 1000/60 ms, with at most four catch-up steps and snapshots around 30 Hz plus meaningful events. The Canvas remains on the main thread and consumes read-only snapshots; HUD/wallet effects are applied from worker events. The worker accepts reset, flap, slow, pause and stop messages, not arbitrary gameplay-state setters. Website pause reasons freeze worker simulation without accumulated time catch-up. This architecture raises the barrier to casual console modifications but does not give a client-side game server authority. Current Node tests reside in `tests/mippi-bird-integrity.test.cjs`; actual browser FPS validation remains outstanding.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mippi Bird > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

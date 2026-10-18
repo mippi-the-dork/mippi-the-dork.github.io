@@ -1,5 +1,15 @@
 # Cursor Interaction and Upward Shooting - Technical
 
+## Current implementation correction (v3.25.2)
+
+After world button exclusions and `nearbyClickable` handling, `pointerdown` requires `legendaryGameplayUnlocked() || shopHasEquipped('insert-coin')` before calling `fireLegendaryPlayerShot`. Cool Mode spread and Star projectile modifiers remain shared across early and Legendary access.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Introduced:** v3.00. **Current documented version:** v3.01.
 
 ## Click radius

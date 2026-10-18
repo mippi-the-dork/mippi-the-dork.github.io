@@ -1,5 +1,15 @@
 # Mippi Bird Damage Feedback - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+Worker `hit` events contain source, collision reason, remaining Lives and updated bank. Main-thread HUD/persistence/telemetry consumes those events. Surviving hits grant 1.65 seconds of immunity; final hit emits one `ended` event. Rendering uses the snapshot's invulnerability value.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mippi Bird Damage Feedback > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

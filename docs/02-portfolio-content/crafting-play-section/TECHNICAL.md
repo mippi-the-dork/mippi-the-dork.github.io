@@ -1,5 +1,13 @@
 # Crafting Play Section - Technical Documentation
 
+## Current v3.25.2 verified update
+
+v3.15 changed index markup in `index.html` and responsive split-panel styling in `style.css`. Preserve two separately reachable destinations within a cohesive container; do not let decorative book geometry occlude controls at small widths.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Portfolio Content and Professional Presentation > Crafting Play Section > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

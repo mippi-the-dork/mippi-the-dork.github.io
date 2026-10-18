@@ -1,5 +1,13 @@
 # Hostile Projectile System - Design Documentation
 
+## Current v3.25.2 verified update
+
+Normal hostile hits now consume half-Heart units after Star invulnerability, Mushroom max-tier buffer, and cursor-size tier defense. Doug Bones can intercept both hostile and friendly shots from v3.23. Super Boss impacts use these same defenses, not a parallel player health pool.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Hostile Projectile System > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

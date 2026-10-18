@@ -1,205 +1,76 @@
 # Shop Inventory Catalog
 
-**Implementation baseline:** Mippi Portfolio v2.78
+**Verified current runtime:** Mippi Portfolio v3.25.2 (`script.js` `SHOP_ITEMS`). This is the **current** authoritative inventory, not the historical v2.78 table. For successive changes see [Systems Integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [Release History](RELEASE_HISTORY.md).
 
-Canonical Shop inventory contains:
+## Current inventory (13 definitions)
 
-```text
-10 items
-```
+| ID | Display name | Base cost | Rarity | Type | Availability | Active effect |
+| --- | --- | ---: | --- | --- | --- | --- |
+| `insert-coin` | Insert Coin | 6 | Rare | Equippable | Immediate | Unlocks natural UFO encounters and upward shooting before Epic; regular UFO spawn interval ×0.25 while equipped |
+| `dog-whistle` | Dog Whistle | 4 | Rare | Equippable | Immediate | Doug Bones spawn more frequently after Doug assumes command |
+| `star-extender` | Star Extender | 5 | Rare | Equippable | Immediate | Star Power duration increases by about two seconds |
+| `slowpoke` | Slowpoke | 6 | Rare | Equippable | Immediate | New flying objects remain onscreen approximately 35% longer |
+| `dev-console` | Dev Console | 8 | Epic | Owned passive | Epic | Console ownership and Shooting Star eligibility |
+| `interact-toggle` | Interact Toggle | 8 | Epic | Owned passive | Epic | Player-controlled suppression of ordinary portfolio interactions |
+| `bird-extra-life` | Mippi Bird | 8 | Epic | Owned passive | Item availability, no explicit `requires` | One extra Life per Bird round; refill purchase offered on its card |
+| `production-discount` | Production Discount | 11 | Epic | Owned passive | Item availability, no explicit `requires` | 25% discount rounded down, minimum one Rupee, on qualifying unowned stock |
+| `celestial-beacon` | Celestial Beacon | 13 | Epic | Equippable | Epic | Shorter shooting-star spawn delay and longer flight while equipped |
+| `arcade-bounty` | Arcade Bounty | 10 | Epic | Equippable | Epic | Regular UFO Rupee drop probability 30% → 45% while equipped |
+| `golden-trigger` | Golden Trigger | 11 | Legendary | Equippable | Legendary | Upward projectiles travel faster (1380 versus 1050 speed units) |
+| `bird-life-refill` | Mippi Bird Life Refill | 7 | Epic | Repeatable consumable | Epic | Adds one Life to the persisted Bird refill bank |
+| `design-mode-unlock` | Design Mode Unlocked | 21 | Legendary | Owned passive | Legendary plus owning all other permanent items | Unlocks persistent Design commentary layer |
 
-## Inventory
+**Inventory counts:** 13 item definitions, comprising 7 equippable gameplay upgrades, 5 owned passive/capstone upgrades and 1 repeatable consumable. The consumable is not a unique permanent item for Shop completion. Availability depends on actual `requires` metadata, which is not identical for all Epic-rarity products.
 
-| ID | Name | Base cost | Rarity | Slot | Tag | Requirement | Effect |
-| --- | --- | ---: | --- | --- | --- | --- | --- |
-| `lucky-charm` | Lucky Charm | 2 | Rare | gameplay | DISCOVERY | None | Hearts, Keys, and Stars become somewhat more likely to appear. |
-| `dog-whistle` | Dog Whistle | 2 | Rare | gameplay | MORALE | None | Doug Bones enter the flight schedule more often once Doug is in command. |
-| `star-extender` | Star Extender | 3 | Rare | gameplay | POWER-UP | None | Star Power lasts about two seconds longer. |
-| `slowpoke` | Slowpoke | 3 | Rare | gameplay | TIMING | None | New flying objects remain on screen about 35 percent longer. |
-| `interact-toggle` | Interact Toggle | 4 | Epic | passive | FOCUS | Epic | Unlocks Interact Mode. |
-| `bird-extra-life` | Mippi Bird Extra Life | 4 | Epic | passive | MIPPI BIRD | None | Every new Mippi Bird round gets one rechargeable hit shield. |
-| `production-discount` | Production Discount | 6 | Epic | passive | ECONOMY | None | Permanent passive discount on unowned Shop inventory. |
-| `celestial-beacon` | Celestial Beacon | 7 | Epic | passive | CELESTIAL | Epic | Shooting Stars appear more often and remain catchable longer. |
-| `golden-trigger` | Golden Trigger | 5 | Legendary | gameplay | WEAPON | Legendary | Legendary cursor shots acquire farther targets and travel faster. |
-| `design-mode-unlock` | Design Mode Unlocked | 10 | Legendary | passive | CAPSTONE | Shop Master + Legendary | Unlocks the portfolio Design Mode commentary layer. |
+## Equipment, ownership and action model
 
-## Slot Rules
+Purchasing a gameplay modifier automatically equips it. Owned gameplay upgrades can coexist: the UI offers **EQUIP** and **UNEQUIP** independently per item, and the summary offers **UNEQUIP ALL**. Equipping one item no longer unequips another. Ownership persists even when an effect is turned off; passive upgrades use ownership, and the refill is a consumable rather than equipment.
 
-### Gameplay
-
-Only one gameplay item is equipped at a time.
-
-Current gameplay items:
-
-```text
-lucky-charm
-dog-whistle
-star-extender
-slowpoke
-golden-trigger
-```
-
-Gameplay items can be swapped freely after ownership.
-
-### Passive
-
-Passive items take effect through ownership.
-
-They do not occupy the gameplay equipment slot.
-
-Current passive items:
-
-```text
-interact-toggle
-bird-extra-life
-production-discount
-celestial-beacon
-design-mode-unlock
-```
-
-## Availability Rules
-
-No `requires` value:
-
-```text
-available immediately after Shop access
-```
-
-`epic`:
-
-```text
-all 10 Rare Signals complete
-```
-
-`legendary`:
-
-```text
-Legendary gameplay unlocked
-```
-
-`shop-master`:
-
-```text
-Legendary unlocked
-and
-every other Shop item owned
-```
-
-The Design Mode capstone uses `shop-master`.
-
-## Production Discount
-
-When owned, price calculation for unowned items is:
-
-```text
-floor(base cost * 0.75)
-minimum 1
-```
-
-The discount does not apply to:
-
-```text
-production-discount
-design-mode-unlock
-```
-
-Therefore the 10-Rupee Design Mode capstone stays 10.
-
-## Rarity Isolation
-
-Shop rarity cards preserve their own rarity identity independent of the current world theme.
-
-Examples:
-
-- Rare card remains blue/cyan under Legendary site theme.
-- Epic card remains violet/pink/cyan under Rare site theme.
-- Legendary card remains gold/teal under Epic site theme.
-
-## Shop Completion
-
-`Buy the Store` requires ownership of every canonical `SHOP_ITEMS` ID, including:
-
-```text
-design-mode-unlock
-```
-
-## Migration
-
-Current state migration inside:
-
-```text
-mippi-shop-state-v1
-```
-
-maps old owned IDs:
-
-```text
-galaga-warranty -> bird-extra-life
-tractor-beam -> interact-toggle
-```
-
-Legacy equipped references to those old IDs are cleared.
-
-## Storage
-
-Canonical state:
-
-```text
-mippi-shop-state-v1
-```
-
-Value shape:
+`shopEquipped` is a `Set` of active IDs. The persisted `mippi-shop-state-v1` `equipped` value is an **array**, not the historical single string. When reading an older single-string save, migrate it into an array-backed set. Older owned `galaga-warranty` maps to `bird-extra-life`, while `tractor-beam` maps to `interact-toggle`; invalid obsolete equipped IDs are excluded. For legacy saves, previously owned Celestial Beacon and Arcade Bounty are automatically put in the equipped set to retain their former always-on behavior, but can subsequently be unequipped.
 
 ```json
 {
-  "owned": ["item-id", "..."],
-  "equipped": "gameplay-item-id-or-null"
+  "owned": ["insert-coin", "arcade-bounty", "celestial-beacon"],
+  "equipped": ["insert-coin", "arcade-bounty", "celestial-beacon"]
 }
 ```
 
-Wallet:
+This is an **illustrative** saved state, not a claim that every user owns these items.
 
-```text
-mippi-rupee-wallet-v1
-```
+## Economy and interactions
 
-Discovery:
+The Rupee wallet uses `mippi-rupee-wallet-v1`; initial Shop discovery is tracked separately. The Shop's affordable-item attention depends on discovery, actual discounted price, prerequisites, ownership, and whether the Shop is already open.
 
-```text
-mippi-rupee-discovered-v1
-```
+`arcade-bounty` applies only to qualifying regular UFO defeats. The chance change is **+15 percentage points**, *not* an additional 45 percentage points or a 45% multiplier.
 
-## Affordability Attention
+`insert-coin` operates before Epic when equipped but does **not** grant Epic achievements, Dev Console or Legendary status. Unequipping it before Epic removes the natural-spawn and shooting permission. The natural schedule is adjusted when the item is toggled.
 
-The Rupee HUD pulses only when:
+`celestial-beacon` uses equipped state (not just ownership) in both shooting-star duration and natural delay calculations. Natural star eligibility still respects the Dev Console and progression gates.
 
-- Rupees/Shop are discovered,
-- at least one currently available unowned item is affordable,
-- Shop is not already open.
+## Shop item presentation and labels
 
-Affordability uses the actual discounted price.
+Item identities use inline SVGs from `SHOP_ICON_PATHS` and `shopItemIcon`. Rarity identity stays with individual cards, independent of the active world theme. Unavailable products show a locked state; owned passives show `PASSIVE // ACTIVE`; owned equipment offers its own active/inactive control. Mippi Bird's combined card includes the separate repeatable REFILL action.
 
-## QA Rule
+Use **Life/Lives**, never a current Bird `Shield` or `Spare Lives` HUD label. The temporary split Shield/Spare wording belongs only to the historical v3.25.0 release.
 
-Every release should validate each item in four states where applicable:
+## Historical adjustments
 
-```text
-locked
-available but unaffordable
-affordable
-owned/equipped
-```
+- v3.15 lowered contemporary Shop prices; those historical products and costs should not be reconstructed from today's list.
+- v3.17 introduced Bounty as a permanent owned passive, from 30% to 45% regular UFO Rupee-drop chance.
+- v3.18 added Insert Coin and reworked Dev Console and Bird purchases.
+- v3.21 changed equipped Insert Coin's delay factor from 0.60 to 0.25.
+- PR #50 allowed Insert Coin to unlock arcade combat before Epic.
+- PR #51 removed the single gameplay slot and converted Bounty/Beacon to independently equippable gear, preserving legacy passive ownership effects.
 
-Gameplay items additionally require:
+## Acceptance checks
 
-```text
-equip
-swap
-unequip
-reload
-```
+- [ ] Prices, ownership, availability, rarity and labels match the 13 runtime definitions.
+- [ ] Purchase automatically equips a gameplay upgrade but does not remove other equipped items.
+- [ ] Independent UNEQUIP and UNEQUIP ALL preserve ownership; effects and HUD reflect toggles.
+- [ ] Legacy string `equipped` saves, old renamed product IDs and previously passive Bounty/Beacon behave correctly.
+- [ ] Insert Coin early-combat eligibility and 0.25 wave delay apply only while equipped.
+- [ ] Celestial Beacon and Bounty behave differently when owned-but-unequipped.
+- [ ] Repeatable refill increases the Bird bank and is excluded from unique-item completion.
+- [ ] Readable cards, controls and multi-item equipped summary in all themes and on mobile.
 
-
-## v3.24 Override Notice
-
-The v2.78 inventory table above is a **historical baseline**, not the up-to-date purchasable inventory or prices. Through v3.24 the Shop also adds Arcade Bounty (+45% UFO Rupee-drop chance), Insert Coin (~4× natural wave rate), a combined Bird shield/refill presentation, and a Dev Console Epic entitlement gated by Shooting Star. The Dev Console hotbar requires purchase, but RESET/SHOP and DEV functionality preserve their exceptions. Bird refill is repeatable and distinct from permanent shop completion. Do not reuse this old table for current cost or quantity decisions until refreshed from runtime source. See [v3.24 integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+**QA status:** Source-derived specification. These checks are not claims of completed live browser testing.

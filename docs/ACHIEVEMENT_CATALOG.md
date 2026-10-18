@@ -1,6 +1,6 @@
 # Achievement Catalog
 
-**Implementation baseline:** Mippi Portfolio v2.80
+**Original catalog baseline:** Mippi Portfolio v2.80. **Current visual and eligibility verification:** v3.25.2.
 
 The Achievement system has three rarity layers:
 
@@ -181,6 +181,9 @@ When adding an achievement:
 - update QA.
 
 
-## v3.24 Visual Presentation Update
+## v3.25.2 Visual Presentation and Eligibility Update
 
-The 20 achievements (10 Rare, 9 Epic, 1 Legendary) each have distinct SVG emblems introduced v3.16. Locked icons remain visible; unlock toasts use updated emblems. Rarity colors and Legendary treatments remain semantically tied to achievement tier independent of the website theme. v3.19–v3.21 refine the brain for Curious Mind, antenna for Signal Acquired, Unmark mark, locked hints and outlines. See [v3.24 integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+The 20 achievements (10 Rare, 9 Epic, 1 Legendary) each have distinct SVG emblems introduced v3.16. Locked icons remain visible; unlock toasts use updated emblems. Rarity colors and Legendary treatments remain semantically tied to achievement tier independent of the website theme. v3.19–v3.21 refine the brain for Curious Mind, antenna for Signal Acquired, Unmark mark, locked hints and outlines. See [current integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+
+**Current gate distinction:** The ten original Rare achievements still determine `epicGameplayUnlocked()`. Equipped Rare Insert Coin can enable natural UFO spawning and upward shooting before those ten achievements are complete, but does not automatically unlock any achievement, Epic Shop item or postgame set. The 20 SVG icons remain appearance/recognition features, not altered achievement predicates. Verify the current icon map in `script.js` before changing motif-specific illustrations or claiming new keys.

@@ -1,5 +1,15 @@
 # Cursor Interaction and Upward Shooting - Design
 
+## Current implementation correction (v3.25.2)
+
+Clicking a collectible or an in-range interactive object takes priority. Otherwise upward cursor projectiles are available at Legendary, or earlier while Insert Coin is equipped. The latter allows Rare buyers to defeat the UFOs they have unlocked without granting Epic/Legendary entitlements.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Introduced:** v3.00. **Current documented version:** v3.01.
 
 ## Two distinct mechanics

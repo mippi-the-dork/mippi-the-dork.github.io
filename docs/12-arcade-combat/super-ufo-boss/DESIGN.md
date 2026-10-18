@@ -1,5 +1,15 @@
 # Super UFO Boss - Design Documentation
 
+## Current implementation correction (v3.25.2)
+
+Super Boss uses the regular cursor/Heart/Mushroom damage system and respects the normal site presentation: sticky header, footer hotbar and floating pickups remain visible and usable. The fight borrows Interact OFF temporarily, without awarding the Interact Shop purchase, and restores the original choice afterward.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
 The Super Boss is the climactic optional arcade encounter. The core now takes **27 hits** (50% more than its former 18), while the regular Boss remains **6 HP**. Its health HUD visibly starts at **27 / 27**. Its attack phases remain proportional to health, escalating near **18 HP** and **9 HP**.

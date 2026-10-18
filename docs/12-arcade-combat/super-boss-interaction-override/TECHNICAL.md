@@ -1,5 +1,15 @@
 # Super Boss Interaction Override - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+`contentInteractionSuppressed()` returns true for `superBossInteractOverride` independently from owned player `interact-toggle`. `syncInteractToggle` displays effective OFF state. `setInteractMode` rejects changing it during the encounter; teardown removes the override and re-syncs controls without mutating the player preference.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Super Boss Interaction Override > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

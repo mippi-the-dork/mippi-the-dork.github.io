@@ -489,3 +489,15 @@ verify historical recognition
 - **Early rewards:** pre-Epic Rare naturally schedules low-impact Rupee/Heart pickups; progression flags are unchanged. The descriptive PROFESSIONAL Player Model is **not** spawn or Director authority.
 
 See [Persistence Key Registry](PERSISTENCE_KEY_REGISTRY.md) and [Performance Diagnostics](17-qa-operations/performance-diagnostics/TECHNICAL.md).
+
+## v3.25.2 runtime authority and equipment correction
+
+**Shop:** Current equipped gameplay modifiers are a `Set<string>` in the main script and a `string[]` in persistent JSON. Multiple simultaneously equipped items are normal. Passive entitlement is determined by **ownership**, whereas `insert-coin`, `celestial-beacon` and `arcade-bounty` effects depend on **equipment**. A purchase does not require a single active-slot swap.
+
+**Arcade permission:** `arcadeCombatUnlocked()` is derived from completed original Rare achievements (Epic) **or** an equipped Insert Coin. This does not alter achievement counts or grant other Epic entitlements. The natural wave timer, director blockers and boss/calm states remain independent.
+
+**Mippi Bird:** The worker owns live round position, velocity, pipe list, life sources, score and Game Over; these values are not browser-persistent or writable shared page objects. The renderer receives state snapshots and applies worker result events. The main thread retains the purchased refill bank, session high score and saved Shop ownership. The worker only exists while Bird is open and is terminated on close. Worker simulation suspends under the game's focus/manual pause conditions, without catch-up bursts. The old `flappyState` main-thread ownership documented in earlier features is superseded by v3.25.2.
+
+**Storage denied:** The primary script's memory-backed storage adapters preserve page-lifetime state but not promised cross-reload persistence. The status must be documented separately from genuine `localStorage`/`sessionStorage` writes.
+
+**Client-side trust:** A Web Worker isolates the game from trivial direct page-level modification but is not server authority; do not claim cryptographic protection or tamper-proof competitive results.

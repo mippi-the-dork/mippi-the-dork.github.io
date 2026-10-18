@@ -1,5 +1,15 @@
 # Achievement Ledger - Design Documentation
 
+## Current implementation correction (v3.25.2)
+
+Twenty achievements use unique SVG emblems: ten original Rare discoveries, nine Epic postgame goals and one Legendary completion. Their illustrations stay rarity-owned across themes. The v3.16 glyph update changed presentation, not unlock predicates.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Achievements and Discovery > Achievement Ledger > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.25.0';
+const MIPPI_BUILD_VERSION='3.25.1';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 
 /* A pause state shared by arcade timers, moving entities, Shop and Mippi Bird.
@@ -1020,12 +1020,12 @@ const SHOP_ITEMS=[
   {id:'slowpoke',name:'Slowpoke',cost:6,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
   {id:'dev-console',name:'Dev Console',cost:8,slot:'passive',rarity:'epic',tag:'SYSTEM',requires:'epic',description:'Unlock the Dev Console (~) and allow Shooting Stars to begin spawning.'},
   {id:'interact-toggle',name:'Interact Toggle',cost:8,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
-  {id:'bird-extra-life',name:'Mippi Bird',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Passive: one protective hit shield every new round. Refill: buy one additional spare life for your bank.'},
+  {id:'bird-extra-life',name:'Mippi Bird',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Passive: +1 life each new Mippi Bird round. Refill: purchase another life for your bank. Every hit costs one life, including the last.'},
   {id:'production-discount',name:'Production Discount',cost:11,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
   {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
   {id:'arcade-bounty',name:'Arcade Bounty',cost:10,slot:'passive',rarity:'epic',tag:'ECONOMY',requires:'epic',description:'Regular UFO defeats have a 45% chance to drop a Rupee instead of 30%.'},
   {id:'golden-trigger',name:'Golden Trigger',cost:11,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
-  {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:7,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one spare life to your Mippi Bird bank. Buy it again whenever you want.'},
+  {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:7,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one life to your Mippi Bird bank. Each banked life protects against one hit. Repeatable.'},
   {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:21,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
 ];
 let shopOwned=new Set();
@@ -4375,7 +4375,7 @@ function ensureFlappyGame(){
     <canvas width="520" height="280" id="flappy-canvas" aria-label="Click inside the game to flap"></canvas>
     <div class="flappy-footer">
       <strong id="flappy-high-score">HIGH SCORE 0</strong>
-      <strong id="flappy-lives">EXTRA LIVES // NONE</strong>
+      <strong id="flappy-lives">LIVES 1</strong>
       <div class="flappy-share-wrap">
         <button type="button" id="flappy-share">SHARE</button>
         <div class="flappy-share-menu" id="flappy-share-menu" aria-hidden="true">
@@ -4427,7 +4427,7 @@ function resetFlappyGame(){
   flappyState={
     y:140, vy:0, score:0, gameOver:false, started:false,
     previousHighScore:flappySessionHighScore,
-    shopLifeAvailable:shopOwns('bird-extra-life'), invulnerableUntil:0,
+    baseLifeAvailable:true, shopLifeAvailable:shopOwns('bird-extra-life'), invulnerableUntil:0,
     pipes:[{x:590,gapY:118},{x:850,gapY:168}]
   };
   const score=flappyPanel.querySelector('#flappy-score');
@@ -4437,11 +4437,17 @@ function resetFlappyGame(){
   updateFlappyLivesHud();
   if(help) help.textContent='CLICK TO START // THEN CLICK TO FLAP';
 }
+function flappyLivesRemaining(){
+  const s=flappyState;
+  return (s?.baseLifeAvailable?1:0)+(s?.shopLifeAvailable?1:0)+mushroomBankLives;
+}
 function updateFlappyLivesHud(){
-  const el=flappyPanel?.querySelector('#flappy-lives'); if(!el) return;
-  const shop=flappyState?.shopLifeAvailable?'SHIELD 1':'SHIELD 0';
-  el.textContent=`${shop} · SPARE LIVES ${mushroomBankLives}`;
-  el.classList.toggle('has-life',!!flappyState?.shopLifeAvailable||mushroomBankLives>0);
+  const el=flappyPanel?.querySelector('#flappy-lives'); if(!el)return;
+  const lives=flappyLivesRemaining();
+  el.textContent=`LIVES ${lives}`;
+  el.title='Each collision costs one Life. Losing the last Life ends the round.';
+  el.setAttribute('aria-label',`${lives} ${lives===1?'life':'lives'} remaining`);
+  el.classList.toggle('has-life',lives>0);
 }
 function persistMushroomLives(){
   try{localStorage.setItem(MUSHROOM_PROGRESS_KEY,String(mushroomLifeProgress));localStorage.setItem(MUSHROOM_LIVES_KEY,String(mushroomBankLives));}catch(_){}
@@ -4450,19 +4456,33 @@ function persistMushroomLives(){
 function recordMushroomCollection(){
   // Mushrooms affect cursor size only; Bird refills are Shop purchases.
 }
-
-function absorbFlappyHit(reason='collision'){
-  const s=flappyState;if(!s)return false;
-  let source=null;
-  if(s.shopLifeAvailable){s.shopLifeAvailable=false;source='shop';telemetryCount('flappy','shopLivesUsed');}
-  else if(mushroomBankLives>0){mushroomBankLives--;source='refill';telemetryCount('flappy','bankedLivesUsed');persistMushroomLives();}
-  if(!source)return false;
-  telemetryCount('flappy','hitsAbsorbed');telemetryMeaningful('flappy_extra_life_used',{source,reason,bank:mushroomBankLives});
-  s.invulnerableUntil=performance.now()+1650; s.vy=-2.8; s.y=Math.max(28,Math.min(flappyCanvas.height-28,s.y));
+function consumeFlappyLife(reason='collision'){
+  const s=flappyState;if(!s||s.gameOver)return;
+  let source='base';
+  if(s.shopLifeAvailable){
+    s.shopLifeAvailable=false;source='shop';telemetryCount('flappy','shopLivesUsed');
+  }else if(mushroomBankLives>0){
+    mushroomBankLives--;source='refill';telemetryCount('flappy','bankedLivesUsed');persistMushroomLives();
+  }else{
+    s.baseLifeAvailable=false;
+  }
+  const remaining=flappyLivesRemaining();
+  telemetryCount('flappy','livesLost');
+  telemetryMeaningful('flappy_life_lost',{source,reason,remaining,bank:mushroomBankLives});
+  if(source!=='base'){
+    telemetryCount('flappy','hitsAbsorbed');
+    telemetryMeaningful('flappy_extra_life_used',{source,reason,bank:mushroomBankLives});
+  }
+  if(remaining>0){
+    s.invulnerableUntil=performance.now()+1650;
+    s.vy=-2.8;s.y=Math.max(28,Math.min(flappyCanvas.height-28,s.y));
+  }else{
+    s.gameOver=true;
+  }
   updateFlappyLivesHud();
-  const help=flappyPanel?.querySelector('#flappy-help'); if(help) help.textContent=`EXTRA LIFE // ${source==='shop'?'SHOP SHIELD SPENT':'REFILL LIFE SPENT'} // INVULNERABLE`;
-  consolePrint(`MIPPI BIRD HIT // ${source.toUpperCase()} EXTRA LIFE USED // BANK ${mushroomBankLives}`,'warn');
-  return true;
+  const help=flappyPanel?.querySelector('#flappy-help');
+  if(help)help.textContent=remaining?`LIFE LOST // ${remaining} REMAINING // INVULNERABLE`:'NO LIVES // GAME OVER';
+  consolePrint(`MIPPI BIRD HIT // ${source.toUpperCase()} LIFE LOST // ${remaining} LIVES LEFT`,'warn');
 }
 function closeFlappyGame(){
   if(!flappyPanel) return;
@@ -4548,10 +4568,10 @@ function drawFlappyFrame(dt){
       }
       const topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
       const pipeHit=bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY);
-      if(pipeHit && performance.now()>=s.invulnerableUntil){ if(!absorbFlappyHit('pipe')) s.gameOver=true; }
+      if(pipeHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('pipe');
     }
     const boundaryHit=by-bh/2<0 || by+bh/2>h;
-    if(boundaryHit && performance.now()>=s.invulnerableUntil){ if(!absorbFlappyHit('boundary')) s.gameOver=true; }
+    if(boundaryHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('boundary');
   }
   if(!wasGameOver && s.gameOver){
     telemetryCount('flappy','deaths');
@@ -4633,7 +4653,7 @@ function shopMerchantLine(){
   const cheapest=Math.min(...unowned.map(shopPrice));
   if(rupeeWallet<cheapest) return `SHOPKEEPER // You are ${cheapest-rupeeWallet} rupee${cheapest-rupeeWallet===1?'':'s'} short of the cheapest remaining bad decision.`;
   if(shopDiscountActive()) return 'SHOPKEEPER // Production Discount active. Somehow procurement became progression.';
-  if(rupeeWallet>=10) return 'SHOPKEEPER // Spare Rupees? Bank another Mippi Bird life or complete the collection.';
+  if(rupeeWallet>=10) return 'SHOPKEEPER // Extra Rupees? Bank another Mippi Bird life or complete the collection.';
   return 'SHOPKEEPER // Inventory is real now. This has gone much too far.';
 }
 function shopRarityLabel(rarity){ return rarity==='legendary'?'LEGENDARY':rarity==='epic'?'EPIC':'RARE'; }
@@ -4742,7 +4762,7 @@ function purchaseShopItem(id){
     updateDesignModeAvailability();
   }
   updateRupeeMeter(); renderShop(); updateMetaTrace(); renderLedger(); syncInteractToggle(); evaluatePostgameAchievements();
-  const detail=item.slot==='consumable'?`+1 Mippi Bird life banked. ${mushroomBankLives} available.`:item.slot==='passive'?`${item.name} is permanently active.`:`${item.name} equipped. Owned items can be swapped for free.`;
+  const detail=item.slot==='consumable'?`+1 Mippi Bird life banked. ${mushroomBankLives} banked.`:item.slot==='passive'?`${item.name} is permanently active.`:`${item.name} equipped. Owned items can be swapped for free.`;
   consolePrint(`PURCHASE COMPLETE // ${item.name.toUpperCase()} // -${price} RUPEE${price===1?'':'S'} // WALLET ${rupeeWallet}`,'good');
   if(id==='design-mode-unlock'){
     showTransientToast('DESIGN MODE UNLOCKED','The commentary layer is now available beside Inspect in the bottom-right mode controls.','CAPSTONE // ACQUIRED','SHOP');
@@ -6293,16 +6313,15 @@ function endSuperBoss(reason='exit'){
   for(const timer of s.timers||[]) window.clearInterval(timer);
   for(const timeout of s.timeouts||[]) window.clearTimeout(timeout);
   document.removeEventListener('keydown',s.keyHandler);
+  window.removeEventListener('resize',s.layoutHandler);
   s.arena?.querySelectorAll('.superboss-bullet,.superboss-rocket,.superboss-laser,.superboss-player-bullet').forEach(el=>el.remove());
   s.arena?.remove();
   superBossRuntime=null;
   superBossActive=false;
   ufoBossActive=false;
-
-  if(s.forcedInteractOff){
-    superBossInteractOverride=false;
-    syncInteractToggle();
-  }
+  document.body.classList.remove('superboss-active');
+  superBossInteractOverride=false;
+  syncInteractToggle();
 
   if(reason==='defeated'){
     resolveInvasionBossVictory();
@@ -6319,14 +6338,16 @@ function endSuperBoss(reason='exit'){
 function superBossImpact(sourceX,sourceY,strength=90,type='bullet'){
   const s=superBossRuntime;
   if(!s || s.ended || performance.now()<s.hitLockUntil) return;
-  s.hitLockUntil=performance.now()+180;
+  s.hitLockUntil=performance.now()+650;
   let dx=s.cursorX-sourceX,dy=s.cursorY-sourceY,dist=Math.hypot(dx,dy);
   if(dist<1){const a=Math.random()*Math.PI*2;dx=Math.cos(a);dy=Math.sin(a);dist=1;}
   s.knockX+=dx/dist*strength;
   s.knockY+=dy/dist*strength;
   const maxKnock=220,km=Math.hypot(s.knockX,s.knockY);
   if(km>maxKnock){s.knockX=s.knockX/km*maxKnock;s.knockY=s.knockY/km*maxKnock;}
-  telemetryCount('arcade','superBossCursorHits'); telemetryCount('arcade.superBossHitTypes',type); telemetryMeaningful('super_boss_cursor_hit',{type});
+  showArcadeCursorHit(s.cursorX,s.cursorY);
+  telemetryCount('arcade','superBossCursorHits'); telemetryCount('arcade.superBossHitTypes',type);
+  telemetryMeaningful('super_boss_cursor_hit',{type,hearts:heartHalfUnits,cursorPower:cursorPowerLevel,mushroomBuffer:mushroomHitBuffer});
   s.arena.classList.add('cursor-hit');
   window.setTimeout(()=>s.arena?.classList.remove('cursor-hit'),180);
   const hit=document.createElement('i');hit.className='superboss-impact';hit.style.left=`${s.cursorX}px`;hit.style.top=`${s.cursorY}px`;s.arena.appendChild(hit);window.setTimeout(()=>hit.remove(),420);
@@ -6423,9 +6444,10 @@ function superBossMegaLaser(){
 function spawnSuperBoss(force=false){
   if(superBossActive||ufoBossActive)return;
   superBossActive=true;ufoBossActive=true;
-  const interactionWasSuppressed=contentInteractionSuppressed();
-  const forcedInteractOff=!interactionWasSuppressed;
-  if(forcedInteractOff){ superBossInteractOverride=true; syncInteractToggle(); }
+  // Borrow Interact Off for every player; leave the purchased setting unchanged.
+  superBossInteractOverride=true;
+  document.body.classList.add('superboss-active');
+  syncInteractToggle();
   telemetryCount('arcade','superBossSpawned');telemetryFlyingSpawn('super_boss',{forced:force});telemetryMeaningful('super_boss_spawned');
   document.querySelectorAll('.galaga-secret,.ufo-projectile').forEach(el=>el.remove());
   updateInvasionMeter();
@@ -6433,8 +6455,19 @@ function spawnSuperBoss(force=false){
   arena.innerHTML=`<div class="superboss-vignette" aria-hidden="true"></div><div class="superboss-header"><span>INTERACT OFF // SUPER CONTACT</span><strong>SUPER BOSS</strong><div class="superboss-health"><i></i></div><small>CORE <b>27</b> / 27</small></div><div class="superboss-core" aria-hidden="true"><span></span></div><div class="superboss-add-layer" aria-hidden="true"></div><div class="superboss-cursor" aria-hidden="true"><i></i></div><button class="superboss-exit" type="button">EXIT BOSS FIGHT</button>`;
   document.body.appendChild(arena);
   const boss=arena.querySelector('.superboss-core'),addLayer=arena.querySelector('.superboss-add-layer'),cursor=arena.querySelector('.superboss-cursor'),fill=arena.querySelector('.superboss-health i'),hpText=arena.querySelector('.superboss-header b');
-  const state={arena,boss,addLayer,cursor,fill,hpText,hp:27,maxHp:27,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,forcedInteractOff,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:55,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
+  const state={arena,boss,addLayer,cursor,fill,hpText,hp:27,maxHp:27,bossX:window.innerWidth/2,bossY:Math.max(135,window.innerHeight*.19),bossMinY:170,pointerX:latestPointer.x,pointerY:latestPointer.y,cursorX:latestPointer.x,cursorY:latestPointer.y,knockX:0,knockY:0,hitLockUntil:0,adds:[],timers:[],timeouts:[],raf:0,beamRaf:0,shotRafs:new Set(),ended:false,laserActive:false,layoutHandler:null,bossMoveClock:0,bossDirection:Math.random()<.5?-1:1,bossSpeed:55,bossTurnAt:performance.now()+1500+Math.random()*2200,lastRenderAt:performance.now()};
   superBossRuntime=state;
+  const layoutSuperBoss=()=>{
+    const navBottom=Math.max(0,document.querySelector('.site-header')?.getBoundingClientRect().bottom||0);
+    const hudRect=document.querySelector('#site-game-hud')?.getBoundingClientRect();
+    const hudClearance=hudRect?.height>0?Math.max(70,window.innerHeight-hudRect.top+12):76;
+    arena.style.setProperty('--superboss-header-top',`${navBottom+14}px`);
+    arena.style.setProperty('--superboss-hud-clearance',`${hudClearance}px`);
+    state.bossMinY=navBottom+170;
+  };
+  state.layoutHandler=layoutSuperBoss;
+  window.addEventListener('resize',layoutSuperBoss);
+  layoutSuperBoss();
   const addMaxHp=3,addRespawnDelay=5000;
   const createAddVisual=i=>{
     const el=document.createElement('i');el.className='superboss-add mippi-spawning';
@@ -6478,7 +6511,6 @@ function spawnSuperBoss(force=false){
     window.setTimeout(()=>element.classList.remove('boss-hit'),140);
   };
   const damageBoss=(method='direct')=>{if(state.ended)return;state.hp--;telemetryCount('arcade','superBossHits');telemetryCount('arcade.superBossHitMethods',method);telemetryMeaningful('super_boss_hit',{method,hp:state.hp});explodeAt(state.bossX,state.bossY,state.hp<=0?82:12);updateHealth();arena.classList.add('boss-hit');window.setTimeout(()=>arena.classList.remove('boss-hit'),120);if(state.hp<=0){telemetryCount('arcade','superBossDefeated');telemetryFlyingCollect('super_boss',method);telemetryMeaningful('super_boss_defeated',{method}); finaleBossSatisfied=true; postgameSuperBossDefeated=true; try{localStorage.setItem(FINALE_BOSS_KEY,'1');localStorage.setItem(POSTGAME_SUPERBOSS_KEY,'1');}catch(_){}evaluatePostgameAchievements();telemetryCount('economy','superBossRupeeRewards',8);awardArcadeRupees(8,state.bossX,state.bossY,'super_boss');spawnGroundDrop('heart',state.bossX,state.bossY);showSuperBossVictory(state);}};
-  const onMove=e=>{state.pointerX=e.clientX;state.pointerY=e.clientY;};
   const fireBossPlayerShot=()=>{
     if(state.ended)return;
     const shot=document.createElement('i');
@@ -6540,7 +6572,7 @@ function spawnSuperBoss(force=false){
     e.preventDefault();
     fireBossPlayerShot();
   };
-  arena.addEventListener('pointermove',onMove);arena.addEventListener('pointerdown',onDown);arena.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+  arena.addEventListener('pointerdown',onDown);arena.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
   arena.querySelector('.superboss-exit')?.addEventListener('click',e=>{e.stopPropagation();endSuperBoss('exit');});
   state.keyHandler=e=>{if(e.key==='Escape'&&!state.victoryShown)endSuperBoss('escape');};document.addEventListener('keydown',state.keyHandler);
   const render=now=>{
@@ -6548,6 +6580,7 @@ function spawnSuperBoss(force=false){
     const dt=Math.min(50,Math.max(0,now-state.lastRenderAt));
     state.lastRenderAt=now;
     state.knockX*=.935;state.knockY*=.935;
+    state.pointerX=latestPointer.x;state.pointerY=latestPointer.y;
     state.cursorX=Math.max(16,Math.min(window.innerWidth-16,state.pointerX+state.knockX));
     state.cursorY=Math.max(16,Math.min(window.innerHeight-16,state.pointerY+state.knockY));
     cursor.style.transform=`translate3d(${state.cursorX}px,${state.cursorY}px,0)`;
@@ -6566,7 +6599,7 @@ function spawnSuperBoss(force=false){
       state.bossX+=state.bossDirection*state.bossSpeed*dt/1000;
       if(state.bossX<left){state.bossX=left;state.bossDirection=1;}
       if(state.bossX>right){state.bossX=right;state.bossDirection=-1;}
-      state.bossY=Math.max(145,innerHeight*.175)+Math.sin(state.bossMoveClock*.0009)*16;
+      state.bossY=Math.max(state.bossMinY,innerHeight*.25)+Math.sin(state.bossMoveClock*.0009)*16;
     }
     boss.style.transform=`translate3d(${state.bossX}px,${state.bossY}px,0)`;
 
@@ -6590,7 +6623,7 @@ function spawnSuperBoss(force=false){
   const firstLaser=window.setTimeout(()=>superBossMegaLaser(),3300);state.timeouts.push(firstLaser);
   consolePrint('SUPER BOSS // INTERACT OFF temporarily engaged. Left click fires straight upward from the cursor. Line up with the core or adds while avoiding rockets and the sweeping laser. EXIT BOSS FIGHT is always available.','warn');
 }
-window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,maxHp:superBossRuntime.maxHp,adds:superBossRuntime.adds.filter(a=>a.alive).length,addHp:superBossRuntime.adds.map(a=>a.hp),cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)}}:{active:false}});
+window.__MIPPI_SUPERBOSS__=Object.freeze({spawn:()=>spawnSuperBoss(true),snapshot:()=>superBossRuntime?{active:true,hp:superBossRuntime.hp,maxHp:superBossRuntime.maxHp,adds:superBossRuntime.adds.filter(a=>a.alive).length,addHp:superBossRuntime.adds.map(a=>a.hp),cursor:{x:Math.round(superBossRuntime.cursorX),y:Math.round(superBossRuntime.cursorY)},hearts:heartHalfUnits,cursorPower:cursorPowerLevel,mushroomBuffer:mushroomHitBuffer}:{active:false}});
 
 function createGalagaFlightPath(){
   const family=Math.random()<.5?'curve':'sine';

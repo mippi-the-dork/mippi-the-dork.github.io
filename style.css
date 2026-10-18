@@ -8692,3 +8692,17 @@ body.hud-unified #site-game-hud #hud-gameplay > :is(#cool-meter,#invasion-meter,
 .achievement-unlock-toast.rarity-rare{--emblem-color:#67cfff;}
 .achievement-unlock-toast.rarity-epic{--emblem-color:#bd85ff;}
 .achievement-unlock-toast.rarity-legendary{--emblem-color:#ffc83d;}
+
+/* v3.17 | Floating Doug Bones belong to the game plane, not site chrome. */
+body .doug-bone,body .doug-bone:hover{z-index:40!important;}
+body .site-header{z-index:300!important;}
+body.hud-unified #site-game-hud{z-index:255!important;}
+/* Identifiable shop gear silhouettes, including unrevealed stock as hints. */
+.shop-item-identity{display:flex;align-items:center;gap:11px;margin:9px 0 6px;min-width:0;}
+.shop-item-identity h4{margin:0;min-width:0;}
+.shop-item-emblem{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;box-sizing:border-box;border:1px solid currentColor;border-radius:4px;color:#67cfff;background:rgba(103,207,255,.06);}
+.shop-item-emblem svg{width:25px;height:25px;display:block;}
+.shop-item.rarity-epic .shop-item-emblem{color:#bd85ff;background:rgba(189,133,255,.07);}
+.shop-item.rarity-legendary .shop-item-emblem{color:#ffc83d;background:rgba(255,200,61,.07);}
+.shop-item.locked .shop-item-emblem{opacity:.55;filter:saturate(.6);}
+.shop-item.owned .shop-item-emblem{box-shadow:0 0 12px currentColor;}

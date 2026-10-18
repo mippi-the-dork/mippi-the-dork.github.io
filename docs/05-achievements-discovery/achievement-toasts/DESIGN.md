@@ -1,5 +1,13 @@
 # Achievement Toasts - Design Documentation
 
+## Current v3.25.2 verified update
+
+v3.16 introduces individual recognizable SVG glyphs for the ten Rare, nine Epic and one Legendary achievements. Their owned rarity colors persist across global themes, and achievement toasts reuse the same visual identity while leaving unlock behavior unchanged.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Achievements and Discovery > Achievement Toasts > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

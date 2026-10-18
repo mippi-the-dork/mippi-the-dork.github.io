@@ -8,7 +8,7 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 
 ## What's Current in v3.25.2
 
-**v3.15–v3.25.2** refine 20 achievement emblems and Shop icons, revise Shop progression/Console access, separate Mippi Bird lives from Hearts, introduce half-Heart damage and defensive projectile layers, restore Key spawning in v3.23, and add user/focus/Shop gameplay pause and Castle click feedback in v3.24. See [current systems integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [acceptance QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).
+**v3.15–v3.25.2** rebuild the Shop and reward progression, add twenty illustrated achievement emblems, introduce defensive projectile layers and half-Heart damage, restore Key rules, add unified pause, unify Bird LIVES, connect Super Boss hits to ordinary player defenses, allow equipped Insert Coin to unlock early arcade combat, support simultaneously equipped gameplay modifiers, and move Bird physics into a dedicated worker. See [current systems integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md) and [acceptance QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md).
 
 
 **v3.25.2** finalizes the fourteen expandable studio career summaries with concise, scrollbar-free details, two compact CONTACT/RESUMES rows and permanently full-color art. **v3.13** adds a repeatable Mippi Bird Life Refill and capability-aware 2D fallback for software or unavailable WebGL. **v3.12** makes the actual cursor interaction radius consistent across themes and song selection play immediately. **v3.11** refines the Star Power ring, Console controls, and persistence of the selected theme.
@@ -20,9 +20,9 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 | [Graphics Capability Fallback](03-threejs-presentation/graphics-capability-fallback/DESIGN.md) | Lightweight accessible navigation when WebGL is unavailable/software |
 | [Mippi Bird Life Refill](09-economy-shop/mippi-bird-life-refill/DESIGN.md) | Repeatable life bank item and completion exclusions |
 | [Music Playback](16-finale-postgame/music-playback/DESIGN.md) | Click-to-play song selection |
-| [v3.24 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md) | Current release acceptance and compatibility checks |
+| [v3.25.2 Regression QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md) | Current release acceptance and compatibility checks |
 
-**Validation status:** The implementation changes through v3.24 are documented from merged release PRs. Browser visual checks for career card reveal dimensions, graphics fallback and theme behavior remain QA items.
+**Validation status:** The implementation changes through v3.25.2 are documented from merged release PRs and supplied version-specific handoffs. Browser visual checks for career card reveal dimensions, graphics fallback and theme behavior remain QA items.
 
 ## Explore the Documentation
 
@@ -43,7 +43,7 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 | [06. Meta Progression and Guidance](06-progression-guidance/README.md)                |        8 | Progression spine, onboarding, return guidance, Finale readiness, and True Completion framing.                 |
 | [07. Dev Console and Command Surface](07-dev-console/README.md)                       |       16 | Console shell, command parsing, Help, special command styling, stats, reset, hidden commands, and QA commands. |
 | [08. Wish and Blueprint Progression](08-wish-blueprint/README.md)                     |       17 | Shooting Star charge, BP_WishManager repair, validated Wishes, Legendary unlock, and authored Wish branches.   |
-| [09. Rupee Economy and Shop](09-economy-shop/README.md)                               |       20 | Rupees, Shop discovery, prices, equipment, rarity presentation, affordability cues, and ten permanent Shop items and a repeatable life refill.    |
+| [09. Rupee Economy and Shop](09-economy-shop/README.md)                               |       20 | Rupees, Shop discovery, prices, equipment, rarity presentation, affordability cues, and the 13-definition current Shop inventory (including repeatable life refill).    |
 | [10. Collectibles and Claimable Milestones](10-collectibles-milestones/README.md)     |       13 | Flying pickups, Hearts, Keys, Castles, Star Power, Mushrooms, Doug Bones, and claim-ready HUD behavior.        |
 | [11. Doug and Coolness](11-doug-coolness/README.md)                                   |        8 | Doug petting, offscreen cameo, Coolness meter, Cool Mode, command state, Rainbow Bones, and reactions.         |
 | [12. Arcade, Combat, and System Combos](12-arcade-combat/README.md)                   |       24 | UFOs, Bosses, Super Boss, projectiles, Mega Laser, Slowmo, Easy Mode, System Combos, and Mippi Bird.           |
@@ -73,7 +73,7 @@ The Design, Technical, reference and QA documentation for the interactive Mippi 
 ## QA and Performance References
 
 - [v3.15–v3.25.2 Integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md)
-- [v3.15–v3.24 Regression QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md)
+- [v3.15–v3.25.2 Regression QA](QA/V3_15_TO_V3_24_REGRESSION_QA.md)
 
 - [v3.11–v3.14 Regression QA](QA/V3_11_TO_V3_14_REGRESSION_QA.md)
 

@@ -1115,7 +1115,7 @@ function updateCoolMeter(){
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateCoolMeter',()=>{
   if(!coolMeter) return;
-  const visible=hudTrackDiscovered('cool') || dougBoneCount>0;
+  const visible=hudTrackDiscovered('cool');
   coolMeter.classList.toggle('visible',visible);
   coolMeter.classList.toggle('limit-ready',dougCoolActive);
   const value=Math.round(dougCoolProgress);
@@ -1131,7 +1131,7 @@ function updateInvasionMeter(){
   return window.MippiPerfLab.run('hud.updateInvasionMeter',()=>{
   if(!invasionMeter)return;
   const epic=epicGameplayUnlocked();
-  const visible=hudTrackDiscovered('invasion') || ufoKills>0 || invasionWaveKills>0 || totalBossVictories()>0;
+  const visible=hudTrackDiscovered('invasion');
   invasionMeter.classList.toggle('visible',visible);
   if(!visible)return;
   const stage=totalBossVictories()%3;
@@ -1152,7 +1152,7 @@ function updateCastleMeter(){
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateCastleMeter',()=>{
   if(!castleMeter) return;
-  const visible=hudTrackDiscovered('castle') || castleRunProgress>0 || castleQuestActive || !!activeCastle;
+  const visible=hudTrackDiscovered('castle');
   castleMeter.classList.toggle('visible',visible);
   const display=Math.max(0,Math.min(4,castleRunProgress));
   const rewardReady=display>=4;

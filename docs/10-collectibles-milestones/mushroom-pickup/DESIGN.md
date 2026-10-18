@@ -120,3 +120,10 @@ A Mushroom is funny immediately and still meaningful on the twentieth collection
 ## v2.98 Current Behavior
 
 In v2.98 the enlarged Mushroom cursor's **default presentation implementation is Scoped CSS**, preserving the same image/size/hotspot and Rare/Epic/Legendary palettes. The visual-only Cursor Lab Legacy/Scoped switch never changes actual Mushroom progression, the cycle Normal/Big/Very Big or the Legendary targeting bonus of +55px per actual Mushroom power level.
+
+
+## Current implementation correction (v3.25.2)
+
+Cursor-size Mushrooms grow monotonically to a maximum tier. At maximum, qualifying already-visible Mushrooms can contribute a separate hit buffer. They no longer provide banked Bird Lives; purchased Bird refills do.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

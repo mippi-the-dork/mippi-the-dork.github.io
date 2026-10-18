@@ -81,3 +81,10 @@ Mippi Bird feels economically connected to the rest of the site without becoming
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+Bird no longer pays milestone rewards. It pays once on completed round compared with the **high score at round start**: below pays 0, a tie pays 1, and improvement pays the score difference plus 1. Example: starting record 8, final score 11 pays 4.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

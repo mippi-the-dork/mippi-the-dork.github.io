@@ -8736,3 +8736,9 @@ html.mippi-game-paused :is(.game-pickup,.doug-bone,.galaga-secret,.shooting-star
 #mippi-pause-overlay{position:fixed;inset:0;z-index:560;background:#060c16ae;display:grid;place-items:center;pointer-events:none;}
 .mippi-pause-panel{display:grid;gap:12px;pointer-events:auto;text-align:center;min-width:300px;padding:25px;background:#0c1929;border:1px solid #67cfff;color:white;font:12px ui-monospace,monospace;box-shadow:0 20px 60px #000a;}
 .mippi-pause-panel strong{font-size:20px;letter-spacing:.16em;}.mippi-pause-panel button{padding:10px;border:1px solid #67cfff;background:#123858;color:white;cursor:pointer;}
+
+/* v3.25.1 // Boss combat shares the game plane instead of hiding the site chrome. */
+body.superboss-active .superboss-arena{z-index:90;}
+body.superboss-active :is(.game-pickup,.doug-bone,.shooting-star,.section-castle){z-index:110!important;}
+body.superboss-active .superboss-header{top:var(--superboss-header-top,106px);}
+body.superboss-active .superboss-exit{bottom:var(--superboss-hud-clearance,76px);}

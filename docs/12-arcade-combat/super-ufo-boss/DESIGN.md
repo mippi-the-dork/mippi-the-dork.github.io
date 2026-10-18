@@ -11,3 +11,10 @@ The Mega Laser charges from the lower-center mouth region with a rounded capsule
 ## QA
 
 Check 27 HP, attack phase transitions, six 3-HP respawning adds, horizontal movement speed, movement/beam freeze, laser mouth alignment, and cleanup on exit/victory. See [Technical](TECHNICAL.md), [Boss Adds](../boss-adds/DESIGN.md), and [v3.04 QA](../../QA/V3_02_TO_V3_04_QA.md).
+
+
+## Current implementation correction (v3.25.2)
+
+Super Boss uses the regular cursor/Heart/Mushroom damage system and respects the normal site presentation: sticky header, footer hotbar and floating pickups remain visible and usable. The fight borrows Interact OFF temporarily, without awarding the Interact Shop purchase, and restores the original choice afterward.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

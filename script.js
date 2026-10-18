@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.19.0';
+const MIPPI_BUILD_VERSION='3.20.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -1277,19 +1277,19 @@ const ACHIEVEMENT_ICON_PATHS={
   "ghost":"<path d=\"M5 20V10a7 7 0 0 1 14 0v10l-3-2-4 2-4-2-3 2Z\"/><path d=\"M9 11v2m6-2v2\"/>",
   "lore":"<path d=\"M5 4h11l3 3v13H5zM16 4v4h3M8 11h8M8 14h8M8 17h5\"/><path d=\"M3 7v14h13\"/>",
   "doug":"<ellipse cx=\"12\" cy=\"15\" rx=\"5\" ry=\"4\"/><circle cx=\"5\" cy=\"9\" r=\"1.4\"/><circle cx=\"10\" cy=\"6\" r=\"1.4\"/><circle cx=\"15\" cy=\"6\" r=\"1.4\"/><circle cx=\"20\" cy=\"9\" r=\"1.4\"/>",
-  "unmark":"<path d=\"M4 3h11l5 5v13H4zM15 3v5h5\"/><path d=\"m7 16 3-4 2 3 2-3 3 4m-10 0 3-1 2 2 2-2 3 1\"/>",
+  "unmark":"<path d=\"M4 3h11l5 5v13H4zM15 3v5h5\"/><path d=\"M7 15 10 12l2 2 2-2 3 3-3-1-2 3-2-3-3 1Z\"/>",
   "nda":"<path d=\"M5 3h10l4 4v14H5zM15 3v5h4M8 11h8m-8 4h8m-8 3h5\"/><path d=\"M9 11h6m-6 4h6\" stroke-width=\"3\"/>",
   "konami":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"11\" rx=\"5\"/><path d=\"M8 10v7m-3.5-3.5h7M15.5 12h.1m2.5 3h.1\"/>",
   "post_signals":"<circle cx=\"12\" cy=\"12\" r=\"5\"/><path d=\"M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2m0-14-2 2M7 17l-2 2\"/><path d=\"m9 12 2 2 4-4\"/>",
-  "post_cool":"<path d=\"M12 22c5-2 7-6 5-10-1 3-3 4-3 4 1-5-2-10-5-13 0 5-3 8-4 12-1 4 2 6 7 7Z\"/><ellipse cx=\"12\" cy=\"17\" rx=\"2.4\" ry=\"2\"/><path d=\"M8 14h.1M11 12h.1M14 12h.1M17 14h.1\"/>",
+  "post_cool":"<path d=\"M12 22c6-2 8-7 5-12-1 2-2 3-3 3 0-4-2-8-5-11 0 4-3 8-4 12-1 4 2 7 7 8Z\"/><path d=\"M8 16c1-2 2-2 4 0 2-2 3-2 4 0l-1 3H9Z\"/>",
   "post_legendary":"<path d=\"m3 7 4 3 5-6 5 6 4-3-2 12H5L3 7Zm2 12h14v3H5z\"/><path d=\"M12 9v5\"/>",
   "post_wish":"<rect x=\"2\" y=\"7\" width=\"20\" height=\"11\" rx=\"2\"/><path d=\"M2 12h4m12 0h4m-10-5V4\"/><path d=\"m8 12 3 3 5-6\"/><circle cx=\"6\" cy=\"12\" r=\".5\"/>",
-  "post_hearts":"<path d=\"M12 21C4 15 2 11 4 7c2-3 6-3 8 0 2-3 6-3 8 0 2 4 0 8-8 14Z\"/><path d=\"M7 10h10M8 14h8\"/>",
+  "post_hearts":"<path d=\"M12 21C3 14 2 10 5 7c3-3 6-1 7 1 1-2 4-4 7-1 3 3 2 7-7 14Z\"/><path d=\"M7 12h2m4 0h2m-3 3h.1\"/>",
   "post_shop":"<path d=\"M4 8h16l-1 13H5L4 8ZM8 9V6a4 4 0 0 1 8 0v3\"/><path d=\"m12 12 3 3-3 3-3-3z\"/>",
   "post_castles":"<path d=\"M3 21V7h4v3h3V7h4v3h3V7h4v14H3Zm7 0v-7h4v7M3 12h18\"/><path d=\"M18 5V2l3 1-3 1\"/>",
   "post_sections":"<path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16\"/><circle cx=\"6\" cy=\"9\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"18\" cy=\"15\" r=\"1\"/>",
-  "post_superboss":"<path d=\"M2 11c3-7 17-7 20 0l-5 4H7l-5-4Zm8-5 2-4 2 4\"/><path d=\"m5 18 3-2m8 0 3 2m-8-6 2 2-2 2\"/><path d=\"M12 18v4m-3-2h6\"/>",
-  "post_complete":"<path d=\"M7 5h10v8a5 5 0 0 1-10 0V5ZM7 7H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 18v2m-5 2h10\"/><path d=\"m12 7 1.4 2.3 2.6.5-1.9 1.9.4 2.7-2.5-1.3-2.5 1.3.4-2.7L8 9.8l2.6-.5z\"/>"
+  "post_superboss":"<path d=\"M2 11c3-6 17-6 20 0l-6 4H8L2 11Zm8-6 2-3 2 3\"/><path d=\"m11 9 2 3-3 2 3 2m-9 3 3-2m10 0 3 2M12 19v3\"/>",
+  "post_complete":"<path d=\"M7 4h10v9a5 5 0 0 1-10 0V4ZM7 6H3v4c0 3 2 4 4 4m10-8h4v4c0 3-2 4-4 4M12 18v2m-5 2h10\"/><path d=\"m12 7 3 2-1 4-2 2-2-2-1-4z\"/>"
 };
 function achievementEmblem(key){
   const paths=ACHIEVEMENT_ICON_PATHS[key]||ACHIEVEMENT_ICON_PATHS.curious;
@@ -4598,17 +4598,17 @@ function shopMerchantLine(){
 }
 function shopRarityLabel(rarity){ return rarity==='legendary'?'LEGENDARY':rarity==='epic'?'EPIC':'RARE'; }
 const SHOP_ICON_PATHS={
-  'insert-coin':"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 10h8M8 13h8\"/><circle cx=\"12\" cy=\"7\" r=\"2\"/><path d=\"M12 15v3\"/>",
+  'insert-coin':"<rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M9 12h6M9 15h6\"/><circle cx=\"12\" cy=\"7\" r=\"3\"/><path d=\"M12 10v2\"/>",
   'dev-console':'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 3 3-3 3m6 3h6"/>',
-  "dog-whistle":"<path d=\"M3 11h11l3 3-3 3H3z\"/><path d=\"M17 12l4-2m-4 6 4 2M6 11V8h6v3\"/>",
+  "dog-whistle":"<path d=\"M3 9h12v8H3zM15 11h4l3 2-3 2h-4M7 9V6h5v3\"/><circle cx=\"7\" cy=\"13\" r=\"1\"/>",
   "star-extender":"<path d=\"m12 2 3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z\"/><path d=\"M12 9v4l2 1\"/>",
   "slowpoke":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 6v6l-4 3m4-13V1\"/>",
   "interact-toggle":"<path d=\"M5 3 20 12l-7 1-3 7z\"/><path d=\"M16 4h5v5\"/>",
-  "bird-extra-life":"<path d=\"M3 16c1-8 7-12 13-9 3 2 4 4 4 7l-5 0-4 5-4-4-4 1z\"/><path d=\"M13 10h1m6 4 3 1-3 1\"/><path d=\"m5 10 2-3\"/>",
+  "bird-extra-life":"<path d=\"M4 16c0-7 4-11 10-11 5 0 7 4 6 9l-5-1-3 6-4-4-4 1Z\"/><path d=\"M13 9h1m6 5 3 1-3 1M7 10l-2-3\"/>",
   "production-discount":"<path d=\"M3 4h11l7 7-10 10-8-8V4z\"/><circle cx=\"8\" cy=\"9\" r=\"1.5\"/><path d=\"m11 15 5-5\"/>",
   "celestial-beacon":"<path d=\"M12 3 14 8l5 .5-4 4 1.5 5-4.5-3-4.5 3 1.5-5-4-4 5-.5z\"/><path d=\"M3 18c2-2 4-2 6-1m6 0c2-1 4-1 6 1M6 22h12\"/>",
   "arcade-bounty":"<path d=\"M2 11c4-6 16-6 20 0l-4 4H6z\"/><path d=\"m12 13 3 3-3 5-3-5z\"/>",
-  "golden-trigger":"<path d=\"M12 2v5m0 10v5M2 12h5m10 0h5\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><path d=\"m11 9 4 3-4 3z\"/>",
+  "golden-trigger":"<path d=\"M4 20 7 4l10 9-5 1-3 6-2-5-3 5Z\"/><path d=\"M14 3V1m-4 4-2-2m10 5 3-1m-6 0 2-2\"/>",
   "design-mode-unlock":"<path d=\"M3 4h18v15H3zM7 8h10M7 12h7M7 16h5\"/><path d=\"m17 16 2-4 2 4-2 4z\"/>"
 };
 function shopItemIcon(id){
@@ -5223,8 +5223,9 @@ function executeConsoleCommand(raw,{recordHistory=true}={}){
     const command=raw.toLowerCase();
     if(command==='reset'){ consolePending='reset_confirmation';consolePrint('FULL RESET // Type RESET to confirm clearing all website data.','warn');return; }
     if(command==='shop'){openShop();return;}
+    if(/^dev(?:\s|$)/.test(command)){ devCommand(raw.slice(3).trim()); return; }
     consolePrint('DEV CONSOLE LOCKED // Purchase Dev Console in the Epic Shop to unlock commands and Shooting Stars.','warn');
-    consolePrint('Available before purchase: SHOP and RESET.','warn');
+    consolePrint('Available before purchase: DEV commands, SHOP and RESET.','warn');
     return;
   }
   if(consolePending==='wish'){

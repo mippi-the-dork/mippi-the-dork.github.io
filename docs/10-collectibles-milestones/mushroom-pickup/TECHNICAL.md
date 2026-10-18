@@ -1,5 +1,15 @@
 # Mushroom Pickup - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+`cursorPowerLevel` caps rather than cycling; `mushroomHitBuffer` absorbs an eligible hit before cursor-size decrement and half-Heart damage. The Bird refill bank retains a legacy Mushroom-named storage identifier for migration only. No regular Mushroom collection should credit Bird Lives.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Mushroom Pickup > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -188,10 +198,3 @@ v2.98 Scoped uses `body.cursor-scoped-grown` instead of legacy `body.cursor-grow
 ## Current v3.01 Behavior
 
 v3.01 Mushroom follows the perimeter of a content panel, not generic flight. Actual Mushroom level expands cursor CLICK radius by 17px per level; old +55px projectile lock-on bonus no longer applies to upward enemy-only shots.
-
-
-## Current implementation correction (v3.25.2)
-
-`cursorPowerLevel` caps rather than cycling; `mushroomHitBuffer` absorbs an eligible hit before cursor-size decrement and half-Heart damage. The Bird refill bank retains a legacy Mushroom-named storage identifier for migration only. No regular Mushroom collection should credit Bird Lives.
-
-Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

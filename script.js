@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.18.0';
+const MIPPI_BUILD_VERSION='3.18.1';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -2652,10 +2652,6 @@ const consoleTipButton = document.querySelector('#console-tip-button');
 let consoleHistory = [];
 let consoleHistoryIndex = 0;
 function openConsole(open = true) {
-  if(open&&!shopOwns('dev-console')){
-    showTransientToast('DEV CONSOLE LOCKED','Purchase Dev Console in the Epic Shop to unlock commands and Shooting Stars.','SHOP // EPIC','DISCOVERY');
-    return;
-  }
   const wasOpen=devConsole?.classList.contains('open')||false;
   devConsole?.classList.toggle('open', open);
   devConsole?.setAttribute('aria-hidden', String(!open));
@@ -5221,6 +5217,14 @@ function executeConsoleCommand(raw,{recordHistory=true}={}){
     consolePending=null;
     if(raw.toLowerCase()==='reset')performFullReset();else consolePrint('FULL RESET // cancelled. Nothing changed.','good');
     if(consoleInput)consoleInput.value='';return;
+  }
+  if(!shopOwns('dev-console')){
+    const command=raw.toLowerCase();
+    if(command==='reset'){ consolePending='reset_confirmation';consolePrint('FULL RESET // Type RESET to confirm clearing all website data.','warn');return; }
+    if(command==='shop'){openShop();return;}
+    consolePrint('DEV CONSOLE LOCKED // Purchase Dev Console in the Epic Shop to unlock commands and Shooting Stars.','warn');
+    consolePrint('Available before purchase: SHOP and RESET.','warn');
+    return;
   }
   if(consolePending==='wish'){
     consolePending=null;

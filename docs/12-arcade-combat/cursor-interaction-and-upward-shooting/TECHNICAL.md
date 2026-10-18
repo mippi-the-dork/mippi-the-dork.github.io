@@ -28,3 +28,10 @@ See [Design](DESIGN.md), [Player Projectile Combat](../cursor-projectile-combat/
 ## v3.14 Current Behavior
 
 v3.12 `cursorClickRadius()` = `22+cursorPowerLevel*17+(starPower?14:0)` in every Rare/Epic/Legendary theme; earlier Legendary base 31 is superseded. Real proximity collection is separate from enemy-only upward shots.
+
+
+## Current implementation correction (v3.25.2)
+
+After world button exclusions and `nearbyClickable` handling, `pointerdown` requires `legendaryGameplayUnlocked() || shopHasEquipped('insert-coin')` before calling `fireLegendaryPlayerShot`. Cool Mode spread and Star projectile modifiers remain shared across early and Legendary access.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

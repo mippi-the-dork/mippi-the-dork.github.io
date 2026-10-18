@@ -1,5 +1,13 @@
 # Shop Availability Rules - Design Documentation
 
+## Current v3.25.2 verified update
+
+Insert Coin is available in Rare and, when equipped, makes normal UFO combat and shooting available without granting Epic rewards or Shop entitlements. Some Epic-rarity Shop entries have no explicit prerequisite: a rarity label is not itself the eligibility authority. Celestial Beacon and Arcade Bounty are Epic-rarity gameplay modifiers rather than owned passives.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Shop Availability Rules > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

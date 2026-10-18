@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.15.1';
+const MIPPI_BUILD_VERSION='3.15.5';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -170,9 +170,12 @@ function telemetryPath(path){
   }
   return obj;
 }
+let fullResetInProgress=false;
 function telemetryScheduleSave(){
   window.clearTimeout(telemetrySaveTimer);
+  if(fullResetInProgress)return;
   telemetrySaveTimer=window.setTimeout(()=>{
+    if(fullResetInProgress)return;
     try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
   },350);
 }
@@ -339,10 +342,12 @@ function initTelemetryFoundation(){
     }
   });
   window.addEventListener('pagehide',()=>{
+    if(fullResetInProgress)return;
     telemetryCommitActive(); telemetryPauseSections();
     try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
   });
   window.setInterval(()=>{
+    if(fullResetInProgress)return;
     if(document.visibilityState==='visible') telemetryCommitActive();
     try{sessionStorage.setItem(TELEMETRY_SESSION_KEY,JSON.stringify(sessionTelemetry));}catch(_){}
   },10000);
@@ -4667,29 +4672,41 @@ function listCommands(){
   consolePrintUnrealCommands();
 }
 
-function clearMippiStorage(storage){
-  try{
-    const keys=[];
-    for(let i=0;i<storage.length;i++){
-      const key=storage.key(i);
-      if(key && key.toLowerCase().startsWith('mippi')) keys.push(key);
-    }
-    keys.forEach(key=>storage.removeItem(key));
-  }catch(_){}
-}
-function performFullReset(){
-  clearMippiStorage(localStorage);
-  clearMippiStorage(sessionStorage);
-  try{ history.scrollRestoration='manual'; }catch(_){}
+// FULL RESET is scoped to this dedicated website origin. Clear all origin-local
+// state rather than maintaining a growing list of individual game keys.
+async function performFullReset(){
+  if(fullResetInProgress)return;
+  fullResetInProgress=true;
+  window.clearTimeout(telemetrySaveTimer);
+  try{localStorage.clear();}catch(error){console.warn('Full reset: localStorage',error);}
+  try{sessionStorage.clear();}catch(error){console.warn('Full reset: sessionStorage',error);}
+  // Remove old offline storage too, including data left by retired versions.
+  if('caches' in window){
+    try{
+      const keys=await caches.keys();
+      await Promise.all(keys.map(key=>caches.delete(key)));
+    }catch(error){console.warn('Full reset: CacheStorage',error);}
+  }
+  if('indexedDB' in window && typeof indexedDB.databases==='function'){
+    try{
+      const databases=await indexedDB.databases();
+      await Promise.all(databases.filter(db=>db.name).map(db=>new Promise(resolve=>{
+        const request=indexedDB.deleteDatabase(db.name);
+        request.onsuccess=resolve;request.onerror=resolve;request.onblocked=resolve;
+      })));
+    }catch(error){console.warn('Full reset: IndexedDB',error);}
+  }
+  if('serviceWorker' in navigator){
+    try{
+      const workers=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(workers.map(worker=>worker.unregister()));
+    }catch(error){console.warn('Full reset: service workers',error);}
+  }
+  try{history.scrollRestoration='manual';}catch(_){}
   window.scrollTo(0,0);
-  consolePrint('FULL RESET // confirmed. Reinitializing first-visit state.','warn');
-  window.setTimeout(()=>{
-    // Reset must perform a real document reload. Three.js scenes bootstrap only
-    // during document startup, and replacing the current URL with itself is not
-    // a reliable substitute for an explicit reload in every browser.
-    try{ history.replaceState(null,'',location.pathname+location.search); }catch(_){}
-    location.reload();
-  },420);
+  // Resetting from a dev URL must not retain query-driven mode overrides.
+  try{history.replaceState(null,'',location.pathname);}catch(_){}
+  location.reload();
 }
 
 
@@ -5044,7 +5061,7 @@ const COMMANDS = {
   achievements(){ ledgerTrigger?.classList.add('visible'); openLedger(); consolePrint(`Ledger opened: ${unlockedAchievements.size}/${ACHIEVEMENT_KEYS.length} found.`,'good'); },
   reset(){
     consolePending='reset_confirmation';
-    consolePrint('FULL RESET // This clears Signals, themes, Shop purchases, currency, Wishes, Doug progress, Castle progress, Finale state, telemetry, and session progress.','warn');
+    consolePrint('FULL RESET // Clears all browser storage for this website origin, including progression, telemetry, caches and offline data.','warn');
     consolePrint('Type RESET to confirm. Type anything else to cancel.','warn');
   },
   cheat(){ nextCheat(); },

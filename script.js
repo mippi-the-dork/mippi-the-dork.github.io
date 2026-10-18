@@ -4494,6 +4494,15 @@ function resetFlappyGame(){
     baseLifeAvailable:true, shopLifeAvailable:shopOwns('bird-extra-life'), invulnerableUntil:0,
     pipes:[{x:590,gapY:118},{x:850,gapY:168}]
   };
+  // Only the simulation can finish a round. A fresh state is allocated on reset.
+  // Keep the completion latch separate from the inspectable state object and
+  // disallow redefining gameOver through browser developer tools.
+  let ended=false;
+  Object.defineProperty(flappyState,'gameOver',{
+    configurable:false,enumerable:true,
+    get(){return ended;},
+    set(value){if(value===true)ended=true;}
+  });
   const score=flappyPanel.querySelector('#flappy-score');
   const help=flappyPanel.querySelector('#flappy-help');
   if(score) score.textContent='SCORE 0';

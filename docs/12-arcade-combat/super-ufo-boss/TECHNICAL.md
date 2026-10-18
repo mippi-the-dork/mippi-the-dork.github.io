@@ -1,5 +1,15 @@
 # Super UFO Boss - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+`superBossImpact` calls `showArcadeCursorHit` with about 650ms shared damage lock. Defense priority is Star immunity, available max-tier Mushroom buffer, cursor-size tier, then half-Hearts. The encounter suppresses content via `superBossInteractOverride`; overlay stacking and repositioning preserve header, hotbar and pickups. Teardown restores the saved interaction state.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Current behavior:** v3.04. **Category:** Arcade, Combat, and System Combos.
 
 ## Encounter state
@@ -27,10 +37,3 @@ Rocket, add-fire and Mega Laser schedulers retain their existing patterns and Sl
 At zero HP, existing Super Boss victory/telemetry/postgame history and eight Rupee physical rewards remain. The victory panel persists briefly before teardown. Escape/Exit ends encounter and cancels active rAF/interval/timeout work, **including pending add respawns**. The exposed `__MIPPI_SUPERBOSS__.snapshot()` includes maximum HP and per-add health, enabling deterministic QA without editing saved progression.
 
 Source syntax and merge checks were performed; visual hitbox/beam and end-to-end Windows gameplay results require manual QA. See [v3.04 QA](../../QA/V3_02_TO_V3_04_QA.md).
-
-
-## Current implementation correction (v3.25.2)
-
-`superBossImpact` calls `showArcadeCursorHit` with about 650ms shared damage lock. Defense priority is Star immunity, available max-tier Mushroom buffer, cursor-size tier, then half-Hearts. The encounter suppresses content via `superBossInteractOverride`; overlay stacking and repositioning preserve header, hotbar and pickups. Teardown restores the saved interaction state.
-
-Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

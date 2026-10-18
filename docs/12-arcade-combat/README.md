@@ -26,10 +26,10 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 | **Slowmo** | Applies a slower timing model to flying objects, hostile projectiles, and selected arcade physics. | [Design](slowmo/DESIGN.md) | [Technical](slowmo/TECHNICAL.md) |
 | **Easy Mode** | Dramatically increases ambient opportunity spawning and serves as both an accessibility aid and a playful console modifier. | [Design](easy-mode/DESIGN.md) | [Technical](easy-mode/TECHNICAL.md) |
 | **System Combos** | Recognizes meaningful interactions between independent systems such as Star Power, UFOs, Slowmo, Doug, Shop loadouts, and Legendary attacks. | [Design](system-combos/DESIGN.md) | [Technical](system-combos/TECHNICAL.md) |
-| **Mippi Bird** | Provides the embedded arcade minigame launched from the console. | [Design](mippi-bird/DESIGN.md) | [Technical](mippi-bird/TECHNICAL.md) |
-| **Mippi Bird Extra Lives** | Combines the Shop shield and Mushroom progression to give Mippi Bird additional survivability. | [Design](mippi-bird-extra-lives/DESIGN.md) | [Technical](mippi-bird-extra-lives/TECHNICAL.md) |
-| **Mippi Bird Rupee Rewards** | Awards limited session Rupees for reaching selected Mippi Bird score milestones without allowing unlimited farming. | [Design](mippi-bird-rupee-rewards/DESIGN.md) | [Technical](mippi-bird-rupee-rewards/TECHNICAL.md) |
-| **Mippi Bird Damage Feedback** | Communicates shield loss, invulnerability, crashes, and recovery clearly during the minigame. | [Design](mippi-bird-damage-feedback/DESIGN.md) | [Technical](mippi-bird-damage-feedback/TECHNICAL.md) |
+| **Mippi Bird** | Provides the embedded minigame with an isolated fixed-step worker and Canvas rendering. | [Design](mippi-bird/DESIGN.md) | [Technical](mippi-bird/TECHNICAL.md) |
+| **Mippi Bird Extra Lives** | Documents the unified base, per-round Shop and banked refill Lives model; Mushrooms do not grant Bird Lives. | [Design](mippi-bird-extra-lives/DESIGN.md) | [Technical](mippi-bird-extra-lives/TECHNICAL.md) |
+| **Mippi Bird Rupee Rewards** | Pays one reward at round end based on the starting high-score record. | [Design](mippi-bird-rupee-rewards/DESIGN.md) | [Technical](mippi-bird-rupee-rewards/TECHNICAL.md) |
+| **Mippi Bird Damage Feedback** | Communicates each Life lost, brief invulnerability, zero-Life Game Over and recovery. | [Design](mippi-bird-damage-feedback/DESIGN.md) | [Technical](mippi-bird-damage-feedback/TECHNICAL.md) |
 | **Mippi Bird Sharing** | Provides the optional sharing behavior associated with the Mippi Bird experience. | [Design](mippi-bird-sharing/DESIGN.md) | [Technical](mippi-bird-sharing/TECHNICAL.md) |
 | **Combat Geometry Caching** | Shared cached target/emitter reads and diagnostic comparison switch, introduced v2.91. | [Design](combat-geometry-caching/DESIGN.md) | [Technical](combat-geometry-caching/TECHNICAL.md) |
 | **Authored Flight Motion Geometry** | v2.92 modeled CSS flight trajectories synchronized with the animation clock. | [Design](authored-flight-motion-geometry/DESIGN.md) | [Technical](authored-flight-motion-geometry/TECHNICAL.md) |
@@ -39,6 +39,9 @@ This category groups the canonical documentation for **Arcade, Combat, and Syste
 | **Cursor Interaction and Upward Shooting** | Mushroom-scaled contact radius is separate from upward-only enemy shooting. | [Design](cursor-interaction-and-upward-shooting/DESIGN.md) | [Technical](cursor-interaction-and-upward-shooting/TECHNICAL.md) |
 
 | **Galaga Formations** | Invasion-scaled coordinated UFO groups with 1,050ms spacing and shared flight duration. | [Design](galaga-formations/DESIGN.md) | [Technical](galaga-formations/TECHNICAL.md) |
+
+
+**Current worker architecture:** See the Mippi Bird [Design](mippi-bird/DESIGN.md) and [Technical](mippi-bird/TECHNICAL.md) pages for the v3.25.2 worker, reward, pause and performance requirements. The legacy feature titles are retained for stable links, but current pages explicitly supersede outdated Shields and milestone rules.
 
 ## Documentation rules
 

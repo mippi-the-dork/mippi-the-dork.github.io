@@ -8,13 +8,13 @@ const main=fs.readFileSync(path.join(__dirname,'../script.js'),'utf8');
 const workerSource=fs.readFileSync(path.join(__dirname,'../mippi-bird-worker.js'),'utf8');
 
 function harness(){
- const messages=[],scheduled=[];
- const ctx={performance:{now:()=>0},postMessage:message=>messages.push(message),
+ const messages=[],scheduled=[];let clock=0;
+ const ctx={performance:{now:()=>clock},postMessage:message=>messages.push(message),
    setInterval:callback=>{scheduled.push(callback);return scheduled.length;},
    clearInterval:()=>{},close:()=>{}};
  vm.createContext(ctx);vm.runInContext(workerSource,ctx);
  const send=message=>ctx.onmessage({data:message});
- const step=(frames=1)=>{for(let i=0;i<frames;i++){ctx.performance.now=()=>i*1000/60+1000;scheduled[0]();}};
+ const step=(frames=1)=>{for(let i=0;i<frames;i++){clock+=1000/60;scheduled[0]();}};
  return {ctx,messages,send,step};
 }
 test('both scripts parse',()=>{assert.doesNotThrow(()=>new vm.Script(main));assert.doesNotThrow(()=>new vm.Script(workerSource));});
@@ -49,4 +49,28 @@ test('fixed-timestep loop and worker lifecycle',()=>{
  assert.match(workerSource,/emission>=1000\/30/);
  assert.match(workerSource,/case 'stop'/);
  assert.match(main,/birdWorker\.terminate\(\)/);
+});
+
+test('single-life boundary collision ends the round once',()=>{
+ const h=harness();
+ h.send({type:'reset',bank:0,shopLife:false});
+ h.send({type:'flap'});
+ h.step(240);
+ const events=h.messages.flatMap(x=>x.events||[]);
+ assert.equal(events.filter(x=>x.type==='hit').length,1);
+ assert.equal(events.filter(x=>x.type==='ended').length,1);
+ assert.equal(h.messages.at(-1).state.gameOver,true);
+ assert.equal(h.messages.at(-1).state.lives,0);
+ const score=h.messages.at(-1).state.score;
+ h.step(120);
+ assert.equal(h.messages.at(-1).state.score,score);
+ assert.equal(h.messages.flatMap(x=>x.events||[]).filter(x=>x.type==='ended').length,1);
+});
+test('pause stops physics and resumes without accumulated catchup',()=>{
+ const h=harness();h.send({type:'reset',bank:0});h.send({type:'flap'});
+ h.step(8);const before=h.messages.at(-1).state.y;
+ h.send({type:'pause',enabled:true});h.step(180);
+ assert.equal(h.messages.at(-1).state.y,before);
+ h.send({type:'pause',enabled:false});h.step(8);
+ assert.notEqual(h.messages.at(-1).state.y,before);
 });

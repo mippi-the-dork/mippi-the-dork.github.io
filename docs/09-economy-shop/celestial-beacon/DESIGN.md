@@ -88,3 +88,10 @@ Repeat Wishes become meaningfully less tedious while the celestial charge still 
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+**Current design (v3.25.2).** Celestial Beacon is no longer an always-active owned passive. It is an Epic gameplay modifier that can be equipped at the same time as every other gameplay modifier. When equipped it makes eligible Shooting Stars more frequent and keeps them catchable longer. Unequipping disables the bonus without losing ownership. Stars still retain their progression and Dev Console eligibility requirements.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

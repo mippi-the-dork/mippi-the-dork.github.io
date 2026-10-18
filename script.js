@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.22.0';
+const MIPPI_BUILD_VERSION='3.23.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -5599,8 +5599,10 @@ function explodeAt(x,y,count=18,size=5,{radiusX=150,radiusY=120,lifetime=850}={}
 }
 
 function showArcadeCursorHit(x,y){
+  if(document.body.classList.contains('star-power'))return;
   arcadeCursorHits++;
-  damageHeartHalf();
+  if(cursorPowerLevel>0){cursorPowerLevel--;updatePowerCursor();}
+  else damageHeartHalf();
   telemetryCount('arcade','cursorHits');
   telemetryMeaningful('ufo_projectile_hit',{count:arcadeCursorHits});
   const flash=document.createElement('i');
@@ -5610,7 +5612,7 @@ function showArcadeCursorHit(x,y){
   document.body.appendChild(flash);
   window.setTimeout(()=>flash.remove(),360);
   explodeAt(x,y,7);
-  if(arcadeCursorHits===1) consolePrint('ARCADE HIT // half a Heart lost. Your resume remains unharmed.','warn');
+  if(arcadeCursorHits===1) consolePrint('ARCADE HIT // Mushroom size shields Hearts first. Default cursor loses half a Heart.','warn');
 }
 /* v2.91 // Combat geometry coordinator. Reading animated element bounds after
    writing projectile transforms/DOM can synchronously force a full style/layout
@@ -5752,6 +5754,16 @@ const combatGeometry=(()=>{
 // immediately rather than relying on an unmounted element on the next frame.
 const hostileProjectileCleanup=new Set();
 const diagnosticHostileCleanup=new Set();
+// Bones stop friendly and hostile shots without being damaged or collected.
+function boneProjectileCollision(x0,y0,x1,y1,padding=4){
+  for(const bone of document.querySelectorAll('.doug-bone')){
+    if(!bone.isConnected)continue;
+    const r=bone.getBoundingClientRect();
+    if(!r.width||!r.height)continue;
+    if(segmentHitsAABB(x0,y0,x1,y1,r.left+r.width/2,r.top+r.height/2,r.width/2+padding,r.height/2+padding))return true;
+  }
+  return false;
+}
 function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
   const __combatSpawnAt=performance.now();
   if(!ship?.isConnected || reduceMotion) return;
@@ -5803,6 +5815,9 @@ function fireUfoProjectile(ship,{offsetX=0,offsetY=0}={}){
     if(remaining>0){ px+=remainingDx/remaining*travel; py+=remainingDy/remaining*travel; }
     const angle=Math.atan2(remainingDy,remainingDx)*180/Math.PI;
     shot.style.transform=`translate3d(${px}px,${py}px,0) rotate(${angle}deg)`;
+    if(!isLabShot&&boneProjectileCollision(px-remainingDx/Math.max(remaining,.001)*travel,py-remainingDy/Math.max(remaining,.001)*travel,px,py,4)){
+      explodeAt(px,py,4);cleanup();return;
+    }
 
     // Live collision against the current cursor, not the cursor position from fire time.
     if(!isLabShot && Math.hypot(px-latestPointer.x,py-latestPointer.y)<=18){
@@ -5916,6 +5931,9 @@ function tickLegendaryShots(now){
     if(!shot.el.isConnected||now-shot.born>1800||shot.py< -40){releaseLegendaryShot(shot);continue;}
     const dt=Math.min(.12,Math.max(0,(now-shot.last)/1000));shot.last=now;
     const nextX=shot.px+shot.vx*dt,nextY=shot.py+shot.vy*dt;
+    if(!shot.isLabShot&&boneProjectileCollision(shot.px,shot.py,nextX,nextY,5)){
+      explodeAt(nextX,nextY,4);releaseLegendaryShot(shot);continue;
+    }
     let touched=false;
     for(const target of targets){
       if((target.dataset.combatLab==='1')!==shot.isLabShot||shot.hitTargets.has(target))continue;
@@ -6940,8 +6958,8 @@ function chooseSpawnPanel(excluded=null){
   if(!panels.length)return null;
   // Prefer panels in or near the viewport to make the movement discoverable,
   // while still allowing an occasional hidden item further down the page.
-  const near=panels.filter(p=>{const r=p.getBoundingClientRect();return r.bottom>80&&r.top<innerHeight-80;});
-  const pool=near.length?near:panels;
+  const near=panels.filter(p=>{const r=p.getBoundingClientRect();return r.bottom>-150&&r.top<innerHeight+150;});
+  const pool=near.length&&Math.random()<.75?near:panels;
   return pool[Math.floor(Math.random()*pool.length)];
 }
 function spawnScreenPickup(def,{duration,step,onEnd,panel=null}={}){
@@ -7166,11 +7184,7 @@ function handleGamePickup(def,item){
 }
 function spawnGamePickup(forcedKind=null,force=false){
   if(reduceMotion&&!force)return false;
-  // Keys can spawn before Epic; other natural pickups retain the Epic gate.
-  if(!force&&!epicGameplayUnlocked()){
-    const key=pickupKinds.find(entry=>entry.kind==='key');
-    return !!spawnHiddenPanelKey(key);
-  }
+  if(!force&&!epicGameplayUnlocked())return false;
   if(!directorAllowsAmbient('pickup',{force}))return false;
   const def=forcedKind?pickupKinds.find(entry=>entry.kind===forcedKind):choosePickupDefinition();
   if(!def)return false;

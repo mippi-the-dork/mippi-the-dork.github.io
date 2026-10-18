@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.20.0';
+const MIPPI_BUILD_VERSION='3.21.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -973,7 +973,7 @@ try{
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
 }catch(_){}
 const SHOP_ITEMS=[
-  {id:'insert-coin',name:'Insert Coin',cost:6,slot:'gameplay',rarity:'rare',tag:'ARCADE',description:'Equip to make regular UFO enemies appear about 40% more often. Unequip for normal pacing.'},
+  {id:'insert-coin',name:'Insert Coin',cost:6,slot:'gameplay',rarity:'rare',tag:'ARCADE',description:'Equip to make regular UFO waves arrive about 4 times as often. Unequip for normal pacing.'},
   {id:'dog-whistle',name:'Dog Whistle',cost:4,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
   {id:'star-extender',name:'Star Extender',cost:5,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
   {id:'slowpoke',name:'Slowpoke',cost:6,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
@@ -1270,14 +1270,14 @@ function updateAchievementProgress(extraCount = null) {
 // Achievement emblems use lightweight inline SVG silhouettes, not external fonts.
 // Locked achievements retain their identifiable silhouette as a visual clue.
 const ACHIEVEMENT_ICON_PATHS={
-  "curious":"<path d=\"M12 5a4 4 0 0 0-7 2 4 4 0 0 0 0 7 4 4 0 0 0 7 5V5Zm0 0a4 4 0 0 1 7 2 4 4 0 0 1 0 7 4 4 0 0 1-7 5\"/><path d=\"M8 9h2m4 5h2M8 16l2-2\"/>",
+  "curious":"<path d=\"M12 5c-3-3-7-1-7 2-3 1-3 5-1 7-1 4 2 6 5 5 1 1 2 1 3 0V5Zm0 0c3-3 7-1 7 2 3 1 3 5 1 7 1 4-2 6-5 5-1 1-2 1-3 0\"/><path d=\"M12 7v10M8 8c-2 1-1 3 1 3M16 8c2 1 1 3-1 3M8 15l2 2m6-2-2 2\"/>",
   "secondPerson":"<path d=\"M3 8V4h5m8 0h5v4M3 16v4h5m8 0h5v-4M2 12s4-5 10-5 10 5 10 5-4 5-10 5-10-5-10-5Z\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\"/>",
-  "signal":"<path d=\"M12 20V9m-4 11h8m-4-15-3 3 3 3 3-3-3-3ZM6 4a11 11 0 0 0 0 16m12-16a11 11 0 0 1 0 16\"/>",
+  "signal":"<path d=\"M12 8v13m-5 0h10M12 8l-3 4h6l-3-4Z\"/><path d=\"M7 5c-4 3-4 11 0 14m10-14c4 3 4 11 0 14M4 2C-1 7-1 17 4 22m16-20c5 5 5 15 0 20\"/><circle cx=\"12\" cy=\"5\" r=\"1.5\"/>",
   "wip":"<path d=\"M4 7h16v10H4zM7 17v4m10-4v4M6 7l6 10m0-10 6 10\"/>",
   "ghost":"<path d=\"M5 20V10a7 7 0 0 1 14 0v10l-3-2-4 2-4-2-3 2Z\"/><path d=\"M9 11v2m6-2v2\"/>",
   "lore":"<path d=\"M5 4h11l3 3v13H5zM16 4v4h3M8 11h8M8 14h8M8 17h5\"/><path d=\"M3 7v14h13\"/>",
   "doug":"<ellipse cx=\"12\" cy=\"15\" rx=\"5\" ry=\"4\"/><circle cx=\"5\" cy=\"9\" r=\"1.4\"/><circle cx=\"10\" cy=\"6\" r=\"1.4\"/><circle cx=\"15\" cy=\"6\" r=\"1.4\"/><circle cx=\"20\" cy=\"9\" r=\"1.4\"/>",
-  "unmark":"<path d=\"M4 3h11l5 5v13H4zM15 3v5h5\"/><path d=\"M7 15 10 12l2 2 2-2 3 3-3-1-2 3-2-3-3 1Z\"/>",
+  "unmark":"<path d=\"M4 4v9c0 5 3 8 8 8s8-3 8-8V4h-4v9c0 3-1 4-4 4s-4-1-4-4V4H4Z\"/><path d=\"M12 3v9m-3-3 3 4 3-4\"/>",
   "nda":"<path d=\"M5 3h10l4 4v14H5zM15 3v5h4M8 11h8m-8 4h8m-8 3h5\"/><path d=\"M9 11h6m-6 4h6\" stroke-width=\"3\"/>",
   "konami":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"11\" rx=\"5\"/><path d=\"M8 10v7m-3.5-3.5h7M15.5 12h.1m2.5 3h.1\"/>",
   "post_signals":"<circle cx=\"12\" cy=\"12\" r=\"5\"/><path d=\"M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2m0-14-2 2M7 17l-2 2\"/><path d=\"m9 12 2 2 4-4\"/>",
@@ -4638,7 +4638,7 @@ function renderShopCard(item){
     <div class="shop-item-grade"><span>${shopRarityLabel(item.rarity)}</span><small>${displayTag}</small></div>
     <div class="shop-item-top"><span>${displayName}</span><b>${priceText}</b></div>
     <div class="shop-item-identity"><span class="shop-item-emblem" aria-hidden="true">${shopItemIcon(item.id)}</span><h4>${displayName}</h4></div><p>${displayDescription}</p>
-    <div class="shop-item-actions"><button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${birdButtons?`PASSIVE // ${label}`:label}</button>${refillButton}</div>
+    <div class="shop-item-actions"><button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${birdButtons?(owned?'PASSIVE // ACTIVE':`PASSIVE // ${label}`):label}</button>${refillButton}</div>
   </article>`;
 }
 function renderShop(){
@@ -6632,7 +6632,7 @@ function nextNaturalGalagaDelay(){
   const progress=Math.min(1,(ufoCompletedWavesKills()+invasionWaveKills)/30);
   const baseMin=30000-progress*12500;
   const baseMax=79000-progress*28000;
-  return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax)*(shopHasEquipped('insert-coin')?.60:1);
+  return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax)*(shopHasEquipped('insert-coin')?.25:1);
 }
 function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
   window.clearTimeout(naturalGalagaTimer);

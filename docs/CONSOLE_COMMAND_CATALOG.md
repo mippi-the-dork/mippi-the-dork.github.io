@@ -1,8 +1,8 @@
 # Console Command Catalog
 
-**Current documented version:** Mippi Portfolio v3.01
+**Current documented version:** Mippi Portfolio v3.24
 
-This is the current v2.98 command catalog for the in-site Dev Console.
+This document retains the original v2.98 command inventory for the in-site Dev Console.
 
 Normal player commands are case-insensitive after normalization.
 
@@ -489,3 +489,8 @@ Stability Lab samples opt-in (~5s), can orchestrate 2–60 nominal minutes of pr
 ## v3.14 Consolidated Update
 
 Current documented target **v3.14**: Console HUD and tilde/backtick both toggle visibility in either direction, even while the input is focused. TRY WISH and OPEN BLUEPRINT cues pulse. Console availability remains independent of hardware Three.js capability; browser graphical fallback uses existing Hero links.
+
+
+## v3.24 Console Entitlements
+
+From v3.18 onward Dev Console is an Epic Shop purchase gated by Shooting Star eligibility. v3.18.1 retains public RESET and SHOP access; v3.18.2 hides the Console hotbar control until purchase. From v3.20 DEV commands can execute without purchase, but ordinary player-facing gates must remain intact. See [v3.24 integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Confirm exact input/dispatch UI against runtime before using this older command table for current implementation.

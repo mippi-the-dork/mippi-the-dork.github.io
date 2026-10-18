@@ -1,5 +1,15 @@
 # Mippi Bird Extra Lives - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+The Bird worker owns `baseLife`, `shopLife` and `bank`. Its `lives()` sums them and `hit()` spends Shop, then bank, then base Life. At zero it sets ended and emits a single completion event. The main script persists the bank using `mippi-bird-mushroom-lives-v1` for compatibility. The worker has no native storage access.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mippi Bird Extra Lives > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -147,10 +157,3 @@ all restore the Shop shield.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
-
-
-## Current implementation correction (v3.25.2)
-
-The Bird worker owns `baseLife`, `shopLife` and `bank`. Its `lives()` sums them and `hit()` spends Shop, then bank, then base Life. At zero it sets ended and emits a single completion event. The main script persists the bank using `mippi-bird-mushroom-lives-v1` for compatibility. The worker has no native storage access.
-
-Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

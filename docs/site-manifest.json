@@ -8,7 +8,7 @@
     {
       "title": "v3.15–v3.25.2 Systems Integration",
       "path": "V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md",
-      "summary": "Canonical Shop, icons, gameplay damage, Bird lives and pause behavior through v3.25.2."
+      "summary": "Current design, technical contracts, release supersessions and source provenance through v3.25.2."
     },
     {
       "title": "Documentation Coverage Report",
@@ -18,7 +18,7 @@
     {
       "title": "Release History",
       "path": "RELEASE_HISTORY.md",
-      "summary": "Chronological release history through v3.14."
+      "summary": "Chronological design and implementation history through v3.25.2, including historical reversals."
     },
     {
       "title": "Music Lyrics Authoring Guide",
@@ -48,7 +48,7 @@
     {
       "title": "Shop Inventory Catalog",
       "path": "SHOP_INVENTORY_CATALOG.md",
-      "summary": "Canonical Shop items, costs, rarities, slots, and effects."
+      "summary": "Verified current 13-item Shop inventory, independent equipping, migrations and effects."
     },
     {
       "title": "Objective Catalog",
@@ -78,7 +78,7 @@
     {
       "title": "v3.15–v3.25.2 Regression QA",
       "path": "QA/V3_15_TO_V3_24_REGRESSION_QA.md",
-      "summary": "Release acceptance checks for achievement icons, Shop, damage, pause and progression."
+      "summary": "Current Shop, Bird worker, combat, persistence and progression acceptance tests."
     }
   ],
   "qa": [

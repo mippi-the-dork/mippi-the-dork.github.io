@@ -612,7 +612,7 @@ function sessionStatsSnapshot(){
     rupeesSpent:Number(sessionTelemetry.economy?.rupeesSpent)||0,
     wallet:rupeeWallet,
     shopOwned:shopOwned.size,
-    flappyHigh:Math.max(Number(sessionTelemetry.flappy?.highScore)||0,Number(flappySessionHighScore)||0),
+    flappyHigh:Math.max(Number(sessionTelemetry.flappy?.highScore)||0,Number(mippiBirdHighScore())||0),
     consoleCommands:Number(sessionTelemetry.console?.commands)||0,
     wishes:Number(sessionTelemetry.wish?.successful)||0,
     wishCharge:wishCharge,
@@ -4403,6 +4403,9 @@ function openSourceViewer(){
 
 
 // PLAY // A tiny Flappy-style side quest. This was a portfolio once.
+// Keep Bird's mutable round state scoped inside its own runtime. The rest of the
+// portfolio receives only narrow controls, never the physics state object.
+const {openFlappyGame,updateFlappyLivesHud,persistMushroomLives,recordMushroomCollection,mippiBirdHighScore}=(()=>{
 let flappyPanel=null, flappyCanvas=null, flappyCtx=null, flappyRaf=0;
 let flappyBirdImage=null, flappyState=null;
 const flappyBirdTints=new Map();
@@ -4627,8 +4630,12 @@ function drawFlappyFrame(dt){
     if(!Number.isFinite(s.vy))s.vy=0;
     s.y=Math.max(-38,Math.min(h+38,s.y));
     s.vy=Math.max(-18,Math.min(18,s.vy));
+    const priorY=s.y;
     s.vy += flappyGravity()*dt;
     s.y += s.vy*dt;
+    // Evaluate the traveled segment as well as the endpoint. Crossing an
+    // arena boundary must register a hit even during a large frame step.
+    const crossedWall=priorY-19<0||priorY+19>h||s.y-19<0||s.y+19>h;
     const speed=2.65*dt;
     for(const p of s.pipes) p.x-=speed;
     if(s.pipes[0].x<-52){
@@ -4651,7 +4658,7 @@ function drawFlappyFrame(dt){
       const pipeHit=bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY);
       if(pipeHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('pipe');
     }
-    const boundaryHit=by-bh/2<0 || by+bh/2>h;
+    const boundaryHit=crossedWall;
     if(boundaryHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('boundary');
   }
   if(!wasGameOver && s.gameOver){
@@ -4698,6 +4705,8 @@ function drawFlappyFrame(dt){
     ctx.fillStyle=accent;ctx.font='700 11px ui-monospace,Consolas,monospace';ctx.fillText('CLICK TO RESTART',w/2,h/2+18);
   }
 }
+  return {openFlappyGame,updateFlappyLivesHud,persistMushroomLives,recordMushroomCollection,mippiBirdHighScore:()=>flappySessionHighScore};
+})();
 
 let particleFieldTimer=null;
 function emitCommandParticle(){

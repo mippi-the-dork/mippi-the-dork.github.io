@@ -491,6 +491,6 @@ Current v3.10: verify Star Power rainbow ring and reduced motion; Elarsi card/li
 Current release target is **v3.14**. Verify [v3.11–v3.14 Regression QA](V3_11_TO_V3_14_REGRESSION_QA.md): 14 concise studio reveals, CONTACT and RESUMES rows, no grayscale/no scrollbar, software WebGL fallbacks, Rare/Epic/Legendary cursor ring equality, Shop 11 listings with 10 permanent ownership goals, repeatable Mippi Bird refill, Console input focus toggle, completion theme memory and playlist click-to-play. Historical release-specific checklist text remains historical.
 
 
-## v3.24 Current Acceptance
+## v3.25.2 Current Acceptance
 
-Use [v3.15–v3.24 Regression QA](V3_15_TO_V3_24_REGRESSION_QA.md) for emblem/shop/currency, Dev Console, half-Heart combat, Mippi Bird separation, restored Key placement, and pause/focus/Shop behavior. The historical tests above remain reference-only. Browser signoff is not yet recorded.
+Use [v3.15–v3.25.2 Regression QA](V3_15_TO_V3_24_REGRESSION_QA.md) for the detailed current matrix: 13-item Shop and multi-equip save migration, early Rare Insert Coin enemies/shooting, Beacon/Bounty independently toggled, unified Bird Lives and worker simulation, Super Boss shared damage and UI layering, storage-denied fallback, and performance before/after. Earlier release-specific checks remain historical. **No browser FPS or full regression signoff has been recorded.**

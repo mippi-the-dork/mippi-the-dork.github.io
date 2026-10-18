@@ -8649,3 +8649,10 @@ body #career .studio-grid .studio-card:focus-within .studio-image{
 #career .studio-card-reveal li+li{margin-top:2px;}
 @media(max-width:900px){#career .studio-grid>.studio-card{min-height:280px;}}
 @media(max-width:560px){#career .studio-grid>.studio-card{min-height:290px;}#career .studio-grid>.studio-card.studio-yourstudio{min-height:318px;}}
+
+/* v3.15.2 | Discovered gameplay meters stay adjacent to the progress group.
+   No phantom center alignment when Achievements has not appeared yet. */
+@media(min-width:1000px){
+  body.hud-unified #site-game-hud > #hud-gameplay{justify-content:flex-start!important;}
+  body.hud-unified #site-game-hud > #hud-progress{justify-content:flex-start!important;}
+}

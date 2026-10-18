@@ -925,6 +925,11 @@ let mushroomLifeProgress=0;
 let mushroomBankLives=0;
 let dougCoolProgress=0;
 let castleRunProgress=0;
+// Each gameplay track becomes discoverable through its own first interaction.
+// Local flags retain discovery even after a run resets its numerical progress.
+const HUD_DISCOVERY_PREFIX='mippi-hud-discovered-';
+function hudTrackDiscovered(track){try{return localStorage.getItem(HUD_DISCOVERY_PREFIX+track)==='1';}catch(_){return false;}}
+function discoverHudTrack(track){try{localStorage.setItem(HUD_DISCOVERY_PREFIX+track,'1');}catch(_){}}
 
 // These values are HUD-readable during the first startup refresh.
 // Keep them here, before updateHeartMeter() can transitively reach
@@ -1110,7 +1115,7 @@ function updateCoolMeter(){
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateCoolMeter',()=>{
   if(!coolMeter) return;
-  const visible=dougCoolProgress>0 || dougCoolActive || dougBoneCount>0;
+  const visible=hudTrackDiscovered('cool') || dougBoneCount>0;
   coolMeter.classList.toggle('visible',visible);
   coolMeter.classList.toggle('limit-ready',dougCoolActive);
   const value=Math.round(dougCoolProgress);
@@ -1126,8 +1131,9 @@ function updateInvasionMeter(){
   return window.MippiPerfLab.run('hud.updateInvasionMeter',()=>{
   if(!invasionMeter)return;
   const epic=epicGameplayUnlocked();
-  invasionMeter.classList.toggle('visible',epic);
-  if(!epic)return;
+  const visible=hudTrackDiscovered('invasion') || ufoKills>0 || invasionWaveKills>0 || totalBossVictories()>0;
+  invasionMeter.classList.toggle('visible',visible);
+  if(!visible)return;
   const stage=totalBossVictories()%3;
   const goal=ufoWaveGoal();
   const progress=invasionEncounterPending?goal:invasionWaveKills;
@@ -1146,7 +1152,7 @@ function updateCastleMeter(){
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateCastleMeter',()=>{
   if(!castleMeter) return;
-  const visible=castleRunProgress>0 || castleQuestActive || !!activeCastle;
+  const visible=hudTrackDiscovered('castle') || castleRunProgress>0 || castleQuestActive || !!activeCastle;
   castleMeter.classList.toggle('visible',visible);
   const display=Math.max(0,Math.min(4,castleRunProgress));
   const rewardReady=display>=4;
@@ -5979,6 +5985,7 @@ function resolveInvasionBossEscape(){
   updateInvasionMeter();
 }
 function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
+  discoverHudTrack('invasion');
   ufoKills++;
   if(invasionEncounterPending){
     if(invasionBossRetryKills>0)invasionBossRetryKills--;
@@ -6667,6 +6674,7 @@ function spawnCastle(){
 }
 function activateCastleQuest(){
   if(castleQuestActive || activeCastle) return;
+  discoverHudTrack('castle');
   castleQuestActive=true;
   updateCastleMeter();updateProgressHudVisibility();
   consolePrint('KEY ITEM // A small castle has appeared somewhere between sections.','good');
@@ -6777,6 +6785,7 @@ function addDougCoolness(amount=25,{source='bone'}={}){
 }
 function flashDougStarCool(){ activateDougCoolMode({source:'star_power'}); }
 function collectDougBone(method='direct'){
+  discoverHudTrack('cool');
   dougBoneCount++;
   telemetryCount('economy','bonesCollected');
   telemetryFlyingCollect('bone',method);

@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.17.0';
+const MIPPI_BUILD_VERSION='3.18.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -973,12 +973,13 @@ try{
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
 }catch(_){}
 const SHOP_ITEMS=[
-  {id:'lucky-charm',name:'Lucky Charm',cost:4,slot:'gameplay',rarity:'rare',tag:'DISCOVERY',description:'Hearts, Keys, and Stars become somewhat more likely to appear.'},
+  {id:'insert-coin',name:'Insert Coin',cost:6,slot:'gameplay',rarity:'rare',tag:'ARCADE',description:'Equip to make regular UFO enemies appear about 40% more often. Unequip for normal pacing.'},
   {id:'dog-whistle',name:'Dog Whistle',cost:4,slot:'gameplay',rarity:'rare',tag:'MORALE',description:'Doug Bones enter the flight schedule more often once Doug is in command.'},
   {id:'star-extender',name:'Star Extender',cost:5,slot:'gameplay',rarity:'rare',tag:'POWER-UP',description:'Star Power lasts about two seconds longer.'},
   {id:'slowpoke',name:'Slowpoke',cost:6,slot:'gameplay',rarity:'rare',tag:'TIMING',description:'New flying objects remain on screen about 35% longer.'},
+  {id:'dev-console',name:'Dev Console',cost:8,slot:'passive',rarity:'epic',tag:'SYSTEM',requires:'epic',description:'Unlock the Dev Console (~) and allow Shooting Stars to begin spawning.'},
   {id:'interact-toggle',name:'Interact Toggle',cost:8,slot:'passive',rarity:'epic',tag:'FOCUS',requires:'epic',description:'Adds an Interact Mode toggle that dims the portfolio body and disables its normal links and controls while you hunt game-layer interactions.'},
-  {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
+  {id:'bird-extra-life',name:'Mippi Bird',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Passive: one protective hit shield every new round. Refill: buy one additional spare life for your bank.'},
   {id:'production-discount',name:'Production Discount',cost:11,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
   {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
   {id:'arcade-bounty',name:'Arcade Bounty',cost:10,slot:'passive',rarity:'epic',tag:'ECONOMY',requires:'epic',description:'Regular UFO defeats have a 45% chance to drop a Rupee instead of 30%.'},
@@ -992,7 +993,7 @@ try {
   const stored=JSON.parse(localStorage.getItem(SHOP_STATE_KEY)||'{}');
   const migratedOwned=Array.isArray(stored.owned)?stored.owned.map(id=>id==='galaga-warranty'?'bird-extra-life':id==='tractor-beam'?'interact-toggle':id):[];
   shopOwned=new Set(migratedOwned.filter(id=>SHOP_ITEMS.some(item=>item.id===id)));
-  const migratedEquipped=(stored.equipped==='galaga-warranty'||stored.equipped==='tractor-beam')?null:stored.equipped;
+  const migratedEquipped=(stored.equipped==='galaga-warranty'||stored.equipped==='tractor-beam'||stored.equipped==='lucky-charm')?null:stored.equipped;
   shopEquipped=typeof migratedEquipped==='string'&&shopOwned.has(migratedEquipped)&&shopItem(migratedEquipped)?.slot==='gameplay'?migratedEquipped:null;
   rupeeDiscovered=localStorage.getItem(RUPEE_DISCOVERED_KEY)==='1'||rupeeWallet>0||shopOwned.size>0;
   if(shopOwned.has('design-mode-unlock')){designModeUnlocked=true;localStorage.setItem(DESIGN_UNLOCK_KEY,'1');}
@@ -2651,6 +2652,10 @@ const consoleTipButton = document.querySelector('#console-tip-button');
 let consoleHistory = [];
 let consoleHistoryIndex = 0;
 function openConsole(open = true) {
+  if(open&&!shopOwns('dev-console')){
+    showTransientToast('DEV CONSOLE LOCKED','Purchase Dev Console in the Epic Shop to unlock commands and Shooting Stars.','SHOP // EPIC','DISCOVERY');
+    return;
+  }
   const wasOpen=devConsole?.classList.contains('open')||false;
   devConsole?.classList.toggle('open', open);
   devConsole?.setAttribute('aria-hidden', String(!open));
@@ -4595,6 +4600,8 @@ function shopMerchantLine(){
 }
 function shopRarityLabel(rarity){ return rarity==='legendary'?'LEGENDARY':rarity==='epic'?'EPIC':'RARE'; }
 const SHOP_ICON_PATHS={
+  'insert-coin':'<circle cx="12" cy="12" r="9"/><path d="M9 8h6m-3-3v14m-3-3h6"/>',
+  'dev-console':'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 3 3-3 3m6 3h6"/>',
   "lucky-charm":"<path d=\"M12 3v18M3 12h18M5 5l14 14M19 5 5 19\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/>",
   "dog-whistle":"<path d=\"M3 10h11l4-5v14l-4-5H3zM18 8l3-2m-3 10 3 2\"/>",
   "star-extender":"<path d=\"m12 2 3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z\"/>",
@@ -4626,11 +4633,16 @@ function renderShopCard(item){
   else if(owned&&passive){action='passive';label=item.id==='interact-toggle'?'CONTROL // UNLOCKED':'PASSIVE // ACTIVE';disabled=true;}
   else if(owned&&equippedNow){action='equipped';label='EQUIPPED';disabled=true;}
   else if(owned){action='equip';label='EQUIP';disabled=false;}
+  const birdButtons=item.id==='bird-extra-life';
+  const refill=shopItem('bird-life-refill');
+  const refillPrice=refill?shopPrice(refill):7;
+  const refillLocked=refill&&!shopItemAvailable(refill);
+  const refillButton=birdButtons?`<button type="button" data-shop-action="buy" data-shop-id="bird-life-refill" ${refillLocked||rupeeWallet<refillPrice?'disabled':''}>${refillLocked?'REFILL // LOCKED':`REFILL // ${refillPrice} RUPEES`}</button>`:'';
   return `<article class="shop-item rarity-${item.rarity} ${owned?'owned':''} ${equippedNow?'equipped':''} ${locked?'locked':''}" data-shop-id="${item.id}" data-rarity="${item.rarity}">
     <div class="shop-item-grade"><span>${shopRarityLabel(item.rarity)}</span><small>${displayTag}</small></div>
     <div class="shop-item-top"><span>${displayName}</span><b>${priceText}</b></div>
     <div class="shop-item-identity"><span class="shop-item-emblem" aria-hidden="true">${shopItemIcon(item.id)}</span><h4>${displayName}</h4></div><p>${displayDescription}</p>
-    <button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${label}</button>
+    <div class="shop-item-actions"><button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${birdButtons?`PASSIVE // ${label}`:label}</button>${refillButton}</div>
   </article>`;
 }
 function renderShop(){
@@ -4640,15 +4652,17 @@ function renderShop(){
   if(shopEquippedName) shopEquippedName.textContent=equipped?.name?.toUpperCase()||'NONE';
   if(shopUnequip){shopUnequip.disabled=!equipped;shopUnequip.classList.toggle('visible',!!equipped);}
   const groups=[['rare','FIELD GEAR'],['epic','SYSTEM GEAR'],['legendary','MASTERWORKS']];
-  shopItemsEl.innerHTML=groups.map(([rarity,subtitle])=>`<section class="shop-rarity-section rarity-${rarity}" data-rarity="${rarity}"><header><span>${shopRarityLabel(rarity)}</span><small>${subtitle}</small></header><div class="shop-rarity-grid">${SHOP_ITEMS.filter(item=>item.rarity===rarity).map(renderShopCard).join('')}</div></section>`).join('');
+  shopItemsEl.innerHTML=groups.map(([rarity,subtitle])=>`<section class="shop-rarity-section rarity-${rarity}" data-rarity="${rarity}"><header><span>${shopRarityLabel(rarity)}</span><small>${subtitle}</small></header><div class="shop-rarity-grid">${SHOP_ITEMS.filter(item=>item.rarity===rarity&&item.id!=='bird-life-refill').map(renderShopCard).join('')}</div></section>`).join('');
   if(shopMerchant) shopMerchant.textContent=shopMerchantLine();
 }
 function equipShopItem(id,{announce=true}={}){
   const item=shopItem(id);
   if(!item||item.slot!=='gameplay'||!shopOwned.has(id)||!shopItemAvailable(item)) return false;
   if(shopEquipped===id) return true;
+  const previousEquipped=shopEquipped;
   shopEquipped=id;
   persistShopState(); applyShopEquipmentState(); renderShop();
+  if(id==='insert-coin'||previousEquipped==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
   telemetryCount('economy','shopEquips'); telemetryUnique('economy','shopEquippedItems',id); telemetryMeaningful('shop_equip',{id});
   if(announce){ consolePrint(`SHOP // ${item.name.toUpperCase()} equipped. One slot, one bad idea at a time.`,'good'); showTransientToast('ITEM EQUIPPED',item.name,'ONE GAMEPLAY MODIFIER','SHOP'); }
   return true;
@@ -4657,6 +4671,7 @@ function unequipShopItem(){
   if(!shopEquipped) return;
   const previous=shopItem(shopEquipped);
   shopEquipped=null; persistShopState(); applyShopEquipmentState(); renderShop();
+  if(previous?.id==='insert-coin')scheduleNaturalGalaga(nextNaturalGalagaDelay());
   telemetryCount('economy','shopUnequips'); telemetryMeaningful('shop_unequip',{id:previous?.id||'unknown'});
   consolePrint(`SHOP // ${previous?.name||'Gameplay modifier'} unequipped. Raw portfolio difficulty restored.`,'good');
 }
@@ -4679,6 +4694,11 @@ function purchaseShopItem(id){
   persistShopState();
   if(item.slot==='gameplay') equipShopItem(id,{announce:false});
   else applyShopEquipmentState();
+  if(id==='dev-console'){
+    consoleTipButton?.classList.remove('shop-locked');
+    consoleTipButton?.removeAttribute('aria-disabled');
+    scheduleNaturalShootingStar(3000+Math.random()*4500);
+  }
   if(id==='design-mode-unlock'){
     designModeUnlocked=true;
     try{localStorage.setItem(DESIGN_UNLOCK_KEY,'1');}catch(_){}
@@ -5990,7 +6010,7 @@ function randomEdgeFlight(margin=220){
   return {sx,sy,dx,dy,angle};
 }
 function spawnShootingStar(force=false){
-  if((!epicGameplayUnlocked()||reduceMotion) && !force) return false;
+  if((!epicGameplayUnlocked()||!shopOwns('dev-console')||reduceMotion) && !force) return false;
   if(hasWishCharge() && !force) return false;
   if(!directorAllowsAmbient('shooting_star',{force})) return false;
   const f=randomEdgeFlight(240);
@@ -6596,7 +6616,7 @@ function scheduleNaturalShootingStar(delay=nextNaturalShootingStarDelay()){
       return;
     }
     // A blocked opportunity is deferred rather than discarded for another full minute.
-    const retry=!epicGameplayUnlocked()?5000:hasWishCharge()?14000:directorAttentionBlocked()?2600:6500;
+    const retry=(!epicGameplayUnlocked()||!shopOwns('dev-console'))?5000:hasWishCharge()?14000:directorAttentionBlocked()?2600:6500;
     scheduleNaturalShootingStar(retry);
   },delay);
 }
@@ -6606,7 +6626,7 @@ function nextNaturalGalagaDelay(){
   const progress=Math.min(1,(ufoCompletedWavesKills()+invasionWaveKills)/30);
   const baseMin=30000-progress*12500;
   const baseMax=79000-progress*28000;
-  return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax);
+  return easyModeEnabled?12000+Math.random()*10000:directorDelay('ufo',baseMin,baseMax)*(shopHasEquipped('insert-coin')?.60:1);
 }
 function scheduleNaturalGalaga(delay=nextNaturalGalagaDelay()){
   window.clearTimeout(naturalGalagaTimer);

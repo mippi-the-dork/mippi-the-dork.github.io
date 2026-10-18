@@ -8706,3 +8706,8 @@ body.hud-unified #site-game-hud{z-index:255!important;}
 .shop-item.rarity-legendary .shop-item-emblem{color:#ffc83d;background:rgba(255,200,61,.07);}
 .shop-item.locked .shop-item-emblem{opacity:.55;filter:saturate(.6);}
 .shop-item.owned .shop-item-emblem{box-shadow:0 0 12px currentColor;}
+
+/* v3.18: Two independent purchases share the Mippi Bird card. */
+.shop-item-actions{display:flex;gap:7px;margin-top:auto;align-items:stretch;}
+.shop-item-actions>button{margin-top:0;flex:1 1 0;min-width:0;padding:7px 4px;font-size:8px;line-height:1.3;}
+@media(max-width:600px){.shop-item-actions{flex-wrap:wrap}.shop-item-actions>button{flex-basis:100%;}}

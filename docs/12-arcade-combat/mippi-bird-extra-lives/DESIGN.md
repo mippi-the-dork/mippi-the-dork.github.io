@@ -1,5 +1,15 @@
 # Mippi Bird Extra Lives - Design Documentation
 
+## Current implementation correction (v3.25.2)
+
+At v3.25.2 the unified LIVES count equals one base Life plus a per-round Life if the permanent Bird item is owned plus purchased banked refill Lives. The fifth valid hit when showing LIVES 5 ends the round. Hearts and Mushrooms no longer add Bird Lives.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Mippi Bird Extra Lives > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -109,10 +119,3 @@ The player can immediately understand why they survived a crash and which resour
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
-
-
-## Current implementation correction (v3.25.2)
-
-At v3.25.2 the unified LIVES count equals one base Life plus a per-round Life if the permanent Bird item is owned plus purchased banked refill Lives. The fifth valid hit when showing LIVES 5 ends the round. Hearts and Mushrooms no longer add Bird Lives.
-
-Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

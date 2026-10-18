@@ -1037,6 +1037,11 @@ try {
   // Upgrade older single-slot saves without discarding the player's existing loadout.
   const savedEquipped=Array.isArray(stored.equipped)?stored.equipped:typeof stored.equipped==='string'?[stored.equipped]:[];
   shopEquipped=new Set(savedEquipped.filter(id=>id!=='galaga-warranty'&&id!=='tractor-beam'&&shopOwned.has(id)&&shopItem(id)?.slot==='gameplay'));
+  // These two upgrades were always-on passives in older saves. Preserve their effects
+  // when upgrading legacy state, while letting players unequip them afterward.
+  if(!Array.isArray(stored.equipped)){
+    for(const id of ['celestial-beacon','arcade-bounty'])if(shopOwned.has(id))shopEquipped.add(id);
+  }
   rupeeDiscovered=localStorage.getItem(RUPEE_DISCOVERED_KEY)==='1'||rupeeWallet>0||shopOwned.size>0;
   if(shopOwned.has('design-mode-unlock')){designModeUnlocked=true;localStorage.setItem(DESIGN_UNLOCK_KEY,'1');}
   if(rupeeDiscovered) localStorage.setItem(RUPEE_DISCOVERED_KEY,'1');

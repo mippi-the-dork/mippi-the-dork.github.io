@@ -198,3 +198,8 @@ swap
 unequip
 reload
 ```
+
+
+## v3.24 Override Notice
+
+The v2.78 inventory table above is a **historical baseline**, not the up-to-date purchasable inventory or prices. Through v3.24 the Shop also adds Arcade Bounty (+45% UFO Rupee-drop chance), Insert Coin (~4× natural wave rate), a combined Bird shield/refill presentation, and a Dev Console Epic entitlement gated by Shooting Star. The Dev Console hotbar requires purchase, but RESET/SHOP and DEV functionality preserve their exceptions. Bird refill is repeatable and distinct from permanent shop completion. Do not reuse this old table for current cost or quantity decisions until refreshed from runtime source. See [v3.24 integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

@@ -1929,7 +1929,7 @@ function updateHeartMeter(){
   return window.MippiPerfLab.run('hud.updateHeartMeter',()=>{
   if(!heartMeter) return;
   const hearts=[...heartMeter.querySelectorAll(':scope > span:not(.hud-attention-ring)')];
-  hearts.forEach((heart,index)=>{ const units=Math.max(0,Math.min(2,heartHalfUnits-index*2));heart.textContent=units===2?'♥':units===1?'♡':'';heart.classList.toggle('filled',units===2);heart.classList.toggle('half-filled',units===1);heart.innerHTML=units===1?'<span class="heart-half-core" aria-hidden="true">♥</span>':' '+heart.textContent; });
+  hearts.forEach((heart,index)=>{ const units=Math.max(0,Math.min(2,heartHalfUnits-index*2));heart.textContent=units===2?'♥':units===1?'♡':'';heart.classList.toggle('filled',units===2);heart.classList.toggle('half-filled',units===1);heart.innerHTML=units===1?'♡<span class="heart-half-core" aria-hidden="true">♥</span>':heart.textContent; });
   const rewardReady=heartHalfUnits===10&&!heartRewardShown;
   heartMeter.classList.toggle('reward-ready',rewardReady);
   heartMeter.disabled=false;
@@ -4406,19 +4406,9 @@ function persistMushroomLives(){
   updateFlappyLivesHud();
 }
 function recordMushroomCollection(){
-  // Mushrooms exclusively change the cursor, never Mippi Bird lives.
-  return;
-  mushroomLifeProgress++;
-  if(mushroomLifeProgress>=20){
-    mushroomLifeProgress-=20; mushroomBankLives++;
-    telemetryCount('economy','mushroomLivesEarned'); telemetryMeaningful('mushroom_extra_life_earned',{bank:mushroomBankLives});
-    showTransientToast('EXTRA LIFE EARNED','20 Mushrooms converted into one consumable Mippi Bird Extra Life.',`BANK // ${mushroomBankLives}`,'MIPPI BIRD');
-    consolePrint(`MUSHROOM LIMIT // +1 MIPPI BIRD EXTRA LIFE // BANK ${mushroomBankLives}`,'good');
-  }else if(mushroomLifeProgress===10){
-    consolePrint(`MUSHROOM PROGRESS // ${mushroomLifeProgress}/20 toward a Mippi Bird Extra Life.`,'good');
-  }
-  persistMushroomLives();
+  // Mushrooms affect cursor size only; Bird refills are Shop purchases.
 }
+
 function absorbFlappyHit(reason='collision'){
   const s=flappyState;if(!s)return false;
   let source=null;

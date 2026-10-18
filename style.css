@@ -8723,3 +8723,10 @@ body.hud-unified #site-game-hud{z-index:255!important;}
 
 /* v3.20 | Per-icon fine detail may use explicit SVG geometry overrides. */
 .achievement-emblem-svg [stroke-width],.shop-item-emblem svg [stroke-width]{stroke-width:revert-layer;}
+
+/* v3.22 half-hearts: empty outline plus a smaller solid heart in center. */
+#heart-meter>span.half-filled{position:relative;display:inline-flex;justify-content:center;align-items:center;}
+#heart-meter>span.half-filled .heart-half-core{position:absolute;font-size:.48em;line-height:1;pointer-events:none;}
+
+#heart-meter>span.half-filled{font-size:inherit;line-height:1;}
+#heart-meter>span.half-filled .heart-half-core{inset:0;display:grid;place-items:center;font-size:.55em;}

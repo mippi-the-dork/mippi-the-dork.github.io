@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.21.0';
+const MIPPI_BUILD_VERSION='3.22.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -919,8 +919,9 @@ let completionCelebrated = unlockedAchievements.size===ACHIEVEMENT_KEYS.length;
 let legendaryUnlocked = false;
 try { legendaryUnlocked = localStorage.getItem(LEGENDARY_UNLOCK_KEY) === '1'; } catch (_) {}
 let heartCount=0;
+let heartHalfUnits=0; // Ten half-hearts. Each projectile hit removes one unit.
 let heartRewardShown=false;
-try { heartCount=Math.max(0,Math.min(5,Number(localStorage.getItem(HEART_KEY)||0))); heartRewardShown=localStorage.getItem(HEART_REWARD_KEY)==='1'; } catch (_) {}
+try { heartCount=Math.max(0,Math.min(5,Number(localStorage.getItem(HEART_KEY)||0))); heartHalfUnits=Math.max(0,Math.min(10,Number(localStorage.getItem('mippi-heart-halves-v1')??heartCount*2))); heartCount=Math.ceil(heartHalfUnits/2); heartRewardShown=localStorage.getItem(HEART_REWARD_KEY)==='1'; } catch (_) {}
 let cursorPowerLevel=0;
 let rupeeWallet=0;
 try { rupeeWallet=Math.max(0,Number(localStorage.getItem(RUPEE_WALLET_KEY)||0)); } catch (_) {}
@@ -1212,7 +1213,7 @@ function postgameEpicCondition(key){
     case 'post_cool': return postgameCoolMaxed;
     case 'post_legendary': return legendaryUnlocked;
     case 'post_wish': return finaleWishSatisfied;
-    case 'post_hearts': return heartCount>=5;
+    case 'post_hearts': return heartHalfUnits===10;
     case 'post_shop': return SHOP_ITEMS.filter(item=>item.slot!=='consumable').every(item=>shopOwned.has(item.id));
     case 'post_castles': return postgameCastleComplete;
     case 'post_sections': return POSTGAME_MAJOR_SECTIONS.every(id=>postgameVisitedSections.has(id));
@@ -1928,20 +1929,20 @@ function updateHeartMeter(){
   return window.MippiPerfLab.run('hud.updateHeartMeter',()=>{
   if(!heartMeter) return;
   const hearts=[...heartMeter.querySelectorAll(':scope > span:not(.hud-attention-ring)')];
-  hearts.forEach((heart,index)=>{ heart.textContent=index<heartCount?'♥':'♡'; heart.classList.toggle('filled',index<heartCount); });
-  const rewardReady=heartCount>=5&&!heartRewardShown;
+  hearts.forEach((heart,index)=>{ const units=Math.max(0,Math.min(2,heartHalfUnits-index*2));heart.textContent=units===2?'♥':units===1?'♡':'';heart.classList.toggle('filled',units===2);heart.classList.toggle('half-filled',units===1);heart.innerHTML=units===1?'♡<span class="heart-half-core" aria-hidden="true">♥</span>':heart.textContent; });
+  const rewardReady=heartHalfUnits===10&&!heartRewardShown;
   heartMeter.classList.toggle('reward-ready',rewardReady);
   heartMeter.disabled=false;
   heartMeter.setAttribute('aria-disabled','false');
-  heartMeter.setAttribute('aria-label',rewardReady?'Heart pickups: 5 of 5. Reward ready. Click to claim.':heartCount>=5?'Hearts full. Rare bonus Hearts grant Mippi Bird extra lives.':`Heart pickups: ${heartCount} of 5`);
-  heartMeter.title=rewardReady?'FULL HEARTS // Click to claim the Unreal Source reward.':heartCount>=5?`HEARTS FULL // Click to revisit Unreal Source. Bonus Heart lives banked for Mippi Bird: ${mushroomBankLives}.`:'Collect Heart pickups hidden around the site.';
+  heartMeter.setAttribute('aria-label',rewardReady?'Five full Hearts. Unreal Source reward ready.':`Hearts: ${heartHalfUnits} of 10 half-heart units`);
+  heartMeter.title=heartHalfUnits===10?'FULL HEARTS // Click to view Unreal Source.':`HEARTS // ${heartHalfUnits}/10 halves. Enemy shots deal half a Heart.`;
   updateProgressHudVisibility();
   syncProgressHudPosition();
 
   });
 }
 function claimHeartReward(){
-  if(heartCount<5||heartRewardShown)return false;
+  if(heartHalfUnits!==10||heartRewardShown)return false;
   heartRewardShown=true;
   telemetryMeaningful('heart_reward_unlocked');
   telemetryMeaningful('heart_reward_claimed');
@@ -1971,27 +1972,32 @@ function openUnrealGift(){
 function closeUnrealGift(){ unrealGiftPopup?.classList.remove('open'); unrealGiftPopup?.setAttribute('aria-hidden','true'); }
 unrealGiftDecline?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_declined'); closeUnrealGift(); });
 unrealGiftAccept?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_accepted'); window.setTimeout(closeUnrealGift,100); });
-heartMeter?.addEventListener('click',()=>{if(heartCount>=5){if(!heartRewardShown)claimHeartReward();else openUnrealGift();}else showTransientToast('HEARTS','Collect five Hearts to unlock the Unreal Source reward.',`HEARTS // ${heartCount}/5`,'PROGRESS');});
+heartMeter?.addEventListener('click',()=>{if(heartHalfUnits===10){if(!heartRewardShown)claimHeartReward();else openUnrealGift();}else showTransientToast('HEARTS','All five Hearts must be completely filled to open Unreal Source.',`HEARTS // ${heartHalfUnits}/10 HALVES`,'PROGRESS');});
 function collectHeart(){
   telemetryCount('economy','heartsCollected');
-  telemetryMeaningful('heart_collected',{count:heartCount+1});
-  if(heartCount<5){
-    heartCount++;
-    try{localStorage.setItem(HEART_KEY,String(heartCount));}catch(_){}
+  telemetryMeaningful('heart_collected',{count:heartHalfUnits});
+  if(heartHalfUnits<10){
+    heartHalfUnits=Math.min(10,heartHalfUnits+2);
+    heartCount=Math.ceil(heartHalfUnits/2);
+    try{localStorage.setItem('mippi-heart-halves-v1',String(heartHalfUnits));localStorage.setItem(HEART_KEY,String(heartCount));}catch(_){}
     updateHeartMeter();
-    consolePrint(`HEART ACQUIRED // ${heartCount}/5 // morale capacity increased.`,'good');
-  } else {
-    mushroomBankLives++;persistMushroomLives();
-    telemetryCount('economy','heartBirdLivesEarned');
-    consolePrint(`BONUS HEART // +1 MIPPI BIRD EXTRA LIFE // BANK ${mushroomBankLives}`,'good');
-    showTransientToast('BONUS HEART','Full hearts! This heart adds one extra Mippi Bird life.',`BIRD LIVES // ${mushroomBankLives}`,'HEARTS');
+    consolePrint(`HEART ACQUIRED // ${heartHalfUnits}/10 half-heart units.`,'good');
+  }else{
+    consolePrint('HEART ACQUIRED // already at full health.','good');
   }
-  if(heartCount>=5 && !heartRewardShown){
-    showTransientToast('FULL HEARTS','The HEARTS panel is ready. Click it to claim the reward.','5 / 5 // CLAIM READY','HEART CONTAINER');
-    consolePrint('FULL HEARTS // reward ready. Click the HEARTS panel to claim it.','good');
+  if(heartHalfUnits===10&&!heartRewardShown){
+    showTransientToast('FULL HEARTS','Click the Hearts meter to view Unreal Source.','5 / 5 // READY','HEART CONTAINER');
   }
   evaluatePostgameAchievements();
 }
+function damageHeartHalf(){
+  if(heartHalfUnits<=0)return;
+  heartHalfUnits--;
+  heartCount=Math.ceil(heartHalfUnits/2);
+  try{localStorage.setItem('mippi-heart-halves-v1',String(heartHalfUnits));localStorage.setItem(HEART_KEY,String(heartCount));}catch(_){}
+  updateHeartMeter();evaluatePostgameAchievements({announce:false});
+}
+
 updateHeartMeter();
 mippiRuntimeHealth.bootStage='initial-hud-ready';
 
@@ -4391,8 +4397,8 @@ function resetFlappyGame(){
 }
 function updateFlappyLivesHud(){
   const el=flappyPanel?.querySelector('#flappy-lives'); if(!el) return;
-  const shop=flappyState?.shopLifeAvailable?'SHOP 1':'SHOP 0';
-  el.textContent=`EXTRA LIVES // ${shop} · BANK ${mushroomBankLives} · SHROOMS ${mushroomLifeProgress}/20`;
+  const shop=flappyState?.shopLifeAvailable?'SHIELD 1':'SHIELD 0';
+  el.textContent=`EXTRA LIVES // ${shop} · REFILLS ${mushroomBankLives}`;
   el.classList.toggle('has-life',!!flappyState?.shopLifeAvailable||mushroomBankLives>0);
 }
 function persistMushroomLives(){
@@ -4400,27 +4406,19 @@ function persistMushroomLives(){
   updateFlappyLivesHud();
 }
 function recordMushroomCollection(){
-  mushroomLifeProgress++;
-  if(mushroomLifeProgress>=20){
-    mushroomLifeProgress-=20; mushroomBankLives++;
-    telemetryCount('economy','mushroomLivesEarned'); telemetryMeaningful('mushroom_extra_life_earned',{bank:mushroomBankLives});
-    showTransientToast('EXTRA LIFE EARNED','20 Mushrooms converted into one consumable Mippi Bird Extra Life.',`BANK // ${mushroomBankLives}`,'MIPPI BIRD');
-    consolePrint(`MUSHROOM LIMIT // +1 MIPPI BIRD EXTRA LIFE // BANK ${mushroomBankLives}`,'good');
-  }else if(mushroomLifeProgress===10){
-    consolePrint(`MUSHROOM PROGRESS // ${mushroomLifeProgress}/20 toward a Mippi Bird Extra Life.`,'good');
-  }
-  persistMushroomLives();
+  // Mushrooms affect cursor size only; Bird refills are Shop purchases.
 }
+
 function absorbFlappyHit(reason='collision'){
   const s=flappyState;if(!s)return false;
   let source=null;
   if(s.shopLifeAvailable){s.shopLifeAvailable=false;source='shop';telemetryCount('flappy','shopLivesUsed');}
-  else if(mushroomBankLives>0){mushroomBankLives--;source='mushroom';telemetryCount('flappy','mushroomLivesUsed');telemetryCount('economy','mushroomLivesSpent');persistMushroomLives();}
+  else if(mushroomBankLives>0){mushroomBankLives--;source='refill';telemetryCount('flappy','bankedLivesUsed');persistMushroomLives();}
   if(!source)return false;
   telemetryCount('flappy','hitsAbsorbed');telemetryMeaningful('flappy_extra_life_used',{source,reason,bank:mushroomBankLives});
   s.invulnerableUntil=performance.now()+1650; s.vy=-2.8; s.y=Math.max(28,Math.min(flappyCanvas.height-28,s.y));
   updateFlappyLivesHud();
-  const help=flappyPanel?.querySelector('#flappy-help'); if(help) help.textContent=`EXTRA LIFE // ${source==='shop'?'SHOP SHIELD SPENT':'MUSHROOM LIFE SPENT'} // INVULNERABLE`;
+  const help=flappyPanel?.querySelector('#flappy-help'); if(help) help.textContent=`EXTRA LIFE // ${source==='shop'?'SHOP SHIELD SPENT':'REFILL LIFE SPENT'} // INVULNERABLE`;
   consolePrint(`MIPPI BIRD HIT // ${source.toUpperCase()} EXTRA LIFE USED // BANK ${mushroomBankLives}`,'warn');
   return true;
 }
@@ -4833,8 +4831,8 @@ function devSetRupees(value){
   consolePrint(`DEV // Wallet forced to ${rupeeWallet} Rupee${rupeeWallet===1?'':'s'}.`,'good');
 }
 function devSetHearts(value){
-  heartCount=Math.max(0,Math.min(5,Math.floor(Number(value)||0)));heartRewardShown=false;
-  try{localStorage.setItem(HEART_KEY,String(heartCount));localStorage.removeItem(HEART_REWARD_KEY);}catch(_){}
+  heartCount=Math.max(0,Math.min(5,Math.floor(Number(value)||0)));heartHalfUnits=heartCount*2;heartRewardShown=false;
+  try{localStorage.setItem(HEART_KEY,String(heartCount));localStorage.setItem('mippi-heart-halves-v1',String(heartHalfUnits));localStorage.removeItem(HEART_REWARD_KEY);}catch(_){}
   updateHeartMeter();updateProgressHudVisibility();evaluatePostgameAchievements({announce:false});
   consolePrint(`DEV // Hearts forced to ${heartCount}/5${heartCount>=5?' // claim cue armed':''}.`,'good');
 }
@@ -5465,10 +5463,10 @@ function advanceCursorPower(){
   updatePowerCursor();
   const legendary=document.body.classList.contains('theme-legendary');
   const rangeNote=legendary&&cursorPowerLevel>0?' Click radius increased.':legendary&&cursorPowerLevel===0?' Click radius returned to normal.':'';
-  const lifeNote=` Mippi Bird life progress: ${mushroomLifeProgress}/20.`;
+  const lifeNote='';
   const message=(cursorPowerLevel===1?'MUSHROOM ACQUIRED // cursor size increased.':cursorPowerLevel===2?'MUSHROOM ACQUIRED // cursor at maximum size. Please point responsibly.':'MUSHROOM ACQUIRED // cursor wrapped back to normal size.')+rangeNote+lifeNote;
   consolePrint(message,'good');
-  showTransientToast('MUSHROOM ACQUIRED',(cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.')+rangeNote+lifeNote,`CURSOR // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'} · SHROOMS ${mushroomLifeProgress}/20`,'POWER-UP');
+  showTransientToast('MUSHROOM ACQUIRED',(cursorPowerLevel===1?'Your cursor grew.':cursorPowerLevel===2?'Your cursor grew again. This is probably enough.':'Power cycle complete. Cursor returned to normal.')+rangeNote+lifeNote,`CURSOR // ${cursorPowerLevel===0?'NORMAL':cursorPowerLevel===1?'BIG':'VERY BIG'}`,'POWER-UP');
   if(legendary&&cursorPowerLevel>0){
     telemetryCount('combos','legendaryMushroom');
     announceSystemCombo('legendary-mushroom','Mushroom + Legendary','The enlarged cursor increases your nearby click radius.');
@@ -5602,6 +5600,7 @@ function explodeAt(x,y,count=18,size=5,{radiusX=150,radiusY=120,lifetime=850}={}
 
 function showArcadeCursorHit(x,y){
   arcadeCursorHits++;
+  damageHeartHalf();
   telemetryCount('arcade','cursorHits');
   telemetryMeaningful('ufo_projectile_hit',{count:arcadeCursorHits});
   const flash=document.createElement('i');
@@ -5611,7 +5610,7 @@ function showArcadeCursorHit(x,y){
   document.body.appendChild(flash);
   window.setTimeout(()=>flash.remove(),360);
   explodeAt(x,y,7);
-  if(arcadeCursorHits===1) consolePrint('ARCADE HIT // cosmetic damage only. Your resume remains unharmed.','warn');
+  if(arcadeCursorHits===1) consolePrint('ARCADE HIT // half a Heart lost. Your resume remains unharmed.','warn');
 }
 /* v2.91 // Combat geometry coordinator. Reading animated element bounds after
    writing projectile transforms/DOM can synchronously force a full style/layout
@@ -6941,8 +6940,8 @@ function chooseSpawnPanel(excluded=null){
   if(!panels.length)return null;
   // Prefer panels in or near the viewport to make the movement discoverable,
   // while still allowing an occasional hidden item further down the page.
-  const near=panels.filter(p=>{const r=p.getBoundingClientRect();return r.bottom>-150&&r.top<innerHeight+150;});
-  const pool=near.length&&Math.random()<.75?near:panels;
+  const near=panels.filter(p=>{const r=p.getBoundingClientRect();return r.bottom>80&&r.top<innerHeight-80;});
+  const pool=near.length?near:panels;
   return pool[Math.floor(Math.random()*pool.length)];
 }
 function spawnScreenPickup(def,{duration,step,onEnd,panel=null}={}){
@@ -7167,7 +7166,11 @@ function handleGamePickup(def,item){
 }
 function spawnGamePickup(forcedKind=null,force=false){
   if(reduceMotion&&!force)return false;
-  if(!force&&!epicGameplayUnlocked())return false;
+  // Keys can spawn before Epic; other natural pickups retain the Epic gate.
+  if(!force&&!epicGameplayUnlocked()){
+    const key=pickupKinds.find(entry=>entry.kind==='key');
+    return !!spawnHiddenPanelKey(key);
+  }
   if(!directorAllowsAmbient('pickup',{force}))return false;
   const def=forcedKind?pickupKinds.find(entry=>entry.kind===forcedKind):choosePickupDefinition();
   if(!def)return false;
@@ -7260,7 +7263,7 @@ updateLedgerTrigger();
 
 // Finale --------------------------------------------------------------------
 function finaleVisitedSections(){return ['games','career','consulting','crafting','tools','about'].filter(id=>(Number(sessionTelemetry.sections?.[id]?.visits)||0)>0).length;}
-function finaleEligibility(){return {signals:unlockedAchievements.size===ACHIEVEMENT_KEYS.length,legendary:legendaryUnlocked,wish:finaleWishSatisfied,boss:finaleBossSatisfied,hearts:heartCount>=5,shop:shopOwned.size>0,sections:finaleVisitedSections()>=5};}
+function finaleEligibility(){return {signals:unlockedAchievements.size===ACHIEVEMENT_KEYS.length,legendary:legendaryUnlocked,wish:finaleWishSatisfied,boss:finaleBossSatisfied,hearts:heartHalfUnits===10,shop:shopOwned.size>0,sections:finaleVisitedSections()>=5};}
 function finaleEligible(){return Object.values(finaleEligibility()).every(Boolean);}
 function finaleAttentionClear(){if(superBossActive||ufoBossActive||document.querySelector('.dev-console.open,.shop-popup.open,.blueprint-popup.open,.compile-popup.open,.wish-special-popup.open,.wish-sequence-overlay,.hal-overlay.show,.azure-gallery[aria-hidden="false"],.flappy-game.open,.session-debrief.show'))return false;return !achievement?.classList.contains('show')&&!ledger?.classList.contains('open');}
 function updateFinaleReady(){if(!finaleEligible()||finaleReady||!finaleAttentionClear())return;finaleReady=true;document.body.classList.add('finale-ready');const brand=document.querySelector('.brand');if(brand){brand.setAttribute('aria-label','Mippi The Dork home. Something has changed.');brand.title='Something has changed.';}if(!finaleSeen)showTransientToast('SYSTEM STATUS','You have seen basically everything.','...BASICALLY','FINAL TRACE');telemetryMeaningful('finale_ready',finaleEligibility());}

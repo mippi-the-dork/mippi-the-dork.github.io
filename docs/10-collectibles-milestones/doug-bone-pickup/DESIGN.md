@@ -1,5 +1,13 @@
 # Doug Bone Pickup - Design Documentation
 
+## Current v3.25.2 verified update
+
+Doug Bones raise Coolness and may produce playful reactions, but they must render beneath the sticky header and footer hotbar. From v3.23 Bones can block friendly and hostile projectiles without being destroyed by the interception.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Collectibles and Claimable Milestones > Doug Bone Pickup > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

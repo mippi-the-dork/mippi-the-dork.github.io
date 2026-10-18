@@ -1,5 +1,13 @@
 # Invasion Meter - Technical Documentation
 
+## Current v3.25.2 verified update
+
+`ufoWaveGoal()` returns 5/10/15 according to `totalBossVictories()%3`, `ufoCompletedWavesKills()` returns 0/5/15, and `invasionWaveKills` tracks the current stage. Hoisted functions prevent v3.15.1's historical temporal-dead-zone crash on return visits before late const initialization. `maybeSpawnUfoBoss()` gates normal vs Super Boss and respects pending state.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Arcade, Combat, and System Combos > Invasion Meter > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

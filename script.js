@@ -71,7 +71,7 @@ const MippiPause=(()=>{
    document.body.appendChild(overlay);overlay.querySelector('button').addEventListener('click',resume);}
   overlay.hidden=!paused||(!manual&&!focus);
  }
- function set(reason,on){if(on)reasons.add(reason);else reasons.delete(reason);refresh();}
+ function set(reason,on){if(on)reasons.add(reason);else reasons.delete(reason);refresh();window.dispatchEvent(new Event('mippi-pause-change'));}
  function resume(){if(document.hidden||!document.hasFocus())return;manual=false;focus=false;set('manual',false);set('focus',false);}
  function toggle(){if(manual)resume();else{manual=true;set('manual',true);}}
  document.addEventListener('visibilitychange',()=>{if(document.hidden){focus=true;set('focus',true);}});
@@ -92,7 +92,7 @@ const MippiPause=(()=>{
    },Math.min(60,period));
  };
  window.requestAnimationFrame=callback=>_raf(time=>{if(reasons.size){window.requestAnimationFrame(callback);return;}callback(time);});
- return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;}};
+ return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;},get birdBlocked(){return [...reasons].some(reason=>reason!=='bird');}};
 })();
 window.MippiPause=MippiPause;
 
@@ -4550,6 +4550,10 @@ function onBirdMessage(event){
   }
   updateFlappyLivesHud();
 }
+function syncBirdWorkerPause(){
+  if(birdWorker)birdWorker.postMessage({type:'pause',enabled:!!window.MippiPause?.birdBlocked});
+}
+window.addEventListener('mippi-pause-change',syncBirdWorkerPause);
 function closeFlappyGame(){
   if(!flappyPanel)return;
   flappyPanel.classList.remove('open');
@@ -4572,6 +4576,7 @@ function openFlappyGame(){
   }
   birdWorkerReady=false;
   birdWorker.addEventListener('message',onBirdMessage);
+  birdWorker.postMessage({type:'pause',enabled:!!window.MippiPause?.birdBlocked});
   birdWorker.addEventListener('error',event=>{
     const help=flappyPanel?.querySelector('#flappy-help');
     if(help)help.textContent='MIPPI BIRD // SIMULATION UNAVAILABLE';

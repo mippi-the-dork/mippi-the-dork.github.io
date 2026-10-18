@@ -1,5 +1,15 @@
 # Mippi Bird Life Refill - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+**Current implementation (v3.25.2).** `purchaseShopItem('bird-life-refill')` increments the legacy-named `mushroomBankLives` field and persists it through `persistMushroomLives()`. The worker receives the bank at round reset, consumes banked Lives only after a per-round Shop Life (when present), and reports the remaining bank to the main thread for persistence. The worker does not have direct browser storage access. Repeatable refill is excluded from unique-item completion.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Introduced:** v3.13. **Current documented version:** v3.14.
 
 ## Inventory and pricing
@@ -27,10 +37,3 @@ In Mippi Bird, `absorbFlappyHit()` checks `shopLifeAvailable` (the separate pass
 The saved Shop ownership array does not accumulate one entry per refill; the bank lives are stored through the existing Mushroom bank persistence. Never include this consumable in the unique permanent-ownership count.
 
 See [Design](DESIGN.md) and [v3.14 QA](../../QA/V3_11_TO_V3_14_REGRESSION_QA.md).
-
-
-## Current implementation correction (v3.25.2)
-
-**Current implementation (v3.25.2).** `purchaseShopItem('bird-life-refill')` increments the legacy-named `mushroomBankLives` field and persists it through `persistMushroomLives()`. The worker receives the bank at round reset, consumes banked Lives only after a per-round Shop Life (when present), and reports the remaining bank to the main thread for persistence. The worker does not have direct browser storage access. Repeatable refill is excluded from unique-item completion.
-
-For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

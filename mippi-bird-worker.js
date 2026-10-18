@@ -57,13 +57,14 @@ function publish(){
 function loop(){
  if(!state)return;
  const now=performance.now();
- accumulator=Math.min(accumulator+Math.max(0,now-previous),STEP*4);
+ const elapsed=Math.max(0,now-previous);
+ accumulator=Math.min(accumulator+elapsed,STEP*4);
  previous=now;
  let steps=0;
  while(accumulator>=STEP&&steps<4){tick();accumulator-=STEP;steps++;}
- emission+=Math.max(0,now-(loop.lastEmit??now));
+ emission+=elapsed;
  if(emission>=1000/30||events.length){publish();emission=0;}
- loop.lastEmit=now;
+
 }
 onmessage=({data})=>{
  if(!data||typeof data.type!=='string')return;

@@ -116,3 +116,10 @@ The player never wonders whether a collision was ignored, shielded, or fatal.
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+Bird uses only LIVES, not historical Shields or Spare Lives. One valid collision consumes one Life. At zero the round ends immediately. If Lives remain, a brief blink/invulnerability and upward recovery let the player continue. Bird capacity does not derive from Hearts or Mushrooms.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

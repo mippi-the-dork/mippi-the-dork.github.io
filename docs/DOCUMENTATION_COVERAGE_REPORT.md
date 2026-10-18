@@ -1,6 +1,6 @@
 # Documentation Coverage Report
 
-**Current documented version:** Mippi Portfolio v3.24. **Sources:** Nine ZIP handoffs containing 30 Markdown files (v2.81–v2.89).
+**Current documented version:** Mippi Portfolio v3.25.2. **Sources:** Versioned source-grounded handoffs for v3.15–v3.25.1; development handoffs for v3.25.1 and v3.25.2; historical earlier releases as cited in the sections below.
 
 This change only touches documentation paths. Runtime JavaScript, HTML, CSS, assets, user-authored MP3/LRC files, and hosting configuration are untouched.
 

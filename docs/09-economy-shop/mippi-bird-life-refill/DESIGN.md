@@ -22,3 +22,10 @@ The Mippi Bird hit mechanic consumes its dedicated per-round Shop shield when av
 Purchase multiple refills, verify wallet reduction and stored bank increases after each, persistence/reload, discount pricing, Mippi Bird hit consumption and no duplicate purchase after insufficient funds. Verify that ten permanent purchases still satisfy Shop completion irrespective of refill history.
 
 See [Technical](TECHNICAL.md) and [v3.14 QA](../../QA/V3_11_TO_V3_14_REGRESSION_QA.md).
+
+
+## Current implementation correction (v3.25.2)
+
+**Current design (v3.25.2).** A repeatable Epic purchase costs seven Rupees before applicable discounts and adds one banked Mippi Bird Life. It is presented next to the permanent Bird upgrade rather than occupying an independent permanent equipment slot. Banked Lives persist until consumed by hits. They do not count toward owning every permanent Shop item.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

@@ -98,3 +98,10 @@ meaningful: flappy_extra_life_used
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current implementation correction (v3.25.2)
+
+**Current implementation (v3.25.2).** In `mippi-bird-worker.js`, reset receives `shopLife:shopOwns('bird-extra-life')` and an integer bank supplied by the main script. Remaining Lives are the sum of base, shop-round and bank sources. A collision spends the shop Life first, then the bank, then the base Life. When remaining Lives reaches zero, the worker ends the round; a positive remainder grants 1.65 seconds of invulnerability. The refill bank remains stored under `mippi-bird-mushroom-lives-v1` for compatibility although Mushrooms do not replenish it.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

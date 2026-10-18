@@ -122,3 +122,10 @@ The Ledger should refresh when:
 v2.82 Rare blue/Epic purple/Legendary gold remains rarity-owned under Legendary world theme. v2.84 Ledger trigger only visible after first Rare Signal/postgame reveal and now uses centered inline SVG trophy. v2.85 hover wheel scrolling works without prior focus, with page scrolling allowed when the Ledger reaches its limit.
 
 See [Release History](../../RELEASE_HISTORY.md).
+
+
+## Current implementation correction (v3.25.2)
+
+Current icon markup is keyed to achievement metadata and shared across the Ledger and notifications. `epicGameplayUnlocked()` still requires all ten original Rare achievements; the equipped Insert Coin early-combat permission does not change achievement state.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

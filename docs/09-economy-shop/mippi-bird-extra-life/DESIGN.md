@@ -84,3 +84,10 @@ The minigame becomes noticeably more approachable while still preserving meaning
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+**Current design (v3.25.2).** The permanent Mippi Bird Shop upgrade adds **one Life to each new round**. One Life permits one future valid collision; no free extra hit exists after the counter reaches zero. The separate repeatable refill adds one **banked** Life, which is consumed as required and does not regenerate between rounds. Mippi Bird displays one LIVES counter, not Shields and Spare Lives.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

@@ -8746,3 +8746,6 @@ body.superboss-active .superboss-exit{bottom:var(--superboss-hud-clearance,76px)
 /* Multi-item loadouts may contain several names; keep the Shop summary readable. */
 .shop-equipped-row > strong { min-width:0;overflow-wrap:anywhere;line-height:1.5; }
 .shop-equipped-row { min-width:0; }
+
+/* Storage-disabled visitors can still play; communicate temporary progress unobtrusively. */
+#mippi-storage-notice{position:fixed;left:16px;bottom:92px;z-index:1200;max-width:min(390px,calc(100vw - 32px));padding:9px 12px;border:1px solid var(--line-blue,#2f93ff);border-radius:4px;background:#0b1726;color:#d8edff;font:600 11px/1.5 ui-monospace,Consolas,monospace;pointer-events:none;box-shadow:0 3px 15px rgba(0,0,0,.25)}

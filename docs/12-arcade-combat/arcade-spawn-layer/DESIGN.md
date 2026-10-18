@@ -150,3 +150,10 @@ The arcade layer succeeds when repeated optional interactions gradually create a
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Technical Documentation](TECHNICAL.md)
+
+
+## Current implementation correction (v3.25.2)
+
+Natural UFO attacks require either all ten original Rare achievements (Epic) or an **equipped** Rare Insert Coin item. Insert Coin grants early UFOs and shooting, not broader Epic progression. Regular waves escalate through 5, 10 and 15 UFO defeats into boss encounters; natural pacing and director attention prevent overloading portfolio content.
+
+Earlier sections are historical where they conflict with this current specification. See [release evolution](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

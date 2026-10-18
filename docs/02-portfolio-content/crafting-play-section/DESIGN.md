@@ -1,5 +1,13 @@
 # Crafting Play Section - Design Documentation
 
+## Current v3.25.2 verified update
+
+v3.15 joined the two Crafting Play destinations into one coherent split presentation rather than unrelated cards, reducing oversized book decoration so the resources remain easy to scan. This is professional portfolio information design, not an arcade feature.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Portfolio Content and Professional Presentation > Crafting Play Section > Design
 
 **Implementation baseline:** Mippi Portfolio v2.78

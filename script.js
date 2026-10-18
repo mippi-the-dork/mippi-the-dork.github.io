@@ -36,7 +36,7 @@ const MippiPause=(()=>{
    },Math.min(60,period));
  };
  window.requestAnimationFrame=callback=>_raf(time=>{if(reasons.size){window.requestAnimationFrame(callback);return;}callback(time);});
- return {set,resume,toggle,get paused(){return reasons.size>0;}};
+ return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;}};
 })();
 window.MippiPause=MippiPause;
 
@@ -4480,9 +4480,9 @@ function openFlappyGame(){
     if(!flappyPanel?.classList.contains('open')) return;
     const dt=Math.min(2.2,(now-last)/16.6667); last=now;
     drawFlappyFrame(dt);
-    flappyRaf=requestAnimationFrame(frame);
+    flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
   };
-  flappyRaf=requestAnimationFrame(frame);
+  flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
 }
 // Rupees are paid once at round end against the record before this round.
 function rewardFlappyRound(score,previousHighScore){

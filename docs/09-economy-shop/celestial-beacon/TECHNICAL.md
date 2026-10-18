@@ -1,5 +1,15 @@
 # Celestial Beacon - Technical Documentation
 
+## Current implementation correction (v3.25.2)
+
+**Current implementation (v3.25.2).** The item metadata uses `slot:'gameplay'`; both `nextNaturalShootingStarDelay()` and `spawnShootingStar()` check `shopHasEquipped('celestial-beacon')`, not `shopOwns`. The equipped state triggers shorter natural-delay intervals (18–38 seconds rather than 28–62 seconds, before director modification) and longer Star flight times. Toggling this item reschedules the natural star timer. Old owned-passive saves migrate with Beacon equipped to preserve the former upgrade effect.
+
+For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.
+
+---
+
+## Original historical specification (retained for provenance)
+
 **Hierarchy:** Documentation Home > Rupee Economy and Shop > Celestial Beacon > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78
@@ -106,10 +116,3 @@ The item does not allow stockpiling beyond one charge.
 
 - [Rupee Economy and Shop Index](../README.md)
 - [Design Documentation](DESIGN.md)
-
-
-## Current implementation correction (v3.25.2)
-
-**Current implementation (v3.25.2).** The item metadata uses `slot:'gameplay'`; both `nextNaturalShootingStarDelay()` and `spawnShootingStar()` check `shopHasEquipped('celestial-beacon')`, not `shopOwns`. The equipped state triggers shorter natural-delay intervals (18–38 seconds rather than 28–62 seconds, before director modification) and longer Star flight times. Toggling this item reschedules the natural star timer. Old owned-passive saves migrate with Beacon equipped to preserve the former upgrade effect.
-
-For historical evolution and superseded rules see [v3.15–v3.25.2 Systems Integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md). Older sections above may describe the original implementation baseline; this section is the current release-specific override.

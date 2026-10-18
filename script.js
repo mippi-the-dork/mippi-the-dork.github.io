@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.16.0';
+const MIPPI_BUILD_VERSION='3.17.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -981,6 +981,7 @@ const SHOP_ITEMS=[
   {id:'bird-extra-life',name:'Mippi Bird Extra Life',cost:8,slot:'passive',rarity:'epic',tag:'MIPPI BIRD',description:'Every new Mippi Bird round gets one rechargeable hit shield. On impact, Mippi blinks invulnerable instead of crashing.'},
   {id:'production-discount',name:'Production Discount',cost:11,slot:'passive',rarity:'epic',tag:'ECONOMY',description:'A permanent passive discount on unowned shop inventory.'},
   {id:'celestial-beacon',name:'Celestial Beacon',cost:13,slot:'passive',rarity:'epic',tag:'CELESTIAL',requires:'epic',description:'Once Epic is unlocked, Shooting Stars appear more often and remain catchable longer.'},
+  {id:'arcade-bounty',name:'Arcade Bounty',cost:10,slot:'passive',rarity:'epic',tag:'ECONOMY',requires:'epic',description:'Regular UFO defeats have a 45% chance to drop a Rupee instead of 30%.'},
   {id:'golden-trigger',name:'Golden Trigger',cost:11,slot:'gameplay',rarity:'legendary',tag:'WEAPON',requires:'legendary',description:'Once Legendary is unlocked, upward cursor shots travel faster in every visual theme.'},
   {id:'bird-life-refill',name:'Mippi Bird Life Refill',cost:7,slot:'consumable',rarity:'epic',tag:'REPEATABLE',requires:'epic',description:'Add one spare life to your Mippi Bird bank. Buy it again whenever you want.'},
   {id:'design-mode-unlock',name:'Design Mode Unlocked',cost:21,slot:'passive',rarity:'legendary',tag:'CAPSTONE',requires:'shop-master',description:'Unlock the portfolio commentary layer that explains why the systems were designed this way.'}
@@ -4593,6 +4594,23 @@ function shopMerchantLine(){
   return 'SHOPKEEPER // Inventory is real now. This has gone much too far.';
 }
 function shopRarityLabel(rarity){ return rarity==='legendary'?'LEGENDARY':rarity==='epic'?'EPIC':'RARE'; }
+const SHOP_ICON_PATHS={
+  "lucky-charm":"<path d=\"M12 3v18M3 12h18M5 5l14 14M19 5 5 19\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/>",
+  "dog-whistle":"<path d=\"M3 10h11l4-5v14l-4-5H3zM18 8l3-2m-3 10 3 2\"/>",
+  "star-extender":"<path d=\"m12 2 3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z\"/>",
+  "slowpoke":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 6v6l-4 3m4-13V1\"/>",
+  "interact-toggle":"<path d=\"M5 3 20 12l-7 1-3 7z\"/><path d=\"M16 4h5v5\"/>",
+  "bird-extra-life":"<path d=\"M3 16c0-7 5-11 10-10 5 1 7 5 7 9l-5-1-4 5-4-4-4 1z\"/><path d=\"M14 10h.1\"/>",
+  "production-discount":"<path d=\"M3 4h11l7 7-10 10-8-8V4z\"/><circle cx=\"8\" cy=\"9\" r=\"1.5\"/><path d=\"m11 15 5-5\"/>",
+  "celestial-beacon":"<path d=\"M12 3v18M7 21h10m-9-9 4-7 4 7M3 7l3 2M21 7l-3 2m-15 5 3-1m15 1-3-1\"/>",
+  "arcade-bounty":"<path d=\"M2 11c4-6 16-6 20 0l-4 4H6z\"/><path d=\"m12 13 3 3-3 5-3-5z\"/>",
+  "golden-trigger":"<path d=\"M3 9h12l5-3v9h-6l-3 6H7l3-6H3z\"/><path d=\"M5 6h6\"/>",
+  "bird-life-refill":"<path d=\"M4 13a8 8 0 1 1 5 8\"/><path d=\"M4 21v-6h6\"/><path d=\"M12 7v10m-5-5h10\"/>",
+  "design-mode-unlock":"<path d=\"M3 5h18v14H3zM7 9h10M7 12h6m-6 3h10\"/><path d=\"m17 2 2 3-2 3\"/>"
+};
+function shopItemIcon(id){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(SHOP_ICON_PATHS[id]||'')+'</svg>';
+}
 function renderShopCard(item){
   const locked=!shopItemAvailable(item);
   const owned=item.slot!=='consumable'&&shopOwned.has(item.id), equippedNow=shopEquipped===item.id, passive=item.slot==='passive';
@@ -4611,7 +4629,7 @@ function renderShopCard(item){
   return `<article class="shop-item rarity-${item.rarity} ${owned?'owned':''} ${equippedNow?'equipped':''} ${locked?'locked':''}" data-shop-id="${item.id}" data-rarity="${item.rarity}">
     <div class="shop-item-grade"><span>${shopRarityLabel(item.rarity)}</span><small>${displayTag}</small></div>
     <div class="shop-item-top"><span>${displayName}</span><b>${priceText}</b></div>
-    <h4>${displayName}</h4><p>${displayDescription}</p>
+    <div class="shop-item-identity"><span class="shop-item-emblem" aria-hidden="true">${shopItemIcon(item.id)}</span><h4>${displayName}</h4></div><p>${displayDescription}</p>
     <button type="button" data-shop-action="${action}" data-shop-id="${item.id}" ${disabled?'disabled':''}>${label}</button>
   </article>`;
 }
@@ -6048,7 +6066,7 @@ function registerUfoKill(method='direct',x=latestPointer.x,y=latestPointer.y){
     telemetryCount('combos','starPowerUfoKills');
     announceSystemCombo('star-power-ufo','Star Power + UFO','Star Power turns cursor contact into anti-air.');
   }
-  const droppedRupee=Math.random()<.30;
+  const droppedRupee=Math.random()<(shopOwns('arcade-bounty')?.45:.30);
   if(droppedRupee){
     awardArcadeRupees(1,x,y,'ufo');
     telemetryCount('economy','ufoRupeeDrops');

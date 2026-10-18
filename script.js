@@ -1,5 +1,5 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.18.1';
+const MIPPI_BUILD_VERSION='3.18.2';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
@@ -3427,6 +3427,8 @@ function updateConsoleWishGuide(){
 function updateConsoleAttention(){
   const state=consoleAttentionState();
   if(consoleTipButton){
+    // The hotbar control is a purchased unlock, not a first-visit shortcut.
+    consoleTipButton.hidden=!shopOwns('dev-console');
     consoleTipButton.classList.toggle('attention-ready',!!state);
     consoleTipButton.classList.toggle('attention-wish',state?.kind==='wish');
     consoleTipButton.classList.toggle('attention-blueprint',state?.kind==='blueprint');
@@ -4693,6 +4695,7 @@ function purchaseShopItem(id){
   if(id==='dev-console'){
     consoleTipButton?.classList.remove('shop-locked');
     consoleTipButton?.removeAttribute('aria-disabled');
+    updateConsoleAttention();
     scheduleNaturalShootingStar(3000+Math.random()*4500);
   }
   if(id==='design-mode-unlock'){

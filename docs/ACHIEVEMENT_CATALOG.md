@@ -179,3 +179,8 @@ When adding an achievement:
 - update Ledger numbering,
 - update Cheat behavior,
 - update QA.
+
+
+## v3.24 Visual Presentation Update
+
+The 20 achievements (10 Rare, 9 Epic, 1 Legendary) each have distinct SVG emblems introduced v3.16. Locked icons remain visible; unlock toasts use updated emblems. Rarity colors and Legendary treatments remain semantically tied to achievement tier independent of the website theme. v3.19–v3.21 refine the brain for Curious Mind, antenna for Signal Acquired, Unmark mark, locked hints and outlines. See [v3.24 integration](V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

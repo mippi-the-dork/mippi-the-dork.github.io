@@ -1,5 +1,13 @@
 # Achievement Toasts - Technical Documentation
 
+## Current v3.25.2 verified update
+
+The existing achievement icon map and inline SVG renderer are shared between Ledger and toast display. No new achievement keys or storage rules are implied by the new iconography. The v3.19–v3.21 polish adjusted particular motifs, locked hints and borders; new motifs should be verified against the current mapping.
+
+---
+
+## Original historical reference
+
 **Hierarchy:** Documentation Home > Achievements and Discovery > Achievement Toasts > Technical
 
 **Implementation baseline:** Mippi Portfolio v2.78

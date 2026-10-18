@@ -1064,7 +1064,7 @@ try{finaleSeen=localStorage.getItem(FINALE_SEEN_KEY)==='1';finaleWishSatisfied=l
 try{
   wishCharge=Math.max(0,Math.min(1,Number(localStorage.getItem(WISH_CHARGE_KEY)||0)));
   mushroomLifeProgress=Math.max(0,Math.min(19,Number(localStorage.getItem(MUSHROOM_PROGRESS_KEY)||0)));
-  mushroomBankLives=Math.max(0,Number(localStorage.getItem(MUSHROOM_LIVES_KEY)||0));
+  mushroomBankLives=Math.max(0,Math.min(999,Number(localStorage.getItem(MUSHROOM_LIVES_KEY)||0)||0));
   dougCoolProgress=Math.max(0,Math.min(100,Number(sessionStorage.getItem(DOUG_COOL_PROGRESS_KEY)||0)));
   castleRunProgress=Math.max(0,Math.min(4,Number(localStorage.getItem(CASTLE_PROGRESS_KEY)||0)));
   designModeUnlocked=localStorage.getItem(DESIGN_UNLOCK_KEY)==='1';
@@ -4522,6 +4522,8 @@ function recordMushroomCollection(){
 }
 function consumeFlappyLife(reason='collision'){
   const s=flappyState;if(!s||s.gameOver)return;
+  // Ignore invalid injected state, without restricting legitimate Shop refills.
+  mushroomBankLives=Number.isFinite(mushroomBankLives)?Math.max(0,Math.min(999,Math.floor(mushroomBankLives))):0;
   let source='base';
   if(s.shopLifeAvailable){
     s.shopLifeAvailable=false;source='shop';telemetryCount('flappy','shopLivesUsed');
@@ -4610,6 +4612,12 @@ function drawFlappyFrame(dt){
 
   const wasGameOver=s.gameOver;
   if(!s.gameOver && s.started){
+    // Sanitize impossible coordinates before physics/collision; a Bird outside
+    // the arena must never be allowed to avoid wall damage indefinitely.
+    if(!Number.isFinite(s.y))s.y=h/2;
+    if(!Number.isFinite(s.vy))s.vy=0;
+    s.y=Math.max(-38,Math.min(h+38,s.y));
+    s.vy=Math.max(-18,Math.min(18,s.vy));
     s.vy += flappyGravity()*dt;
     s.y += s.vy*dt;
     const speed=2.65*dt;

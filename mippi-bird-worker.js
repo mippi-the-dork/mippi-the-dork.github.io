@@ -1,7 +1,7 @@
 /* Mippi Bird simulation. No DOM, canvas, storage, or user-controlled state messages. */
 'use strict';
 const WIDTH=520,HEIGHT=280,HALF=19,PIPE_WIDTH=43.2,GAP=124,STEP=1000/60;
-let state=null,timer=null,previous=0,accumulator=0,emission=0,events=[];
+let state=null,timer=null,previous=0,accumulator=0,emission=0,events=[],paused=false;
 function finite(value,fallback){return Number.isFinite(value)?value:fallback;}
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
 function reset(shopLife=false,bank=0,slow=false){
@@ -57,7 +57,7 @@ function publish(){
 function loop(){
  if(!state)return;
  const now=performance.now();
- const elapsed=Math.max(0,now-previous);
+ const elapsed=paused?0:Math.max(0,now-previous);
  accumulator=Math.min(accumulator+elapsed,STEP*4);
  previous=now;
  let steps=0;
@@ -74,6 +74,7 @@ onmessage=({data})=>{
   if(!state||state.ended)return;
   state.started=true;state.vy=state.slow?-5.25:-6.9;publish();break;
  case 'slow':if(state)state.slow=data.enabled===true;break;
+ case 'pause':paused=data.enabled===true;previous=performance.now();accumulator=0;break;
  case 'stop':clearInterval(timer);timer=null;state=null;close();break;
  }
 };

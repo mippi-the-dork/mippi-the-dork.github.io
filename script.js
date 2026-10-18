@@ -55,7 +55,7 @@ const localStorage=createMippiStorage('localStorage');
 const sessionStorage=createMippiStorage('sessionStorage');
 
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.25.1';
+const MIPPI_BUILD_VERSION='3.25.2';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 
 /* A pause state shared by arcade timers, moving entities, Shop and Mippi Bird.
@@ -71,7 +71,7 @@ const MippiPause=(()=>{
    document.body.appendChild(overlay);overlay.querySelector('button').addEventListener('click',resume);}
   overlay.hidden=!paused||(!manual&&!focus);
  }
- function set(reason,on){if(on)reasons.add(reason);else reasons.delete(reason);refresh();}
+ function set(reason,on){if(on)reasons.add(reason);else reasons.delete(reason);refresh();window.dispatchEvent(new Event('mippi-pause-change'));}
  function resume(){if(document.hidden||!document.hasFocus())return;manual=false;focus=false;set('manual',false);set('focus',false);}
  function toggle(){if(manual)resume();else{manual=true;set('manual',true);}}
  document.addEventListener('visibilitychange',()=>{if(document.hidden){focus=true;set('focus',true);}});
@@ -92,7 +92,7 @@ const MippiPause=(()=>{
    },Math.min(60,period));
  };
  window.requestAnimationFrame=callback=>_raf(time=>{if(reasons.size){window.requestAnimationFrame(callback);return;}callback(time);});
- return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;}};
+ return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;},get birdBlocked(){return [...reasons].some(reason=>reason!=='bird');}};
 })();
 window.MippiPause=MippiPause;
 
@@ -4408,6 +4408,7 @@ function openSourceViewer(){
 const {openFlappyGame,updateFlappyLivesHud,persistMushroomLives,recordMushroomCollection,mippiBirdHighScore}=(()=>{
 let flappyPanel=null, flappyCanvas=null, flappyCtx=null, flappyRaf=0;
 let flappyBirdImage=null, flappyState=null;
+let birdWorker=null,birdSnapshot=null,birdWorkerReady=false,birdPreviousHigh=0,birdEndedAwarded=false;
 const flappyBirdTints=new Map();
 function tintedMippiBird(color){
   if(!flappyBirdImage?.naturalWidth)return null;
@@ -4478,10 +4479,10 @@ function ensureFlappyGame(){
   });
   flappyCanvas?.addEventListener('pointerdown',event=>{
     event.preventDefault();
-    if(!flappyState) return;
-    if(flappyState.gameOver){ resetFlappyGame(); flappyState.started=true; telemetryCount('flappy','gamesStarted'); telemetryMeaningful('flappy_started'); flappyState.vy=flappyJumpStrength(); return; }
-    if(!flappyState.started){ flappyState.started=true; telemetryCount('flappy','gamesStarted'); telemetryMeaningful('flappy_started'); }
-    flappyState.vy=flappyJumpStrength();
+    if(!birdWorker||!birdWorkerReady)return;
+    if(birdSnapshot?.gameOver)resetFlappyGame();
+    if(!birdSnapshot?.started){telemetryCount('flappy','gamesStarted');telemetryMeaningful('flappy_started');}
+    birdWorker.postMessage({type:'flap'});
   });
   flappyBirdImage=new Image();
   flappyBirdImage.decoding='async';
@@ -4491,35 +4492,21 @@ function ensureFlappyGame(){
 }
 function resetFlappyGame(){
   ensureFlappyGame();
-  flappyState={
-    y:140, vy:0, score:0, gameOver:false, started:false,
-    previousHighScore:flappySessionHighScore,
-    baseLifeAvailable:true, shopLifeAvailable:shopOwns('bird-extra-life'), invulnerableUntil:0,
-    pipes:[{x:590,gapY:118},{x:850,gapY:168}]
-  };
-  // Only the simulation can finish a round. A fresh state is allocated on reset.
-  // Keep the completion latch separate from the inspectable state object and
-  // disallow redefining gameOver through browser developer tools.
-  let ended=false;
-  Object.defineProperty(flappyState,'gameOver',{
-    configurable:false,enumerable:true,
-    get(){return ended;},
-    set(value){if(value===true)ended=true;}
-  });
+  birdEndedAwarded=false;
+  birdPreviousHigh=flappySessionHighScore;
+  birdSnapshot={y:140,vy:0,score:0,started:false,gameOver:false,lives:1,pipes:[{x:590,gapY:118},{x:850,gapY:168}]};
+  birdWorker?.postMessage({type:'reset',shopLife:shopOwns('bird-extra-life'),bank:mushroomBankLives,slow:slowmoEnabled});
   const score=flappyPanel.querySelector('#flappy-score');
+  if(score)score.textContent='SCORE 0';
+  const high=flappyPanel.querySelector('#flappy-high-score');
+  if(high)high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
   const help=flappyPanel.querySelector('#flappy-help');
-  if(score) score.textContent='SCORE 0';
-  const high=flappyPanel.querySelector('#flappy-high-score'); if(high) high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
+  if(help)help.textContent='CLICK TO START // THEN CLICK TO FLAP';
   updateFlappyLivesHud();
-  if(help) help.textContent='CLICK TO START // THEN CLICK TO FLAP';
-}
-function flappyLivesRemaining(){
-  const s=flappyState;
-  return (s?.baseLifeAvailable?1:0)+(s?.shopLifeAvailable?1:0)+mushroomBankLives;
 }
 function updateFlappyLivesHud(){
-  const el=flappyPanel?.querySelector('#flappy-lives'); if(!el)return;
-  const lives=flappyLivesRemaining();
+  const el=flappyPanel?.querySelector('#flappy-lives');if(!el)return;
+  const lives=birdSnapshot?.lives??1;
   el.textContent=`LIVES ${lives}`;
   el.title='Each collision costs one Life. Losing the last Life ends the round.';
   el.setAttribute('aria-label',`${lives} ${lives===1?'life':'lives'} remaining`);
@@ -4529,61 +4516,85 @@ function persistMushroomLives(){
   try{localStorage.setItem(MUSHROOM_PROGRESS_KEY,String(mushroomLifeProgress));localStorage.setItem(MUSHROOM_LIVES_KEY,String(mushroomBankLives));}catch(_){}
   updateFlappyLivesHud();
 }
-function recordMushroomCollection(){
-  // Mushrooms affect cursor size only; Bird refills are Shop purchases.
-}
-function consumeFlappyLife(reason='collision'){
-  const s=flappyState;if(!s||s.gameOver)return;
-  // Ignore invalid injected state, without restricting legitimate Shop refills.
-  mushroomBankLives=Number.isFinite(mushroomBankLives)?Math.max(0,Math.min(999,Math.floor(mushroomBankLives))):0;
-  let source='base';
-  if(s.shopLifeAvailable){
-    s.shopLifeAvailable=false;source='shop';telemetryCount('flappy','shopLivesUsed');
-  }else if(mushroomBankLives>0){
-    mushroomBankLives--;source='refill';telemetryCount('flappy','bankedLivesUsed');persistMushroomLives();
-  }else{
-    s.baseLifeAvailable=false;
-  }
-  const remaining=flappyLivesRemaining();
-  telemetryCount('flappy','livesLost');
-  telemetryMeaningful('flappy_life_lost',{source,reason,remaining,bank:mushroomBankLives});
-  if(source!=='base'){
-    telemetryCount('flappy','hitsAbsorbed');
-    telemetryMeaningful('flappy_extra_life_used',{source,reason,bank:mushroomBankLives});
-  }
-  if(remaining>0){
-    s.invulnerableUntil=performance.now()+1650;
-    s.vy=-2.8;s.y=Math.max(28,Math.min(flappyCanvas.height-28,s.y));
-  }else{
-    s.gameOver=true;
+function recordMushroomCollection(){}
+function onBirdMessage(event){
+  if(event.currentTarget!==birdWorker)return;
+  const data=event.data;
+  if(data?.type!=='snapshot'||!data.state)return;
+  birdWorkerReady=true;
+  birdSnapshot=data.state;
+  for(const item of data.events||[]){
+    if(item.type==='hit'){
+      mushroomBankLives=item.bank;
+      persistMushroomLives();
+      telemetryCount('flappy','livesLost');
+      telemetryMeaningful('flappy_life_lost',{source:item.source,reason:item.reason,remaining:item.remaining,bank:item.bank});
+      if(item.source==='shop')telemetryCount('flappy','shopLivesUsed');
+      if(item.source==='refill')telemetryCount('flappy','bankedLivesUsed');
+      if(item.source!=='base')telemetryCount('flappy','hitsAbsorbed');
+      const help=flappyPanel?.querySelector('#flappy-help');
+      if(help)help.textContent=item.remaining?`LIFE LOST // ${item.remaining} REMAINING // INVULNERABLE`:'NO LIVES // GAME OVER';
+      consolePrint(`MIPPI BIRD HIT // ${item.source.toUpperCase()} LIFE LOST // ${item.remaining} LIVES LEFT`,'warn');
+    }else if(item.type==='score'){
+      flappySessionHighScore=Math.max(flappySessionHighScore,item.score);
+      telemetryMax('flappy','highScore',flappySessionHighScore);
+      const score=flappyPanel.querySelector('#flappy-score');
+      const high=flappyPanel.querySelector('#flappy-high-score');
+      if(score)score.textContent=`SCORE ${item.score}`;
+      if(high)high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
+    }else if(item.type==='ended'&&!birdEndedAwarded){
+      birdEndedAwarded=true;
+      telemetryCount('flappy','deaths');
+      telemetryMeaningful('flappy_game_over',{score:item.score});
+      rewardFlappyRound(item.score,birdPreviousHigh);
+    }
   }
   updateFlappyLivesHud();
-  const help=flappyPanel?.querySelector('#flappy-help');
-  if(help)help.textContent=remaining?`LIFE LOST // ${remaining} REMAINING // INVULNERABLE`:'NO LIVES // GAME OVER';
-  consolePrint(`MIPPI BIRD HIT // ${source.toUpperCase()} LIFE LOST // ${remaining} LIVES LEFT`,'warn');
 }
+function syncBirdWorkerPause(){
+  if(birdWorker)birdWorker.postMessage({type:'pause',enabled:!!window.MippiPause?.birdBlocked});
+}
+window.addEventListener('mippi-pause-change',syncBirdWorkerPause);
 function closeFlappyGame(){
-  if(!flappyPanel) return;
-  flappyPanel.classList.remove('open');window.MippiPause?.set('bird',false);
-  cancelAnimationFrame(flappyRaf); flappyRaf=0;
+  if(!flappyPanel)return;
+  flappyPanel.classList.remove('open');
+  window.MippiPause?.set('bird',false);
+  cancelAnimationFrame(flappyRaf);flappyRaf=0;
+  if(birdWorker){birdWorker.terminate();birdWorker=null;}
+  birdWorkerReady=false;birdSnapshot=null;
 }
 function openFlappyGame(){
-  telemetryCount('flappy','opens');
-  telemetryMeaningful('flappy_opened');
+  telemetryCount('flappy','opens');telemetryMeaningful('flappy_opened');
   ensureFlappyGame();
+  if(birdWorker)birdWorker.terminate();
+  try{
+    birdWorker=new Worker('mippi-bird-worker.js');
+  }catch(error){
+    console.warn('Mippi Bird requires Worker support',error);
+    const help=flappyPanel.querySelector('#flappy-help');
+    if(help)help.textContent='MIPPI BIRD // THIS BROWSER BLOCKED THE GAME WORKER';
+    return;
+  }
+  birdWorkerReady=false;
+  birdWorker.addEventListener('message',onBirdMessage);
+  birdWorker.postMessage({type:'pause',enabled:!!window.MippiPause?.birdBlocked});
+  birdWorker.addEventListener('error',event=>{
+    const help=flappyPanel?.querySelector('#flappy-help');
+    if(help)help.textContent='MIPPI BIRD // SIMULATION UNAVAILABLE';
+    console.warn('Mippi Bird worker error',event.message);
+  });
   resetFlappyGame();
   flappyPanel.classList.add('open');window.MippiPause?.set('bird',true);
   cancelAnimationFrame(flappyRaf);
   let last=performance.now();
   const frame=now=>{
-    if(!flappyPanel?.classList.contains('open')) return;
-    const dt=Math.min(2.2,(now-last)/16.6667); last=now;
-    drawFlappyFrame(dt);
+    if(!flappyPanel?.classList.contains('open'))return;
+    last=now;
+    drawFlappyFrame();
     flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
   };
   flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
 }
-// Rupees are paid once at round end against the record before this round.
 function rewardFlappyRound(score,previousHighScore){
   const amount=score<previousHighScore?0:score-previousHighScore+1;
   if(amount<=0)return;
@@ -4606,9 +4617,9 @@ function drawMippiBirdFallback(ctx,size,accent){
   ctx.beginPath();ctx.arc(size*.34,-size*.05,size*.055,0,Math.PI*2);ctx.stroke();
   ctx.restore();
 }
-function drawFlappyFrame(dt){
-  if(!flappyCtx || !flappyState) return;
-  const ctx=flappyCtx, s=flappyState, w=flappyCanvas.width, h=flappyCanvas.height;
+function drawFlappyFrame(){
+  if(!flappyCtx || !birdSnapshot) return;
+  const ctx=flappyCtx, s=birdSnapshot, w=flappyCanvas.width, h=flappyCanvas.height;
   const legendary=document.body.classList.contains('theme-legendary');
   const complete=document.body.classList.contains('theme-complete');
   const bg=legendary?'#100904':complete?'#0e0715':'#07111d';
@@ -4622,51 +4633,6 @@ function drawFlappyFrame(dt){
   for(let x=0;x<w;x+=26){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
   for(let y=0;y<h;y+=26){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
 
-  const wasGameOver=s.gameOver;
-  if(!s.gameOver && s.started){
-    // Sanitize impossible coordinates before physics/collision; a Bird outside
-    // the arena must never be allowed to avoid wall damage indefinitely.
-    if(!Number.isFinite(s.y))s.y=h/2;
-    if(!Number.isFinite(s.vy))s.vy=0;
-    s.y=Math.max(-38,Math.min(h+38,s.y));
-    s.vy=Math.max(-18,Math.min(18,s.vy));
-    const priorY=s.y;
-    s.vy += flappyGravity()*dt;
-    s.y += s.vy*dt;
-    // Evaluate the traveled segment as well as the endpoint. Crossing an
-    // arena boundary must register a hit even during a large frame step.
-    const crossedWall=priorY-19<0||priorY+19>h||s.y-19<0||s.y+19>h;
-    const speed=2.65*dt;
-    for(const p of s.pipes) p.x-=speed;
-    if(s.pipes[0].x<-52){
-      s.pipes.shift();
-      const lastX=s.pipes[s.pipes.length-1]?.x ?? 520;
-      s.pipes.push({x:lastX+260,gapY:78+Math.random()*120,scored:false});
-    }
-    const bx=102, by=s.y, bw=38, bh=38, gap=124, pipeW=43.2;
-    for(const p of s.pipes){
-      if(!p.scored && p.x+pipeW<bx){
-        p.scored=true; s.score++;
-        flappySessionHighScore=Math.max(flappySessionHighScore,s.score);
-        telemetryMax('flappy','highScore',flappySessionHighScore);
-        const score=flappyPanel.querySelector('#flappy-score');
-        const high=flappyPanel.querySelector('#flappy-high-score');
-        if(score) score.textContent=`SCORE ${s.score}`;
-        if(high) high.textContent=`HIGH SCORE ${flappySessionHighScore}`;
-      }
-      const topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
-      const pipeHit=bx+bw/2>p.x && bx-bw/2<p.x+pipeW && (by-bh/2<topH || by+bh/2>bottomY);
-      if(pipeHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('pipe');
-    }
-    const boundaryHit=crossedWall;
-    if(boundaryHit && !s.gameOver && performance.now()>=s.invulnerableUntil)consumeFlappyLife('boundary');
-  }
-  if(!wasGameOver && s.gameOver){
-    telemetryCount('flappy','deaths');
-    telemetryMeaningful('flappy_game_over',{score:s.score});
-    if(s.started)rewardFlappyRound(s.score,s.previousHighScore);
-  }
-
   for(const p of s.pipes){
     const gap=124, pipeW=43.2, topH=Math.max(20,p.gapY-gap/2), bottomY=Math.min(h-20,p.gapY+gap/2);
     ctx.fillStyle=pipe; ctx.fillRect(p.x,0,pipeW,topH); ctx.fillRect(p.x,bottomY,pipeW,h-bottomY);
@@ -4678,7 +4644,7 @@ function drawFlappyFrame(dt){
   ctx.translate(bx,by);
   ctx.rotate(Math.max(-.35,Math.min(.55,s.vy*.045)));
   const playerTint=legendary?'#ffd16b':complete?'#ff6bd2':'#67cfff';
-  const invulnerable=performance.now()<s.invulnerableUntil;
+  const invulnerable=!!s.invulnerable;
   const blinkVisible=!invulnerable || Math.floor(performance.now()/90)%2===0;
   if(blinkVisible){
     // Keep the mark crisp. Invulnerability is communicated by blinking, not glow.

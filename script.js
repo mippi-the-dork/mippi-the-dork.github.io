@@ -1,6 +1,45 @@
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.23.0';
+const MIPPI_BUILD_VERSION='3.24.0';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
+
+/* A pause state shared by arcade timers, moving entities, Shop and Mippi Bird.
+   Native IDs remain cancellable even when callback execution is suspended. */
+const MippiPause=(()=>{
+ const reasons=new Set();let manual=false,focus=false,overlay;
+ const _timeout=window.setTimeout.bind(window),_interval=window.setInterval.bind(window),_clearInterval=window.clearInterval.bind(window),_raf=window.requestAnimationFrame.bind(window);
+ function refresh(){
+  const paused=reasons.size>0;
+  document.documentElement.classList.toggle('mippi-game-paused',paused);
+  if(!overlay){overlay=document.createElement('div');overlay.id='mippi-pause-overlay';
+   overlay.innerHTML='<div class="mippi-pause-panel"><strong>PAUSED</strong><small>Press P or select Unpause to resume.</small><button type="button">UNPAUSE</button></div>';
+   document.body.appendChild(overlay);overlay.querySelector('button').addEventListener('click',resume);}
+  overlay.hidden=!paused||(!manual&&!focus);
+ }
+ function set(reason,on){if(on)reasons.add(reason);else reasons.delete(reason);refresh();}
+ function resume(){if(document.hidden||!document.hasFocus())return;manual=false;focus=false;set('manual',false);set('focus',false);}
+ function toggle(){if(manual)resume();else{manual=true;set('manual',true);}}
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){focus=true;set('focus',true);}});
+ window.addEventListener('blur',()=>{focus=true;set('focus',true);});
+ window.addEventListener('keydown',e=>{if(e.code==='KeyP'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!['INPUT','TEXTAREA'].includes(e.target?.tagName||'')){e.preventDefault();e.stopImmediatePropagation();toggle();}},true);
+ // Native interval IDs are stable, so clearTimeout continues to work.
+ window.setTimeout=(callback,delay=0,...args)=>{
+   let remaining=Math.max(0,Number(delay)||0),last=performance.now();
+   const id=_interval(()=>{const now=performance.now();if(!reasons.size)remaining-=now-last;last=now;
+     if(remaining<=0){_clearInterval(id);if(typeof callback==='function')callback(...args);}
+   },Math.min(60,Math.max(4,Number(delay)||4)));return id;
+ };
+ window.clearTimeout=id=>_clearInterval(id);
+ window.setInterval=(callback,delay=0,...args)=>{
+   let remaining=Math.max(4,Number(delay)||4),last=performance.now();const period=remaining;
+   return _interval(()=>{const now=performance.now();if(!reasons.size)remaining-=now-last;last=now;
+     if(remaining<=0){remaining=period;if(typeof callback==='function')callback(...args);}
+   },Math.min(60,period));
+ };
+ window.requestAnimationFrame=callback=>_raf(time=>{if(reasons.size){window.requestAnimationFrame(callback);return;}callback(time);});
+ return {set,resume,toggle, birdFrame(callback){return _raf(time=>{if([...reasons].some(reason=>reason!=='bird')){this.birdFrame(callback);return;}callback(time);});},get paused(){return reasons.size>0;}};
+})();
+window.MippiPause=MippiPause;
+
 const mippiRuntimeHealth={
   version:MIPPI_BUILD_VERSION,
   bootStartedAt:Date.now(),
@@ -1177,7 +1216,7 @@ function updateCastleMeter(){
 function updateProgressHudVisibility(){
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateProgressHudVisibility',()=>{
-  heartMeter?.classList.toggle('visible',heartCount>0);
+  heartMeter?.classList.toggle('visible',heartCount>0||hudTrackDiscovered('hearts'));
   rupeeMeter?.classList.toggle('visible',rupeeDiscovered);
   updateRupeeAttention();
   updateMetaTrace();
@@ -1188,7 +1227,7 @@ function updateProgressHudVisibility(){
   const showCool=!!coolMeter?.classList.contains('visible');
   const showInvasion=!!invasionMeter?.classList.contains('visible');
   const showCastle=!!castleMeter?.classList.contains('visible');
-  progressHud?.classList.toggle('visible',heartCount>0||rupeeDiscovered||showMeta||showCool||showInvasion||showCastle);
+  progressHud?.classList.toggle('visible',heartCount>0||hudTrackDiscovered('hearts')||rupeeDiscovered||showMeta||showCool||showInvasion||showCastle);
 
   // The objective sits above the persistent HUD. Several HUD tracks can appear
   // after an objective is already on screen, so remeasure after this frame.
@@ -1925,6 +1964,7 @@ function updateCompletionState(){
 }
 
 function updateHeartMeter(){
+  if(heartHalfUnits>0)discoverHudTrack('hearts');
   if(!window.MippiPerfLab?.enabled('hudlogic')){window.MippiPerfLab?.skip('hudlogic');return;}
   return window.MippiPerfLab.run('hud.updateHeartMeter',()=>{
   if(!heartMeter) return;
@@ -1974,6 +2014,7 @@ unrealGiftDecline?.addEventListener('click',()=>{ telemetryMeaningful('unreal_so
 unrealGiftAccept?.addEventListener('click',()=>{ telemetryMeaningful('unreal_source_reward_accepted'); window.setTimeout(closeUnrealGift,100); });
 heartMeter?.addEventListener('click',()=>{if(heartHalfUnits===10){if(!heartRewardShown)claimHeartReward();else openUnrealGift();}else showTransientToast('HEARTS','All five Hearts must be completely filled to open Unreal Source.',`HEARTS // ${heartHalfUnits}/10 HALVES`,'PROGRESS');});
 function collectHeart(){
+  discoverHudTrack('hearts');
   telemetryCount('economy','heartsCollected');
   telemetryMeaningful('heart_collected',{count:heartHalfUnits});
   if(heartHalfUnits<10){
@@ -4424,7 +4465,7 @@ function absorbFlappyHit(reason='collision'){
 }
 function closeFlappyGame(){
   if(!flappyPanel) return;
-  flappyPanel.classList.remove('open');
+  flappyPanel.classList.remove('open');window.MippiPause?.set('bird',false);
   cancelAnimationFrame(flappyRaf); flappyRaf=0;
 }
 function openFlappyGame(){
@@ -4432,16 +4473,16 @@ function openFlappyGame(){
   telemetryMeaningful('flappy_opened');
   ensureFlappyGame();
   resetFlappyGame();
-  flappyPanel.classList.add('open');
+  flappyPanel.classList.add('open');window.MippiPause?.set('bird',true);
   cancelAnimationFrame(flappyRaf);
   let last=performance.now();
   const frame=now=>{
     if(!flappyPanel?.classList.contains('open')) return;
     const dt=Math.min(2.2,(now-last)/16.6667); last=now;
     drawFlappyFrame(dt);
-    flappyRaf=requestAnimationFrame(frame);
+    flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
   };
-  flappyRaf=requestAnimationFrame(frame);
+  flappyRaf=window.MippiPause?.birdFrame(frame)??requestAnimationFrame(frame);
 }
 // Rupees are paid once at round end against the record before this round.
 function rewardFlappyRound(score,previousHighScore){
@@ -4712,11 +4753,11 @@ function purchaseShopItem(id){
 function openShop(){
   if(!shopPopup) return;
   telemetryCount('economy','shopOpens'); telemetryMeaningful('shop_open',{wallet:rupeeWallet});
-  renderShop(); shopPopup.classList.add('open'); shopPopup.setAttribute('aria-hidden','false');
+  renderShop(); shopPopup.classList.add('open'); shopPopup.setAttribute('aria-hidden','false'); window.MippiPause?.set('shop',true);
   updateRupeeAttention();
   consolePrint(`SHOP // WALLET ${rupeeWallet} RUPEE${rupeeWallet===1?'':'S'} // ${shopOwned.size} ITEM${shopOwned.size===1?'':'S'} OWNED`,'good');
 }
-function closeShop(){ shopPopup?.classList.remove('open'); shopPopup?.setAttribute('aria-hidden','true'); updateRupeeAttention(); }
+function closeShop(){ shopPopup?.classList.remove('open'); shopPopup?.setAttribute('aria-hidden','true'); window.MippiPause?.set('shop',false);updateRupeeAttention(); }
 shopClose?.addEventListener('click',closeShop);
 shopPopup?.addEventListener('pointerdown',event=>{ if(event.target===shopPopup) closeShop(); });
 shopItemsEl?.addEventListener('click',event=>{
@@ -6773,6 +6814,7 @@ function spawnCastle(){
   castle.addEventListener('click',()=>{
     telemetryCount('economy','castlesChecked');
     telemetryMeaningful('castle_checked');
+    const r=castle.getBoundingClientRect();explodeAt(r.left+r.width/2,r.top+r.height/2,32);
     castle.remove();
     if(activeCastle===castle) activeCastle=null;
     castleQuestActive=false;

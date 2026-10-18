@@ -138,3 +138,10 @@ Current table total:
 
 - [Arcade, Combat, and System Combos Index](../README.md)
 - [Design Documentation](DESIGN.md)
+
+
+## Current implementation correction (v3.25.2)
+
+At reset, `birdPreviousHigh` captures `flappySessionHighScore`. Worker score events may update the live high score without paying. The first `ended` event passes `score,birdPreviousHigh` into `rewardFlappyRound` and `birdEndedAwarded` ensures it happens once. Arithmetic: `score < previousHighScore ? 0 : score - previousHighScore + 1`.
+
+Older sections describe historical versions where inconsistent. For the complete transition see [systems integration](../../V3_15_TO_V3_24_SYSTEMS_INTEGRATION.md).

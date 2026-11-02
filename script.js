@@ -55,7 +55,7 @@ const localStorage=createMippiStorage('localStorage');
 const sessionStorage=createMippiStorage('sessionStorage');
 
 // v3.04 // Build version is authored once for all runtime and profiler output.
-const MIPPI_BUILD_VERSION='3.25.3';
+const MIPPI_BUILD_VERSION='3.25.4';
 window.MIPPI_BUILD_VERSION=MIPPI_BUILD_VERSION;
 
 /* A pause state shared by arcade timers, moving entities, Shop and Mippi Bird.
